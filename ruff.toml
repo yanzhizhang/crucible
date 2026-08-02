@@ -1,0 +1,74 @@
+# Ruff configuration for crucible.
+#
+# Kept in its own file rather than pyproject.toml so each subpackage still
+# carries a usable lint config if it is later split into its own repository.
+
+target-version = "py314"
+line-length = 100
+src = ["src", "tests", "examples"]
+extend-exclude = ["data", "examples/_out"]
+
+[lint]
+select = [
+    "F",      # pyflakes
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "I",      # isort
+    "UP",     # pyupgrade
+    "B",      # bugbear
+    "C4",     # comprehensions
+    "SIM",    # simplify
+    "RET",    # return consistency
+    "PD",     # pandas-vet
+    "NPY",    # numpy legacy API
+    "PT",     # pytest style
+    "RUF",    # ruff-specific
+    "ANN",    # annotations -- the build contract requires typed throughout
+    "D",      # docstrings -- every public function states its PIT contract
+    "TID",    # tidy imports
+    "PTH",    # prefer pathlib
+    "ARG",    # unused arguments
+    "DTZ",    # naive-datetime traps
+]
+
+ignore = [
+    "D100",    # module docstring on every file -- __init__ shims don't need one
+    "D104",    # package docstring, same
+    "D203",    # incompatible with D211
+    "D213",    # incompatible with D212
+    "ANN401",  # Any is legitimate in the frame-bridge decorators
+    "E501",    # line length is enforced by the formatter, not the linter
+    "PD901",   # `df` is the obvious name in a dataframe library
+    "RET504",  # named return values document intent
+    "B905",    # zip(strict=) is noise where lengths are structurally equal
+]
+
+[lint.per-file-ignores]
+# Tests assert against literals and don't need annotations or full docstrings.
+"tests/**" = ["ANN", "D", "ARG", "PLR2004"]
+# Examples are narrative scripts read top-to-bottom.
+"examples/**" = ["D", "ANN", "T201"]
+# Re-export shims.
+"**/__init__.py" = ["F401"]
+
+[lint.isort]
+known-first-party = [
+    "crucible", "quarry", "almanac", "forge", "horizon",
+    "assay", "sieve", "kiln", "ballast", "toll", "herald",
+]
+
+[lint.flake8-tidy-imports]
+# Subpackages must stay independently splittable: they may depend on `crucible`
+# and on packages earlier in the build order, never on later ones. Ruff cannot
+# express the ordering, so this only blocks relative imports across packages.
+ban-relative-imports = "all"
+
+[lint.pydocstyle]
+convention = "numpy"
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+docstring-code-format = true
+docstring-code-line-length = 88

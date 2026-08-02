@@ -1,0 +1,83 @@
+[project]
+name = "crucible"
+version = "0.1.0"
+description = "Python research layer for a Chinese A-share / futures quant system. Consumer of prism factor dumps."
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "duckdb>=1.1",
+    "polars>=1.17",
+    "pandas>=2.2",
+    "pyarrow>=18",
+    "numpy>=1.26",
+    "scipy>=1.14",
+    "statsmodels>=0.14",
+    "lightgbm>=4.5",
+    "exchange-calendars>=4.6",
+    "matplotlib>=3.9",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.3", "mypy>=1.13", "ruff>=0.8", "pandas-stubs>=2.2"]
+# --- Growth path. None of these are needed for the classical pipeline. ---
+# Each plugs into a seam that already exists in the core; see docs/EXTRAS.md.
+# `uv sync --extra opt` etc. Install only what you are ready to learn.
+opt = [
+    # ballast: convex optimizer backend behind score_to_weight(method="optimizer")
+    "cvxpy>=1.5",
+]
+dl = [
+    # kiln: torch cross-sectional rankers alongside fit_lgbm, same PurgedWalkForward
+    "torch>=2.5",
+]
+mining = [
+    # sieve: genetic/RL search over a formulaic alpha grammar; candidates are
+    # PROPOSALS ONLY -- survivors get ported to prism, never run live from Python
+    "gplearn>=0.4",
+]
+agentic = [
+    # examples/: RD-Agent style hypothesis->implement->evaluate driver.
+    # Needs LLM API credentials at runtime.
+    "rdagent>=0.4",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = [
+    "src/crucible",
+    "src/quarry",
+    "src/almanac",
+    "src/forge",
+    "src/horizon",
+    "src/assay",
+    "src/sieve",
+    "src/kiln",
+    "src/ballast",
+    "src/toll",
+    "src/ledger",
+    "src/herald",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["error::FutureWarning"]
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+files = ["src", "tests"]
+plugins = []
+
+[[tool.mypy.overrides]]
+module = [
+    "lightgbm.*",
+    "statsmodels.*",
+    "exchange_calendars.*",
+    "duckdb.*",
+    "matplotlib.*",
+    "scipy.*",
+]
+ignore_missing_imports = true
