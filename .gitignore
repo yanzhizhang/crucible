@@ -224,9 +224,6 @@ __marimo__/
 # on the data box. Committing them would put vendor market data in git.
 data/
 
-# Agent/editor-local config. Contains a vendored third-party skill, so it is
-# not ours to redistribute.
-.claude/
 
 # Study artifacts written next to the scripts
 research/_out/
