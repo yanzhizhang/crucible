@@ -60,8 +60,10 @@ adapters onto this standard.
 | amount   | `N16(2)` → 1e2 | `N18(4)` → 1e4 | 100× notional error |
 
 **Cancels arrive on different streams.** SSE cancels are _order_ records
-(`updateType=2`); SZSE cancels are _trade_ records (`tradeType=2`). `RecordType`
-normalises both.
+(`ExecType='4'` 删除委托订单, vs `'0'` 新增委托订单; IS120 v0.61); SZSE cancels are
+_trade_ records (`ExecType='4'` Cancelled, vs `'F'` Trade; SZSE Binary 行情
+Ver1.17). `RecordType` normalises both. (`updateType=2` / `tradeType=2` are the
+vendor capnp re-encoding of the same flags — see `quarry.feitu`.)
 
 **Sequence is the replay order, not timestamp.** `(ChannelNo, ApplSeqNum)` is
 contiguous within a channel. Orders and trades **share one sequence space**, so
