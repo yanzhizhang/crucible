@@ -52,6 +52,7 @@ from typing import Any, Final
 import polars as pl
 
 from quarry.raw import (
+    A_SHARE_PREFIXES,
     Exchange,
     RecordType,
     Side,
@@ -59,6 +60,8 @@ from quarry.raw import (
 )
 
 __all__ = [
+    "COLUMNAR_KINDS",
+    "normalize_columns",
     "TYPES",
     "TIME_UNIT_NS",
     "detect_type",
@@ -354,3 +357,93 @@ def records_to_frame(
     # to arrival time, which is the honest ordering for a snapshot feed.
     keys = [k for k in ("channel_id", "seq_id") if k in df.columns]
     return df.sort(keys or ["arrival_ts"], maintain_order=True)
+
+
+# --------------------------------------------------------------------------
+# vectorised normalisation of columnar decodes (crucible_kernels.feitu)
+# --------------------------------------------------------------------------
+
+#: Stream kinds produced by the columnar decoder, mapped to their v3 type key.
+COLUMNAR_KINDS: Final[dict[str, str]] = {
+    "order": "v3_order",
+    "transaction": "v3_transaction",
+    "quotation": "v3_quotation",
+    "index": "v3_index",
+}
+
+
+def normalize_columns(lf: pl.LazyFrame, kind: str) -> pl.LazyFrame:
+    """Vectorised counterpart of :func:`records_to_frame` for columnar decodes.
+
+    Takes the raw columns written by ``research/decode_feitu_day.py`` (vendor names in
+    snake_case, vendor units) and adds the crucible raw-standard columns, lazily:
+
+    * ``exchange_ts`` / ``arrival_ts`` / ``broker_ts`` -- int64 **ns since epoch, UTC**.
+      Local exchange time is ``+08:00``; nothing here converts to naive local time.
+    * ``symbol`` -- 6-digit zero-padded string (never an int: ``000001`` must not become ``1``).
+    * ``exchange`` -- ``"XSHG"`` / ``"XSHE"``, null for any other ``market_id``.
+    * ``is_a_share`` -- A-share common stock by code range (the vendor's ``symbol_type`` also
+      flags ETFs, LOFs and convertibles as "stock"; see :data:`quarry.raw.A_SHARE_PREFIXES`).
+    * order / transaction: ``record_type`` (:class:`quarry.raw.RecordType` value) and
+      ``side`` (:class:`quarry.raw.Side` value, null when the vendor says unknown).
+
+    Raw columns are kept, so every derived value can be audited against its source.
+
+    Parameters
+    ----------
+    lf:
+        Lazy scan of one kind's raw Parquet.
+    kind:
+        One of :data:`COLUMNAR_KINDS`.
+    """
+    if kind not in COLUMNAR_KINDS:
+        raise ValueError(f"unknown kind {kind!r}; known {sorted(COLUMNAR_KINDS)}")
+    unit = TIME_UNIT_NS[COLUMNAR_KINDS[kind]]
+    exchange = (
+        pl.when(pl.col("market_id") == _MARKET_SHSE)
+        .then(pl.lit(Exchange.XSHG.value))
+        .when(pl.col("market_id") == _MARKET_SZSE)
+        .then(pl.lit(Exchange.XSHE.value))
+        .otherwise(None)
+    )
+    out = lf.with_columns(
+        (pl.col("time") * unit).alias("exchange_ts"),
+        (pl.col("spider_ts") * unit).alias("arrival_ts"),
+        (pl.col("server_ts") * unit).alias("broker_ts"),
+        pl.col("symbol_id").cast(pl.String).str.zfill(6).alias("symbol"),
+        exchange.alias("exchange"),
+    )
+    is_stock = pl.lit(False)
+    for venue, prefixes in A_SHARE_PREFIXES.items():
+        is_stock = is_stock | (
+            (pl.col("exchange") == venue) & pl.col("symbol").str.slice(0, 3).is_in(prefixes)
+        )
+    out = out.with_columns(is_stock.alias("is_a_share"))
+    side = (
+        pl.when(pl.col("dir") == _DIR_BUY)
+        .then(pl.lit(Side.BUY.value))
+        .when(pl.col("dir") == _DIR_SELL)
+        .then(pl.lit(Side.SELL.value))
+        .otherwise(None)
+    )
+    if kind == "order":
+        out = out.with_columns(
+            pl.when(pl.col("update_type") == 2)
+            .then(pl.lit(RecordType.ORDER_CANCEL.value))
+            .when(pl.col("update_type") == 1)
+            .then(pl.lit(RecordType.ORDER_ADD.value))
+            .otherwise(pl.lit(RecordType.STATUS.value))
+            .alias("record_type"),
+            side.alias("side"),
+        )
+    elif kind == "transaction":
+        out = out.with_columns(
+            pl.when(pl.col("trade_type") == 2)
+            .then(pl.lit(RecordType.ORDER_CANCEL.value))
+            .when(pl.col("trade_type") == 1)
+            .then(pl.lit(RecordType.TRADE.value))
+            .otherwise(pl.lit(RecordType.STATUS.value))
+            .alias("record_type"),
+            side.alias("side"),
+        )
+    return out

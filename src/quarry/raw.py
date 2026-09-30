@@ -77,6 +77,8 @@ from enum import Enum
 from typing import Final
 
 __all__ = [
+    "A_SHARE_PREFIXES",
+    "is_a_share",
     "Exchange",
     "Scaling",
     "SSE_SCALING",
@@ -161,6 +163,21 @@ SZSE_SCALING: Final = Scaling(
     price_decimals=4, quantity_decimals=2, amount_decimals=4,
 )
 """SZSE: Price ``N13(4)``, Qty ``N15(2)``, Amt ``N18(4)``."""
+
+
+#: Code prefixes of listed A-share common stock, per venue. Vendor "stock" type flags are not
+#: enough: feitu's ``symbolType == 1`` also covers ETFs (159/51x/56x/588), LOFs (16x) and
+#: convertible bonds (12x), which trade on a 0.001 grid and must not enter stock statistics.
+A_SHARE_PREFIXES: Final[dict[str, tuple[str, ...]]] = {
+    "XSHG": ("600", "601", "603", "605", "688", "689"),
+    "XSHE": ("000", "001", "002", "003", "300", "301", "302"),
+}
+
+
+def is_a_share(symbol: str, exchange: Exchange | str) -> bool:
+    """Whether ``symbol`` on ``exchange`` is A-share common stock (by code range)."""
+    ex = exchange.value if isinstance(exchange, Exchange) else exchange
+    return str(symbol).startswith(A_SHARE_PREFIXES.get(ex, ()))
 
 
 def scaling_for(exchange: Exchange) -> Scaling:

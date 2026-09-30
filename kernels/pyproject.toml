@@ -1,0 +1,15 @@
+[build-system]
+requires = ["scikit-build-core>=0.10", "nanobind>=2.4"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "crucible-kernels"
+version = "0.1.0"
+description = "C++ hot kernels for crucible (feitu decoding first), exposed via nanobind."
+requires-python = ">=3.12"
+dependencies = ["numpy>=1.26"]
+
+[tool.scikit-build]
+cmake.build-type = "Release"
+wheel.packages = ["python/crucible_kernels"]
+build-dir = "/work/build/crucible_kernels/{wheel_tag}"
