@@ -1,0 +1,120 @@
+# Market-data quality thresholds. Read by src/quarry/quality.py and, later, by the C++ live
+# checker in praxis. Each table is one check; a measurement >= fail_at is FAIL, >= warn_at WARN.
+# Meaning, rationale and history of every number: docs/MD_QUALITY.md.
+
+# --- 1. completeness -----------------------------------------------------------------------
+["completeness.minutes_missing"]
+# continuous-session minutes (local time, half-open) that must each have a non-empty dump
+windows = [["09:30", "11:30"], ["13:00", "14:57"]]
+warn_at = 1
+fail_at = 1
+
+["completeness.book_levels_truncated"]
+warn_at = 1
+
+["completeness.trade_symbols_missing_frac"]
+warn_at = 0.0001
+fail_at = 0.001
+
+# --- 2. sequence integrity -------------------------------------------------------------------
+[sequence]
+# column holding the per-channel sequence shared by the order and trade streams
+seq_col = { XSHG = "seq_id", XSHE = "seq_id" }
+
+["sequence.missing_frac"]
+warn_at = 1e-9
+fail_at = 1e-5
+
+["sequence.duplicates"]
+warn_at = 1
+fail_at = 100
+
+# --- 3. timestamps ---------------------------------------------------------------------------
+["timestamps.missing"]
+fail_at = 1
+
+["timestamps.negative_latency_frac"]
+# arrival earlier than exchange time by more than this is a clock-sync fault, not jitter
+tolerance_ms = 5.0
+warn_at = 1e-7
+fail_at = 1e-4
+
+["timestamps.latency_p99_ms"]
+# steady-state regime: continuous trading away from the opens (local time, half-open);
+# only 15-minute buckets fully inside these windows count toward p99 and drift
+steady_windows = [["09:45", "11:30"], ["13:15", "14:57"]]
+
+["timestamps.latency_p99_ms.order"]
+warn_at = 500
+fail_at = 2000
+
+["timestamps.latency_p99_ms.transaction"]
+warn_at = 500
+fail_at = 2000
+
+["timestamps.latency_p99_ms.quotation"]
+# snapshot `time` is floored to the second and SZSE snapshots come every 3 s, so seconds of
+# apparent quote latency are format, not delay
+warn_at = 4000
+fail_at = 8000
+
+["timestamps.latency_p99_ms.index"]
+warn_at = 4000
+fail_at = 8000
+
+["timestamps.drift_ms"]
+# range of the steady-state 15-minute median latencies
+warn_at = 50
+fail_at = 500
+
+["timestamps.burst_backlog_s"]
+# worst latency of the day (seconds). The capture falls tens of seconds behind at the open;
+# a PIT backtest must replay that, so it is a warning to read, not a reason to drop the day.
+warn_at = 5
+
+# resolution (ms) of exchange_ts; higher is coarser. SZSE stamps order/trade at 10 ms, which
+# is fine because intra-second ordering uses the channel sequence, never timestamps.
+["timestamps.resolution_ms.order"]
+warn_at = 100
+fail_at = 1000
+
+["timestamps.resolution_ms.transaction"]
+warn_at = 100
+fail_at = 1000
+
+# --- 4. internal consistency -----------------------------------------------------------------
+["consistency.volume_mismatch_frac"]
+warn_at = 0.0001
+fail_at = 0.001
+
+["consistency.amount_mismatch_frac"]
+rel_tolerance = 1e-6
+warn_at = 0.0001
+fail_at = 0.001
+
+["consistency.crossed_book_frac"]
+warn_at = 1e-6
+fail_at = 1e-4
+
+["consistency.price_outside_limits"]
+fail_at = 1
+
+["consistency.off_tick_prices"]
+fail_at = 1
+
+# --- 5. multi-source consistency -------------------------------------------------------------
+# per-stock daily totals from our trade stream vs an independent end-of-day source (TDX package)
+["multisource.daily_volume_mismatch_frac"]
+warn_at = 0.0001
+fail_at = 0.001
+
+["multisource.daily_amount_mismatch_frac"]
+# the reference rounds amount to the fen
+rel_tolerance = 1e-4
+warn_at = 0.0001
+fail_at = 0.001
+
+["multisource.coverage_missing_frac"]
+# stocks the reference says traded but that are absent from our capture
+warn_at = 0.0001
+fail_at = 0.001
