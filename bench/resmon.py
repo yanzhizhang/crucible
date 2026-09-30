@@ -68,7 +68,7 @@ def _tree_rss(proc: psutil.Process) -> int:
     for p in [proc, *proc.children(recursive=True)]:
         try:
             total += p.memory_info().rss
-        except psutil.NoSuchProcess, psutil.AccessDenied:
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
             continue
     return total
 
@@ -78,7 +78,7 @@ def _tree_read_bytes(proc: psutil.Process) -> int:
     for p in [proc, *proc.children(recursive=True)]:
         try:
             io = p.io_counters()
-        except psutil.NoSuchProcess, psutil.AccessDenied, AttributeError:
+        except (psutil.NoSuchProcess, psutil.AccessDenied, AttributeError):
             continue
         # read_chars counts reads served from the page cache too; that is what the task consumed.
         total += getattr(io, "read_chars", io.read_bytes)

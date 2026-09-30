@@ -3,7 +3,7 @@
 # Kept in its own file rather than pyproject.toml so each subpackage still
 # carries a usable lint config if it is later split into its own repository.
 
-target-version = "py314"
+target-version = "py312"
 line-length = 100
 src = ["src", "tests", "examples"]
 extend-exclude = ["data", "examples/_out"]
