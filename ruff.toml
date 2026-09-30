@@ -50,6 +50,9 @@ ignore = [
 "examples/**" = ["D", "ANN", "T201"]
 # Re-export shims.
 "**/__init__.py" = ["F401"]
+# The only files allowed to import xarray (intranet PM comparison).
+"research/pm_inventory.py" = ["TID251"]
+"research/compare_pm.py" = ["TID251"]
 
 [lint.isort]
 known-first-party = [
@@ -62,6 +65,11 @@ known-first-party = [
 # and on packages earlier in the build order, never on later ones. Ruff cannot
 # express the ordering, so this only blocks relative imports across packages.
 ban-relative-imports = "all"
+
+[lint.flake8-tidy-imports.banned-api]
+# xarray is only for reading PM's netCDF results on the intranet; everything
+# else is polars/Arrow. The two comparison scripts are the only exemption.
+"xarray".msg = "xarray is intranet-comparison only; use polars/Arrow (see research/compare_pm.py)"
 
 [lint.pydocstyle]
 convention = "numpy"

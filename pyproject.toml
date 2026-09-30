@@ -3,7 +3,7 @@ name = "crucible"
 version = "0.1.0"
 description = "Python research layer for a Chinese A-share / futures quant system. Consumer of prism factor dumps."
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.12"
 dependencies = [
     "duckdb>=1.1",
     "polars>=1.17",
@@ -40,6 +40,61 @@ agentic = [
     # Needs LLM API credentials at runtime.
     "rdagent>=0.4",
 ]
+# --- PM reproduction track (research/). Intranet vs extranet split: ---
+# extranet (uv): hf + viz + bench, market data from local L2 dumps and WindPy
+# intranet (conda): the same plus ced (Wind SQL) and pm (reads PM's netCDF)
+hf = [
+    # tick-by-tick decoding and stateful per-record kernels
+    "pycapnp>=2.0",
+    "zstandard>=0.23",
+    "numba>=0.61",
+    # compile LightGBM trees to C for the C++ inference path
+    "treelite>=4.4",
+    "tl2cgen>=1.0",
+]
+viz = [
+    "hvplot>=0.11",
+    "holoviews>=1.20",
+    "datashader>=0.18",
+    "bokeh>=3.6",
+    "plotly>=5.24",
+    "marimo>=0.10",
+]
+kernels = [
+    # C++ hot kernels (kernels/), Linux build only: needs capnp + zstd dev packages
+    "crucible-kernels; sys_platform == 'linux'",
+]
+bench = [
+    "psutil>=6.1",
+    "py-spy>=0.4",
+    "scalene>=1.5; sys_platform != 'win32'",
+    "memray>=1.15; sys_platform != 'win32'",
+]
+public = [
+    # extranet only: free public sources via the a-stock-data skill (research/astock)
+    "requests>=2.32",
+    "xlrd>=2.0",
+    "openpyxl>=3.1",
+    # verify TLS against the OS trust store (Windows fetches missing intermediates; a
+    # corporate root CA lives there too) instead of certifi's bundle -- never verify=False
+    "truststore>=0.10",
+    # the skill's documented fallback for ST list / listing status when Eastmoney is down
+    "baostock>=0.8.9",
+]
+ced = [
+    # intranet only: Wind SQL Server backend of research/ced
+    "sqlalchemy>=2.0",
+    "pymssql>=2.3",
+]
+pm = [
+    # intranet only: read PM's netCDF results in research/pm_inventory.py and
+    # research/compare_pm.py. Nothing else may import xarray (ruff banned-api).
+    "xarray>=2024.10",
+    "h5netcdf>=1.4",
+]
+
+[tool.uv.sources]
+crucible-kernels = { path = "kernels" }
 
 [build-system]
 requires = ["hatchling"]
@@ -66,7 +121,7 @@ testpaths = ["tests"]
 filterwarnings = ["error::FutureWarning"]
 
 [tool.mypy]
-python_version = "3.14"
+python_version = "3.12"
 strict = true
 files = ["src", "tests"]
 plugins = []
@@ -79,5 +134,8 @@ module = [
     "duckdb.*",
     "matplotlib.*",
     "scipy.*",
+    "capnp.*",
+    "zstandard.*",
+    "psutil.*",
 ]
 ignore_missing_imports = true
