@@ -3,7 +3,11 @@
 Two concerns that are usually conflated, kept apart here:
 
 * **Which dates trade** -- holidays, weekends. Delegated to
-  ``exchange_calendars``, which tracks the CSRC holiday schedule properly.
+  ``exchange_calendars``, which tracks the CSRC holiday schedule properly --
+  or, when ``CRUCIBLE_TRADING_DAYS`` names a Parquet file with a ``trade_day``
+  column (e.g. the Wind ``ASHARECALENDAR`` cache written by ``research/ced``),
+  to that list: the intranet's authoritative calendar, and the only option
+  where the installed ``exchange_calendars`` ends before the dates studied.
 * **What a trading day looks like intraday** -- session breaks, auction
   windows, night sessions. Held in an explicit :class:`SessionSpec`, because
   A-share equity, CFFEX index futures and SHFE commodity all differ, and
@@ -27,11 +31,16 @@ from __future__ import annotations
 
 import datetime as dt
 import functools
+import os
 import re
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 import polars as pl
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 __all__ = [
     "SessionSpec",
@@ -175,6 +184,38 @@ COMMODITY_NIGHT = SessionSpec(
 )
 
 
+class _SessionList:
+    """The three ``exchange_calendars`` calls TradingCalendar makes, served from a trading-day list.
+
+    No early closes: every session closes at the spec's normal close (A-shares have no
+    regular half days).
+    """
+
+    def __init__(self, path: str, session: SessionSpec) -> None:
+        import pandas as pd
+
+        days = pd.read_parquet(path)["trade_day"].astype(str).str.strip()
+        self._days = pd.DatetimeIndex(pd.to_datetime(sorted(set(days)), format="%Y%m%d"))
+        # the exchange's close is the end of the close auction when there is one (15:00, not 14:57)
+        self._close = max(session.intervals[-1][1], *(session.close_auction[1:] if session.close_auction else ()))
+        self.tz = None
+
+    def sessions_in_range(self, start: str, end: str) -> pd.DatetimeIndex:
+        import pandas as pd
+
+        return self._days[(self._days >= pd.Timestamp(start)) & (self._days <= pd.Timestamp(end))]
+
+    def is_session(self, day: str) -> bool:
+        import pandas as pd
+
+        return pd.Timestamp(day) in self._days
+
+    def session_close(self, day: str) -> pd.Timestamp:
+        import pandas as pd
+
+        return pd.Timestamp.combine(pd.Timestamp(day).date(), self._close)
+
+
 class TradingCalendar:
     """Sessions and intraday slot grids for one instrument class.
 
@@ -195,9 +236,13 @@ class TradingCalendar:
     """
 
     def __init__(self, exchange: str = "XSHG", session: SessionSpec = EQUITY) -> None:
-        import exchange_calendars as xcals
+        days_file = os.environ.get("CRUCIBLE_TRADING_DAYS")
+        if days_file:
+            self._cal = _SessionList(days_file, session)
+        else:
+            import exchange_calendars as xcals
 
-        self._cal = xcals.get_calendar(exchange, side="left")
+            self._cal = xcals.get_calendar(exchange, side="left")
         self.exchange = exchange
         self.session = session
 

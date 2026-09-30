@@ -142,3 +142,32 @@ Data facts found on the way:
   totals (median ratio 0.9995, 92-99 % of stocks within 1 %); on SSE it reads 3-6 % high
   (unexplained; SSE snapshots publish the totals directly, so that candidate matters only on
   SZSE).
+
+## Stage 1 -- CED in crucible (`research/ced`, `research/run_ced.py`)
+
+A port of shtcommon's `ced` (the PM's common equity data): the same SQL against Wind / JYDB /
+朝阳永续 and the same Barra delivery files, the same rules (limit rounding, new-listing band
+windows, ex-right reference price on the total-share `_DIF` basis, share switches, dividend
+aggregation, index-weight drift model), but written as one date-partitioned Parquet table per
+dataset (`store/ced/<dataset>/date=D/`) instead of per-day `.xr` files. Live and hist SOD /
+index weights are separate datasets (CED wrote both to one file). Each module's docstring
+lists its columns; `research/ced/__init__.py` has the table of datasets.
+
+Differences from CED, all deliberate:
+
+* concept boards count from the day **after** listing (`list_dt < d`, like members'
+  `entry_dt < d`). CED's code used `<=` after an SQL bound of `< end`, so a board listed on d
+  counted inside a range but not on a single day; production files are the single-day case.
+* Wind industry: one query per range sliced per day (CED queried every day) -- same rows.
+* null instead of the `-1` integer sentinels and the `'None'` industry codes the `.xr` files had.
+* check results also stored as Parquet (`store/ced/_checks/<check>/date=D/`), not only logged.
+
+Offline tests (`tests/test_ced.py`) drive the SQL -> Parquet paths with a fake database.
+Database URLs come only from the environment (`CRUCIBLE_WIND_URL` / `_JY_URL` / `_ZY_URL`).
+
+Trading calendar: `python research/run_ced.py calendar` caches Wind `ASHARECALENDAR` to
+`store/ced/calendar/exchange=SSE.parquet`; with `CRUCIBLE_TRADING_DAYS` pointing at it,
+`almanac.TradingCalendar` uses that list instead of `exchange_calendars` (identical slot grids,
+checked); `research/intranet_run.py` does this by itself.
+
+Research rebuild over a range: `python research/run_ced.py all-hist --start S --end E`.

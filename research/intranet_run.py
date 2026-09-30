@@ -10,13 +10,17 @@ in one family never costs the others::
 
 Steps (``--only`` / ``--skip`` take these names):
 
-``preflight``  imports, PM tree, free disk / memory, raw data present per date
+``calendar``   Wind trading calendar -> Parquet cache (``research/run_ced.py calendar``); every later
+               step then uses it (``CRUCIBLE_TRADING_DAYS``) instead of ``exchange_calendars``
+``preflight``  imports, database URLs, PM tree, free disk / memory, raw data present per date
 ``inventory``  ``research/pm_inventory.py`` over the PM tree (schema manifest)
 ``models``     ``research/pm_models_probe.py`` over ``models/`` (stage 5: objective, trees, gain per
                feature and family, s1..s4 / fit1..3 structure) -- needs no market data
 ``decode``     ``research/decode_feitu_day.py`` + quality gate for dates without raw data
                (only with ``--feitu-root``; the template gets ``{date}``)
 ``catalog``    ``research/catalog.py`` (the DuckDB views every builder reads)
+``ced``        CED rebuild on the after-close basis (``run_ced.py all-hist``) over the trade days,
+               or ``--ced-start`` .. last trade day
 ``export``     every PM ``samplerS.nc`` / ``sampler*.nc`` / ``samplerR.parquet`` /
                ``1min_src`` file -> long parquet (``compare_pm.py --export``); prints dims
 ``bars``       ``research/build_bars_from_l2.py`` for each date
@@ -46,10 +50,12 @@ import time
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-DATA = Path("/work/crucible_data")
+DATA = Path(os.environ.get("CRUCIBLE_DATA", "/work/crucible_data"))
 PY = sys.executable
-STEPS = ("preflight", "inventory", "models", "decode", "catalog", "export", "bars", "sampler_r",
-         "candidates", "compare", "bundle")
+STEPS = ("calendar", "preflight", "inventory", "models", "decode", "catalog", "ced", "export", "bars",
+         "sampler_r", "candidates", "compare", "bundle")
+CAL_CACHE = DATA / "store" / "ced" / "calendar" / "exchange=SSE.parquet"
+DB_ENV = ("CRUCIBLE_WIND_URL", "CRUCIBLE_JY_URL", "CRUCIBLE_ZY_URL")
 CANDIDATE_FAMILIES = ("ZZUG", "ZZDS", "ZZQI", "ZZVC", "ZZHL", "ZZMS", "ZZGW", "ZZXC", "ZZTS", "ZZQO",
                       "ZZWA", "ZZAL", "ZZSQ", "ZZCR")  # families research/pm_factors/candidates.py builds
 SAMPLER_R_VARIANTS = ("order_all", "order_cont", "trade_all")
@@ -123,7 +129,12 @@ def preflight(r: Runner, prod: Path, dates: list[str]) -> bool:
     """Everything the later steps need; returns False when nothing can run."""
     good = True
     missing = []
-    for mod in ("polars", "duckdb", "pyarrow", "numpy", "xarray", "h5netcdf", "psutil"):
+    urls = {k: bool(os.environ.get(k)) for k in DB_ENV}
+    r.note("preflight", "db_urls", urls["CRUCIBLE_WIND_URL"] or bool(os.environ.get("CRUCIBLE_SHTCOMMON")),
+           f"{urls} (Wind needed for the calendar and CED; JY for sw-industry; ZY for zy-div)")
+    r.note("preflight", "calendar", CAL_CACHE.exists(),
+           f"Wind calendar cache {CAL_CACHE}" + ("" if CAL_CACHE.exists() else " missing -- run the calendar step"))
+    for mod in ("polars", "duckdb", "pyarrow", "numpy", "xarray", "h5netcdf", "psutil", "sqlalchemy", "pymssql"):
         try:
             __import__(mod)
         except ImportError:
@@ -175,6 +186,7 @@ def main() -> None:
     ap.add_argument("--skip", default="", help="comma-separated steps to skip")
     ap.add_argument("--preflight-only", action="store_true")
     ap.add_argument("--dry-run", action="store_true", help="print the commands, run nothing")
+    ap.add_argument("--ced-start", help="first day of the CED rebuild (default: first trade day)")
     a = ap.parse_args()
 
     stamp = dt.datetime.now(dt.timezone(dt.timedelta(hours=8))).strftime("%Y%m%d_%H%M%S")
@@ -183,6 +195,11 @@ def main() -> None:
     steps = [s for s in (a.only.split(",") if a.only else STEPS) if s not in a.skip.split(",")]
     if a.preflight_only:
         steps = ["preflight"]
+    if "calendar" in steps:
+        r.run("calendar", "wind", ["research/run_ced.py", "calendar"], timeout=600)
+    if CAL_CACHE.exists():
+        os.environ["CRUCIBLE_TRADING_DAYS"] = str(CAL_CACHE)  # almanac here and in every subprocess
+        print(f"trading calendar: Wind ASHARECALENDAR cache {CAL_CACHE}")
     pm_days = pm_dates(a.prod) if a.prod.is_dir() else []
     dates = sorted(a.dates.split(",")) if a.dates else pm_days
     # sod/<D> is built from D-1: our trade days are the PM days and the sessions before them
@@ -208,6 +225,9 @@ def main() -> None:
                 r.run("decode", f"quality_{d}", ["research/md_quality/run.py", "--date", d])
     if "catalog" in steps:
         r.run("catalog", "views", ["research/catalog.py"])
+    if "ced" in steps and trade_days:
+        r.run("ced", "all_hist", ["research/run_ced.py", "all-hist", "--start", a.ced_start or trade_days[0],
+                                  "--end", trade_days[-1]], timeout=12 * 3600)
     exported: list[Path] = sorted(export_dir.glob("*.parquet"))
     if "export" in steps:
         exported = exports(r, a.prod, export_dir)
