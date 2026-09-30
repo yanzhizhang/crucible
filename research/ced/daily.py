@@ -3,8 +3,10 @@
 Datasets (one row per symbol per trading day):
 
 ``daily_sod``       live SOD, computable before the open from T-1 data + rules
-``daily_sod_hist``  hist SOD, read straight from ``AShareEODPrices`` row T after the close --
-                    the authoritative answer the live SOD tries to reproduce (in CED both were
+``daily_sod_hist``  hist SOD: every field ``AShareEODPrices`` has is taken from its row T
+                    after the close (listing = an EOD row exists, suspension = its status code,
+                    limits, preclose, adj factors); only shares come from DerivativeIndicator.
+                    The authoritative answer the live SOD tries to reproduce (in CED both were
                     written to the same file; here they are two datasets, so neither is lost)
 ``daily_eod``       EOD: raw OHLC, preclose, adj_factor, limits, vol (shares), tot (CNY), vwap,
                     ret_o_pc, ret_c_o
@@ -496,16 +498,20 @@ _TRADE_STATUS_UNVERIFIED = -2
 
 
 def _build_sod_hist_one(date: str, base_df: pd.DataFrame, symbols: list[str] | None) -> pd.DataFrame:
-    """Hist SOD(T): everything from row T. is_traded = listed and S_DQ_TRADESTATUSCODE != 0
-    (-2 unverified / NULL count as trading, listed per day as a WARNING)."""
+    """Hist SOD(T): every field AShareEODPrices has comes from its row T -- nothing from other tables.
+
+    Listed = the symbol has an EOD row on T (not AShareDescription's list / delist dates);
+    is_traded = listed and S_DQ_TRADESTATUSCODE != 0 (-2 unverified / NULL count as trading,
+    listed per day as a WARNING). ret_adj = adj[T-1] / adj[T]; a first trading day has no
+    previous factor (LAG is NULL) and gets 1.0. Limits and preclose are the EOD fields.
+    Only the three share columns come from elsewhere (DerivativeIndicator): EOD has none.
+    """
     if symbols is None:
         symbols = sorted(base_df.index.unique().tolist())
     d = base_df.reindex(symbols)
 
-    list_arr = d["list_date"].fillna("").to_numpy(dtype=object)
-    delist_arr = d["delist_date"].fillna("").to_numpy(dtype=object)
-    first_day = list_arr == date
-    listed = (list_arr != "") & (list_arr <= date) & ((delist_arr == "") | (delist_arr > date))
+    listed = np.isin(np.asarray(symbols, dtype=object), base_df.index.to_numpy(dtype=object))
+    first_day = np.zeros(len(symbols), dtype=bool)  # handled by the NULL LAG below
     status = _num(d, "trade_status_code")
     unsure = listed & (~np.isfinite(status) | (status == _TRADE_STATUS_UNVERIFIED))
     if unsure.any():

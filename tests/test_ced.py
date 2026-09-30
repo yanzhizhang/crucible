@@ -57,6 +57,9 @@ def test_calendar_offline_uses_cache(monkeypatch, tmp_path):
     calendar.invalidate()
     monkeypatch.delenv("CRUCIBLE_WIND_URL", raising=False)
     monkeypatch.delenv("CRUCIBLE_SHTCOMMON", raising=False)
+    monkeypatch.delenv("CRUCIBLE_DB_USER", raising=False)
+    monkeypatch.setattr(db, "DB_USER", "")  # a locally filled-in account must not leak into the test
+    monkeypatch.setattr(db, "DB_PASSWORD", "")
     cal_mod.CACHE.mkdir(parents=True)
     pd.DataFrame({"trade_day": DAYS}).to_parquet(cal_mod.CACHE / "exchange=SSE.parquet", index=False)
     assert calendar.trade_days("20260429", "20260506") == ["20260429", "20260430", "20260506"]
@@ -138,6 +141,19 @@ def test_eod_and_sod_hist_end_to_end(monkeypatch):
     daily.convert_range_sod_hist("20260429", "20260429")
     s = store.read_day("daily_sod_hist", "20260429").iloc[0]
     assert s["is_traded"] == 0 and s["ret_adj"] == pytest.approx(2.0 / 2.1) and s["totshare"] == 30_000
+
+
+def test_sod_hist_listing_from_eod_rows_only():
+    base = pd.DataFrame({"prev_close": [10.0, 5.0], "maxp_allowed": [11.0, 0.0], "minp_allowed": [9.0, 0.0],
+                         "adj_factor": [1.0, 1.0], "prev_adj_factor": [1.0, np.nan], "trade_status_code": [-1, 1],
+                         "freeshare": [1.0, 1.0], "circshare": [1.0, 1.0], "totshare": [1.0, 1.0],
+                         "list_board": ["", ""], "list_date": ["", ""], "delist_date": ["20200101", ""]},
+                        index=pd.Index(["600000.SH", "600001.SH"], name="wind_code"))
+    out = daily._build_sod_hist_one("20260429", base, ["600000.SH", "600001.SH", "600002.SH"]).set_index("symbol")
+    # Description says delisted / no list date, but EOD has the rows: EOD decides
+    assert out.loc["600000.SH", "is_traded"] == 1 and out.loc["600001.SH", "is_traded"] == 1
+    assert out.loc["600001.SH", "ret_adj"] == 1.0  # first day: no previous factor
+    assert out.loc["600002.SH", "is_traded"] == 0  # no EOD row
 
 
 # ----------------------------------------------------------------------------- dividends / ST
