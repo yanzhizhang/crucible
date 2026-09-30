@@ -7,6 +7,8 @@ have been traded:
   down to 3 seconds, for equities, index futures and night-session commodities.
 * :class:`Universe` -- point-in-time constituent resolution that refuses
   membership tables without effective dates.
+* :class:`Classification` -- the same discipline for industry labels, so a
+  reclassification is not applied backwards over the whole sample.
 * :class:`Masks` -- suspension, price limits, one-word boards, newly listed;
   applied to features and labels together.
 * :func:`adjust` -- backward corporate-action adjustment that keeps the
@@ -25,6 +27,7 @@ from almanac.calendar import (
     TradingCalendar,
     parse_freq,
 )
+from almanac.industry import INDUSTRY, Classification, classification_from_snapshots
 from almanac.masks import FLAGS, Masks, apply_masks, build_masks, limit_pct, limit_prices
 from almanac.universe import Membership, Universe, universe
 
@@ -34,6 +37,8 @@ __all__ = [
     "COMMODITY_NIGHT",
     "EQUITY",
     "FLAGS",
+    "INDUSTRY",
+    "Classification",
     "Masks",
     "Membership",
     "SessionSpec",
@@ -42,6 +47,7 @@ __all__ = [
     "adjust",
     "apply_masks",
     "build_masks",
+    "classification_from_snapshots",
     "cumulative_factors",
     "event_factors",
     "limit_pct",

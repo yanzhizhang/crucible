@@ -125,6 +125,29 @@ python research/run_study.py           # -> data/out
 36 factors: classical A-share, WorldQuant Alpha101, Guotai Junan Alpha191,
 qlib Alpha158-style rolling features.
 
+### Industry classification
+
+```bash
+python research/fetch_industry.py      # one dated snapshot -> data/raw/industry/
+```
+
+**Wind and CITIC are licensed and intranet-only.** Nothing external reproduces
+them, so this fetches Eastmoney's board classification as a stand-in and writes
+it under `scheme=em`. Measured 2026-09-08: 5567 of 5911 listed symbols across
+**128 industries**; the 344 left out are PT/退/ST shells the source itself does
+not classify, excluded rather than given a placeholder industry. `almanac.Classification` is
+scheme-agnostic: the real `citic`/`wind` change history drops into the same
+loader at levels 1..N and nothing downstream moves.
+
+The endpoint gives **current** membership only, so a snapshot is never written
+as history. Each run appends one dated file and
+`almanac.classification_from_snapshots` folds the accumulated series into
+effective-dated intervals — a reclassification is dated at the snapshot that
+first saw it, which is an upper bound on the true date and never early.
+Snapshot cadence *is* the resolution of the history. Until a real change
+history is available, `Classification.at()` refuses any date before the first
+snapshot rather than back-casting today's labels.
+
 ### Tick / microstructure pipeline
 
 Decodes raw exchange tick dumps, reconstructs the limit order book by
