@@ -54,6 +54,7 @@ ignore = [
 "research/pm_inventory.py" = ["TID251"]
 "research/compare_pm.py" = ["TID251"]
 "research/compare_ced.py" = ["TID251"]
+"research/compare_bars_pm.py" = ["TID251"]
 
 [lint.isort]
 known-first-party = [
