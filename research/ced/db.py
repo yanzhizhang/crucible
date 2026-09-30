@@ -1,8 +1,9 @@
 """Intranet database access for CED: Wind, JY (聚源), ZY (朝阳永续) over SQLAlchemy.
 
 The server is fixed here (``10.14.3.20:1433``, databases ``WindDB`` / ``JYDB`` /
-``Zyyx2.0``, pymssql, ``tds_version=7.0``); only the account comes from the environment,
-``CRUCIBLE_DB_USER`` / ``CRUCIBLE_DB_PASSWORD``, so no password ever enters the repository.
+``Zyyx2.0``, pymssql, ``tds_version=7.0``). The account: ``DB_USER`` / ``DB_PASSWORD`` below,
+filled in on the intranet copy only (never committed with values), or the environment
+``CRUCIBLE_DB_USER`` / ``CRUCIBLE_DB_PASSWORD``, which wins when set.
 Overrides: a full ``CRUCIBLE_WIND_URL`` / ``CRUCIBLE_JY_URL`` / ``CRUCIBLE_ZY_URL``, or
 ``CRUCIBLE_SHTCOMMON=<path to shtcommon/py>`` to reuse an existing shtcommon install's URLs
 (its ``configs/configs.py`` is loaded by file path, so its ``ced`` / ``db`` never shadow ours).
@@ -33,6 +34,9 @@ _ENV = {WIND: "CRUCIBLE_WIND_URL", JY: "CRUCIBLE_JY_URL", ZY: "CRUCIBLE_ZY_URL"}
 HOST, PORT = "10.14.3.20", 1433
 DATABASES = {WIND: "WindDB", JY: "JYDB", ZY: "Zyyx2.0"}
 _QUERY = "charset=utf8&tds_version=7.0"
+# account: fill in on the intranet machine only -- never commit these with values
+DB_USER = ""
+DB_PASSWORD = ""
 _SHT_ATTR = {WIND: "wind_url", JY: "jy_url", ZY: "zy_url"}
 _FROM_RE = re.compile(r"\bFROM\s+([\w.\[\]]+)", re.IGNORECASE)
 _engines: dict[str, object] = {}
@@ -62,10 +66,11 @@ def url_for(db: str) -> str:
     url = os.environ.get(_ENV[db]) or _shtcommon_url(db)
     if url:
         return url
-    user, pwd = os.environ.get("CRUCIBLE_DB_USER"), os.environ.get("CRUCIBLE_DB_PASSWORD")
-    if not user or pwd is None:
-        raise RuntimeError(f"no database account for {db}: set CRUCIBLE_DB_USER and CRUCIBLE_DB_PASSWORD "
-                           f"(or a full {_ENV[db]})")
+    user = os.environ.get("CRUCIBLE_DB_USER") or DB_USER
+    pwd = os.environ.get("CRUCIBLE_DB_PASSWORD") or DB_PASSWORD
+    if not user or not pwd:
+        raise RuntimeError(f"no database account for {db}: fill DB_USER / DB_PASSWORD in research/ced/db.py, "
+                           f"or set CRUCIBLE_DB_USER / CRUCIBLE_DB_PASSWORD (or a full {_ENV[db]})")
     from urllib.parse import quote
 
     return f"mssql+pymssql://{quote(user, safe='')}:{quote(pwd, safe='')}@{HOST}:{PORT}/{DATABASES[db]}?{_QUERY}"

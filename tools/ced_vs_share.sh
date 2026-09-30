@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Rebuild CED with research/ced for a date range and compare with the production CED .xr files.
 #
-#   export CRUCIBLE_DB_USER=...  CRUCIBLE_DB_PASSWORD=...   # server / databases are fixed in research/ced/db.py
+#   fill DB_USER / DB_PASSWORD in research/ced/db.py (or export CRUCIBLE_DB_USER / CRUCIBLE_DB_PASSWORD)
 #   bash tools/ced_vs_share.sh 20260401 20260430 [/data/share/CED]
 #
 # Every step runs even if an earlier one fails. Log: $CRUCIBLE_DATA/logs/ced.log (default /work/crucible_data); report:
@@ -12,9 +12,6 @@ END=${2:-20260430}
 CED_ROOT=${3:-/data/share/CED}
 cd "$(dirname "$0")/.."
 export PYTHONPATH="$PWD/src"
-if [ -z "${CRUCIBLE_WIND_URL:-}" ] && { [ -z "${CRUCIBLE_DB_USER:-}" ] || [ -z "${CRUCIBLE_DB_PASSWORD+x}" ]; }; then
-  echo "set CRUCIBLE_DB_USER and CRUCIBLE_DB_PASSWORD first"; exit 1
-fi
 python -c "import sys; sys.path.insert(0, 'research'); from ced import db; import sqlalchemy as sa; [print(k, 'ok' if db.engine(k).connect().execute(sa.text('SELECT 1')).scalar() == 1 else '?') for k in (db.WIND, db.JY, db.ZY)]"   || echo "!!! database connection test failed (see above); continuing"
 [ -d "$CED_ROOT" ] || { echo "no CED root at $CED_ROOT"; exit 1; }
 
