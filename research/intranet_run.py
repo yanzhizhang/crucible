@@ -12,6 +12,8 @@ Steps (``--only`` / ``--skip`` take these names):
 
 ``preflight``  imports, PM tree, free disk / memory, raw data present per date
 ``inventory``  ``research/pm_inventory.py`` over the PM tree (schema manifest)
+``models``     ``research/pm_models_probe.py`` over ``models/`` (stage 5: objective, trees, gain per
+               feature and family, s1..s4 / fit1..3 structure) -- needs no market data
 ``decode``     ``research/decode_feitu_day.py`` + quality gate for dates without raw data
                (only with ``--feitu-root``; the template gets ``{date}``)
 ``catalog``    ``research/catalog.py`` (the DuckDB views every builder reads)
@@ -46,9 +48,10 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 DATA = Path("/work/crucible_data")
 PY = sys.executable
-STEPS = ("preflight", "inventory", "decode", "catalog", "export", "bars", "sampler_r",
+STEPS = ("preflight", "inventory", "models", "decode", "catalog", "export", "bars", "sampler_r",
          "candidates", "compare", "bundle")
-CANDIDATE_FAMILIES = ("ZZUG", "ZZDS", "ZZQI", "ZZVC")  # families research/pm_factors/candidates.py builds
+CANDIDATE_FAMILIES = ("ZZUG", "ZZDS", "ZZQI", "ZZVC", "ZZHL", "ZZMS", "ZZGW", "ZZXC", "ZZTS", "ZZQO",
+                      "ZZWA", "ZZAL", "ZZSQ", "ZZCR")  # families research/pm_factors/candidates.py builds
 SAMPLER_R_VARIANTS = ("order_all", "order_cont", "trade_all")
 
 
@@ -192,6 +195,10 @@ def main() -> None:
     if "inventory" in steps:
         r.run("inventory", "pm_tree", ["research/pm_inventory.py", "--root", str(a.prod),
                                        "--out", str(out / "reports" / "pm_manifest")])
+    if "models" in steps and (a.prod / "models").is_dir():
+        r.run("models", "probe", ["research/pm_models_probe.py", "--models", str(a.prod / "models"),
+                                  "--hstats", str(a.prod / "hstats" / "sod" / "HS300"),
+                                  "--out", str(out / "reports" / "stage5")])
     if "decode" in steps and a.feitu_root:
         for d in trade_days:
             if all(raw_present(d).values()):

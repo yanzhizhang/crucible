@@ -53,6 +53,23 @@ Runtime 6-21 s per day and variant, 3-5 GB peak (DuckDB, spills to `/work/crucib
 
 ## Intranet runbook (10.11.1.97)
 
+**Short version -- one command** (`research/intranet_run.py`): check first, then run everything
+whose inputs exist, then bring back one tarball of reports and logs (no PM data in it):
+
+```
+git clone -b feat/pm-repro https://github.com/yanzhizhang/crucible.git && cd crucible
+conda env create -f environment.yml && conda activate crucible
+python research/intranet_run.py --preflight-only
+python research/intranet_run.py --feitu-root '<dump dir with {date}>'   # omit if raw is decoded
+# bring back: data/intranet_run/<timestamp>.tar.gz
+```
+
+It runs, per step (each its own log, failures do not stop the rest): inventory, the model probe
+(stage 5), decoding + quality gate for missing days, catalog, PM exports, bars, samplerR,
+candidates for all 14 families, and the comparisons (samplerR per variant, bars vs `1min_src`
+root and p1..p10, `rank_candidates.py` per family). The numbered steps below are the same
+things by hand.
+
 1. Environment: `conda env create -f environment.yml` (generated from pyproject), clone crucible.
 2. Inventory PM's tree (schema baseline for every comparison):
    `python research/pm_inventory.py --root /work/prod --out data/pm_manifest`
@@ -65,7 +82,7 @@ Runtime 6-21 s per day and variant, 3-5 GB peak (DuckDB, spills to `/work/crucib
    `hstats/HS300/<fam>/20260429` copies.
 5. Stage 2: `research/build_bars_from_l2.py --date 20260429`, then `compare_pm.py` against
    `1min_src/20260430.nc` and every `p1..p10` pass.
-6. Stage 4 (ZZUG, ZZDS, ZZQI, ZZVC -- candidate formulas, see the section below):
+6. Stage 4 (candidate formulas for 14 families, see the section below):
    1. Export each family's samplerS and **read the printout**: which dates the `D` dimension
       holds, what `I` looks like (positions 0..n-1 or times), what the value variable is called.
       ```
@@ -94,7 +111,7 @@ end-of-day volume identity exact for every stock, amount relative error 2e-15, c
 snapshot price; externally: daily totals equal the TDX official package for every stock.
 Comparison with Wind `w.wsi` waits for the Wind terminal; with PM `1min_src` for step 5 above.
 
-## Stage 4 -- candidate formulas (ZZUG, ZZDS, ZZQI, ZZVC)
+## Stage 4 -- candidate formulas (14 families)
 
 The formulas are unknown; `samplerS` gives only column names and slot counts. So each column
 gets several candidates (`research/pm_factors/candidates.py`, the list is in its docstring) and
@@ -109,7 +126,10 @@ volumes in lots, one column z-scored per stock): the tool recovers the planted c
 unit, and the slot grid (up to the equivalent one-minute-shifted grid), and still points the
 z-scored column at the right formula (`within` = 1.0).
 
-Built locally for 20260615 and 20260805 (300 stocks; ZZVC 5 candidates, ZZUG 4, ZZQI 4, ZZDS 4).
+Built locally for 20260615 and 20260805 (300 stocks). ZZUG / ZZDS / ZZQI / ZZVC in
+`candidates.py`, the other ten (HL MS GW XC TS QO WA AL SQ CR) in `candidates_more.py` -- each
+module's docstring lists the candidates. 3-6 candidates per family; ZZAC has only a samplerR
+(stage 3). ZZCR's `vr` needs the previous session's bars (null locally).
 Locally the size tiers use the same day's samplerR (no consecutive day here); on 97 they use D-1.
 
 Data facts found on the way:

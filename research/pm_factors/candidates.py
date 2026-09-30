@@ -1,4 +1,4 @@
-"""Stage 4: candidate formulas for PM factor families ZZUG, ZZDS, ZZQI, ZZVC.
+"""Stage 4: candidate formulas for PM factor families ZZUG, ZZDS, ZZQI, ZZVC (+ the rest).
 
 The PM's ``samplerS.nc`` only gives each family's column names (``V``) and slot count (``I``);
 the formulas are unknown. This module computes **several candidate formulas per column** on the
@@ -63,6 +63,9 @@ order count:
 * ``lvl10close`` qa/qb = sum of the 10 published levels; na/nb = number of price levels (SSE)
 * ``mboclose``   rebuilt from the order and trade streams: volume and count of orders still
   resting at 14:57 (approximate: SZSE market orders are ignored)
+
+The other ten families (HL MS GW XC TS QO WA AL SQ CR) live in :mod:`candidates_more`; this
+CLI runs them too.
 
 Thresholds come from ``store/pm_factors/sampler_r/variant=<v>/date=<prev>/`` -- the PM builds
 ``sod/<D>`` from day ``D-1``. When no earlier day exists (the local days are not consecutive)
@@ -155,12 +158,12 @@ def _trades_view(con: duckdb.DuckDBPyConnection, date: str, thr_variant: str) ->
     con.execute(f"""
         CREATE OR REPLACE TEMP TABLE tr AS
         WITH t AS (
-          SELECT r.symbol_id, r.market_id, r.dir, r.volume, r.price, r.time,
+          SELECT r.symbol_id, r.market_id, r.dir, r.volume, r.price, r.time, r.seq_id,
                  CASE r.dir WHEN {BUY} THEN r.buy_seq_id ELSE r.sell_seq_id END AS agg_id
           FROM raw_transaction r JOIN uni u USING (symbol_id, market_id)
           WHERE r.date = {int(date)} AND r.trade_type = 1 AND r.dir IN ({BUY}, {SELL}))
         SELECT symbol_id, market_id, dir, volume, price, agg_id, {_label()} AS minute,
-               {size} AS osize
+               {size} AS osize, time, seq_id
         FROM t""")
 
 
@@ -379,7 +382,7 @@ def main() -> None:
     """CLI entry point."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--dates", default="20260615,20260805")
-    ap.add_argument("--families", default=",".join(FAMILIES))
+    ap.add_argument("--families", default="all", help="comma-separated, or 'all'")
     ap.add_argument("--index", default="000300")
     ap.add_argument("--thr-variant", default="order_all", help="samplerR variant for size tiers")
     ap.add_argument("--memory", default="6GB")
@@ -388,17 +391,24 @@ def main() -> None:
     con.execute(f"SET memory_limit='{a.memory}'")
     con.execute(f"SET temp_directory='{DATA / 'duckdb_tmp'}'")
     con.register("uni", universe(a.index))
-    fams = [f.strip().upper() for f in a.families.split(",") if f.strip()]
+    from candidates_more import FAMILIES_MORE, NEEDS, _events_view
+
+    table = {**FAMILIES, **FAMILIES_MORE}
+    needs = {"ZZVC": {"tr", "ev"}, "ZZUG": {"tr"}, "ZZQI": {"sn"}, "ZZDS": {"sn"}, **NEEDS}
+    fams = list(table) if a.families == "all" else [f.strip().upper() for f in a.families.split(",") if f.strip()]
+    want = set().union(*(needs[f] for f in fams))
     for d in filter(None, a.dates.split(",")):
         thr, thr_day = thresholds(d, a.thr_variant)
         con.register("thr", thr)
-        if {"ZZVC", "ZZUG"} & set(fams):
+        if "tr" in want:
             _trades_view(con, d, a.thr_variant)
-        if {"ZZQI", "ZZDS"} & set(fams):
+        if "sn" in want:
             _snap_view(con, d)
+        if "ev" in want:
+            _events_view(con, d)
         for fam in fams:
             with ResourceMonitor("W3.pm_candidates", params={"date": d, "family": fam}) as mon:
-                df = FAMILIES[fam](con, d).with_columns(pl.lit(int(thr_day)).alias("thr_date"))
+                df = table[fam](con, d).with_columns(pl.lit(int(thr_day)).alias("thr_date"))
                 mon.rows = df.height
             dst = OUT / f"family={fam}" / f"date={d}"
             dst.mkdir(parents=True, exist_ok=True)
