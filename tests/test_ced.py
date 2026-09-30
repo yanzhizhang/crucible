@@ -230,3 +230,18 @@ def test_compare_frames_codes_and_mismatch_table():
     r = check.compare_frames(left, right, names=("live", "hist"), rtol=1e-6, atol=1e-9, warn_frac=0.01,
                              col_rules=check.HIST_COL_RULES["daily_sod"])
     assert r.rc == check.RC_WARN and len(r.mismatches()) == 2
+
+
+def test_hist_default_stops_at_latest_eod_day(monkeypatch):
+    import run_ced
+
+    eod = pd.DataFrame({"trade_dt": ["20260429"], "wind_code": ["300999.SZ"], "open": [30.0], "high": [36.0],
+                        "low": [29.0], "close": [35.0], "preclose": [12.0], "adj_factor": [1.0],
+                        "maxp_allowed": [0.0], "minp_allowed": [0.0], "volume_lot": [1.0], "amount_kyuan": [3.0],
+                        "vwap": [33.0]})
+    fake_db(monkeypatch, {"MAX(TRADE_DT)": pd.DataFrame({"d": ["20260429"]}), "AShareEODPrices e": eod})
+    monkeypatch.setattr(run_ced, "setup_logging", lambda: Path("-"))
+    assert run_ced.main(["daily-eod", "--start", "20260429", "--end", "20260506"]) == 0
+    assert store.dates("daily_eod") == ["20260429"]  # 0430 / 0506 are past the latest EOD day
+    row = store.read_day("daily_eod", "20260429").iloc[0]
+    assert row["ret_o_pc"] == pytest.approx(30.0 / 12.0)  # first day: open / IPO-price preclose, all EOD

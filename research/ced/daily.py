@@ -23,6 +23,8 @@ Live SOD(T) (``_iter_sod``):
                                          AShareCapitalization / AShareFreeFloat _with_shares_asof
     4. ex-right / suspension / listing / exchange rules -> columns              _build_sod_one
 
+EOD is AShareEODPrices alone: ret_o_pc = open / S_DQ_PRECLOSE on every day, including the
+first trading day (whose preclose is the IPO price; CED wrote 1.0 there, from AShareDescription).
 EOD units: S_DQ_VOLUME lots (x100 -> shares), S_DQ_AMOUNT thousand CNY (x1000 -> CNY),
 S_DQ_PRECLOSE already carries the pre-suspension close through a suspension.
 
@@ -228,14 +230,17 @@ class DailySQL:
                 e.S_DQ_STOPPING AS minp_allowed,
                 e.S_DQ_VOLUME AS volume_lot,
                 e.S_DQ_AMOUNT AS amount_kyuan,
-                e.S_DQ_AVGPRICE AS vwap,
-                d.S_INFO_LISTDATE AS list_date
+                e.S_DQ_AVGPRICE AS vwap
             FROM dbo.AShareEODPrices e
-                LEFT JOIN dbo.AShareDescription d
-                    ON e.S_INFO_WINDCODE = d.S_INFO_WINDCODE
             WHERE e.TRADE_DT >= '{start}' AND e.TRADE_DT <= '{end}'
         """
-        return _clean_dates(db.read_sql(sql), ("trade_dt", "list_date"))
+        return _clean_dates(db.read_sql(sql), ("trade_dt",))
+
+    @staticmethod
+    def eod_latest() -> str:
+        """Latest TRADE_DT loaded in AShareEODPrices (the hist horizon)."""
+        df = db.read_sql("SELECT MAX(TRADE_DT) AS d FROM dbo.AShareEODPrices", what="AShareEODPrices(max)")
+        return str(df["d"].iloc[0]).strip()
 
 
 def _clean_dates(df: pd.DataFrame, cols: tuple) -> pd.DataFrame:
@@ -531,9 +536,8 @@ def _build_eod_one(date: str, day_df: pd.DataFrame, symbols: list[str] | None) -
     d = day_df.reindex(symbols)
     open_ = _f64(d, "open")
     close = _f64(d, "close")
-    first_day = d["list_date"].fillna("").to_numpy(dtype=object) == date
-    with np.errstate(divide="ignore", invalid="ignore"):
-        ret_o_pc = np.where(first_day, 1.0, open_ / _f64(d, "preclose"))
+    with np.errstate(divide="ignore", invalid="ignore"):  # all EOD: day one's S_DQ_PRECLOSE is the IPO price
+        ret_o_pc = open_ / _f64(d, "preclose")
         ret_c_o = np.where(open_ > 0, close / open_, np.nan)
     return pd.DataFrame({
         "symbol": symbols,

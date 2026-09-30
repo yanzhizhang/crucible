@@ -45,9 +45,9 @@ EOF
 run() { echo; echo "=== $*"; python research/run_ced.py "$@" || echo "!!! failed (rc $?): $*"; }
 
 run calendar
-run all-hist --start "$START" --end "$END" --overwrite      # hist SOD / index weights + every other dataset
-run daily-sod --start "$START" --end "$END" --overwrite     # live SOD (what production writes pre-open)
-run index-universe --start "$START" --end "$END" --overwrite
+run all-hist --start "$START" --end "$END" --overwrite      # hist (default): every dataset, cut at the latest EOD day
+run daily-sod --live --start "$START" --end "$END" --overwrite     # live SOD (what production writes pre-open)
+run index-universe --live --start "$START" --end "$END" --overwrite
 echo; echo "=== compare with $CED_ROOT"
 python research/compare_ced.py --ced "$CED_ROOT" --start "$START" --end "$END"
 echo; echo "log: $LOG"

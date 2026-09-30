@@ -1,15 +1,20 @@
 """CED jobs (port of shtcommon ``scripts/daily_job.py``): one dataset per call, Parquet output.
 
-    python research/run_ced.py daily-sod                       # [T-1, T], missing days only
-    python research/run_ced.py daily-sod --hist --start 20250101 --end 20260430
+    python research/run_ced.py daily-sod                       # hist, [T-1, T], missing days only
+    python research/run_ced.py daily-sod --start 20250101 --end 20260430
+    python research/run_ced.py daily-sod --live                # the pre-open basis instead
     python research/run_ced.py all-hist --start 20250101 --end 20260430 --overwrite
     python research/run_ced.py check-hist --date 20260429
     python research/run_ced.py calendar        # refresh the Wind calendar cache (SSE + SZSE)
 
 Default range is [T-1, T] (T = today) and days already written are kept unless ``--overwrite``;
-on a non-trading day (Wind calendar) it exits 0 unless ``--force``. ``--hist`` selects the
-after-close basis for daily-sod and index-universe. ``all-hist`` runs every builder on the
-authoritative basis for the range -- the research rebuild ("hist convert") -- then the checks.
+on a non-trading day (Wind calendar) it exits 0 unless ``--force``.
+
+**hist is the default**: daily-sod and index-universe use the after-close, AShareEODPrices
+basis (``--live`` selects the pre-open one), and in hist mode no dataset is written past the
+latest TRADE_DT loaded in AShareEODPrices -- the end of the range is cut there, so every
+dataset stops on the same day. ``all-hist`` runs every builder for the range -- the research
+rebuild ("hist convert") -- then check-div. Checks are never cut.
 
 Environment: ``CRUCIBLE_WIND_URL`` / ``CRUCIBLE_JY_URL`` / ``CRUCIBLE_ZY_URL`` or
 ``CRUCIBLE_SHTCOMMON`` (database URLs, see ``research/ced/db.py``), ``CRUCIBLE_DATA`` (default
@@ -81,8 +86,6 @@ def run_job(job: str, start: str, end: str, *, overwrite: bool, hist: bool) -> d
     kw = {"overwrite": overwrite}
     if supports_hist:
         kw["hist"] = hist
-    elif hist and not job.startswith("check"):
-        log.warning("%s has no --hist, ignored", job)
     return runner(start, end, **kw)
 
 
@@ -92,7 +95,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--date")
     ap.add_argument("--start")
     ap.add_argument("--end")
-    ap.add_argument("--hist", action="store_true", help="after-close basis (daily-sod / index-universe)")
+    ap.add_argument("--live", action="store_true", help="pre-open basis for daily-sod / index-universe, no EOD cut")
+    ap.add_argument("--hist", action="store_true", help="the default; accepted for compatibility")
     ap.add_argument("--overwrite", action="store_true", help="rewrite days already written")
     ap.add_argument("--force", action="store_true", help="run on a non-trading day too")
     a = ap.parse_args(argv)
@@ -119,13 +123,25 @@ def main(argv: list[str] | None = None) -> int:
         start, end = calendar.prev(today, 1), today
 
     jobs = ALL_HIST if a.job == "all-hist" else (a.job,)
-    hist = a.hist or a.job == "all-hist"
+    if a.live and a.job == "all-hist":
+        ap.error("all-hist is hist by definition; drop --live")
+    hist = not a.live
+    build_end = end
+    if hist and any(not j.startswith("check") for j in jobs):
+        latest = daily.DailySQL.eod_latest()
+        if latest < end:
+            log.info("hist: AShareEODPrices is loaded up to %s, range end %s cut to it", latest, end)
+            build_end = latest
     rc = 0
     for job in jobs:
-        log.info("%s: %s ~ %s (hist=%s, overwrite=%s)", job, start, end, hist, a.overwrite)
+        job_end = end if job.startswith("check") else build_end
+        if start > job_end:
+            log.warning("%s: nothing to build, %s is after the latest AShareEODPrices day %s", job, start, job_end)
+            continue
+        log.info("%s: %s ~ %s (hist=%s, overwrite=%s)", job, start, job_end, hist, a.overwrite)
         t0 = time.perf_counter()
         try:
-            out = run_job(job, start, end, overwrite=a.overwrite, hist=hist)
+            out = run_job(job, start, job_end, overwrite=a.overwrite, hist=hist)
         except Exception:
             log.exception("%s failed", job)
             rc = 2
