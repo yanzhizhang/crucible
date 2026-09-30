@@ -111,6 +111,39 @@ end-of-day volume identity exact for every stock, amount relative error 2e-15, c
 snapshot price; externally: daily totals equal the TDX official package for every stock.
 Comparison with Wind `w.wsi` waits for the Wind terminal; with PM `1min_src` for step 5 above.
 
+### PM raw market data (`/data/prod/mp/20260430`) -- decoded
+
+The only raw day on 97 is the PM's own `.mp` dump: `{SH,SZ}_{HS300,ZZ500,ZZ1000}_{order,trade,
+snap,index}.mp`, each a zstd-compressed msgpack stream of arrays (timestamps float epoch seconds
+UTC: position 1 = local arrival, 2 = exchange time). `research/decode_pm_mp.py` writes them into
+the feitu raw layout (`kind=order|transaction|quotation|index/date=D/`, manifest
+`source=pm_mp`), so every builder reads them unchanged; the field mapping is in its docstring.
+`--check` confirmed the snapshot ask-volume order and the trade / order categories on 20260430
+(263M rows, SZ cancels 17.36M). The quality gate FAILs this day by design (constituents only):
+build bars with `--allow-fail`.
+
+### Against PM `1min_src` (20260430, `research/compare_bars_pm.py`)
+
+`1min_src` is `x(S=1800, D, I=257, V=10)`: labels 09:15-11:30 and 13:00-15:00, V = volumeTotal,
+dollarVolumeTotal, tradesTotal, lastTradePrice, askPrice, askSize, bidPrice, bidSize, close,
+midPriceLastValid; the index file has S = 6 (10000000 + code) and V = cumVol, cumTo,
+lastTradePrice. The script builds each field several ways (clock exchange/local, minute edge
+inclusive/exclusive, whole day / continuous session only, book vs trades) and scores every
+candidate per cell.
+
+| field | best candidate | exact |
+| --- | --- | --- |
+| askPrice / askSize / bidPrice / bidSize / lastTradePrice | exchange clock, inclusive edge, last snapshot at or before the label | 99.5-99.8 % |
+| close | snapshot price where the day volume grew within the minute | 99.85 % |
+| midPriceLastValid | plain mid of that snapshot | 98.76 % |
+| index lastTradePrice | last index record at or before the label | 99.2 % |
+| volumeTotal / dollarVolumeTotal / tradesTotal | local clock, inclusive, continuous session | **~59 %** (NaN pattern and median ratio already 1.0) |
+| index cumVol / cumTo | index cumulative | ratio ~0.985, no exact cells |
+
+Open: the day totals (59 % looks like one venue right and the other wrong -- `--diagnose FIELD
+CANDIDATE` splits the hit rate by exchange and hour and lists mismatching cells) and the index
+totals (candidate `index_ex_open` subtracts the opening auction). Both are waiting on a run on 97.
+
 ## Stage 4 -- candidate formulas (14 families)
 
 The formulas are unknown; `samplerS` gives only column names and slot counts. So each column
@@ -163,7 +196,7 @@ Differences from CED, all deliberate:
 * check results also stored as Parquet (`store/ced/_checks/<check>/date=D/`), not only logged.
 
 Offline tests (`tests/test_ced.py`) drive the SQL -> Parquet paths with a fake database.
-Database URLs come only from the environment (`CRUCIBLE_WIND_URL` / `_JY_URL` / `_ZY_URL`).
+Database URLs: environment (`CRUCIBLE_WIND_URL` / `_JY_URL` / `_ZY_URL`) first, else built from `research/ced/db.py`.
 
 Trading calendar: `python research/run_ced.py calendar` caches Wind `ASHARECALENDAR` to
 `store/ced/calendar/exchange=SSE.parquet`; with `CRUCIBLE_TRADING_DAYS` pointing at it,
@@ -171,3 +204,27 @@ Trading calendar: `python research/run_ced.py calendar` caches Wind `ASHARECALEN
 checked); `research/intranet_run.py` does this by itself.
 
 Research rebuild over a range: `python research/run_ced.py all-hist --start S --end E`.
+
+**hist is the default basis.** hist SOD takes its listing and every field from the
+AShareEODPrices row of that day, `ret_o_pc` is open / preclose from EOD, and in hist mode no
+dataset is written past `MAX(TRADE_DT)` of AShareEODPrices (`--live` selects the pre-open basis
+and skips the cut). Database address and names are fixed in `research/ced/db.py` (10.14.3.20,
+WindDB / JYDB / Zyyx2.0, `tds_version=7.0`); the account is filled in there **on 97 only** --
+the committed `DB_USER` / `DB_PASSWORD` stay empty.
+
+Against production (`/data/share/CED`, 20260401-20260430, `tools/ced_vs_share.sh START END`):
+Barra identical; EOD identical except one `ret_o_pc` cell (the EOD rule above); hist SOD is the
+closer basis; the residual free-share (~23 per day) and index-weight differences are Wind rows
+revised after production ran (their OPDATE is later). Treated as reproduced.
+
+### The PM's research CED (`/data/prod/CEDxr4d`, 20260401-20260430)
+
+Produced from our CED by the user for the PM, re-cut into one variable `x(S, D, I, V)` per file
+(`.nc`): `daily/{T}_{SOD,EOD}.nc`, `index/{T}.nc`, `barra/{T}_{exp,cov,fret,rate,stats}.nc`.
+Stock keys are bare numbers in daily / barra (`'1'` = 000001) and Wind codes in index; I is
+09:00:00 for SOD / index weights and 15:00:00 for EOD / Barra.
+
+`sod/` is the PM's start-of-day cut and deliberately **one day behind**: `sod/.../{T}_*.nc` holds
+D = T-1 (on the morning of T the latest EOD / Barra is yesterday's). Not a definition change.
+`research/compare_ced.py --ext .nc` reads this layout and compares each file with our dataset
+on the file's own D.
