@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
-# Intranet (97): rebuild CED with research/ced for April 2026 and compare with /data/share/CED.
+# Intranet (97): rebuild CED with research/ced for a date range and compare with /data/share/CED.
 #
-#   bash tools/ced_vs_share.sh
+#   bash tools/ced_vs_share.sh 20260401 20260430    # range
+#   bash tools/ced_vs_share.sh 20260429             # one day
+#   bash tools/ced_vs_share.sh                      # last 30 days up to yesterday
 #
 # Everything is the intranet default: account in research/ced/db.py (DB_USER / DB_PASSWORD),
 # conda env "crucible", data under /work/crucible_data, production CED at /data/share/CED.
@@ -9,8 +11,9 @@
 # ced_vs_share_<timestamp>.log in the crucible root; the report is
 # data/reports/ced_vs_share/<timestamp>/summary.csv + cells.parquet.
 set -u
-START=20260401
-END=20260430
+END=${2:-${1:-$(date -d yesterday +%Y%m%d)}}
+START=${1:-$(date -d "$END -30 days" +%Y%m%d)}
+[[ "$START" =~ ^[0-9]{8}$ && "$END" =~ ^[0-9]{8}$ && "$START" -le "$END" ]] || { echo "bad range $START..$END (YYYYMMDD)"; exit 1; }
 CED_ROOT=/data/share/CED
 ENV_NAME=crucible
 
