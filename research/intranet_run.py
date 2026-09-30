@@ -16,8 +16,9 @@ Steps (``--only`` / ``--skip`` take these names):
 ``inventory``  ``research/pm_inventory.py`` over the PM tree (schema manifest)
 ``models``     ``research/pm_models_probe.py`` over ``models/`` (stage 5: objective, trees, gain per
                feature and family, s1..s4 / fit1..3 structure) -- needs no market data
-``decode``     ``research/decode_feitu_day.py`` + quality gate for dates without raw data
-               (only with ``--feitu-root``; the template gets ``{date}``)
+``decode``     for dates without raw data: ``research/decode_feitu_day.py`` (``--feitu-root``, the
+               template gets ``{date}``) or ``research/decode_pm_mp.py`` (``--mp-root``: the PM's
+               .mp files, HS300 / ZZ500 / ZZ1000 constituents only), then the quality gate
 ``catalog``    ``research/catalog.py`` (the DuckDB views every builder reads)
 ``ced``        CED rebuild on the after-close basis (``run_ced.py all-hist``) over the trade days,
                or ``--ced-start`` .. last trade day
@@ -182,6 +183,7 @@ def main() -> None:
     ap.add_argument("--prod", type=Path, default=Path("/work/prod"))
     ap.add_argument("--dates", help="comma-separated; default: dates found in the PM tree")
     ap.add_argument("--feitu-root", help="raw dump dir template with {date}, enables decoding")
+    ap.add_argument("--mp-root", type=Path, help="PM .mp root (holds <date>/*.mp); decoded when no feitu dump")
     ap.add_argument("--only", help=f"comma-separated subset of {', '.join(STEPS)}")
     ap.add_argument("--skip", default="", help="comma-separated steps to skip")
     ap.add_argument("--preflight-only", action="store_true")
@@ -216,12 +218,20 @@ def main() -> None:
         r.run("models", "probe", ["research/pm_models_probe.py", "--models", str(a.prod / "models"),
                                   "--hstats", str(a.prod / "hstats" / "sod" / "HS300"),
                                   "--out", str(out / "reports" / "stage5")])
-    if "decode" in steps and a.feitu_root:
+    if "decode" in steps and (a.feitu_root or a.mp_root):
         for d in trade_days:
             if all(raw_present(d).values()):
                 continue
-            if r.run("decode", d, ["research/decode_feitu_day.py", "--root", a.feitu_root.format(date=d),
-                                   "--date", d]):
+            if a.feitu_root:
+                ok = r.run("decode", d, ["research/decode_feitu_day.py", "--root", a.feitu_root.format(date=d),
+                                         "--date", d])
+            elif (a.mp_root / d).is_dir():
+                ok = r.run("decode", f"mp_{d}", ["research/decode_pm_mp.py", "--root", str(a.mp_root),
+                                                 "--date", d, "--check"])
+            else:
+                r.note("decode", d, False, f"no feitu dump and no {a.mp_root / d}")
+                continue
+            if ok:
                 r.run("decode", f"quality_{d}", ["research/md_quality/run.py", "--date", d])
     if "catalog" in steps:
         r.run("catalog", "views", ["research/catalog.py"])
