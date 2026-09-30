@@ -1,12 +1,11 @@
 """Intranet database access for CED: Wind, JY (聚源), ZY (朝阳永续) over SQLAlchemy.
 
-Connection URLs come from the environment only -- nothing is written into the repo:
-
-* ``CRUCIBLE_WIND_URL`` / ``CRUCIBLE_JY_URL`` / ``CRUCIBLE_ZY_URL``, e.g.
-  ``mssql+pymssql://user:pwd@host:1433/WindDB?charset=utf8&tds_version=7.0``
-* or ``CRUCIBLE_SHTCOMMON=<path to shtcommon/py>``: reuse the URLs an existing shtcommon
-  install is configured with (its ``configs/configs.py`` is loaded by file path, so its own
-  ``ced`` / ``db`` packages never shadow ours).
+The server is fixed here (``10.14.3.20:1433``, databases ``WindDB`` / ``JYDB`` /
+``Zyyx2.0``, pymssql, ``tds_version=7.0``); only the account comes from the environment,
+``CRUCIBLE_DB_USER`` / ``CRUCIBLE_DB_PASSWORD``, so no password ever enters the repository.
+Overrides: a full ``CRUCIBLE_WIND_URL`` / ``CRUCIBLE_JY_URL`` / ``CRUCIBLE_ZY_URL``, or
+``CRUCIBLE_SHTCOMMON=<path to shtcommon/py>`` to reuse an existing shtcommon install's URLs
+(its ``configs/configs.py`` is loaded by file path, so its ``ced`` / ``db`` never shadow ours).
 
 ``tds_version=7.0`` is required by the Wind SQL Server (without it FreeTDS negotiates 7.3/7.4
 and fails with ``DB-Lib 20002``, although TCP connects).
@@ -30,6 +29,10 @@ import pandas as pd
 
 WIND, JY, ZY = "wind", "jydb", "zyyx"
 _ENV = {WIND: "CRUCIBLE_WIND_URL", JY: "CRUCIBLE_JY_URL", ZY: "CRUCIBLE_ZY_URL"}
+# intranet SQL Server (fixed): host, port, database per source; tds_version=7.0 is mandatory
+HOST, PORT = "10.14.3.20", 1433
+DATABASES = {WIND: "WindDB", JY: "JYDB", ZY: "Zyyx2.0"}
+_QUERY = "charset=utf8&tds_version=7.0"
 _SHT_ATTR = {WIND: "wind_url", JY: "jy_url", ZY: "zy_url"}
 _FROM_RE = re.compile(r"\bFROM\s+([\w.\[\]]+)", re.IGNORECASE)
 _engines: dict[str, object] = {}
@@ -51,11 +54,21 @@ def _shtcommon_url(db: str) -> str | None:
 
 
 def url_for(db: str) -> str:
-    """Connection URL for ``db`` (``WIND`` / ``JY`` / ``ZY``) from the environment."""
+    """Connection URL for ``db`` (``WIND`` / ``JY`` / ``ZY``).
+
+    A full URL in the environment wins; otherwise the fixed intranet server above with the
+    account from ``CRUCIBLE_DB_USER`` / ``CRUCIBLE_DB_PASSWORD`` (one account for all three).
+    """
     url = os.environ.get(_ENV[db]) or _shtcommon_url(db)
-    if not url:
-        raise RuntimeError(f"no URL for {db}: set {_ENV[db]} or CRUCIBLE_SHTCOMMON")
-    return url
+    if url:
+        return url
+    user, pwd = os.environ.get("CRUCIBLE_DB_USER"), os.environ.get("CRUCIBLE_DB_PASSWORD")
+    if not user or pwd is None:
+        raise RuntimeError(f"no database account for {db}: set CRUCIBLE_DB_USER and CRUCIBLE_DB_PASSWORD "
+                           f"(or a full {_ENV[db]})")
+    from urllib.parse import quote
+
+    return f"mssql+pymssql://{quote(user, safe='')}:{quote(pwd, safe='')}@{HOST}:{PORT}/{DATABASES[db]}?{_QUERY}"
 
 
 def masked(url: str) -> str:
