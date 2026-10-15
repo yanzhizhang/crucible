@@ -137,12 +137,22 @@ candidate per cell.
 | close | snapshot price where the day volume grew within the minute | 99.85 % |
 | midPriceLastValid | plain mid of that snapshot | 98.76 % |
 | index lastTradePrice | last index record at or before the label | 99.2 % |
-| volumeTotal / dollarVolumeTotal / tradesTotal | local clock, inclusive, continuous session | **~59 %** (NaN pattern and median ratio already 1.0) |
-| index cumVol / cumTo | index cumulative | ratio ~0.985, no exact cells |
+| volumeTotal / dollarVolumeTotal / tradesTotal | snapshot totals of the last snapshot (exchange time) at or before the label, minus the opening-auction trades; at 11:30 the last snapshot at or before 13:00:00 (`snap_ex_auction_1300`) | **100 %** |
+| index cumVol / cumTo | index cumulative minus its value at 09:30 (`index_ex_open`) | 99.58 % |
 
-Open: the day totals (59 % looks like one venue right and the other wrong -- `--diagnose FIELD
-CANDIDATE` splits the hit rate by exchange and hour and lists mismatching cells) and the index
-totals (candidate `index_ex_open` subtracts the opening auction). Both are waiting on a run on 97.
+How the totals were found: trades never explain them -- no constant cutoff delay gets past ~60 %
+and 12 % of PM values are no prefix sum of continuous trades (`--implied-cut`). Snapshots do:
+`PM - total_volume(last snapshot <= label)` is one constant per stock for all 1800 stocks and all
+three totals, and that constant is the opening-auction trade total (trades before 09:30:00
+exchange time) for 100 % of stocks on both venues (`--snap-base`). The earlier base -- the
+snapshot at 09:30:00 -- already holds the first continuous trades on 99.6 % of SZSE and 17 % of
+SSE stocks, which is where the 59 % came from. Candidate `exch/incl/snap_ex_auction`: 99.72 % on all three totals,
+and every remaining miss is the 11:30 label (SZ 863 stocks, SH 325; every other hour 100 %), always
+a few trades short. `--snap-match 11:30` settled it: PM's 11:30 value equals its own 13:00 value
+for 100 % of stocks, i.e. the last snapshot at or before 13:00:00 exchange time -- on SZSE the
+snapshot stamped exactly 13:00:00, which already holds the first afternoon trades (the morning
+close alone fixed only ~170 of the ~1200 misses). Candidate `exch/incl/snap_ex_auction_1300`:
+**100 %** on all three totals on 97; 14:57 needs no such rule.
 
 ## Stage 4 -- candidate formulas (14 families)
 
