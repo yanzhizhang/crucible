@@ -142,7 +142,7 @@ where both sides have a value / share of cells where both are empty or both fill
 | askPrice / askSize / bidPrice / bidSize / lastTradePrice | last snapshot **inside** the minute, no carry-forward -- a minute without a snapshot is empty (SZSE pre-open, a quiet stock) (`exch/incl_sess/book_nocarry`) | 1.0000 / 1.0000 |
 | midPriceLastValid | same snapshot; both sides -> mid, one side (limit up / down) -> that side, neither (close auction, 0 / 0) -> 0 (`mid_side_nocarry`) | 1.0000 / 1.0000 |
 | volumeTotal / dollarVolumeTotal / tradesTotal | snapshot totals minus the opening-auction trades (before 09:30:00); empty through 09:30, 13:00 = 11:30, 14:58-15:00 held at 14:57 (close auction not counted) (`snap_ex_auction_day`) | 1.0000 / 1.0000 |
-| close | snapshot price of the last minute the day volume grew, carried forward, empty through 09:30 (`snaplast_ffill`) | 1.0000 / 0.9979 (open) |
+| close | snapshot price of the last minute the day volume grew, carried forward, empty through 09:30; a stock that never trades (suspended: 601718, 601003, 600958, 300352 on 20260430) takes the snapshot price, 0 (`snaplast_ffill_px`) | 1.0000 / 1.0000 |
 | index cumVol / cumTo | index cumulative minus its value at 09:30 (`index_ex_open`) | 0.9958 / 0.9844 |
 | index lastTradePrice | last index record at or before the label | 0.9922 / 0.9981 |
 

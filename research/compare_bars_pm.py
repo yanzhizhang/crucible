@@ -110,8 +110,10 @@ def auction_totals(date: str) -> pl.DataFrame:
 
 def book_candidates(date: str, labels: list[int]) -> pl.DataFrame:
     """Book at the minute's end (last snapshot at or before the label) under (clock, edge)."""
-    q = pl.scan_parquet(RAW / "kind=quotation" / f"date={date}" / "part-*.parquet").select(
-        "symbol_id", "time", "spider_ts", "price", "total_volume", "total_amount", "total_no",
+    q = pl.scan_parquet(RAW / "kind=quotation" / f"date={date}" / "part-*.parquet")
+    pre = pl.col("pre_close") if "pre_close" in q.collect_schema().names() else pl.lit(None, pl.Float64).alias("pre_close")
+    q = q.select(
+        "symbol_id", "time", "spider_ts", "price", pre, "total_volume", "total_amount", "total_no",
         pl.col("ask_px").arr.get(0).alias("askPrice"),
         pl.col("ask_vol").arr.get(0).alias("askSize"), pl.col("bid_px").arr.get(0).alias("bidPrice"),
         pl.col("bid_vol").arr.get(0).alias("bidSize"))
@@ -132,7 +134,7 @@ def book_candidates(date: str, labels: list[int]) -> pl.DataFrame:
         am = qq.filter(pl.col("sod") <= CONT[1][0]).group_by("code").agg(
             pl.col("total_volume", "total_amount", "total_no").last().name.suffix("_am"))
         qq = qq.group_by("code", "label").agg(
-            pl.col("price", "askPrice", "askSize", "bidPrice", "bidSize", "total_volume", "total_amount",
+            pl.col("price", "pre_close", "askPrice", "askSize", "bidPrice", "bidSize", "total_volume", "total_amount",
                    "total_no").last(),
             pl.col("mid_valid").drop_nulls().last()).collect().sort("code", "label")
         qq = qq.join(base.collect(), on="code", how="left").join(auct, on="code", how="left").join(
@@ -183,6 +185,11 @@ def book_candidates(date: str, labels: list[int]) -> pl.DataFrame:
         # PM close: last trade price carried forward through the day, empty up to 09:30
         g = g.with_columns(pl.when(pl.col("label") > CONT[0][0]).then(pl.col("snap_close").forward_fill().over("code"))
                            .alias("snap_close_ffill"))
+        # a stock that never trades (suspended): fall back to the snapshot price / the pre-close
+        g = g.with_columns(pl.when(pl.col("label") > CONT[0][0]).then(pl.coalesce("snap_close_ffill", "price"))
+                           .alias("snap_close_ffill_px"),
+                           pl.when(pl.col("label") > CONT[0][0]).then(pl.coalesce("snap_close_ffill", "pre_close"))
+                           .alias("snap_close_ffill_pre"))
         tag = f"{'exch' if clock == 'time' else 'local'}/{edge}{'_sess' if sess else ''}"
         pairs = [(v, v, "book") for v in ("lastTradePrice", "askPrice", "askSize", "bidPrice", "bidSize")]
         pairs += [("midPriceLastValid", "mid_plain", "mid_plain"), ("midPriceLastValid", "mid_or0", "mid_or0"),
@@ -191,6 +198,7 @@ def book_candidates(date: str, labels: list[int]) -> pl.DataFrame:
                   ("volumeTotal", "snap_total_volume", "snapcum"), ("dollarVolumeTotal", "snap_total_amount", "snapcum"),
                   ("tradesTotal", "snap_total_no", "snapcum"), ("close", "snap_close", "snaplast"),
                   ("close", "snap_close_ffill", "snaplast_ffill"),
+                  ("close", "snap_close_ffill_px", "snaplast_ffill_px"), ("close", "snap_close_ffill_pre", "snaplast_ffill_pre"),
                   ("volumeTotal", "auct_total_volume", "snap_ex_auction"),
                   ("dollarVolumeTotal", "auct_total_amount", "snap_ex_auction"),
                   ("tradesTotal", "auct_total_no", "snap_ex_auction"),
