@@ -137,22 +137,20 @@ def build_summaries(con: duckdb.DuckDBPyConnection, *, rebuild: bool) -> None:
             )
             print(f"  summary {kind} {day}: {time.perf_counter() - t0:.1f}s")
 
-    con.execute("DROP TABLE IF EXISTS summary_inventory")
-    con.execute(
-        f"""CREATE TABLE summary_inventory AS
-        SELECT 'feitu_raw/' || kind AS dataset, CAST(date AS VARCHAR) AS date,
+    have = {r[0] for r in con.execute("SELECT view_name FROM duckdb_views()").fetchall()}
+    parts = [f"""SELECT 'feitu_raw/' || kind AS dataset, CAST(date AS VARCHAR) AS date,
                count(*) AS files, sum(rows) AS rows, sum(bytes) AS source_bytes
         FROM read_parquet('{DATA}/feitu_raw/kind=*/date=*/_manifest.parquet',
                           hive_partitioning=true, union_by_name=true)
-        GROUP BY ALL
-        UNION ALL
-        SELECT 'store/bars_1min', CAST(date AS VARCHAR), 1, count(*), NULL
-        FROM bars_1min GROUP BY ALL
-        UNION ALL
-        SELECT 'public/tdx_daily', CAST(date AS VARCHAR), 1, count(*), NULL
-        FROM pub_tdx_daily GROUP BY ALL
-        ORDER BY 1, 2"""
-    )
+        GROUP BY ALL"""]
+    # optional sources (the intranet box has no bars store and no public cache): only those present
+    for label, view in (("store/bars_1min", "bars_1min"), ("public/tdx_daily", "pub_tdx_daily")):
+        if view in have:
+            parts.append(f"SELECT '{label}', CAST(date AS VARCHAR), 1, count(*), NULL FROM {view} GROUP BY ALL")
+        else:
+            print(f"  summary_inventory: no {view}, left out")
+    con.execute("DROP TABLE IF EXISTS summary_inventory")
+    con.execute("CREATE TABLE summary_inventory AS " + " UNION ALL ".join(parts) + " ORDER BY 1, 2")
 
 
 def main() -> None:
