@@ -134,7 +134,8 @@ candidate per cell.
 All rules read snapshots by **exchange time**, a snapshot exactly on the label belonging to that
 minute, with PM's session closes: the 11:30 label reads the last snapshot at or before 13:00:00 (on
 SZSE the one stamped 13:00:00, which already holds the first afternoon trades) and 15:00 reads the
-day's last snapshot (SSE publishes it after the close auction). Score on 20260430 = exact share
+day's last snapshot (SSE publishes it after the close auction). **Every field of the stock and
+the index cube is reproduced** -- score on 20260430 = exact share
 where both sides have a value / share of cells where both are empty or both filled.
 
 | field | rule (candidate) | exact / nan_agree |
@@ -143,8 +144,8 @@ where both sides have a value / share of cells where both are empty or both fill
 | midPriceLastValid | same snapshot; both sides -> mid, one side (limit up / down) -> that side, neither (close auction, 0 / 0) -> 0 (`mid_side_nocarry`) | 1.0000 / 1.0000 |
 | volumeTotal / dollarVolumeTotal / tradesTotal | snapshot totals minus the opening-auction trades (before 09:30:00); empty through 09:30, 13:00 = 11:30, 14:58-15:00 held at 14:57 (close auction not counted) (`snap_ex_auction_day`) | 1.0000 / 1.0000 |
 | close | snapshot price of the last minute the day volume grew, carried forward, empty through 09:30; a stock that never trades (suspended: 601718, 601003, 600958, 300352 on 20260430) takes the snapshot price, 0 (`snaplast_ffill_px`) | 1.0000 / 1.0000 |
-| index cumVol / cumTo | index cumulative minus its value at 09:30 (`index_ex_open`) | 0.9958 / 0.9844 |
-| index lastTradePrice | last index record at or before the label | 0.9922 / 0.9981 |
+| index cumVol / cumTo | index cumulative minus its value at 09:30, same whole-day shape as the stock totals (`exch/incl_sess/index_ex_open_day`) | 1.0000 / 1.0000 |
+| index lastTradePrice | last index record inside the minute, no carry-forward (`exch/incl_sess/index_nocarry`) | 1.0000 / 1.0000 |
 
 How the totals were found: trades never explain them -- no constant cutoff delay gets past ~60 %
 and 12 % of PM values are no prefix sum of continuous trades (`--implied-cut`). Snapshots do:

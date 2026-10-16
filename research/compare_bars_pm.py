@@ -223,7 +223,9 @@ def index_candidates(date: str, labels: list[int]) -> pl.DataFrame:
     x = pl.scan_parquet(RAW / "kind=index" / f"date={date}" / "part-*.parquet").select(
         "symbol_id", "market_id", "time", "spider_ts", "total_volume", "total_amount", "last_price")
     out = []
-    for clock, edge in itertools.product(("time", "spider_ts"), ("incl", "excl")):
+    # sess: PM's session closes as for stocks (11:30 reads <= 13:00:00, 15:00 the day's last record)
+    variants = [*((c, e, False) for c, e in itertools.product(("time", "spider_ts"), ("incl", "excl"))), ("time", "incl", True)]
+    for clock, edge, sess in variants:
         xx = x.with_columns((pl.col("symbol_id") + 10_000_000).cast(pl.String).alias("code"),
                             ((pl.col(clock) + LOCAL * NS) % (86400 * NS)).alias("sod_ns"))
         xx = xx.with_columns(_label(edge), (pl.col("sod_ns") / NS).alias("sod")).sort(clock)
@@ -231,15 +233,33 @@ def index_candidates(date: str, labels: list[int]) -> pl.DataFrame:
             pl.col("total_volume", "total_amount").last().name.suffix("_open")).collect()
         xx = xx.group_by("code", "label").agg(
             pl.col("total_volume", "total_amount", "last_price").last()).collect().sort("code", "label")
-        grid = xx.select("code").unique().join(pl.DataFrame({"label": labels}, schema={"label": pl.Int64}), how="cross").sort("label")
-        g = grid.join_asof(xx.sort("label"), on="label", by="code", strategy="backward").join(base, on="code", how="left")
+        akey = pl.col("label")
+        if sess:
+            akey = pl.when(pl.col("label") == CONT[0][1]).then(CONT[1][0]).when(pl.col("label") == 15 * 3600).then(10**9).otherwise(akey)
+        grid = (xx.select("code").unique().join(pl.DataFrame({"label": labels}, schema={"label": pl.Int64}), how="cross")
+                .with_columns(akey.cast(pl.Int64).alias("akey")).sort("akey"))
+        g = (grid.join_asof(xx.with_columns(pl.col("label").alias("slabel")).rename({"label": "akey"}).sort("akey"),
+                            on="akey", by="code", strategy="backward").join(base, on="code", how="left"))
+        fresh = (pl.col("slabel") == pl.col("akey")) | (pl.col("akey") == 10**9)
+        g = g.with_columns(pl.when(fresh).then(pl.col("last_price")).alias("nc_last_price")).drop("akey", "slabel").sort("code", "label")
         cont = _in_cont(pl.col("label").cast(pl.Float64))
-        g = g.with_columns(*[pl.when(cont).then(pl.col(c) - pl.col(f"{c}_open").fill_null(0)).alias(f"x_{c}")
-                             for c in ("total_volume", "total_amount")])
-        tag = f"{'exch' if clock == 'time' else 'local'}/{edge}"
+        g = g.with_columns(
+            *[pl.when(cont).then(pl.col(c) - pl.col(f"{c}_open").fill_null(0)).alias(f"x_{c}")
+              for c in ("total_volume", "total_amount")],
+            # whole day as for stock totals: empty through 09:30, after 14:57 held at 14:57
+            *[pl.when(pl.col("label") <= CONT[0][0]).then(None)
+              .when(pl.col("label") > CONT[1][1]).then(pl.col(c).filter(pl.col("label") == CONT[1][1]).first().over("code")
+                                                       - pl.col(f"{c}_open").fill_null(0))
+              .otherwise(pl.col(c) - pl.col(f"{c}_open").fill_null(0)).alias(f"xd_{c}") for c in ("total_volume", "total_amount")],
+            # whole day, the close auction counted
+            *[pl.when(pl.col("label") > CONT[0][0]).then(pl.col(c) - pl.col(f"{c}_open").fill_null(0)).alias(f"xa_{c}")
+              for c in ("total_volume", "total_amount")])
+        tag = f"{'exch' if clock == 'time' else 'local'}/{edge}{'_sess' if sess else ''}"
         for v, c, kind in (("cumVol", "total_volume", "index"), ("cumTo", "total_amount", "index"),
                            ("cumVol", "x_total_volume", "index_ex_open"), ("cumTo", "x_total_amount", "index_ex_open"),
-                           ("lastTradePrice", "last_price", "index")):
+                           ("cumVol", "xd_total_volume", "index_ex_open_day"), ("cumTo", "xd_total_amount", "index_ex_open_day"),
+                           ("cumVol", "xa_total_volume", "index_ex_open_all"), ("cumTo", "xa_total_amount", "index_ex_open_all"),
+                           ("lastTradePrice", "last_price", "index"), ("lastTradePrice", "nc_last_price", "index_nocarry")):
             out.append(g.select("code", "label", pl.lit(v).alias("V"), pl.lit(f"{tag}/{kind}").alias("cand"),
                                 pl.col(c).cast(pl.Float64).alias("ours")))
     return pl.concat(out)
