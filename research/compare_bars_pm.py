@@ -119,7 +119,9 @@ def book_candidates(date: str, labels: list[int]) -> pl.DataFrame:
     q = q.with_columns(pl.when(valid).then((pl.col("askPrice") + pl.col("bidPrice")) / 2).alias("mid_valid"))
     auct = auction_totals(date)
     out = []
-    for clock, edge in itertools.product(("time", "spider_ts"), ("incl", "excl")):
+    # sess: 11:30 reads the last snapshot at or before 13:00:00, 15:00 the day's last snapshot (PM's session closes)
+    variants = [*((c, e, False) for c, e in itertools.product(("time", "spider_ts"), ("incl", "excl"))), ("time", "incl", True)]
+    for clock, edge, sess in variants:
         qq = q.with_columns(pl.col("symbol_id").cast(pl.String).alias("code"),
                             ((pl.col(clock) + LOCAL * NS) % (86400 * NS)).alias("sod_ns"))
         qq = qq.with_columns(_label(edge), (pl.col("sod_ns") / NS).alias("sod")).sort(clock)
@@ -138,12 +140,29 @@ def book_candidates(date: str, labels: list[int]) -> pl.DataFrame:
             ((pl.col("askPrice") + pl.col("bidPrice")) / 2).alias("mid_plain"),
             pl.when((pl.col("askPrice") > 0) & (pl.col("bidPrice") > 0))
             .then((pl.col("askPrice") + pl.col("bidPrice")) / 2).otherwise(0.0).alias("mid_or0"),
-            pl.col("price").alias("lastTradePrice"))
-        grid = qq.select("code").unique().join(pl.DataFrame({"label": labels}, schema={"label": pl.Int64}), how="cross").sort("label")
-        g = grid.join_asof(qq.drop("mid_valid").sort("label"), on="label", by="code", strategy="backward")
+            pl.col("price").alias("lastTradePrice"),
+            # one side empty (limit up / down): that side's price, or the last trade
+            pl.when(pl.col("askPrice") > 0).then(
+                pl.when(pl.col("bidPrice") > 0).then((pl.col("askPrice") + pl.col("bidPrice")) / 2).otherwise(pl.col("askPrice")))
+            .when(pl.col("bidPrice") > 0).then(pl.col("bidPrice"))
+            .otherwise((pl.col("askPrice") + pl.col("bidPrice")) / 2).alias("mid_side"),  # neither side: 0 in the close auction
+            pl.when((pl.col("askPrice") > 0) & (pl.col("bidPrice") > 0))
+            .then((pl.col("askPrice") + pl.col("bidPrice")) / 2).otherwise(pl.col("price")).alias("mid_last"))
+        akey = pl.col("label")
+        if sess:
+            akey = pl.when(pl.col("label") == CONT[0][1]).then(CONT[1][0]).when(pl.col("label") == 15 * 3600).then(10**9).otherwise(akey)
+        grid = (qq.select("code").unique().join(pl.DataFrame({"label": labels}, schema={"label": pl.Int64}), how="cross")
+                .with_columns(akey.cast(pl.Int64).alias("akey")).sort("akey"))
+        g = grid.join_asof(qq.drop("mid_valid").with_columns(pl.col("label").alias("slabel")).rename({"label": "akey"})
+                           .sort("akey"), on="akey", by="code", strategy="backward")
         # last valid mid carried forward: as-of over the minutes that had one
-        mv = qq.filter(pl.col("mid_valid").is_not_null()).select("code", "label", "mid_valid").sort("label")
-        g = g.join_asof(mv, on="label", by="code", strategy="backward").sort("code", "label")
+        mv = qq.filter(pl.col("mid_valid").is_not_null()).select("code", pl.col("label").alias("akey"), "mid_valid").sort("akey")
+        g = g.join_asof(mv, on="akey", by="code", strategy="backward")
+        # no carry-forward: the book only counts when a snapshot fell inside the minute (15:00 = the day's last)
+        fresh = (pl.col("slabel") == pl.col("akey")) | (pl.col("akey") == 10**9)
+        book_cols = ("askPrice", "askSize", "bidPrice", "bidSize", "lastTradePrice", "mid_plain", "mid_side")
+        g = g.with_columns(*[pl.when(fresh).then(pl.col(c)).alias(f"nc_{c}") for c in book_cols]).drop(
+            "akey", "slabel").sort("code", "label")
         cont = _in_cont(pl.col("label").cast(pl.Float64))
         g = g.with_columns(
             *[pl.when(cont).then(pl.col(c) - pl.col(f"{c}_open"))
@@ -154,19 +173,37 @@ def book_candidates(date: str, labels: list[int]) -> pl.DataFrame:
               .then(pl.col(f"{c}_am") - pl.col(f"{c}_auct").fill_null(0))
               .otherwise(pl.col(c) - pl.col(f"{c}_auct").fill_null(0)).alias(f"amc_{c}")
               for c in ("total_volume", "total_amount", "total_no")],
+            # whole day: empty through 09:30, 13:00 as 11:30, after 14:57 held at 14:57 (close auction not counted)
+            *[pl.when(pl.col("label") <= CONT[0][0]).then(None)
+              .when(pl.col("label") > CONT[1][1])
+              .then(pl.col(c).filter(pl.col("label") == CONT[1][1]).first().over("code") - pl.col(f"{c}_auct").fill_null(0))
+              .otherwise(pl.col(c) - pl.col(f"{c}_auct").fill_null(0)).alias(f"full_{c}")
+              for c in ("total_volume", "total_amount", "total_no")],
             pl.when(pl.col("total_volume").diff().over("code") > 0).then(pl.col("price")).alias("snap_close"))
-        tag = f"{'exch' if clock == 'time' else 'local'}/{edge}"
+        # PM close: last trade price carried forward through the day, empty up to 09:30
+        g = g.with_columns(pl.when(pl.col("label") > CONT[0][0]).then(pl.col("snap_close").forward_fill().over("code"))
+                           .alias("snap_close_ffill"))
+        tag = f"{'exch' if clock == 'time' else 'local'}/{edge}{'_sess' if sess else ''}"
         pairs = [(v, v, "book") for v in ("lastTradePrice", "askPrice", "askSize", "bidPrice", "bidSize")]
         pairs += [("midPriceLastValid", "mid_plain", "mid_plain"), ("midPriceLastValid", "mid_or0", "mid_or0"),
-                  ("midPriceLastValid", "mid_valid", "mid_lastvalid"),
+                  ("midPriceLastValid", "mid_valid", "mid_lastvalid"), ("midPriceLastValid", "mid_side", "mid_side"),
+                  ("midPriceLastValid", "mid_last", "mid_last"),
                   ("volumeTotal", "snap_total_volume", "snapcum"), ("dollarVolumeTotal", "snap_total_amount", "snapcum"),
                   ("tradesTotal", "snap_total_no", "snapcum"), ("close", "snap_close", "snaplast"),
+                  ("close", "snap_close_ffill", "snaplast_ffill"),
                   ("volumeTotal", "auct_total_volume", "snap_ex_auction"),
                   ("dollarVolumeTotal", "auct_total_amount", "snap_ex_auction"),
                   ("tradesTotal", "auct_total_no", "snap_ex_auction"),
                   ("volumeTotal", "amc_total_volume", "snap_ex_auction_1300"),
                   ("dollarVolumeTotal", "amc_total_amount", "snap_ex_auction_1300"),
-                  ("tradesTotal", "amc_total_no", "snap_ex_auction_1300")]
+                  ("tradesTotal", "amc_total_no", "snap_ex_auction_1300"),
+                  ("volumeTotal", "full_total_volume", "snap_ex_auction_day"),
+                  ("dollarVolumeTotal", "full_total_amount", "snap_ex_auction_day"),
+                  ("tradesTotal", "full_total_no", "snap_ex_auction_day")]
+        if sess:
+            pairs += [(v, f"nc_{v}", "book_nocarry") for v in ("lastTradePrice", "askPrice", "askSize", "bidPrice", "bidSize")]
+            pairs += [("midPriceLastValid", "nc_mid_side", "mid_side_nocarry"),
+                      ("midPriceLastValid", "nc_mid_plain", "mid_plain_nocarry")]
         for v, col, kind in pairs:
             out.append(g.select("code", "label", pl.lit(v).alias("V"), pl.lit(f"{tag}/{kind}").alias("cand"),
                                 pl.col(col).cast(pl.Float64).alias("ours")))
@@ -200,30 +237,50 @@ def index_candidates(date: str, labels: list[int]) -> pl.DataFrame:
     return pl.concat(out)
 
 
+def _hm(label: pl.Expr) -> pl.Expr:
+    return pl.format("{}:{}", (label // 3600).cast(pl.String).str.zfill(2), (label % 3600 // 60).cast(pl.String).str.zfill(2))
+
+
 def diagnose(pm: pl.DataFrame, ours: pl.DataFrame, v: str, cand: str) -> None:
-    """Where one candidate disagrees: by exchange, by time of day, and sample cells."""
-    j = pm.filter(pl.col("V") == v).join(ours.filter((pl.col("V") == v) & (pl.col("cand") == cand)),
-                                          on=["code", "label", "V"], how="inner")
+    """Where one candidate disagrees: empty-vs-value cells, then values by exchange, minute, shift and book context."""
+    mine = ours.filter((pl.col("V") == v) & (pl.col("cand") == cand)).select("code", "label", "ours")
+    j = pm.filter(pl.col("V") == v).join(mine, on=["code", "label"], how="inner").with_columns(
+        _exch(pl.col("code")).alias("exch"), _hm(pl.col("label")).alias("t"))
     a, b = pl.col("pm"), pl.col("ours")
-    j = j.filter(a.is_not_nan() & b.is_not_null() & b.is_not_nan()).with_columns(
-        ((a - b).abs() <= 1e-9 * a.abs().clip(1.0, None)).alias("ok"),
-        pl.when((pl.col("code").str.len_chars() == 6) & pl.col("code").str.starts_with("6"))
-        .then(pl.lit("SH")).otherwise(pl.lit("SZ")).alias("exch"),  # codes are unpadded: '1' = 000001
-        (pl.col("label") // 3600).alias("hour"), (b - a).alias("ours_minus_pm"))
+    pm_na, our_na = a.is_null() | a.is_nan(), b.is_null() | b.is_nan()
+    eq = lambda x, y: (x - y).abs() <= 1e-9 * x.abs().clip(1.0, None)  # noqa: E731  relative 1e-9
     with pl.Config(tbl_rows=40, tbl_width_chars=200, float_precision=6):
-        print(f"== diagnose {v} / {cand}: {j.height} cells, exact {j['ok'].mean():.4f}")
+        na = j.filter(pm_na != our_na).with_columns(pl.when(pm_na).then(pl.lit("pm empty")).otherwise(pl.lit("ours empty")).alias("side"))
+        print(f"== diagnose {v} / {cand}: {j.height} cells, {na.height} empty on one side only")
+        if na.height:
+            print(na.group_by("side", "exch", "t").len().sort("len", descending=True).head(12))
+        j = j.filter(~pm_na & ~our_na).with_columns(eq(a, b).alias("ok"), (b - a).alias("ours_minus_pm"))
+        print(f"both present: {j.height} cells, exact {j['ok'].mean():.4f}")
         print(j.group_by("exch").agg(pl.len(), pl.col("ok").mean()).sort("exch"))
-        print(j.group_by("hour").agg(pl.len(), pl.col("ok").mean()).sort("hour"))
+        print(j.group_by((pl.col("label") // 3600).alias("hour")).agg(pl.len(), pl.col("ok").mean()).sort("hour"))
         bad = j.filter(~pl.col("ok"))
         print("stocks with any mismatch:", bad["code"].n_unique(), "of", j["code"].n_unique())
-        print(bad.group_by("exch", pl.col("label").map_elements(lambda x: f"{x // 3600:02d}:{x % 3600 // 60:02d}",
-                                                                   return_dtype=pl.String).alias("t"))
-              .len().sort("len", descending=True).head(10))
+        print(bad.group_by("exch", "t").len().sort("len", descending=True).head(12))
+        if bad.is_empty():
+            return
+        # is PM one minute ahead / behind us, or equal to one of our book fields at that label?
+        ctx = bad.select("code", "label", "pm", "ours")
+        for name, dl in (("ours one minute earlier", -60), ("ours one minute later", 60)):
+            sh = mine.with_columns((pl.col("label") - dl).alias("label")).rename({"ours": "o2"})
+            m = ctx.join(sh, on=["code", "label"], how="left")
+            print(f"misses where pm == {name}: {m.select(eq(pl.col('pm'), pl.col('o2')).fill_null(False).mean()).item():.4f}")
+        tag = "/".join(cand.split("/")[:2])
+        for f in ("askPrice", "bidPrice", "lastTradePrice"):
+            o = ours.filter((pl.col("V") == f) & (pl.col("cand") == f"{tag}/book")).select("code", "label", pl.col("ours").alias(f))
+            ctx = ctx.join(o, on=["code", "label"], how="left")
+        if "askPrice" in ctx.columns:
+            ctx = ctx.with_columns(((pl.col("askPrice") + pl.col("bidPrice")) / 2).alias("our_mid"))
+            print("misses where pm equals our:", {f: round(ctx.select(eq(pl.col("pm"), pl.col(f)).fill_null(False).mean()).item(), 4)
+                                                  for f in ("askPrice", "bidPrice", "lastTradePrice", "our_mid")})
         print(bad.group_by("code").agg(pl.len().alias("bad_cells"), pl.col("ours_minus_pm").median().alias("median_diff"))
               .sort("bad_cells", descending=True).head(8))
-        print(bad.with_columns((pl.col("label").map_elements(lambda x: f"{x // 3600:02d}:{x % 3600 // 60:02d}",
-                                                              return_dtype=pl.String)).alias("t"))
-              .select("code", "t", "pm", "ours", "ours_minus_pm").head(12))
+        print(ctx.join(bad.select("code", "label", "t"), on=["code", "label"]).sort("code", "label")
+              .drop("label").head(15))
 
 
 DELTAS_MS = (-3000, -1000, -500, -200, -100, 0, 50, 100, 200, 300, 500, 1000, 1500, 2000, 3000, 5000, 10000)
@@ -413,7 +470,7 @@ def score(pm: pl.DataFrame, ours: pl.DataFrame) -> pl.DataFrame:
                 j.join(d.select("V", "cand", "ratio"), on=["V", "cand"]).group_by("V", "cand").agg(
                     ((a - b * pl.col("ratio")).abs() <= 1e-6 * a.abs().clip(1.0, None)).filter(both).mean()
                     .alias("exact_scaled")), on=["V", "cand"], how="left"))
-            .sort("V", "exact", "exact_scaled", "close_1e4", descending=[False, True, True, True]))
+            .sort("V", "exact", "nan_agree", "exact_scaled", "close_1e4", descending=[False, True, True, True, True]))
 
 
 def main() -> None:
@@ -455,7 +512,7 @@ def main() -> None:
         return
     res.write_parquet(a.out / f"bars_{a.date}.parquet")
     res.write_csv(a.out / f"bars_{a.date}.csv")
-    with pl.Config(tbl_rows=80, tbl_width_chars=200, float_precision=4):
+    with pl.Config(tbl_rows=80, tbl_width_chars=220, float_precision=4, fmt_str_lengths=40):
         print(res.group_by("V", maintain_order=True).head(2))
     print(f"full table: {a.out / f'bars_{a.date}.csv'}")
 
