@@ -33,6 +33,7 @@ universe *before* the per-order grouping, which keeps it to a few million groups
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -62,8 +63,26 @@ VARIANTS = {
 }
 
 
+CED_INDEX = {"000300": "CSI 300 Index", "000905": "CSI 500 Index", "000852": "CSI 1000 Index"}
+
+
+def ced_universe(index_code: str, date: str) -> pl.DataFrame | None:
+    """Constituents on ``date`` from our CED index weights (intranet), or None when CED has no such day."""
+    root = Path(os.environ.get("CRUCIBLE_DATA", str(DATA))) / "store" / "ced"
+    col = CED_INDEX.get(index_code)
+    for ds in ("index_universe", "index_universe_hist"):
+        f = root / ds / f"date={date}" / "part.parquet"
+        if col and f.exists() and col in pl.read_parquet_schema(f):
+            w = pl.read_parquet(f, columns=["symbol", col]).filter(pl.col(col).is_not_null() & (pl.col(col) > 0))
+            print(f"universe {index_code} {date}: {w.height} names from CED {ds}")
+            return w.select(
+                pl.col("symbol").str.slice(0, 6).cast(pl.Int32).alias("symbol_id"),
+                pl.when(pl.col("symbol").str.ends_with(".SH")).then(3553).otherwise(3554).cast(pl.Int16).alias("market_id"))
+    return None
+
+
 def universe(index_code: str) -> pl.DataFrame:
-    """Latest cached constituents of ``index_code`` as (symbol_id, market_id)."""
+    """Latest cached constituents of ``index_code`` as (symbol_id, market_id) (extranet public cache)."""
     files = sorted((PUBLIC / "index_weights" / f"index={index_code}").glob("asof=*.parquet"))
     if not files:
         raise SystemExit(f"no cached constituents for {index_code}: run research/astock/fetch.py")
@@ -141,8 +160,9 @@ def main() -> None:
     con = duckdb.connect(str(CATALOG), read_only=True)
     con.execute(f"SET memory_limit='{a.memory}'")
     con.execute(f"SET temp_directory='{DATA / 'duckdb_tmp'}'")
-    con.register("uni", universe(a.index))
     for d in filter(None, a.dates.split(",")):
+        uni = ced_universe(a.index, d)  # CED on the intranet; the public cache otherwise
+        con.register("uni", uni if uni is not None else universe(a.index))
         for v in filter(None, a.variants.split(",")):
             with ResourceMonitor("W3.sampler_r", params={"date": d, "variant": v}) as mon:
                 df = sampler_r(con, d, v)
