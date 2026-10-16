@@ -1,13 +1,14 @@
 """Decode one day of feitu v3 minute dumps into raw Parquet, in parallel, with resource stats.
 
-Input layout (one directory per stream, one ``.zst`` per minute)::
+Input layout, either of (picked per stream)::
 
-    <root>/v3_order/v3_order_2026_06_15_10_30.zst
-    <root>/v3_transaction/...  <root>/v3_quotation/...  <root>/v3_index/...
+    <root>/v3_order/v3_order_2026_06_15_10_30.zst          minute dumps, one directory per stream
+    <root>/v3_order_2026_04_29_SH.zst                       TickRepository archive: one file per
+    <root>/v3_order_2026_04_29_SZ.zst                       stream, day and exchange
 
 Output (raw vendor values, no unit conversion -- normalisation is a separate, auditable step)::
 
-    <out>/kind=<order|transaction|quotation|index>/date=YYYYMMDD/part-HHMM.parquet
+    <out>/kind=<order|transaction|quotation|index>/date=YYYYMMDD/part-HHMM.parquet  (part-SH / part-SZ)
     <out>/kind=<...>/date=YYYYMMDD/_manifest.parquet   one row per source file
 
 The decoder is the C++ kernel (``crucible_kernels.feitu``, GIL released), fanned out over a
@@ -74,6 +75,7 @@ class MemoryBudget:
 
 
 _MINUTE = re.compile(r"_(\d{4})_(\d{2})_(\d{2})_(\d{2})_(\d{2})\.zst$")
+_DAYFILE = re.compile(r"_(\d{4})_(\d{2})_(\d{2})_(SH|SZ)\.zst$")  # archive: whole day of one exchange
 _LEVEL_COLS = ("bid_px", "bid_vol", "bid_no", "ask_px", "ask_vol", "ask_no")
 
 
@@ -92,9 +94,12 @@ def _to_table(cols: dict[str, Any]) -> pa.Table:
 
 def _decode_one(kind: str, src: Path, dst_dir: Path, overwrite: bool) -> dict[str, Any]:
     m = _MINUTE.search(src.name)
-    if m is None:
+    if m is not None:
+        hhmm = m.group(4) + m.group(5)
+    elif (dm := _DAYFILE.search(src.name)) is not None:
+        hhmm = dm.group(4)  # part-SH / part-SZ
+    else:
         raise ValueError(f"unexpected dump name {src.name!r}")
-    hhmm = m.group(4) + m.group(5)
     dst = dst_dir / f"part-{hhmm}.parquet"
     row: dict[str, Any] = {
         "file": src.name,
@@ -156,10 +161,12 @@ def decode_day(
 
     for kind in kinds:
         src_dir = root / f"v3_{kind}"
+        found = list(src_dir.glob(f"v3_{kind}_*.zst")) or [
+            f for f in root.glob(f"v3_{kind}_*.zst") if _DAYFILE.search(f.name)]
         # Largest first: the open-of-day files dominate, so start them early to cut the tail.
-        files = sorted(src_dir.glob(f"v3_{kind}_*.zst"), key=lambda f: -f.stat().st_size)
+        files = sorted(found, key=lambda f: -f.stat().st_size)
         if not files:
-            print(f"[{kind}] no files under {src_dir} -- stream absent for {date}")
+            print(f"[{kind}] no files under {src_dir} nor {root}/v3_{kind}_YYYY_MM_DD_<SH|SZ>.zst -- stream absent for {date}")
             continue
         dst_dir = out / f"kind={kind}" / f"date={date}"
         dst_dir.mkdir(parents=True, exist_ok=True)
@@ -182,7 +189,8 @@ def decode_day(
 def main() -> None:
     """CLI entry point."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--root", type=Path, required=True, help="directory holding v3_<kind>/")
+    ap.add_argument("--root", type=Path, required=True,
+                    help="directory holding v3_<kind>/ minute dumps or v3_<kind>_YYYY_MM_DD_<SH|SZ>.zst day files")
     ap.add_argument("--date", required=True, help="trading day YYYYMMDD")
     ap.add_argument("--out", type=Path, default=Path("/work/crucible_data/feitu_raw"))
     ap.add_argument("--kinds", default=",".join(KINDS))
