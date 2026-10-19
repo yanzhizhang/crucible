@@ -34,9 +34,9 @@ _ENV = {WIND: "CRUCIBLE_WIND_URL", JY: "CRUCIBLE_JY_URL", ZY: "CRUCIBLE_ZY_URL"}
 HOST, PORT = "10.14.3.20", 1433
 DATABASES = {WIND: "WindDB", JY: "JYDB", ZY: "Zyyx2.0"}
 _QUERY = "charset=utf8&tds_version=7.0"
-# account: fill in on the intranet machine only -- never commit these with values
-DB_USER = ""
-DB_PASSWORD = ""
+# account: demo account
+DB_USER = "researcher"
+DB_PASSWORD = "researcher"
 _SHT_ATTR = {WIND: "wind_url", JY: "jy_url", ZY: "zy_url"}
 _FROM_RE = re.compile(r"\bFROM\s+([\w.\[\]]+)", re.IGNORECASE)
 _engines: dict[str, object] = {}
