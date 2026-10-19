@@ -45,22 +45,45 @@ KS = (50, 100, 200, 500, 1000, 2000)
 TZ = dt.timezone(dt.timedelta(hours=8))
 
 
-def totals(con: duckdb.DuckDBPyConnection, days: list[str], today: str, end_ns: int | None) -> pl.DataFrame:
-    """Per (day, stock, role, order) filled totals; earlier days whole, ``today`` up to ``end_ns``."""
+def totals(con: duckdb.DuckDBPyConnection, days: list[str], today: str, end_ns: int | None,
+           size: str = "filled") -> pl.DataFrame:
+    """Per (day, stock, role, order) size; earlier days whole, ``today`` up to ``end_ns``.
+
+    ``filled``: the order's filled total. ``submitted``: the order's submitted quantity, rebuilt per
+    venue from the order stream (``raw_order``): SZSE publishes the original order (key ``seq_id``);
+    SSE publishes only what rests after the immediate fills (key ``order_id``) and nothing for an
+    order filled on arrival, so there it is the order's aggressor fills plus the published rest.
+    """
     dl = ", ".join(str(int(d)) for d in days)
     cut = f"AND (r.date <> {int(today)} OR r.time <= {end_ns})" if end_ns else ""
-    return con.sql(f"""
+    roles = f"""
       WITH t AS (
-        SELECT r.date, r.symbol_id, r.dir, r.volume, r.buy_seq_id, r.sell_seq_id
+        SELECT r.date, r.symbol_id, r.market_id, r.dir, r.volume, r.buy_seq_id, r.sell_seq_id
         FROM raw_transaction r JOIN uni u USING (symbol_id, market_id)
-        WHERE r.date IN ({dl}) AND r.trade_type = 1 AND r.dir IN ({R.BUY}, {R.SELL}) {cut})
-      SELECT date, symbol_id, CASE dir WHEN {R.BUY} THEN 'ab' ELSE 'as' END AS role,
-             CASE dir WHEN {R.BUY} THEN buy_seq_id ELSE sell_seq_id END AS oid, sum(volume) AS v
-      FROM t GROUP BY ALL
-      UNION ALL
-      SELECT date, symbol_id, CASE dir WHEN {R.BUY} THEN 'ps' ELSE 'pb' END,
-             CASE dir WHEN {R.BUY} THEN sell_seq_id ELSE buy_seq_id END, sum(volume)
-      FROM t GROUP BY ALL""").pl()
+        WHERE r.date IN ({dl}) AND r.trade_type = 1 AND r.dir IN ({R.BUY}, {R.SELL}) {cut}),
+      f AS (
+        SELECT date, symbol_id, market_id, CASE dir WHEN {R.BUY} THEN 'ab' ELSE 'as' END AS role,
+               CASE dir WHEN {R.BUY} THEN buy_seq_id ELSE sell_seq_id END AS oid, sum(volume) AS v
+        FROM t GROUP BY ALL
+        UNION ALL
+        SELECT date, symbol_id, market_id, CASE dir WHEN {R.BUY} THEN 'ps' ELSE 'pb' END,
+               CASE dir WHEN {R.BUY} THEN sell_seq_id ELSE buy_seq_id END, sum(volume)
+        FROM t GROUP BY ALL)"""
+    if size == "filled":
+        return con.sql(roles + " SELECT date, symbol_id, role, oid, v FROM f").pl()
+    ocut = f"AND (o.date <> {int(today)} OR o.time <= {end_ns})" if end_ns else ""
+    return con.sql(roles + f""",
+      aggr AS (SELECT date, symbol_id, oid, sum(v) AS af FROM f WHERE role IN ('as', 'ab') GROUP BY ALL),
+      ord AS (
+        SELECT o.date, o.symbol_id, CASE o.market_id WHEN 3553 THEN o.order_id ELSE o.seq_id END AS oid,
+               max(o.volume) AS ov
+        FROM raw_order o JOIN uni u USING (symbol_id, market_id)
+        WHERE o.date IN ({dl}) AND (o.market_id = 3554 OR o.update_type <> 2) {ocut}
+        GROUP BY ALL)
+      SELECT f.date, f.symbol_id, f.role, f.oid,
+             CASE f.market_id WHEN 3553 THEN coalesce(ord.ov, 0) + coalesce(aggr.af, 0)
+                              ELSE coalesce(ord.ov, f.v) END AS v
+      FROM f LEFT JOIN ord USING (date, symbol_id, oid) LEFT JOIN aggr USING (date, symbol_id, oid)""").pl()
 
 
 def weights(back: np.ndarray, model: str) -> np.ndarray | None:
@@ -107,6 +130,8 @@ def main() -> None:
     ap.add_argument("--cr", type=Path, help="ZZCR samplerR (as/ps/ab/pb at the close)")
     ap.add_argument("--epochs", default="11:30,15:00", help="ZZAC epochs to test")
     ap.add_argument("--models", default="today,decay1,decay3,decay10,pool10")
+    ap.add_argument("--size", default="filled", choices=("filled", "submitted"),
+                    help="order size: filled total, or submitted quantity (needs the order stream decoded)")
     ap.add_argument("--sims", type=int, default=200)
     ap.add_argument("--workers", type=int, default=min(64, os.cpu_count() or 1))
     ap.add_argument("--index", default="000300")
@@ -115,7 +140,7 @@ def main() -> None:
     days = [str(d) for d in con.sql(f"SELECT DISTINCT date FROM raw_transaction WHERE date <= {int(a.date)} "
                                     "ORDER BY date DESC LIMIT 11").pl()["date"]]
     back_of = {d: i for i, d in enumerate(days)}
-    print(f"trade days in the pool (newest first): {days}")
+    print(f"trade days in the pool (newest first): {days}; size = {a.size}")
     uni = R.ced_universe(a.index, a.date)
     con.register("uni", uni if uni is not None else R.universe(a.index))
     models = a.models.split(",")
@@ -137,7 +162,7 @@ def main() -> None:
         jobs.append(("ZZCR close", None, t))
     rows = []
     for label, end, t in jobs:
-        tot = totals(con, days, a.date, end).with_columns(
+        tot = totals(con, days, a.date, end, a.size).with_columns(
             pl.col("date").cast(pl.String).replace_strict(back_of).alias("back"))
         t = t.filter(pl.col("pm") > 0)
         tasks = []
