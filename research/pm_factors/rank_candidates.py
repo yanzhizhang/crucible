@@ -65,7 +65,7 @@ def _find(cols: list[str], name: str | None, default: str) -> str | None:
 def _code(e: pl.Expr, dtype: pl.DataType) -> pl.Expr:
     if dtype.is_numeric():
         return e.cast(pl.Float64).round(0).cast(pl.Int64)
-    return e.cast(pl.String).str.extract(r"(\d{6})").cast(pl.Int64)
+    return e.cast(pl.String).str.extract(r"(\d+)").cast(pl.Int64)  # '000001.SZ', '1', '600000' -> int
 
 
 def _date(e: pl.Expr, dtype: pl.DataType) -> pl.Expr:
@@ -96,6 +96,10 @@ def pm_frame(path: Path, s: str | None, d: str | None, i: str | None, v: str | N
     it = out.schema["I"]
     if it.is_temporal():
         out = out.with_columns((pl.col("I").dt.hour().cast(pl.Int32) * 60 + pl.col("I").dt.minute()).alias("minute"))
+        kind = "time"
+    elif it == pl.String and out["I"].str.contains(r"^\d{1,2}:\d{2}").all():
+        hm = out["I"].str.extract_groups(r"^(\d{1,2}):(\d{2})")  # '09:30:00' -> 570
+        out = out.with_columns((hm.struct.field("1").cast(pl.Int64) * 60 + hm.struct.field("2").cast(pl.Int64)).alias("minute"))
         kind = "time"
     elif out["I"].n_unique() == 1:
         out = out.with_columns(pl.lit(-1).alias("minute"))
@@ -182,6 +186,10 @@ def main() -> None:
                 idx = pl.DataFrame({"I": list(range(n)), "minute": [x + sh for x in m]},
                                    schema={"I": pm.schema["I"], "minute": pl.Int64})
                 maps.append((g, sh, idx))
+    elif kind == "time":
+        # PM may label a bar by its start (09:30 = 09:30-09:35) and we by its end: try the bar offsets
+        step = int(pm.select(pl.col("minute").unique().sort().diff().drop_nulls().min()).item() or 1)
+        maps = [("time", sh, None) for sh in (0, step, -step)]
     else:
         maps = [(kind, 0, None)]
 
@@ -189,6 +197,8 @@ def main() -> None:
     res = []
     for g, sh, idx in maps:
         p = pm if idx is None else pm.join(idx, on="I")
+        if idx is None and kind == "time":
+            p = pm.with_columns(pl.col("minute") + sh)
         keys = ["code", "date", "minute", "V"] if kind != "daily" else ["code", "date", "V"]
         j = p.join(ours if kind != "daily" else ours.drop("minute"), on=keys)
         if j.height == 0:
