@@ -41,12 +41,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import diag_sampler_ac as A  # ZZAC reader
 import sampler_r as R  # catalog, universe, codes
 
-KS = (50, 100, 200, 500, 1000, 2000)
+KS = (20, 30, 40, 50, 70, 100, 150, 200, 500)
 TZ = dt.timezone(dt.timedelta(hours=8))
 
 
 def totals(con: duckdb.DuckDBPyConnection, days: list[str], today: str, end_ns: int | None,
-           size: str = "filled") -> pl.DataFrame:
+           size: str = "filled", session: str = "all") -> pl.DataFrame:
     """Per (day, stock, role, order) size; earlier days whole, ``today`` up to ``end_ns``.
 
     ``filled``: the order's filled total. ``submitted``: the order's submitted quantity, rebuilt per
@@ -56,6 +56,8 @@ def totals(con: duckdb.DuckDBPyConnection, days: list[str], today: str, end_ns: 
     """
     dl = ", ".join(str(int(d)) for d in days)
     cut = f"AND (r.date <> {int(today)} OR r.time <= {end_ns})" if end_ns else ""
+    if session == "cont":  # continuous session only, 09:30-14:57 exchange time (no auctions)
+        cut += f" AND {R._CONTINUOUS}"
     roles = f"""
       WITH t AS (
         SELECT r.date, r.symbol_id, r.market_id, r.dir, r.volume, r.buy_seq_id, r.sell_seq_id
@@ -72,6 +74,8 @@ def totals(con: duckdb.DuckDBPyConnection, days: list[str], today: str, end_ns: 
     if size == "filled":
         return con.sql(roles + " SELECT date, symbol_id, role, oid, v FROM f").pl()
     ocut = f"AND (o.date <> {int(today)} OR o.time <= {end_ns})" if end_ns else ""
+    if session == "cont":
+        ocut += f" AND {R._CONTINUOUS}"
     return con.sql(roles + f""",
       aggr AS (SELECT date, symbol_id, oid, sum(v) AS af FROM f WHERE role IN ('as', 'ab') GROUP BY ALL),
       ord AS (
@@ -102,7 +106,7 @@ def weights(back: np.ndarray, model: str) -> np.ndarray | None:
 
 def pits(task: tuple) -> list[tuple]:
     """For one (stock, role) pool: PIT of each PM value under every (model, K)."""
-    v, back, targets, models, seed, sims = task  # targets: list of (target, column, level, pm)
+    v, back, targets, models, seed, sims, ks = task  # targets: list of (target, column, level, pm)
     rng = np.random.default_rng(seed)
     out = []
     for model in models:
@@ -110,7 +114,7 @@ def pits(task: tuple) -> list[tuple]:
         if w is None:
             continue
         cdf = np.cumsum(w)
-        for k in KS:
+        for k in ks:
             idx = np.minimum(np.searchsorted(cdf, rng.random((sims, k))), len(v) - 1)
             levels = sorted({t[2] for t in targets})
             q = np.quantile(v[idx], levels, axis=1, method="linear")  # (levels, sims)
@@ -130,6 +134,8 @@ def main() -> None:
     ap.add_argument("--cr", type=Path, help="ZZCR samplerR (as/ps/ab/pb at the close)")
     ap.add_argument("--epochs", default="11:30,15:00", help="ZZAC epochs to test")
     ap.add_argument("--models", default="today,decay1,decay3,decay10,pool10")
+    ap.add_argument("--ks", default=",".join(str(k) for k in KS), help="sample sizes K to test")
+    ap.add_argument("--session", default="all", choices=("all", "cont"), help="cont = continuous session only")
     ap.add_argument("--size", default="filled", choices=("filled", "submitted"),
                     help="order size: filled total, or submitted quantity (needs the order stream decoded)")
     ap.add_argument("--sims", type=int, default=200)
@@ -140,7 +146,8 @@ def main() -> None:
     days = [str(d) for d in con.sql(f"SELECT DISTINCT date FROM raw_transaction WHERE date <= {int(a.date)} "
                                     "ORDER BY date DESC LIMIT 11").pl()["date"]]
     back_of = {d: i for i, d in enumerate(days)}
-    print(f"trade days in the pool (newest first): {days}; size = {a.size}")
+    ks = tuple(int(k) for k in a.ks.split(","))
+    print(f"trade days in the pool (newest first): {days}; size = {a.size}, session = {a.session}, K = {ks}")
     uni = R.ced_universe(a.index, a.date)
     con.register("uni", uni if uni is not None else R.universe(a.index))
     models = a.models.split(",")
@@ -162,7 +169,7 @@ def main() -> None:
         jobs.append(("ZZCR close", None, t))
     rows = []
     for label, end, t in jobs:
-        tot = totals(con, days, a.date, end, a.size).with_columns(
+        tot = totals(con, days, a.date, end, a.size, a.session).with_columns(
             pl.col("date").cast(pl.String).replace_strict(back_of).alias("back"))
         t = t.filter(pl.col("pm") > 0)
         tasks = []
@@ -172,7 +179,7 @@ def main() -> None:
                 continue
             targets = [(label, c, lv, p) for c, lv, p in tg.select("column", "level", "pm").iter_rows()]
             tasks.append((g["v"].to_numpy().astype(float), g["back"].to_numpy().astype(float), targets, models,
-                          zlib.crc32(f"{label}|{sym}|{role}".encode()), a.sims))
+                          zlib.crc32(f"{label}|{sym}|{role}".encode()), a.sims, ks))
         print(f"{label}: {len(tasks)} stock x role pools, {sum(len(x[2]) for x in tasks)} PM values")
         with ProcessPoolExecutor(a.workers) as ex:
             for r in ex.map(pits, tasks, chunksize=8):
