@@ -51,6 +51,43 @@ Quantiles: DuckDB `quantile_cont` (linear interpolation = numpy/pandas default).
 also carries `<role>.n` (sample sizes) for diagnosing the half-integer question.
 Runtime 6-21 s per day and variant, 3-5 GB peak (DuckDB, spills to `/work/crucible_data/duckdb_tmp`).
 
+### Result on 97 (20260429, 2026-10-16..20): a random sample, not a deterministic statistic
+
+Data: TickRepository archive (172.21.2.23, `/mnt/nas/pica_data_hdd_1/TickRepository/hdfs_data/`),
+trades for 0416-0429 and orders for 0428-0429, decoded with `decode_feitu_day.py`. PM's
+`sod/20260430` is identical to `HS300/<fam>/20260429` -- **sod/D is built from day D-1** (proven).
+
+Two layouts: **ZZCR** one row per stock, `{as, ps, ab, pb} x {q50, q90, q95, q98}`; **ZZAC** 48 rows
+per stock (`rec_epoch` = every five minutes of 0429, 09:35 .. 15:00), `{as, bs} x {q5 .. q98}`.
+
+What the diagnostics showed, in order:
+
+1. Per-order totals are the right quantity (median PM/ours 1.0-1.08, rank corr 0.91-0.97);
+   per-trade volume is 1.4-2.1x off (`diag_sampler_r.py`). But never exact.
+2. No window / quantile method / rounding reproduces it (`sampler_r_grid.py`: best 0.5 % exact);
+   longer pools fit better (w10 0.31 at 1 day -> 0.46 at 10 days).
+3. ZZAC does not follow same-day accumulation and ZZCR is none of ZZAC's epochs
+   (`diag_sampler_ac.py`); its five-minute steps are not an EWMA of slot quantiles (R^2 0.01-0.04)
+   and often move **against** the new slot (`diag_sampler_update.py`). Only randomness does that.
+4. Treating PM's value as the quantile of a random K-sample of orders and scoring its percentile
+   in simulated K-samples (`sampler_r_mc.py`): consistent, with a one-sided bias using filled
+   totals (mean PIT 0.57-0.69), largely removed by **submitted order size** (SZSE: the order's
+   own volume, key `seq_id`; SSE: aggressor fills + published rest, key `order_id`).
+
+| target | best fit | ks (0.02 = perfect here) | mean PIT | in 90 % band |
+| --- | --- | --- | --- | --- |
+| ZZCR close | submitted, today, continuous session, **K = 100** | 0.038 | 0.495 | 0.875 |
+| ZZAC 11:30 | submitted, today (from the open), **K = 40** | 0.054 | 0.533 | 0.889 |
+| ZZAC 15:00 | submitted, today, K = 70 | 0.139 | 0.608 | 0.795 |
+
+Reading: samplerR is a **reservoir sample** of submitted order sizes ("Algorithm R" is the textbook
+name) -- about 100 orders for ZZCR, about 40 for ZZAC -- and the thresholds are its quantiles.
+Exact values are therefore not reproducible (they depend on PM's random state and stream order);
+the procedure is. Open: ZZAC at the close is still biased upwards with a uniform same-day pool --
+consistent with a sample that favours recent orders (a decaying / biased reservoir), to be tested.
+For Stage 4, PM's own samplerR files are the size thresholds, so factor formulas can be matched
+without this noise.
+
 ## Intranet runbook (10.11.1.97)
 
 **Short version -- one command** (`research/intranet_run.py`): check first, then run everything
