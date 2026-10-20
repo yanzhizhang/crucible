@@ -81,9 +81,9 @@ def parse_model(path: Path) -> tuple[dict, pl.DataFrame]:
 
 
 def family_of(feature: str) -> str:
-    """``zzug.ab`` -> ``ZZUG``; names without a dot keep their leading letters."""
-    stem = feature.split(".", 1)[0] if "." in feature else re.match(r"[A-Za-z]+", feature).group(0)
-    return stem.upper()
+    """Family = the name's leading letters, version digits dropped: ``zzhi2.c`` / ``zzhi.b`` / ``zzab2`` -> ZZHI / ZZHI / ZZAB."""
+    m = re.match(r"[A-Za-z]+", feature)
+    return m.group(0).upper() if m else feature.upper()
 
 
 def locate(path: Path, root: Path) -> dict[str, str]:
@@ -148,7 +148,7 @@ def main() -> None:
                                          pl.col("share").max().alias("max_share")), on="family")
     fams = fams.sort("mean_gain_share", descending=True).with_columns(
         pl.col("mean_gain_share").cum_sum().alias("cum_share"))
-    listed = {family_of(n) for n in csv_names if "." in n}
+    listed = {family_of(n) for n in csv_names}
     if csv_names:
         print(f"feature csv: {len(csv_names)} names, {len(listed)} families")
     shipped = {p.name.upper() for p in a.hstats.iterdir() if p.is_dir()} if a.hstats.is_dir() else set()
