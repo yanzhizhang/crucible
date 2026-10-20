@@ -85,7 +85,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from bench.resmon import ResourceMonitor, append_history
-from sampler_r import BUY, CATALOG, DATA, SELL, universe
+from sampler_r import BUY, CATALOG, DATA, SELL, ced_universe, universe
 
 OUT = DATA / "store" / "pm_factors" / "candidates"
 THR = DATA / "store" / "pm_factors" / "sampler_r"
@@ -385,12 +385,13 @@ def main() -> None:
     ap.add_argument("--families", default="all", help="comma-separated, or 'all'")
     ap.add_argument("--index", default="000300")
     ap.add_argument("--thr-variant", default="order_all", help="samplerR variant for size tiers")
+    ap.add_argument("--thr-file", type=Path,
+                    help="use this samplerR file as the size tiers (e.g. PM's own ZZCR samplerR), not ours")
     ap.add_argument("--memory", default="6GB")
     a = ap.parse_args()
     con = duckdb.connect(str(CATALOG), read_only=True)
     con.execute(f"SET memory_limit='{a.memory}'")
     con.execute(f"SET temp_directory='{DATA / 'duckdb_tmp'}'")
-    con.register("uni", universe(a.index))
     from candidates_more import FAMILIES_MORE, NEEDS, _events_view
 
     table = {**FAMILIES, **FAMILIES_MORE}
@@ -398,7 +399,13 @@ def main() -> None:
     fams = list(table) if a.families == "all" else [f.strip().upper() for f in a.families.split(",") if f.strip()]
     want = set().union(*(needs[f] for f in fams))
     for d in filter(None, a.dates.split(",")):
-        thr, thr_day = thresholds(d, a.thr_variant)
+        uni = ced_universe(a.index, d)  # CED on the intranet; the public cache otherwise
+        con.register("uni", uni if uni is not None else universe(a.index))
+        if a.thr_file:
+            thr, thr_day = pl.read_parquet(a.thr_file), d
+            print(f"  size tiers from {a.thr_file}")
+        else:
+            thr, thr_day = thresholds(d, a.thr_variant)
         con.register("thr", thr)
         if "tr" in want:
             _trades_view(con, d, a.thr_variant)
