@@ -112,9 +112,9 @@ def library(con: duckdb.DuckDBPyConnection, date: str) -> pl.DataFrame:
         arg_max(av, time)::DOUBLE AS "book_vol:ask", arg_max(bv, time)::DOUBLE AS "book_vol:bid",
         arg_max(av * wa, time) AS "book_amt:ask", arg_max(bv * wb, time) AS "book_amt:bid",
         arg_max(wa, time) AS "book_wpx:ask", arg_max(wb, time) AS "book_wpx:bid",
-        arg_max(ln(wa / nullif((a1 + b1) / 2, 0)), time) AS "book_wdist:ask",
-        arg_max(ln(wb / nullif((a1 + b1) / 2, 0)), time) AS "book_wdist:bid",
-        arg_max(ln(wa / nullif(px, 0)), time) AS "book_wdist_px:ask", arg_max(ln(wb / nullif(px, 0)), time) AS "book_wdist_px:bid"
+        arg_max(ln(nullif(wa, 0) / nullif((a1 + b1) / 2, 0)), time) AS "book_wdist:ask",
+        arg_max(ln(nullif(wb, 0) / nullif((a1 + b1) / 2, 0)), time) AS "book_wdist:bid",
+        arg_max(ln(nullif(wa, 0) / nullif(px, 0)), time) AS "book_wdist_px:ask", arg_max(ln(nullif(wb, 0) / nullif(px, 0)), time) AS "book_wdist_px:bid"
       FROM q GROUP BY ALL""").pl()
     wide = trades.join(orders, on=["sid", "minute"], how="full", coalesce=True).join(
         snaps, on=["sid", "minute"], how="full", coalesce=True)
