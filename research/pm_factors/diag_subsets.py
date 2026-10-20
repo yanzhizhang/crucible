@@ -106,11 +106,17 @@ def library(con: duckdb.DuckDBPyConnection, date: str) -> pl.DataFrame:
       WITH q AS (
         SELECT q.symbol_id, {_m5('q.time')} AS m5, q.time, q.total_ask_volume AS av, q.total_bid_volume AS bv,
                q.weighted_avg_ask_price AS wa, q.weighted_avg_bid_price AS wb, q.ask_px[1] AS a1, q.bid_px[1] AS b1,
-               q.price AS px
+               q.price AS px,
+               list_sum(list_transform(list_zip(q.ask_px, q.ask_vol), z -> z[1] * z[2])) AS a10,
+               list_sum(list_transform(list_zip(q.bid_px, q.bid_vol), z -> z[1] * z[2])) AS b10
         FROM raw_quotation q JOIN uni u USING (symbol_id, market_id) WHERE q.date = {d})
       SELECT symbol_id AS sid, m5 AS minute,
         arg_max(av, time)::DOUBLE AS "book_vol:ask", arg_max(bv, time)::DOUBLE AS "book_vol:bid",
         arg_max(av * wa, time) AS "book_amt:ask", arg_max(bv * wb, time) AS "book_amt:bid",
+        avg(av * wa) AS "book_amt_barmean:ask", avg(bv * wb) AS "book_amt_barmean:bid",
+        sum(av * wa) AS "_bsum:ask", sum(bv * wb) AS "_bsum:bid", count(*)::DOUBLE AS "_bn",
+        arg_max(a10, time) AS "book_amt10:ask", arg_max(b10, time) AS "book_amt10:bid",
+        avg(a10) AS "book_amt10_barmean:ask", avg(b10) AS "book_amt10_barmean:bid",
         arg_max(wa, time) AS "book_wpx:ask", arg_max(wb, time) AS "book_wpx:bid",
         arg_max(ln(nullif(wa, 0) / nullif((a1 + b1) / 2, 0)), time) AS "book_wdist:ask",
         arg_max(ln(nullif(wb, 0) / nullif((a1 + b1) / 2, 0)), time) AS "book_wdist:bid",
@@ -118,9 +124,12 @@ def library(con: duckdb.DuckDBPyConnection, date: str) -> pl.DataFrame:
       FROM q GROUP BY ALL""").pl()
     wide = trades.join(orders, on=["sid", "minute"], how="full", coalesce=True).join(
         snaps, on=["sid", "minute"], how="full", coalesce=True)
+    wide = wide.sort("sid", "minute").with_columns(  # running mean of book value over all snapshots since the open
+        *[(pl.col(f"_bsum:{s}").fill_null(0).cum_sum().over("sid") / pl.col("_bn").fill_null(0).cum_sum().over("sid"))
+          .alias(f"book_amt_runmean:{s}") for s in ("ask", "bid")]).drop("_bsum:ask", "_bsum:bid", "_bn")
     items = [c for c in wide.columns if c not in ("sid", "minute")]
     flow = [c for c in items if not c.startswith("book_")]
-    wide = wide.sort("sid", "minute").with_columns(
+    wide = wide.with_columns(
         [pl.col(c).fill_null(0).cum_sum().over("sid").alias(f"cum:{c}") for c in flow])
     return wide.with_columns(pl.col("sid").cast(pl.Float64))
 
