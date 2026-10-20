@@ -117,18 +117,40 @@ def main() -> None:
         rows.append({**where, **summ})
         imps.append(imp.with_columns(*[pl.lit(v).alias(k) for k, v in where.items()]))
     models = pl.DataFrame(rows)
-    imp = pl.concat(imps).with_columns(
+    imp = pl.concat(imps)
+    csv = a.features or next(iter(sorted(a.models.glob("lgb_fn_*.csv"))), None)
+    csv_names: list[str] = []
+    if csv and csv.exists():
+        lines = [ln.strip() for ln in csv.read_text(errors="replace").splitlines() if ln.strip()]
+        print(f"{csv.name}: first lines {lines[:3]}, last {lines[-1:]}")
+        csv_names = [ln.split(",")[0].strip() for ln in lines]
+    # models saved without feature names carry Column_<i>; map i to the i-th name of the feature csv
+    n_feat = int(models["n_features"].max())
+    if imp["feature"].str.starts_with("Column_").all() and csv_names:
+        if len(csv_names) == n_feat + 1:
+            print(f"feature csv has {len(csv_names)} lines for {n_feat} features: first line {csv_names[0]!r} taken as header")
+            csv_names = csv_names[1:]
+        if len(csv_names) == n_feat:
+            mapping = {f"Column_{i}": n for i, n in enumerate(csv_names)}
+            imp = imp.with_columns(pl.col("feature").replace_strict(mapping).alias("feature"))
+            print(f"Column_i -> csv name i for {n_feat} features (e.g. Column_0 = {csv_names[0]!r}, Column_97 = {mapping.get('Column_97')!r})")
+        else:
+            print(f"WARNING: csv has {len(csv_names)} names, models have {n_feat} features -- names left as Column_i")
+    imp = imp.with_columns(
         pl.col("feature").map_elements(family_of, return_dtype=pl.String).alias("family"),
         (pl.col("gain") / pl.col("gain").sum().over("file")).alias("gain_share"))
 
-    fams = imp.group_by("family").agg(
-        pl.col("feature").n_unique().alias("features"), pl.col("gain_share").mean().alias("mean_gain_share"))
-    csv = a.features or next(iter(sorted(a.models.glob("lgb_fn_*.csv"))), None)
-    listed: set[str] = set()
-    if csv and csv.exists():
-        names = [ln.strip().split(",")[0] for ln in csv.read_text().splitlines() if ln.strip()]
-        listed = {family_of(n) for n in names if "." in n}
-        print(f"{csv.name}: {len(names)} names, {len(listed)} families")
+    # family share = its features' gain summed within each model, then averaged over models
+    per_model = imp.group_by("file", "family").agg(pl.col("gain_share").sum().alias("share"))
+    fams = imp.group_by("family").agg(pl.col("feature").n_unique().alias("features")).join(
+        per_model.group_by("family").agg(pl.col("share").mean().alias("mean_gain_share"),
+                                         pl.col("share").min().alias("min_share"),
+                                         pl.col("share").max().alias("max_share")), on="family")
+    fams = fams.sort("mean_gain_share", descending=True).with_columns(
+        pl.col("mean_gain_share").cum_sum().alias("cum_share"))
+    listed = {family_of(n) for n in csv_names if "." in n}
+    if csv_names:
+        print(f"feature csv: {len(csv_names)} names, {len(listed)} families")
     shipped = {p.name.upper() for p in a.hstats.iterdir() if p.is_dir()} if a.hstats.is_dir() else set()
     fams = fams.with_columns(pl.col("family").is_in(list(shipped)).alias("shipped"),
                              pl.col("family").is_in(list(listed)).alias("in_feature_csv"))
@@ -138,7 +160,7 @@ def main() -> None:
     imp.write_parquet(a.out / "importance.parquet")
     fams.write_parquet(a.out / "families.parquet")
 
-    with pl.Config(tbl_rows=60, tbl_width_chars=220, tbl_cols=20, float_precision=4):
+    with pl.Config(tbl_rows=90, tbl_width_chars=220, tbl_cols=20, float_precision=4):
         print(f"\n{len(files)} models, months {sorted(models['month'].unique().to_list())}")
         print("\nobjective / shape (distinct combinations):")
         print(models.group_by("objective", "num_class", "p_learning_rate", "p_num_leaves",
@@ -153,13 +175,13 @@ def main() -> None:
         print(models.group_by("month", "sub").agg(pl.col("feature_hash").n_unique().alias("feature_sets"),
                                                    pl.col("p_seed").n_unique().alias("seeds"))
               .sort("month", "sub").head(24))
-        print("\nfamilies by mean gain share (shipped = folder in the sample):")
+        print("\nfamilies by total gain share per model (shipped = folder in the sample):")
         print(fams.sort("mean_gain_share", descending=True))
         print(f"\nused but NOT shipped: {sorted(set(fams['family']) - shipped) or 'none'}")
         print(f"shipped but NOT used: {sorted(shipped - set(fams['family'])) or 'none'}")
         top = (imp.group_by("feature", "family").agg(pl.col("gain_share").mean())
-               .sort("gain_share", descending=True).head(25))
-        print("\ntop 25 features by mean gain share:")
+               .sort("gain_share", descending=True).head(40))
+        print("\ntop 40 features by mean gain share:")
         print(top)
     print(f"\ntables: {a.out}/{{models,importance,families}}.parquet")
 
