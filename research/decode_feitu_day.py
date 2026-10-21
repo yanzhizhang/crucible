@@ -99,8 +99,8 @@ def _decode_one(kind: str, src: Path, dst_dir: Path, overwrite: bool) -> dict[st
         hhmm = m.group(4) + m.group(5)
     elif (dm := _DAYFILE.search(src.name)) is not None:
         hhmm = dm.group(4)  # part-SH / part-SZ
-    else:
-        raise ValueError(f"unexpected dump name {src.name!r}")
+    else:  # any other name inside a day folder: keep its stem as the part name
+        hhmm = src.name.removesuffix(".zst").replace("/", "_")
     dst = dst_dir / f"part-{hhmm}.parquet"
     row: dict[str, Any] = {
         "file": src.name,
@@ -164,7 +164,7 @@ def decode_day(
         src_dir = root / f"v3_{kind}"
         day_dir = src_dir / f"{date[:4]}_{date[4:6]}_{date[6:]}"  # multi-day dump: one folder per day
         tag = f"_{date[:4]}_{date[4:6]}_{date[6:]}_"
-        found = ([f for f in day_dir.glob(f"v3_{kind}_*.zst") if tag in f.name]
+        found = (sorted(day_dir.glob("*.zst"))  # a day folder holds only that day's files, whatever their names
                  or [f for f in src_dir.glob(f"v3_{kind}_*.zst") if tag in f.name or _MINUTE.search(f.name)]
                  or [f for f in root.glob(f"v3_{kind}_*.zst") if _DAYFILE.search(f.name) and tag in f.name + "_"])
         # Largest first: the open-of-day files dominate, so start them early to cut the tail.
@@ -207,6 +207,9 @@ def main() -> None:
         help="fraction of currently available memory the decode may hold",
     )
     a = ap.parse_args()
+    a.date = a.date.replace("_", "").replace("-", "")  # 2026_09_22 / 2026-09-22 / 20260922 all accepted
+    if len(a.date) != 8 or not a.date.isdigit():
+        raise SystemExit(f"--date must be a day like 20260922 or 2026_09_22, got {a.date!r}")
     mem_budget = int(psutil.virtual_memory().available * a.mem_frac)
     kinds = tuple(k for k in a.kinds.split(",") if k)
     bad = set(kinds) - set(KINDS)
