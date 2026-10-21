@@ -44,7 +44,10 @@ def load_state(path: Path) -> pl.DataFrame:
     """Load the dcp file as a long frame (sid, key, value), histogram bins dropped."""
     with gzip.open(path) as f:
         d = json.loads(f.read())
-    rows = [(int(s), k, float(v)) for s, kv in d.items() for k, v in kv.items() if not re.search(r"\.c\.\d+$", k)]
+    # null (no value for that stock) becomes NaN; histogram bins are dropped
+    rows = [(int(s), k, float("nan") if v is None else float(v))
+            for s, kv in d.items() for k, v in kv.items() if not re.search(r"\.c\.\d+$", k)]
+    print(f"null values in the state file: {sum(v is None for kv in d.values() for v in kv.values())}")
     return pl.DataFrame(rows, schema={"sid": pl.Int64, "key": pl.String, "value": pl.Float64}, orient="row")
 
 
