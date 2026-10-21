@@ -5,6 +5,7 @@ Input layout, either of (picked per stream)::
     <root>/v3_order/v3_order_2026_06_15_10_30.zst          minute dumps, one directory per stream
     <root>/v3_order_2026_04_29_SH.zst                       TickRepository archive: one file per
     <root>/v3_order_2026_04_29_SZ.zst                       stream, day and exchange
+    <root>/v3_order/2026_09_22/v3_order_2026_09_22_*.zst    several days, one folder per stream and day
 
 Output (raw vendor values, no unit conversion -- normalisation is a separate, auditable step)::
 
@@ -161,8 +162,11 @@ def decode_day(
 
     for kind in kinds:
         src_dir = root / f"v3_{kind}"
-        found = list(src_dir.glob(f"v3_{kind}_*.zst")) or [
-            f for f in root.glob(f"v3_{kind}_*.zst") if _DAYFILE.search(f.name)]
+        day_dir = src_dir / f"{date[:4]}_{date[4:6]}_{date[6:]}"  # multi-day dump: one folder per day
+        tag = f"_{date[:4]}_{date[4:6]}_{date[6:]}_"
+        found = ([f for f in day_dir.glob(f"v3_{kind}_*.zst") if tag in f.name]
+                 or [f for f in src_dir.glob(f"v3_{kind}_*.zst") if tag in f.name or _MINUTE.search(f.name)]
+                 or [f for f in root.glob(f"v3_{kind}_*.zst") if _DAYFILE.search(f.name) and tag in f.name + "_"])
         # Largest first: the open-of-day files dominate, so start them early to cut the tail.
         files = sorted(found, key=lambda f: -f.stat().st_size)
         if not files:
