@@ -20,11 +20,11 @@ Built keys (``build``):
 A key written ``base|variant`` is a candidate rule scored against PM's ``base`` key, so one run
 tries several rules for the keys that are not exact yet:
 
-* ``zzmh.hm`` (~50%, so not the trade high): ``|snap`` max snapshot last price received by the stop,
-  ``|snap_cont`` the same over 09:30-14:57 exchange time, ``|trade_cont`` max continuous-session
-  trade, ``|mid`` / ``|bid1`` / ``|ask1`` max of the 09:30-14:57 book;
+* ``zzmh.hm`` (~50%, so not the trade high; SSE: ``|snap_cont`` ~1.0): ``|snap`` max snapshot last price received by the stop,
+  ``|snap_cont`` the same over 09:30-14:57 exchange time, ``|snap_0925`` from the 09:25 open snapshot,
+  ``|trade_cont`` max continuous-session trade, ``|mid`` / ``|bid1`` / ``|ask1`` max of the 09:30-14:57 book;
 * price lists: ``|incl`` last snapshot at or before the grid point (SZSE snapshots sit on whole
-  seconds, so strict vs inclusive only matters there), ``|local`` by local arrival time;
+  seconds, so strict vs inclusive only matters there), ``|local`` by local arrival time (SSE: 1.0 on all 9 days);
 * ``clock.fast|all``: the day's last snapshot, no stop (0429 is a replay that ran past 15:02:30);
 * ``clock.slow``: live days are 3-7 ms early, so ``|first_close`` / ``|med_close`` first / median
   arrival of the close-auction trades, ``|last_cont`` last continuous-session trade.
@@ -32,7 +32,7 @@ tries several rules for the keys that are not exact yet:
 ``compare`` scores every built key and also matches each clock against every ``*.t`` key of the
 state file; the printout keeps the ``*.t`` keys the plain clock matches and shows one row per clock.
 
-    python research/pm_factors/dcp_build.py --dates 20260922,20260923,20261009
+    python research/pm_factors/dcp_build.py --dates 20260429,20260922,20261009 --stop auto
 """
 
 from __future__ import annotations
@@ -82,6 +82,7 @@ def build(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop_sod: 
                        max({tc(LSOD)}) AS clock_fast_all,
                        max(price) FILTER (price > 0 AND {LSOD} <= {stop_sod}) AS hm_snap,
                        max(price) FILTER (price > 0 AND {cont}) AS hm_snap_cont,
+                       max(price) FILTER (price > 0 AND {SOD} >= 33900 AND {SOD} < 53820) AS hm_snap_0925,
                        max((q.bid_px[1] + q.ask_px[1]) / 2) FILTER ({bk} AND {cont}) AS hm_mid,
                        max(q.bid_px[1]) FILTER ({bk} AND {cont}) AS hm_bid1,
                        max(q.ask_px[1]) FILTER ({bk} AND {cont}) AS hm_ask1
@@ -114,7 +115,8 @@ def build(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop_sod: 
                                             ("slow_med_close", ("clock.slow|med_close",)),
                                             ("slow_last_cont", ("clock.slow|last_cont",)),
                                             ("high_cont", ("zzmh.hm|trade_cont",)), ("hm_snap", ("zzmh.hm|snap",)),
-                                            ("hm_snap_cont", ("zzmh.hm|snap_cont",)), ("hm_mid", ("zzmh.hm|mid",)),
+                                            ("hm_snap_cont", ("zzmh.hm|snap_cont",)),
+                                            ("hm_snap_0925", ("zzmh.hm|snap_0925",)), ("hm_mid", ("zzmh.hm|mid",)),
                                             ("hm_bid1", ("zzmh.hm|bid1",)), ("hm_ask1", ("zzmh.hm|ask1",))) for k in ks])
     return out.join(wide_lists, on="sid", how="left")
 
@@ -155,10 +157,11 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--dates", required=True)
     ap.add_argument("--dcp-dir", type=Path, default=DCP)
-    ap.add_argument("--stop", default="15:02:30", help="PM process stop, local time")
+    ap.add_argument("--stop", default="15:02:30",
+                    help="PM process stop, local time; 'auto' = the latest zzba.p.t in that day's state file")
     ap.add_argument("--out", type=Path, default=Path("data/reports/stage4"))
     a = ap.parse_args()
-    stop = int(a.stop[:2]) * 3600 + int(a.stop[3:5]) * 60 + float(a.stop[6:])
+    fixed = None if a.stop == "auto" else int(a.stop[:2]) * 3600 + int(a.stop[3:5]) * 60 + float(a.stop[6:])
     con = duckdb.connect(str(CATALOG), read_only=True)
     res, built = [], []
     for d in [x.strip() for x in a.dates.split(",") if x.strip()]:
@@ -167,6 +170,11 @@ def main() -> None:
             print(f"skip {d}: no state file")
             continue
         pm = load_state(f)
+        stop = fixed
+        if stop is None:  # every stock's last snapshot precedes the stop, so the latest one is the stop (+5 ms for clock skew)
+            t = pm.filter(pl.col("key") == "zzba.p.t")["pm"].max()
+            stop = (t + 34200 if t <= 7200 else t - 7200 + 46800) + 0.005
+            print(f"{d}: stop {int(stop // 3600):02d}:{int(stop % 3600 // 60):02d}:{stop % 60:06.3f}")
         ours = build(con, int(d), sorted(pm["sid"].unique().to_list()), stop)
         if ours.is_empty():
             print(f"skip {d}: no decoded ticks")
