@@ -230,6 +230,37 @@ Data facts found on the way:
   (unexplained; SSE snapshots publish the totals directly, so that candidate matters only on
   SZSE).
 
+## Stage 4b -- PM's day-end factor state (`/data/prod/h/HS300/p1_intrading_dcp/<D>.jz`)
+
+53 days (2023-01-16 .. 2023-02-28, 2026-04-29, 2026-09-01 .. 2026-10-13), plus `sod/` copies (sod/D =
+day D-1). Format: gzip JSON `{sid: {key: float}}`, 300 stocks x 7532 keys, same key set for every
+stock. It is the state the multi-day families carry overnight, not the model features: price lists,
+decaying weighted averages (`<p>.sum / .t / .wgt`, value = sum / wgt), histograms (`<p>.c.<bin>`)
+and a few scalars. Families present include ZZGH (model rank 4-5), ZZBA, ZZXU, ZZPK, ZZUP, ZZEG,
+ZZAB2, ZZEB, ZZBD, ZZQJ, ZZVM, ZZXO, ZZUI, ZZHJ, ZZFB, ZZJB, CDB, CDC; ZZRO / ZZEU are not.
+
+**PM's live feed loses SSE trades** (user-confirmed 2026-10-22; our feitu archive is complete, SZSE
+is complete on both sides). Trade-volume keys therefore match exactly on SZSE and 32-92 % on SSE,
+varying by day; SZSE (and 2026-04-29, which looks like an offline replay of the same data -- its
+slow clock equals our local arrival to the millisecond) are the reference.
+
+Confirmed on 9 days (0429, 0922-0930, 1008, 1009; `research/pm_factors/dcp_multiday.py`, rebuilt by
+`research/pm_factors/dcp_build.py`):
+
+| key | rule | holds |
+| --- | --- | --- |
+| `zzpk.high/low/open`, `zzvx.high/low`, `zzxu.high/low`, `zzmh.hm` | the day's high / low / open | 1.0 every day |
+| `zzxu.last`, `zzxo.last`, `cdc.lp` | the day's last price | ~1.0 |
+| `zzqj.v/tpv`, `zzvm.c.v/tpv` | volume / amount of all trades from 09:30:00 exchange time, close auction included | SZSE 1.0 (0929 0.964); SSE short by PM's lost trades |
+| `zzxo.r.0..29`, `zzui.r.0..9` | last snapshot price strictly before 14:57:00 - (n-1-k) x 10 s | 0.967-0.975 |
+| fast clock (`zzba.p.t`, `zzeb.*.t`, `zzpk.p.t`, `zzup.*.t`, `zzxu.*.t`, ...) | local arrival, trading-clock seconds (09:30 = 0, lunch removed), of the last snapshot received before PM's process stopped (15:02:28-15:02:30 local) | 1.0 within 10 ms (0429: 0.37) |
+| slow clock (`zzbd.*EmaT.t`, `zzqj.r.t`, `zztx.r.t`, `zzvm.c.re.t`) | local arrival of the stock's last trade | median -3..-7 ms (0429: 0) |
+| `zzgh.nb` | same-day only (fitting nb[D] = a imb[D] + (1-a) nb[D-1] gives a = 0.993-1.006); closest: continuous-session amount imbalance | median rel. error 0.67 % on SZSE -- not exact yet |
+
+The clocks are "last updated" stamps, not inputs. Day-to-day, the decaying weights keep 0.88-0.99 of
+their value (half-lives ~5-50 days by family), histograms grow 0-46 counts per day. Still open: the
+exact `nb` definition, the averages' weights and decay, the histograms' bins.
+
 ## Stage 1 -- CED in crucible (`research/ced`, `research/run_ced.py`)
 
 A port of shtcommon's `ced` (the PM's common equity data): the same SQL against Wind / JYDB /
@@ -262,8 +293,9 @@ Research rebuild over a range: `python research/run_ced.py all-hist --start S --
 **hist is the default basis.** hist SOD takes its listing and every field from the
 AShareEODPrices row of that day, `ret_o_pc` is open / preclose from EOD, and in hist mode no
 dataset is written past `MAX(TRADE_DT)` of AShareEODPrices (`--live` selects the pre-open basis
-and skips the cut). Database address and names are fixed in `research/ced/db.py` (10.14.3.20,
-WindDB / JYDB / Zyyx2.0, `tds_version=7.0`); the account is filled in there **on 97 only** --
+and skips the cut). Database addresses and names are fixed in `research/ced/db.py` (WindDB / Zyyx2.0_GDS on 172.24.2.4
+since the 2026-10 migration, JYDB on 10.14.3.20;
+`tds_version=7.0`); the account is filled in there **on 97 only** --
 the committed `DB_USER` / `DB_PASSWORD` stay empty.
 
 Against production (`/data/share/CED`, 20260401-20260430, `tools/ced_vs_share.sh START END`):
