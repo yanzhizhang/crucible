@@ -13,6 +13,8 @@ Built keys (``build``):
 * ``zzxo.r.0..29`` / ``zzui.r.0..9``: last snapshot price strictly before 14:57:00 - (n-1-k) * 10 s;
 * ``clock.fast``: local arrival (trading clock) of the last snapshot received at or before
   ``--stop`` (PM's process stop, ~15:02:30); ``clock.slow``: local arrival of the last trade;
+  every trade-based key only counts trades received by ``--stop`` (STAR after-hours trades,
+  15:05-15:30, come after PM stopped);
 * ``zzgh.nb`` (best candidate so far, not exact): continuous-session amount imbalance.
 
 ``compare`` scores every built key and also matches ``clock.fast`` / ``clock.slow`` against every
@@ -55,7 +57,8 @@ def build(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop_sod: 
          - sum(volume * price) FILTER (dir = 1550 AND {SOD} >= 34200 AND {SOD} < 53820))
          / sum(volume * price) FILTER ({SOD} >= 34200 AND {SOD} < 53820) AS nb,
         max({tc(LSOD)}) AS clock_slow
-        FROM raw_transaction r JOIN want w ON w.sid = r.symbol_id WHERE r.date = {date} AND r.trade_type = 1
+        FROM raw_transaction r JOIN want w ON w.sid = r.symbol_id
+        WHERE r.date = {date} AND r.trade_type = 1 AND {LSOD} <= {stop_sod}  -- PM never saw trades after its stop (STAR after-hours)
         GROUP BY 1""").pl()
     fast = con.sql(f"""SELECT symbol_id AS sid, max({tc(LSOD)}) AS clock_fast FROM raw_quotation q JOIN want w ON w.sid = q.symbol_id
                        WHERE q.date = {date} AND {LSOD} <= {stop_sod} GROUP BY 1""").pl()
