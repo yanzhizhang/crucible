@@ -268,7 +268,13 @@ day. 24 of the 26 run on a clock (20 on the snapshot clock -- `zzbd.pEmaS` --, 4
 -- `zzbd.pEmaT`); `zzui.r` (a ~ 1.0) and `zzhj.p` do carry the previous day.
 `research/pm_factors/diag_iema.py` fits each as `wgt = sum_i w_i exp(-(T - t_i) / tau)` over that
 day's snapshots or trades, ranking (updates, clock, weight) by how constant tau is across SZSE
-stocks, then matches `sum / wgt` against candidate values. Still open: the exact `nb` definition,
+stocks, then matches `sum / wgt` against candidate values. Result (3 days): weight 1 per update and
+`tau ln 2` a round half-life on the trading clock -- 10 s `zzmh.r`; 30 s `zzvx.*`, `zzcb.r`, `zzqj.r`
+(trades); 100 s `zzeb.p/r`, `zzbd.pEmaS`, `zzbd.pEmaT` / `zztx.r` (trades); 200 s `zzbd.rEmaS`,
+`zzbd.rEmaT` (trades); 300 s `zzpk.p`, `zzxu.p/a`, `zzab2.r`, `zzup.pf`; 600 s `zzup.ps`. Values exact:
+price (`zzpk.p`, `zzab2.r`, `zzup.pf`, `zzxu.p`), log price (`zzbd.pEmaS/T`), mid (`zzeb.p`).
+`research/pm_factors/dcp_ema.py` scans round half-lives x time source x update set x weight and a
+wide value list for the rest. Still open: the exact `nb` definition,
 the EMAs' tau / weight / value, the histograms' bins.
 
 ## Stage 1 -- CED in crucible (`research/ced`, `research/run_ced.py`)
