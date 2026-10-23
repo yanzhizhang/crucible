@@ -9,7 +9,8 @@ can be fitted exactly, with no long history:
 * **overnight** (when ``sod/D`` exists): ``sod/D`` against the file of the previous trade day --
   is the open copy the same state, or already decayed?
 * **weight**: for each candidate day weight w (volume, amount, trade count, snapshot count, 1;
-  whole day from 09:30 or continuous session only), a least-squares fit of ``a`` and ``c`` on the
+  whole day from 09:30, continuous session, or from 09:35 to skip the opening burst where
+  PM's SZSE feed loses a few ticks), a least-squares fit of ``a`` and ``c`` on the
   SZSE stocks only, refitted on the better half (PM's live feed loses ticks: SSE a lot, SZSE a
   little on some days); the right w leaves a residual of ~0 on SZSE and the same ``a`` every day.
   SSE is scored with the SZSE fit, for reference;
@@ -36,7 +37,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import dcp_build as B  # catalog path, time expressions, state loader
 
-WEIGHTS = ("vol", "amt", "n", "vol_cont", "amt_cont", "n_cont", "n_snap", "n_snap_cont", "one")
+# _935: from 09:35, clear of the opening burst where PM's SZSE feed loses a few ticks
+WEIGHTS = ("vol", "amt", "n", "vol_cont", "amt_cont", "n_cont", "vol_935", "amt_935", "n_935", "n_snap", "n_snap_cont", "one")
 VALUES = ("vwap", "vwap_cont", "twap", "last", "open", "high", "low", "ret_oc", "logret_oc", "range")
 
 
@@ -62,6 +64,9 @@ def day_inputs(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop:
         (count(*) FILTER ({S} >= 34200))::DOUBLE AS n,
         (sum(volume) FILTER ({cont}))::DOUBLE AS vol_cont, sum(volume * price) FILTER ({cont}) AS amt_cont,
         (count(*) FILTER ({cont}))::DOUBLE AS n_cont,
+        (sum(volume) FILTER ({S} >= 34500 AND {S} < 53820))::DOUBLE AS vol_935,
+        sum(volume * price) FILTER ({S} >= 34500 AND {S} < 53820) AS amt_935,
+        (count(*) FILTER ({S} >= 34500 AND {S} < 53820))::DOUBLE AS n_935,
         arg_max(price, time) AS last, arg_min(price, time) AS open, max(price) AS high, min(price) AS low
         FROM raw_transaction r JOIN want w ON w.sid = r.symbol_id
         WHERE r.date = {date} AND r.trade_type = 1 AND {L} <= {stop} GROUP BY 1""").pl()
