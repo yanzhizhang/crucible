@@ -274,7 +274,23 @@ stocks, then matches `sum / wgt` against candidate values. Result (3 days): weig
 `zzbd.rEmaT` (trades); 300 s `zzpk.p`, `zzxu.p/a`, `zzab2.r`, `zzup.pf`; 600 s `zzup.ps`. Values exact:
 price (`zzpk.p`, `zzab2.r`, `zzup.pf`, `zzxu.p`), log price (`zzbd.pEmaS/T`), mid (`zzeb.p`).
 `research/pm_factors/dcp_ema.py` scans round half-lives x time source x update set x weight and a
-wide value list for the rest. Still open: the exact `nb` definition,
+wide value list. Solved so far (weight 1 per update received, local arrival on the trading clock;
+weights within 1e-4 for every snapshot EMA, 79-90 % of stocks for trade EMAs):
+
+| prefix | updates | half-life | value |
+| --- | --- | --- | --- |
+| `zzpk.p`, `zzab2.r`, `zzup.pf`, `zzxu.p` | snapshots | 300 s | price |
+| `zzup.ps` | snapshots | 600 s | price |
+| `zzxu.a` | snapshots | 300 s | day range in price units (high - low) |
+| `zzvx.trEmaD/O`, `zzvx.trDEmaD/O` | snapshots | 30 s | day range in price units (D/O variants equal at the close) |
+| `zzvx.rEmaD/O` | snapshots | 30 s | 1 (constant) |
+| `zzbd.pEmaS` / `zzbd.pEmaT` | snapshots / trades | 100 s | log price |
+| `zzeb.p` | snapshots | 100 s | mid |
+| `zzbd.rEmaS` / `zzbd.rEmaT` | snapshots / trades | 200 s | log return against the previous update |
+
+Open: `zzba.p/r` (price / range, ~3 h, but PM's range is 1.09x ours and no weight fits -- multi-day
+carry?), `zzcb.r` (ranks against the range at -0.92), `zzmh.r` (~4e-4), `zzeb.r` (~0.15 for all
+stocks), `zzqj.r` (0.9994 x price), `zztx.r` (mostly negative). Still open as well: the exact `nb` definition,
 the EMAs' tau / weight / value, the histograms' bins.
 
 ## Stage 1 -- CED in crucible (`research/ced`, `research/run_ced.py`)

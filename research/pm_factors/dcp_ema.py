@@ -48,9 +48,11 @@ VALUES = {
     "fast": ("price", "mid", "logp", "logmid", "ask1", "bid1", "svwap", "ret", "logret", "mret", "mlogret", "absret",
              "ret2", "logret2", "spread", "lp_open", "lp_pc", "ret_open", "ret_pc", "lhl", "lh_open", "ll_open",
              "hl_pc", "lh_pc", "ll_pc", "dp", "absdp", "dmid", "absdmid", "imb1", "limb1", "timb", "ltimb", "dvol",
-             "ldvol", "damt", "chg", "one", "hl", "tr_pc", "tr_open", "inv_p", "pprev", "spread_abs"),
+             "ldvol", "damt", "chg", "one", "hl", "tr_pc", "tr_open", "inv_p", "pprev", "spread_abs",
+             "volchg", "bidchg", "askchg", "dt", "dt_exch", "dd_hi", "du_lo"),
     "slow": ("price", "logp", "ret", "logret", "absret", "ret2", "logret2", "lp_open", "lp_pc", "ret_open", "ret_pc",
-             "side", "svol", "samt", "vol", "lvol", "amt", "dp", "absdp", "one", "hl", "tr_pc", "tr_open", "inv_p", "pprev"),
+             "side", "svol", "samt", "vol", "lvol", "amt", "dp", "absdp", "one", "hl", "tr_pc", "tr_open", "inv_p", "pprev",
+             "dt", "dt_exch", "dd_hi", "du_lo"),
 }
 
 
@@ -105,6 +107,9 @@ def arrays(g: pl.DataFrame, kind: str) -> dict[str, np.ndarray]:
                      svwap=np.where(dv > 0, da / dv, np.nan), lhl=np.log(hi / lo), lh_open=np.log(hi / op),
                      ll_open=np.log(lo / op), hl_pc=(hi - lo) / pc, lh_pc=np.log(hi / pc), ll_pc=np.log(lo / pc))
             a["spread_abs"] = np.where(two, a1 - b1, np.nan)
+            a["volchg"] = (np.nan_to_num(dv) > 0).astype(float)
+            a["bidchg"] = np.concatenate([[0.0], (b1[1:] != b1[:-1]).astype(float)])
+            a["askchg"] = np.concatenate([[0.0], (a1[1:] != a1[:-1]).astype(float)])
             bv, av, tb, ta = f("bv1"), f("av1"), f("tbv"), f("tav")
             a.update(dmid=mid - pmid, absdmid=np.abs(mid - pmid), imb1=(bv - av) / (bv + av), limb1=np.log(bv / av),
                      timb=(tb - ta) / (tb + ta), ltimb=np.log(tb / ta), ldvol=np.log1p(a["dvol"]),
@@ -121,6 +126,9 @@ def arrays(g: pl.DataFrame, kind: str) -> dict[str, np.ndarray]:
             a["set_batch"] = np.concatenate([ls[1:] != ls[:-1], [True]])  # last trade of each arrival batch
         # range in price units (true range against the previous close / the open)
         a["hl"], a["tr_pc"], a["tr_open"] = hi - lo, np.fmax(hi, pc) - np.fmin(lo, pc), np.fmax(hi, op) - np.fmin(lo, op)
+        a["dd_hi"], a["du_lo"] = np.log(hi / pos), np.log(pos / lo)  # distance below the day high / above the low
+        a["dt"] = np.diff(a["t_local"], prepend=np.nan)
+        a["dt_exch"] = np.diff(a["t_exch"], prepend=np.nan)
     return a
 
 
@@ -174,6 +182,10 @@ def top_corr(v: np.ndarray, cands: dict[str, np.ndarray]) -> dict[str, object]:
         with np.errstate(divide="ignore", invalid="ignore"):
             k = float(np.nanmedian(v[ok] / c[ok]))
             sc = float(np.mean(np.abs(v[ok] - k * c[ok]) <= 1e-4 * np.abs(v[ok])))
+            ki = float(np.nanmedian(v[ok] * c[ok]))  # v = ki / c
+            si = float(np.mean(np.abs(v[ok] - ki / c[ok]) <= 1e-4 * np.abs(v[ok])))
+        if si > sc or (si == sc and rho < 0):
+            x, k, sc = f"1/{x}", ki, si
         res.append((x, rho, k, sc))
     res.sort(key=lambda t: -abs(t[1]))
     out: dict[str, object] = {}
@@ -276,7 +288,7 @@ def main() -> None:
         print(out)
         if prof:
             print("\n== unsolved values on SZSE: PM value quantiles, share negative, and the 3 candidates it ranks with best"
-                  " (rho: Spearman; k: median PM / candidate; s: share within 1e-4 of k x candidate)")
+                  " (rho: Spearman; k: median PM / candidate, or PM x candidate for 1/c; s: share within 1e-4 of k x c or k / c)")
             print(pl.DataFrame(prof))
     print(f"configs: {args.out / 'dcp_ema_configs.csv'}, table: {args.out / 'dcp_ema.csv'}")
 
