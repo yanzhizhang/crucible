@@ -1,7 +1,8 @@
 """Intranet database access for CED: Wind, JY (聚源), ZY (朝阳永续) over SQLAlchemy.
 
-The server is fixed here (``10.14.3.20:1433``, databases ``WindDB`` / ``JYDB`` /
-``Zyyx2.0``, pymssql, ``tds_version=7.0``). The account: ``DB_USER`` / ``DB_PASSWORD`` below,
+The servers are fixed here (``WindDB`` and ``Zyyx2.0_GDS`` on ``172.24.2.4:1433`` since the 2026-10
+migration, ``JYDB`` still on ``10.14.3.20:1433``; pymssql, ``tds_version=7.0``). The account:
+``DB_USER`` / ``DB_PASSWORD`` below,
 filled in on the intranet copy only (never committed with values), or the environment
 ``CRUCIBLE_DB_USER`` / ``CRUCIBLE_DB_PASSWORD``, which wins when set.
 Overrides: a full ``CRUCIBLE_WIND_URL`` / ``CRUCIBLE_JY_URL`` / ``CRUCIBLE_ZY_URL``, or
@@ -30,9 +31,11 @@ import pandas as pd
 
 WIND, JY, ZY = "wind", "jydb", "zyyx"
 _ENV = {WIND: "CRUCIBLE_WIND_URL", JY: "CRUCIBLE_JY_URL", ZY: "CRUCIBLE_ZY_URL"}
-# intranet SQL Server (fixed): host, port, database per source; tds_version=7.0 is mandatory
-HOST, PORT = "10.14.3.20", 1433
-DATABASES = {WIND: "WindDB", JY: "JYDB", ZY: "Zyyx2.0"}
+# intranet SQL Server (fixed): host:port and database per source; tds_version=7.0 is mandatory.
+# WindDB and zyyx moved from 10.14.3.20 to 172.24.2.4 in 2026-10 (the old address stops serving them);
+# zyyx is now Zyyx2.0_GDS, equivalent to the old Zyyx2.0 except deleted rows stay with is_valid = 0
+SERVERS = {WIND: "172.24.2.4:1433", JY: "10.14.3.20:1433", ZY: "172.24.2.4:1433"}
+DATABASES = {WIND: "WindDB", JY: "JYDB", ZY: "Zyyx2.0_GDS"}
 _QUERY = "charset=utf8&tds_version=7.0"
 # account: demo account
 DB_USER = "researcher"
@@ -60,7 +63,7 @@ def _shtcommon_url(db: str) -> str | None:
 def url_for(db: str) -> str:
     """Connection URL for ``db`` (``WIND`` / ``JY`` / ``ZY``).
 
-    A full URL in the environment wins; otherwise the fixed intranet server above with the
+    A full URL in the environment wins; otherwise the fixed intranet server for ``db`` above with the
     account from ``CRUCIBLE_DB_USER`` / ``CRUCIBLE_DB_PASSWORD`` (one account for all three).
     """
     url = os.environ.get(_ENV[db]) or _shtcommon_url(db)
@@ -73,7 +76,7 @@ def url_for(db: str) -> str:
                            f"or set CRUCIBLE_DB_USER / CRUCIBLE_DB_PASSWORD (or a full {_ENV[db]})")
     from urllib.parse import quote
 
-    return f"mssql+pymssql://{quote(user, safe='')}:{quote(pwd, safe='')}@{HOST}:{PORT}/{DATABASES[db]}?{_QUERY}"
+    return f"mssql+pymssql://{quote(user, safe='')}:{quote(pwd, safe='')}@{SERVERS[db]}/{DATABASES[db]}?{_QUERY}"
 
 
 def masked(url: str) -> str:
