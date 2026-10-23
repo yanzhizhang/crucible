@@ -45,9 +45,10 @@ WEIGHTS = {"fast": ("one", "dvol", "damt"), "slow": ("one", "vol", "amt")}
 VALUES = {
     "fast": ("price", "mid", "logp", "logmid", "ask1", "bid1", "svwap", "ret", "logret", "mret", "mlogret", "absret",
              "ret2", "logret2", "spread", "lp_open", "lp_pc", "ret_open", "ret_pc", "lhl", "lh_open", "ll_open",
-             "hl_pc", "lh_pc", "ll_pc"),
+             "hl_pc", "lh_pc", "ll_pc", "dp", "absdp", "dmid", "absdmid", "imb1", "limb1", "timb", "ltimb", "dvol",
+             "ldvol", "damt", "chg"),
     "slow": ("price", "logp", "ret", "logret", "absret", "ret2", "logret2", "lp_open", "lp_pc", "ret_open", "ret_pc",
-             "side", "svol", "samt"),
+             "side", "svol", "samt", "vol", "lvol", "amt", "dp", "absdp"),
 }
 
 
@@ -56,7 +57,8 @@ def load(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop: float
     S, L = B.SOD, B.LSOD
     con.register("want", pl.DataFrame({"sid": sids}))
     fast = con.sql(f"""SELECT symbol_id AS sid, market_id AS mkt, {B.tc(L)} AS t_local, {B.tc(S)} AS t_exch, spider_ts AS ls,
-        price, q.bid_px[1] AS b1, q.ask_px[1] AS a1, total_volume::DOUBLE AS cv, total_amount::DOUBLE AS ca,
+        price, q.bid_px[1] AS b1, q.ask_px[1] AS a1, q.bid_vol[1]::DOUBLE AS bv1, q.ask_vol[1]::DOUBLE AS av1,
+        total_bid_volume::DOUBLE AS tbv, total_ask_volume::DOUBLE AS tav, total_volume::DOUBLE AS cv, total_amount::DOUBLE AS ca,
         open::DOUBLE AS op, high::DOUBLE AS hi, low::DOUBLE AS lo, pre_close::DOUBLE AS pc
         FROM raw_quotation q JOIN want w ON w.sid = q.symbol_id WHERE q.date = {date} AND {L} <= {stop}
         ORDER BY sid, spider_ts""").pl()
@@ -80,6 +82,8 @@ def arrays(g: pl.DataFrame, kind: str) -> dict[str, np.ndarray]:
         a = {"t_local": f("t_local"), "t_exch": f("t_exch"), "price": pos, "logp": np.log(pos),
              "ret": pos / prev - 1, "logret": np.log(pos / prev), "one": np.ones(px.size)}
         a["absret"], a["ret2"], a["logret2"] = np.abs(a["ret"]), a["ret"] ** 2, a["logret"] ** 2
+        a["dp"] = pos - prev
+        a["absdp"] = np.abs(a["dp"])
         op, pc = f("op"), f("pc")
         op, pc = np.where(op > 0, op, np.nan), np.where(pc > 0, pc, np.nan)
         a["lp_open"], a["lp_pc"], a["ret_open"], a["ret_pc"] = np.log(pos / op), np.log(pos / pc), pos / op - 1, pos / pc - 1
@@ -97,11 +101,15 @@ def arrays(g: pl.DataFrame, kind: str) -> dict[str, np.ndarray]:
                      dvol=np.nan_to_num(np.clip(dv, 0, None)), damt=np.nan_to_num(np.clip(da, 0, None)),
                      svwap=np.where(dv > 0, da / dv, np.nan), lhl=np.log(hi / lo), lh_open=np.log(hi / op),
                      ll_open=np.log(lo / op), hl_pc=(hi - lo) / pc, lh_pc=np.log(hi / pc), ll_pc=np.log(lo / pc))
+            bv, av, tb, ta = f("bv1"), f("av1"), f("tbv"), f("tav")
+            a.update(dmid=mid - pmid, absdmid=np.abs(mid - pmid), imb1=(bv - av) / (bv + av), limb1=np.log(bv / av),
+                     timb=(tb - ta) / (tb + ta), ltimb=np.log(tb / ta), ldvol=np.log1p(a["dvol"]),
+                     chg=np.concatenate([[0.0], (px[1:] != px[:-1]).astype(float)]))
             a["set_all"] = np.ones(px.size, bool)
             a["set_vol_moved"] = np.nan_to_num(dv) > 0
             a["set_px_changed"] = np.concatenate([[True], px[1:] != px[:-1]])
         else:
-            a.update(vol=f("vol"), amt=f("amt"), side=f("side"))
+            a.update(vol=f("vol"), amt=f("amt"), side=f("side"), lvol=np.log(f("vol")))
             a["svol"], a["samt"] = a["side"] * a["vol"], a["side"] * a["amt"]
             ls = g["ls"].to_numpy()
             a["set_all"] = np.ones(px.size, bool)
@@ -146,6 +154,26 @@ def score(errs: list[float]) -> dict[str, float]:
     return {"mre": float(np.median(e)), "ok6": float((e <= 1e-6).mean()), "ok4": float((e <= 1e-4).mean())}
 
 
+def top_corr(v: np.ndarray, cands: dict[str, np.ndarray]) -> dict[str, object]:
+    """Find the 3 candidates whose cross-stock ranking matches v best, with the median ratio v / candidate."""
+    def rank(z: np.ndarray) -> np.ndarray:
+        return np.argsort(np.argsort(z)).astype(float)
+    res = []
+    for x, c in cands.items():
+        ok = np.isfinite(v) & np.isfinite(c)
+        if ok.sum() < 20 or np.std(c[ok]) == 0:
+            continue
+        rho = float(np.corrcoef(rank(v[ok]), rank(c[ok]))[0, 1])
+        with np.errstate(divide="ignore", invalid="ignore"):
+            k = float(np.nanmedian(v[ok] / c[ok]))
+        res.append((x, rho, k))
+    res.sort(key=lambda t: -abs(t[1]))
+    out: dict[str, object] = {}
+    for i, (x, rho, k) in enumerate(res[:3], 1):
+        out[f"c{i}"], out[f"rho{i}"], out[f"k{i}"] = x, rho, k
+    return out
+
+
 def main() -> None:
     """CLI entry point."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
@@ -186,7 +214,7 @@ def main() -> None:
     if not days:
         return
     prefixes = sorted({p for _, k, _ in days for p in k})
-    rows, cfg_rows = [], []
+    rows, cfg_rows, prof = [], [], []
     for p in prefixes:
         kind = next(k[p] for _, k, _ in days if p in k)
         pairs = []  # (market, arrays, weight table, PM wgt, PM sum)
@@ -221,6 +249,11 @@ def main() -> None:
             xs.append((x, score([abs(ema(a, time, sset, w, h, x) - s_ / y) / max(abs(s_ / y), 1e-12) for _, a, _t, y, s_ in sz])))
         xs.sort(key=lambda t: (t[1]["mre"], -t[1]["ok6"]))
         (x1, v1), (x2, v2) = xs[0], xs[1]
+        if v1["ok4"] < 0.9:  # unsolved: what kind of quantity is PM's value, and which candidate does it track
+            pmv = np.array([s_ / y for _, _a, _t, y, s_ in sz])
+            prof.append({"p": p, "half": h, "v_p10": np.nanquantile(pmv, 0.1), "v_med": np.nanmedian(pmv), "v_p90": np.nanquantile(pmv, 0.9),
+                         "neg": float(np.mean(pmv < 0)), **top_corr(pmv, {x: np.array([ema(a, time, sset, w, h, x) for _, a, _t, _y, _s in sz])
+                                                                         for x in VALUES[kind]})})
         rows.append({"p": p, "kind": kind, "half": h, "time": time.removeprefix("t_"), "set": sset, "w": w,
                      "mre_w": s["mre"], "ok6_w": s["ok6"], "ok4_w": s["ok4"], "mre_w_sh": s_sh["mre"],
                      "x": x1, "mre_x": v1["mre"], "ok6_x": v1["ok6"], "ok4_x": v1["ok4"], "x2": x2, "mre_x2": v2["mre"]})
@@ -233,6 +266,10 @@ def main() -> None:
         print("\n== per prefix: best half-life / time / update set / weight on SZSE (ok6 / ok4: share within 1e-6 / 1e-4),"
               " SSE weight error, best value x and runner-up x2")
         print(out)
+        if prof:
+            print("\n== unsolved values on SZSE: PM value quantiles, share negative, and the 3 candidates it ranks with best"
+                  " (rho: Spearman; k: median PM / candidate)")
+            print(pl.DataFrame(prof))
     print(f"configs: {args.out / 'dcp_ema_configs.csv'}, table: {args.out / 'dcp_ema.csv'}")
 
 
