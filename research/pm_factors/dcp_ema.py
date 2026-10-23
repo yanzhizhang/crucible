@@ -39,16 +39,18 @@ import dcp_build as B  # catalog path, time expressions, state loader
 import diag_iema as I  # state triples, clock assignment helpers
 
 SZSE = 3554
-HALF = np.array([5, 10, 15, 20, 30, 45, 60, 90, 100, 120, 150, 200, 240, 300, 450, 600, 900, 1200, 1800, 3600], float)
+# round half-lives in seconds; 1e12 = no decay (a plain mean over the day's updates)
+HALF = np.array([5, 10, 15, 20, 30, 45, 60, 90, 100, 120, 150, 200, 240, 300, 450, 600, 900, 1200, 1800, 3600,
+                 5400, 7200, 10800, 14400, 28800, 1e12], float)
 SETS = {"fast": ("all", "vol_moved", "px_changed"), "slow": ("all", "batch")}
 WEIGHTS = {"fast": ("one", "dvol", "damt"), "slow": ("one", "vol", "amt")}
 VALUES = {
     "fast": ("price", "mid", "logp", "logmid", "ask1", "bid1", "svwap", "ret", "logret", "mret", "mlogret", "absret",
              "ret2", "logret2", "spread", "lp_open", "lp_pc", "ret_open", "ret_pc", "lhl", "lh_open", "ll_open",
              "hl_pc", "lh_pc", "ll_pc", "dp", "absdp", "dmid", "absdmid", "imb1", "limb1", "timb", "ltimb", "dvol",
-             "ldvol", "damt", "chg"),
+             "ldvol", "damt", "chg", "one", "hl", "tr_pc", "tr_open", "inv_p", "pprev", "spread_abs"),
     "slow": ("price", "logp", "ret", "logret", "absret", "ret2", "logret2", "lp_open", "lp_pc", "ret_open", "ret_pc",
-             "side", "svol", "samt", "vol", "lvol", "amt", "dp", "absdp"),
+             "side", "svol", "samt", "vol", "lvol", "amt", "dp", "absdp", "one", "hl", "tr_pc", "tr_open", "inv_p", "pprev"),
 }
 
 
@@ -84,6 +86,7 @@ def arrays(g: pl.DataFrame, kind: str) -> dict[str, np.ndarray]:
         a["absret"], a["ret2"], a["logret2"] = np.abs(a["ret"]), a["ret"] ** 2, a["logret"] ** 2
         a["dp"] = pos - prev
         a["absdp"] = np.abs(a["dp"])
+        a["inv_p"], a["pprev"] = 1 / pos, prev
         op, pc = f("op"), f("pc")
         op, pc = np.where(op > 0, op, np.nan), np.where(pc > 0, pc, np.nan)
         a["lp_open"], a["lp_pc"], a["ret_open"], a["ret_pc"] = np.log(pos / op), np.log(pos / pc), pos / op - 1, pos / pc - 1
@@ -101,6 +104,7 @@ def arrays(g: pl.DataFrame, kind: str) -> dict[str, np.ndarray]:
                      dvol=np.nan_to_num(np.clip(dv, 0, None)), damt=np.nan_to_num(np.clip(da, 0, None)),
                      svwap=np.where(dv > 0, da / dv, np.nan), lhl=np.log(hi / lo), lh_open=np.log(hi / op),
                      ll_open=np.log(lo / op), hl_pc=(hi - lo) / pc, lh_pc=np.log(hi / pc), ll_pc=np.log(lo / pc))
+            a["spread_abs"] = np.where(two, a1 - b1, np.nan)
             bv, av, tb, ta = f("bv1"), f("av1"), f("tbv"), f("tav")
             a.update(dmid=mid - pmid, absdmid=np.abs(mid - pmid), imb1=(bv - av) / (bv + av), limb1=np.log(bv / av),
                      timb=(tb - ta) / (tb + ta), ltimb=np.log(tb / ta), ldvol=np.log1p(a["dvol"]),
@@ -111,9 +115,12 @@ def arrays(g: pl.DataFrame, kind: str) -> dict[str, np.ndarray]:
         else:
             a.update(vol=f("vol"), amt=f("amt"), side=f("side"), lvol=np.log(f("vol")))
             a["svol"], a["samt"] = a["side"] * a["vol"], a["side"] * a["amt"]
+            hi, lo = np.fmax.accumulate(pos), np.fmin.accumulate(pos)  # the day's range so far, from the trades
             ls = g["ls"].to_numpy()
             a["set_all"] = np.ones(px.size, bool)
             a["set_batch"] = np.concatenate([ls[1:] != ls[:-1], [True]])  # last trade of each arrival batch
+        # range in price units (true range against the previous close / the open)
+        a["hl"], a["tr_pc"], a["tr_open"] = hi - lo, np.fmax(hi, pc) - np.fmin(lo, pc), np.fmax(hi, op) - np.fmin(lo, op)
     return a
 
 
@@ -155,7 +162,7 @@ def score(errs: list[float]) -> dict[str, float]:
 
 
 def top_corr(v: np.ndarray, cands: dict[str, np.ndarray]) -> dict[str, object]:
-    """Find the 3 candidates whose cross-stock ranking matches v best, with the median ratio v / candidate."""
+    """Find the 3 candidates whose cross-stock ranking matches v best: median ratio k, share within 1e-4 after scaling by k."""
     def rank(z: np.ndarray) -> np.ndarray:
         return np.argsort(np.argsort(z)).astype(float)
     res = []
@@ -166,11 +173,12 @@ def top_corr(v: np.ndarray, cands: dict[str, np.ndarray]) -> dict[str, object]:
         rho = float(np.corrcoef(rank(v[ok]), rank(c[ok]))[0, 1])
         with np.errstate(divide="ignore", invalid="ignore"):
             k = float(np.nanmedian(v[ok] / c[ok]))
-        res.append((x, rho, k))
+            sc = float(np.mean(np.abs(v[ok] - k * c[ok]) <= 1e-4 * np.abs(v[ok])))
+        res.append((x, rho, k, sc))
     res.sort(key=lambda t: -abs(t[1]))
     out: dict[str, object] = {}
-    for i, (x, rho, k) in enumerate(res[:3], 1):
-        out[f"c{i}"], out[f"rho{i}"], out[f"k{i}"] = x, rho, k
+    for i, (x, rho, k, sc) in enumerate(res[:3], 1):
+        out[f"c{i}"], out[f"rho{i}"], out[f"k{i}"], out[f"s{i}"] = x, rho, k, sc
     return out
 
 
@@ -262,13 +270,13 @@ def main() -> None:
     args.out.mkdir(parents=True, exist_ok=True)
     pl.DataFrame(cfg_rows).write_csv(args.out / "dcp_ema_configs.csv")
     out.write_csv(args.out / "dcp_ema.csv")
-    with pl.Config(tbl_rows=60, tbl_cols=18, tbl_width_chars=240, fmt_str_lengths=14, float_precision=6):
+    with pl.Config(tbl_rows=60, tbl_cols=24, tbl_width_chars=260, fmt_str_lengths=14, float_precision=6):
         print("\n== per prefix: best half-life / time / update set / weight on SZSE (ok6 / ok4: share within 1e-6 / 1e-4),"
               " SSE weight error, best value x and runner-up x2")
         print(out)
         if prof:
             print("\n== unsolved values on SZSE: PM value quantiles, share negative, and the 3 candidates it ranks with best"
-                  " (rho: Spearman; k: median PM / candidate)")
+                  " (rho: Spearman; k: median PM / candidate; s: share within 1e-4 of k x candidate)")
             print(pl.DataFrame(prof))
     print(f"configs: {args.out / 'dcp_ema_configs.csv'}, table: {args.out / 'dcp_ema.csv'}")
 
