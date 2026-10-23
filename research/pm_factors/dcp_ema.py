@@ -49,10 +49,11 @@ VALUES = {
              "ret2", "logret2", "spread", "lp_open", "lp_pc", "ret_open", "ret_pc", "lhl", "lh_open", "ll_open",
              "hl_pc", "lh_pc", "ll_pc", "dp", "absdp", "dmid", "absdmid", "imb1", "limb1", "timb", "ltimb", "dvol",
              "ldvol", "damt", "chg", "one", "hl", "tr_pc", "tr_open", "inv_p", "pprev", "spread_abs",
-             "volchg", "bidchg", "askchg", "dt", "dt_exch", "dd_hi", "du_lo"),
+             "volchg", "bidchg", "askchg", "dt", "dt_exch", "dd_hi", "du_lo", "dd_hi2", "du_lo2", "dd_hm", "dd_hm2",
+             "sp_hl", "adp_hl", "stoch"),
     "slow": ("price", "logp", "ret", "logret", "absret", "ret2", "logret2", "lp_open", "lp_pc", "ret_open", "ret_pc",
              "side", "svol", "samt", "vol", "lvol", "amt", "dp", "absdp", "one", "hl", "tr_pc", "tr_open", "inv_p", "pprev",
-             "dt", "dt_exch", "dd_hi", "du_lo"),
+             "dt", "dt_exch", "dd_hi", "du_lo", "dd_hi2", "du_lo2", "adp_hl", "stoch"),
 }
 
 
@@ -60,7 +61,7 @@ def load(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop: float
     """Snapshots and trades received by the stop, with both clocks and the fields the values need."""
     S, L = B.SOD, B.LSOD
     con.register("want", pl.DataFrame({"sid": sids}))
-    fast = con.sql(f"""SELECT symbol_id AS sid, market_id AS mkt, {B.tc(L)} AS t_local, {B.tc(S)} AS t_exch, spider_ts AS ls,
+    fast = con.sql(f"""SELECT symbol_id AS sid, market_id AS mkt, {B.tc(L)} AS t_local, {B.tc(S)} AS t_exch, spider_ts AS ls, {S} AS s,
         price, q.bid_px[1] AS b1, q.ask_px[1] AS a1, q.bid_vol[1]::DOUBLE AS bv1, q.ask_vol[1]::DOUBLE AS av1,
         total_bid_volume::DOUBLE AS tbv, total_ask_volume::DOUBLE AS tav, total_volume::DOUBLE AS cv, total_amount::DOUBLE AS ca,
         open::DOUBLE AS op, high::DOUBLE AS hi, low::DOUBLE AS lo, pre_close::DOUBLE AS pc
@@ -127,6 +128,13 @@ def arrays(g: pl.DataFrame, kind: str) -> dict[str, np.ndarray]:
         # range in price units (true range against the previous close / the open)
         a["hl"], a["tr_pc"], a["tr_open"] = hi - lo, np.fmax(hi, pc) - np.fmin(lo, pc), np.fmax(hi, op) - np.fmin(lo, op)
         a["dd_hi"], a["du_lo"] = np.log(hi / pos), np.log(pos / lo)  # distance below the day high / above the low
+        a["dd_hi2"], a["du_lo2"] = a["dd_hi"] ** 2, a["du_lo"] ** 2
+        a["adp_hl"], a["stoch"] = a["absdp"] / (hi - lo), (pos - lo) / (hi - lo)
+        if kind == "fast":
+            hm = np.fmax.accumulate(np.where(g["s"].to_numpy() >= 34200, pos, np.nan))  # running max snapshot price from 09:30
+            a["dd_hm"] = np.log(hm / pos)
+            a["dd_hm2"] = a["dd_hm"] ** 2
+            a["sp_hl"] = a["spread_abs"] / (hi - lo)
         a["dt"] = np.diff(a["t_local"], prepend=np.nan)
         a["dt_exch"] = np.diff(a["t_exch"], prepend=np.nan)
     return a
@@ -274,6 +282,15 @@ def main() -> None:
             prof.append({"p": p, "half": h, "v_p10": np.nanquantile(pmv, 0.1), "v_med": np.nanmedian(pmv), "v_p90": np.nanquantile(pmv, 0.9),
                          "neg": float(np.mean(pmv < 0)), **top_corr(pmv, {x: np.array([ema(a, time, sset, w, h, x) for _, a, _t, _y, _s in sz])
                                                                          for x in VALUES[kind]})})
+            # the value may run on its own half-life: rescan the top candidates over every half-life
+            hb = (np.inf, None, None, 0.0)
+            for x in {str(prof[-1].get(f"c{i}", "")).removeprefix("1/") for i in (1, 2, 3)} - {""}:
+                for hx in HALF:
+                    e = [abs(ema(a, time, sset, w, hx, x) - s_ / y) / max(abs(s_ / y), 1e-12) for _, a, _t, y, s_ in sz]
+                    sc = score(e)
+                    if sc["mre"] < hb[0]:
+                        hb = (sc["mre"], x, hx, sc["ok4"])
+            prof[-1].update(hx_x=hb[1], hx=hb[2], hx_mre=hb[0], hx_ok4=hb[3])
         rows.append({"p": p, "kind": kind, "half": h, "time": time.removeprefix("t_"), "set": sset, "w": w,
                      "mre_w": s["mre"], "ok6_w": s["ok6"], "ok4_w": s["ok4"], "mre_w_sh": s_sh["mre"],
                      "x": x1, "mre_x": v1["mre"], "ok6_x": v1["ok6"], "ok4_x": v1["ok4"], "x2": x2, "mre_x2": v2["mre"]})
@@ -282,7 +299,7 @@ def main() -> None:
     args.out.mkdir(parents=True, exist_ok=True)
     pl.DataFrame(cfg_rows).write_csv(args.out / "dcp_ema_configs.csv")
     out.write_csv(args.out / "dcp_ema.csv")
-    with pl.Config(tbl_rows=60, tbl_cols=24, tbl_width_chars=260, fmt_str_lengths=14, float_precision=6):
+    with pl.Config(tbl_rows=60, tbl_cols=26, tbl_width_chars=280, fmt_str_lengths=14, float_precision=6):
         print("\n== per prefix: best half-life / time / update set / weight on SZSE (ok6 / ok4: share within 1e-6 / 1e-4),"
               " SSE weight error, best value x and runner-up x2")
         print(out)
