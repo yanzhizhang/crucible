@@ -109,7 +109,7 @@ def refine_and_score(r: dict, final: list) -> dict:
     for _, st, _k, streams in final:
         for sid, y, s_ in st.filter(pl.col("p") == r["p"]).select("sid", "wgt", "sum").iter_rows():
             s = streams.get((r["kind"], sid, r["start"]))
-            if s and s[1]["tc"].size >= 2:
+            if s and s[1]["tc"].size >= 2 and y is not None and np.isfinite(y) and y != 0:  # a 0 weight = no update yet
                 pairs.append((s[0], s[1], y, s_))
     fit = [q for q in pairs if q[0] == SZSE][:FIT_STOCKS * len(final)]
 
@@ -129,11 +129,12 @@ def refine_and_score(r: dict, final: list) -> dict:
         if mkt == SZSE:
             for x in xs:
                 xs[x].append(abs(ema(a, r["clock"], r["w"], tau, x) - s_ / y) / max(abs(s_ / y), 1e-12))
-    xb = min(xs, key=lambda x: np.nanmedian(xs[x]))
+    med = {x: float(np.nanmedian(v)) if np.isfinite(v).any() else np.inf for x, v in ((x, np.array(v)) for x, v in xs.items())}
+    xb = min(med, key=med.get)
     return {"p": r["p"], "kind": r["kind"], "combo": f"{r['start']}/{r['clock']}/{r['w']}", "tau": tau, "disp": r["disp"],
             "feas": r["feas"], "mre_w": float(np.median(rw[True])), "ok_w": float(np.mean(np.array(rw[True]) <= EXACT)),
             "mre_w_sh": float(np.median(rw[False])) if rw[False] else None, "x": xb,
-            "mre_x": float(np.nanmedian(xs[xb])), "ok_x": float(np.nanmean(np.array(xs[xb]) <= EXACT))}
+            "mre_x": med[xb], "ok_x": float(np.mean(np.array(xs[xb]) <= EXACT))}
 
 
 def main() -> None:
@@ -188,6 +189,8 @@ def main() -> None:
                 for clock in ("tc", "wall", "count"):
                     W = wgt_on_grid(a[clock], np.vstack([a[w] for w in WEIGHTS[kind]]))
                     for p, y in zip(mine["p"].to_list(), mine["wgt"].to_list()):
+                        if y is None or not np.isfinite(y) or y <= 0:
+                            continue
                         for wi, wn in enumerate(WEIGHTS[kind]):
                             curve = W[wi]
                             ok = curve[0] <= y <= curve[-1] and np.all(np.diff(curve) >= 0)
@@ -201,6 +204,13 @@ def main() -> None:
         pl.col("tau").is_not_nan().mean().alias("feas"), pl.col("tau").filter(pl.col("tau").is_not_nan()).median().alias("tau_med"),
         (pl.col("tau").filter(pl.col("tau").is_not_nan()).log().quantile(0.75)
          - pl.col("tau").filter(pl.col("tau").is_not_nan()).log().quantile(0.25)).alias("disp"))
+    args.out.mkdir(parents=True, exist_ok=True)
+    T.write_parquet(args.out / "iema_taus.parquet")
+    combo.write_csv(args.out / "iema_combos.csv")
+    with pl.Config(tbl_rows=60, tbl_cols=12, tbl_width_chars=200, fmt_str_lengths=24, float_precision=5):
+        print("\n== stage 1: tightest tau per prefix (disp = log IQR of tau over SZSE stocks, feas = share solvable)")
+        print(combo.filter(pl.col("feas") >= 0.8).sort("disp").group_by("p", maintain_order=True).first()
+              .select("p", "kind", "start", "clock", "w", "tau_med", "disp", "feas").sort("kind", "disp"))
     # stage 2: per prefix the few combos with the tightest tau, refined and scored on weight AND value
     # (on a fixed 3 s cadence w=dt is w=1 times 3 with tau / 3, so the weight alone cannot tell them apart)
     cands = combo.filter(pl.col("feas") >= 0.8).with_columns(pl.col("disp").min().over("p").alias("dmin")).filter(
@@ -218,9 +228,6 @@ def main() -> None:
     if not rows:
         return
     out = pl.DataFrame(rows).sort("kind", "mre_w")
-    args.out.mkdir(parents=True, exist_ok=True)
-    T.write_parquet(args.out / "iema_taus.parquet")
-    combo.write_csv(args.out / "iema_combos.csv")
     with pl.Config(tbl_rows=60, tbl_cols=16, tbl_width_chars=230, fmt_str_lengths=24, float_precision=5):
         print("\n== per prefix: best (updates/clock/weight) by the spread of tau over SZSE stocks (disp = log IQR),"
               " refined tau, SZSE / SSE weight error, best value x")
