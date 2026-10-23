@@ -249,17 +249,20 @@ Confirmed on 9 days (0429, 0922-0930, 1008, 1009; `research/pm_factors/dcp_multi
 
 | key | rule | holds |
 | --- | --- | --- |
-| `zzpk.high/low/open`, `zzvx.high/low`, `zzxu.high/low`, `zzmh.hm` | the day's high / low / open | 1.0 every day |
+| `zzpk.high/low/open`, `zzvx.high/low`, `zzxu.high/low` | the day's high / low / open | 1.0 every day |
+| `zzmh.hm` | highest snapshot last price over 09:30-14:57 exchange time (not the trade high: matches it on only ~50 %) | 1.0 SZSE, 0.995-1.0 SSE on live days (0429: 0.95-0.98) |
 | `zzxu.last`, `zzxo.last`, `cdc.lp` | the day's last price | ~1.0 |
 | `zzqj.v/tpv`, `zzvm.c.v/tpv` | volume / amount of all trades from 09:30:00 exchange time, close auction included | SZSE 1.0 (0929 0.964); SSE short by PM's lost trades |
-| `zzxo.r.0..29`, `zzui.r.0..9` | last snapshot price strictly before 14:57:00 - (n-1-k) x 10 s | 0.967-0.975 |
-| fast clock (`zzba.p.t`, `zzeb.*.t`, `zzpk.p.t`, `zzup.*.t`, `zzxu.*.t`, ...) | local arrival, trading-clock seconds (09:30 = 0, lunch removed), of the last snapshot received before PM's process stopped (15:02:28-15:02:30 local) | 1.0 within 10 ms (0429: 0.37) |
-| slow clock (`zzbd.*EmaT.t`, `zzqj.r.t`, `zztx.r.t`, `zzvm.c.re.t`) | local arrival of the stock's last trade | median -3..-7 ms (0429: 0) |
+| `zzxo.r.0..29`, `zzui.r.0..9` | last snapshot **received** (local arrival) at or before 14:57:00 - (n-1-k) x 10 s | 1.0 both exchanges on live days (0429: 0.97); by exchange time: SSE ~1.0, SZSE 0.94 |
+| fast clock (`zzba.p.t`, `zzeb.*.t`, `zzpk.p.t`, `zzup.*.t`, `zzxu.*.t`, ...) | local arrival, trading-clock seconds (09:30 = 0, lunch removed), of the last snapshot received before PM's process stopped (15:02:28-15:02:30 local) | 1.0 within 10 ms; `dcp_build --stop auto` takes the stop from the latest `zzba.p.t` (0429 SSE: 129 s off -- its SSE snapshot arrival times differ from PM's) |
+| slow clock (`zzbd.*EmaT.t`, `zzqj.r.t`, `zztx.r.t`, `zzvm.c.re.t`) | local arrival of the stock's last trade | 0429: exact; live days PM is 3-7 ms earlier, earlier even than our first close-auction trade: PM's trade feed is faster than feitu's capture, so not reproducible to the ms |
 | `zzgh.nb` | same-day only (fitting nb[D] = a imb[D] + (1-a) nb[D-1] gives a = 0.993-1.006); closest: continuous-session amount imbalance | median rel. error 0.67 % on SZSE -- not exact yet |
 
 The clocks are "last updated" stamps, not inputs. Day-to-day, the decaying weights keep 0.88-0.99 of
 their value (half-lives ~5-50 days by family), histograms grow 0-46 counts per day. Still open: the
 exact `nb` definition, the averages' weights and decay, the histograms' bins.
+`research/pm_factors/diag_ema.py` fits each average's day update against the previous day's state
+(`wgt_D = a wgt_base + c w_D`, then the implied value `x_D`), so no long history is needed.
 
 ## Stage 1 -- CED in crucible (`research/ced`, `research/run_ced.py`)
 
