@@ -9,8 +9,10 @@ can be fitted exactly, with no long history:
 * **overnight** (when ``sod/D`` exists): ``sod/D`` against the file of the previous trade day --
   is the open copy the same state, or already decayed?
 * **weight**: for each candidate day weight w (volume, amount, trade count, snapshot count, 1;
-  whole day from 09:30 or continuous session only), a least-squares fit of ``a`` and ``c`` across
-  the 300 stocks; the right w leaves a residual of ~0 and the same ``a`` every day;
+  whole day from 09:30 or continuous session only), a least-squares fit of ``a`` and ``c`` on the
+  SZSE stocks only, refitted on the better half (PM's live feed loses ticks: SSE a lot, SZSE a
+  little on some days); the right w leaves a residual of ~0 on SZSE and the same ``a`` every day.
+  SSE is scored with the SZSE fit, for reference;
 * **value**: with the best weight, the implied ``x_D = (sum_D - a sum_base) / (c w_D)`` against the
   day's quantities (vwap, twap, last, open, high, low, returns, range).
 
@@ -55,7 +57,7 @@ def day_inputs(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop:
     S, L = B.SOD, B.LSOD
     cont = f"{S} >= 34200 AND {S} < 53820"
     con.register("want", pl.DataFrame({"sid": sids}))
-    tr = con.sql(f"""SELECT symbol_id AS sid,
+    tr = con.sql(f"""SELECT symbol_id AS sid, any_value(market_id) AS mkt,
         (sum(volume) FILTER ({S} >= 34200))::DOUBLE AS vol, sum(volume * price) FILTER ({S} >= 34200) AS amt,
         (count(*) FILTER ({S} >= 34200))::DOUBLE AS n,
         (sum(volume) FILTER ({cont}))::DOUBLE AS vol_cont, sum(volume * price) FILTER ({cont}) AS amt_cont,
@@ -74,30 +76,48 @@ def day_inputs(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop:
         (pl.col("high") / pl.col("low") - 1).alias("range"), pl.lit(1.0).alias("one"))
 
 
+SZSE, SSE = 3554, 3553
+EXACT = 1e-6
+
+
+def trimmed_fit(b0: np.ndarray, w: np.ndarray, y: np.ndarray) -> tuple[float, float]:
+    """Least squares of y on (b0, w), refitted on the better half: stocks where PM lost ticks cannot pull it."""
+    keep = np.ones(y.size, dtype=bool)
+    for _ in range(3):
+        (a, c), *_ = np.linalg.lstsq(np.column_stack([b0[keep], w[keep]]), y[keep], rcond=None)
+        r = np.abs(y - a * b0 - c * w) / np.maximum(np.abs(y), 1e-300)
+        keep = r <= np.quantile(r, 0.5)
+    return float(a), float(c)
+
+
 def fit_day(cur: pl.DataFrame, base: pl.DataFrame, inp: pl.DataFrame, date: int) -> pl.DataFrame:
-    """One row per (prefix, weight candidate): fitted a, c, residual and the best value candidate."""
+    """One row per (prefix, weight candidate): a and c fitted on SZSE, residuals per exchange, best value."""
     j = cur.join(base.select("sid", "p", pl.col("sum").alias("sum0"), pl.col("wgt").alias("wgt0")), on=["sid", "p"]).join(inp, on="sid")
     rows = []
     for p in j["p"].unique().sort().to_list():
         g = j.filter(pl.col("p") == p)
         for wn in WEIGHTS:
             h = g.filter(pl.col(wn).is_finite() & (pl.col(wn) > 0) & pl.col("wgt0").is_finite() & pl.col("wgt").is_finite())
-            if h.height < 20:
+            sz = (h["mkt"] == SZSE).to_numpy()
+            if sz.sum() < 20:
                 continue
             y, b0, w = h["wgt"].to_numpy(), h["wgt0"].to_numpy(), h[wn].to_numpy()
-            (a, c), *_ = np.linalg.lstsq(np.column_stack([b0, w]), y, rcond=None)
-            mre = float(np.median(np.abs(y - a * b0 - c * w) / np.maximum(np.abs(y), 1e-300)))
-            row = {"date": date, "p": p, "w": wn, "n": h.height, "a": float(a), "c": float(c), "mre": mre,
+            a, c = trimmed_fit(b0[sz], w[sz], y[sz])  # PM's SZSE ticks are complete, SSE ones are not
+            r = np.abs(y - a * b0 - c * w) / np.maximum(np.abs(y), 1e-300)
+            sh = (h["mkt"] == SSE).to_numpy()
+            row = {"date": date, "p": p, "w": wn, "n": h.height, "a": a, "c": c, "mre": float(np.median(r[sz])),
+                   "ok_sz": float((r[sz] <= EXACT).mean()), "mre_sh": float(np.median(r[sh])) if sh.any() else None,
                    "x": None, "x_mre": None}
             dw = c * w
-            if np.median(np.abs(dw) / np.maximum(np.abs(y), 1e-300)) > 1e-6:  # the day added weight: read its value
-                x = (h["sum"].to_numpy() - a * h["sum0"].to_numpy()) / dw
-                best = min(((vn, float(np.nanmedian(np.abs(x - h[vn].to_numpy()) / np.maximum(np.abs(h[vn].to_numpy()), 1e-12))))
+            if np.median(np.abs(dw[sz]) / np.maximum(np.abs(y[sz]), 1e-300)) > EXACT:  # the day added weight: read its value
+                x = ((h["sum"].to_numpy() - a * h["sum0"].to_numpy()) / dw)[sz]
+                best = min(((vn, float(np.nanmedian(np.abs(x - h[vn].to_numpy()[sz]) / np.maximum(np.abs(h[vn].to_numpy()[sz]), 1e-12))))
                             for vn in VALUES), key=lambda t: t[1])
                 row["x"], row["x_mre"] = best
             rows.append(row)
     return pl.DataFrame(rows, schema={"date": pl.Int64, "p": pl.String, "w": pl.String, "n": pl.Int64, "a": pl.Float64,
-                                      "c": pl.Float64, "mre": pl.Float64, "x": pl.String, "x_mre": pl.Float64})
+                                      "c": pl.Float64, "mre": pl.Float64, "ok_sz": pl.Float64, "mre_sh": pl.Float64,
+                                      "x": pl.String, "x_mre": pl.Float64})
 
 
 def overnight(sod: pl.DataFrame, prev: pl.DataFrame) -> pl.DataFrame:
@@ -150,16 +170,18 @@ def main() -> None:
     a.out.mkdir(parents=True, exist_ok=True)
     f.write_csv(a.out / "ema_fits.csv")
     # per (prefix, weight): median over days; the best weight per prefix is the one with the smallest residual
-    agg = f.group_by("p", "w").agg(pl.len().alias("days"), pl.col("mre").median(), pl.col("a").median().alias("a"),
+    agg = f.group_by("p", "w").agg(pl.len().alias("days"), pl.col("mre").median(), pl.col("ok_sz").median(),
+                                   pl.col("mre_sh").median(), pl.col("a").median().alias("a"),
                                    (pl.col("a").max() - pl.col("a").min()).alias("a_rng"), pl.col("c").median(),
                                    pl.col("x").mode().first(), pl.col("x_mre").median())
     ranked = agg.sort("mre").group_by("p", maintain_order=True)
     best = ranked.first().join(ranked.agg(pl.col("w").slice(1, 1).first().alias("w2"), pl.col("mre").slice(1, 1).first().alias("mre2")),
                                on="p").with_columns(pl.col("p").str.extract(r"^([^.]+)").alias("fam")).sort("mre")
-    with pl.Config(tbl_rows=60, tbl_cols=12, tbl_width_chars=200, fmt_str_lengths=30, float_precision=5):
-        print(f"\n== best weight per prefix, 45 best of {best.height} (mre: median |resid| / wgt; a_rng: spread of a over days; w2: runner-up)")
-        print(best.head(45).select("p", "w", "days", "mre", "a", "a_rng", "c", "x", "x_mre", "w2", "mre2"))
-        print("\n== per family: prefixes, how many fit (mre < 1e-4), most common best weight / value")
+    with pl.Config(tbl_rows=60, tbl_cols=16, tbl_width_chars=230, fmt_str_lengths=30, float_precision=5):
+        print(f"\n== best weight per prefix, 45 best of {best.height} (fitted on SZSE; mre / ok_sz: SZSE median |resid| / wgt, exact share; mre_sh: SSE, where PM lost ticks; "
+              "a_rng: spread of a over days; w2: runner-up)")
+        print(best.head(45).select("p", "w", "days", "mre", "ok_sz", "mre_sh", "a", "a_rng", "c", "x", "x_mre", "w2", "mre2"))
+        print("\n== per family (SZSE): prefixes, how many fit (mre < 1e-4), most common best weight / value")
         print(best.group_by("fam").agg(pl.len().alias("prefixes"), (pl.col("mre") < 1e-4).sum().alias("fit"),
                                        pl.col("mre").median().alias("mre_med"), pl.col("w").mode().first().alias("w"),
                                        pl.col("a").median(), pl.col("x").mode().first().alias("x"),
