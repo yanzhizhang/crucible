@@ -234,8 +234,8 @@ Data facts found on the way:
 
 53 days (2023-01-16 .. 2023-02-28, 2026-04-29, 2026-09-01 .. 2026-10-13), plus `sod/` copies (sod/D =
 day D-1). Format: gzip JSON `{sid: {key: float}}`, 300 stocks x 7532 keys, same key set for every
-stock. It is the state the multi-day families carry overnight, not the model features: price lists,
-decaying weighted averages (`<p>.sum / .t / .wgt`, value = sum / wgt), histograms (`<p>.c.<bin>`)
+stock. It is the factor engines' state at the close, not the model features: price lists,
+intraday EMAs (`<p>.sum / .t / .wgt`, value = sum / wgt), histograms (`<p>.c.<bin>`)
 and a few scalars. Families present include ZZGH (model rank 4-5), ZZBA, ZZXU, ZZPK, ZZUP, ZZEG,
 ZZAB2, ZZEB, ZZBD, ZZQJ, ZZVM, ZZXO, ZZUI, ZZHJ, ZZFB, ZZJB, CDB, CDC; ZZRO / ZZEU are not.
 
@@ -258,11 +258,18 @@ Confirmed on 9 days (0429, 0922-0930, 1008, 1009; `research/pm_factors/dcp_multi
 | slow clock (`zzbd.*EmaT.t`, `zzqj.r.t`, `zztx.r.t`, `zzvm.c.re.t`) | local arrival of the stock's last trade | 0429: exact; live days PM is 3-7 ms earlier, earlier even than our first close-auction trade: PM's trade feed is faster than feitu's capture, so not reproducible to the ms |
 | `zzgh.nb` | same-day only (fitting nb[D] = a imb[D] + (1-a) nb[D-1] gives a = 0.993-1.006); closest: continuous-session amount imbalance | median rel. error 0.67 % on SZSE -- not exact yet |
 
-The clocks are "last updated" stamps, not inputs. Day-to-day, the decaying weights keep 0.88-0.99 of
-their value (half-lives ~5-50 days by family), histograms grow 0-46 counts per day. Still open: the
-exact `nb` definition, the averages' weights and decay, the histograms' bins.
-`research/pm_factors/diag_ema.py` fits each average's day update against the previous day's state
-(`wgt_D = a wgt_base + c w_D`, then the implied value `x_D`), so no long history is needed.
+The clocks are "last updated" stamps, not inputs. Histograms grow 0-46 counts per day.
+
+**The 26 weighted averages are intraday EMAs, not multi-day ones.** `research/pm_factors/diag_ema.py`
+fitted each day's `wgt` as `a wgt_{D-1} + c w_D` on 7 consecutive day pairs (SZSE only, trimmed):
+nothing fits, `a` is ~0 or negative and moves 0.36-0.99 between days. An earlier reading of
+"weights keep 0.88-0.99 of their value day to day" was an EMA saturating to a similar weight every
+day. 24 of the 26 run on a clock (20 on the snapshot clock -- `zzbd.pEmaS` --, 4 on the trade clock
+-- `zzbd.pEmaT`); `zzui.r` (a ~ 1.0) and `zzhj.p` do carry the previous day.
+`research/pm_factors/diag_iema.py` fits each as `wgt = sum_i w_i exp(-(T - t_i) / tau)` over that
+day's snapshots or trades, ranking (updates, clock, weight) by how constant tau is across SZSE
+stocks, then matches `sum / wgt` against candidate values. Still open: the exact `nb` definition,
+the EMAs' tau / weight / value, the histograms' bins.
 
 ## Stage 1 -- CED in crucible (`research/ced`, `research/run_ced.py`)
 
