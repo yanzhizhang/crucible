@@ -73,6 +73,34 @@ def candidates(a: pl.DataFrame) -> dict[str, np.ndarray]:
     return out
 
 
+def pool(pooled: dict[str, list[np.ndarray]]) -> dict[str, np.ndarray]:
+    """Concatenate each candidate's samples, finite values only, dropping candidates with under 50."""
+    cand = {k: np.concatenate(v) for k, v in pooled.items()}
+    cand = {k: v[np.isfinite(v)] for k, v in cand.items()}
+    return {k: v for k, v in cand.items() if v.size >= 50}
+
+
+def rank(features: pl.DataFrame, cand: dict[str, np.ndarray], top: int) -> list[dict]:
+    """For each fingerprint row, the ``top`` candidates whose p10 / median / p90 sit closest to the thresholds'."""
+    rows = []
+    for f in features.iter_rows(named=True):
+        if f["t_med"] is None:
+            continue
+        tq = np.array([f["t_p10"], f["t_med"], f["t_p90"]])
+        span = max(tq[2] - tq[0], 1e-12)
+        scored = []
+        for k, v in cand.items():
+            cq = np.quantile(v, [0.1, 0.5, 0.9])
+            inr = float(np.mean((v >= f["lo"]) & (v <= f["hi"]))) if f["lo"] is not None else np.nan
+            scored.append((float(np.abs(cq - tq).sum() / span), k, cq, inr))
+        scored.sort(key=lambda t: t[0])
+        for r, (sc, k, cq, inr) in enumerate(scored[:top], 1):
+            rows.append({"feature": f["feature"], "gain_share": f["gain_share"], "kind": f["kind"], "rank": r, "candidate": k,
+                         "score": sc, "in_range": inr, "t_p10": tq[0], "t_med": tq[1], "t_p90": tq[2],
+                         "c_p10": cq[0], "c_med": cq[1], "c_p90": cq[2]})
+    return rows
+
+
 def main() -> None:
     """CLI entry point."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
@@ -94,24 +122,8 @@ def main() -> None:
         for st in states:
             for k, v in candidates(atoms(st, stem)).items():
                 pooled.setdefault(k, []).append(v)
-        cand = {k: np.concatenate(v) for k, v in pooled.items()}
-        cand = {k: v[np.isfinite(v)] for k, v in cand.items()}
-        cand = {k: v for k, v in cand.items() if v.size >= 50}
-        for f in fp.filter(pl.col("stem") == stem).iter_rows(named=True):
-            if f["t_med"] is None:
-                continue
-            tq = np.array([f["t_p10"], f["t_med"], f["t_p90"]])
-            span = max(tq[2] - tq[0], 1e-12)
-            scored = []
-            for k, v in cand.items():
-                cq = np.quantile(v, [0.1, 0.5, 0.9])
-                inr = float(np.mean((v >= f["lo"]) & (v <= f["hi"]))) if f["lo"] is not None else np.nan
-                scored.append((float(np.abs(cq - tq).sum() / span), k, cq, inr))
-            scored.sort(key=lambda t: t[0])
-            for rank, (sc, k, cq, inr) in enumerate(scored[: args.top], 1):
-                rows.append({"feature": f["feature"], "gain_share": f["gain_share"], "kind": f["kind"], "rank": rank, "candidate": k,
-                             "score": sc, "in_range": inr, "t_p10": tq[0], "t_med": tq[1], "t_p90": tq[2],
-                             "c_p10": cq[0], "c_med": cq[1], "c_p90": cq[2]})
+        cand = pool(pooled)
+        rows += rank(fp.filter(pl.col("stem") == stem), cand, args.top)
         print(f"done {stem}: {len(cand)} candidates")
     if not rows:
         return
