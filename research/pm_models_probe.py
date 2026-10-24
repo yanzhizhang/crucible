@@ -11,7 +11,11 @@ machine), for every ``models/<set>/<YYYYMM>/lgb/<fit>/model_s<k>.txt`` under ``-
   no shipped output: its training range (``feature_infos`` ``[min:max]``) and the distribution of
   the split thresholds the trees chose on it (quantiles, how many distinct, share on half-integers =
   a count, share at ~0 = a zero / non-zero split), with a guess (const / flag / count / unit /
-  signed / positive);
+  signed / positive). LightGBM only splits on its ~255 equal-count bin edges, so each model's
+  **distinct** thresholds are roughly evenly spaced quantiles of the training values: ``q_p10 /
+  q_med / q_p90`` (quantiles of the distinct thresholds per model, median over models) estimate
+  the value distribution, while the split-weighted ``t_*`` run wide (the trees split more in the
+  tails);
 * against ``--features`` (``lgb_fn_v1_209_cte.csv``) and ``--hstats`` (the family directories):
   families the model uses that the sample does not ship, and the reverse.
 
@@ -108,11 +112,16 @@ def fingerprint(imp: pl.DataFrame, thr: pl.DataFrame) -> pl.DataFrame:
     rng = imp.group_by("feature", "family").agg(pl.col("lo").min(), pl.col("hi").max(), pl.col("gain_share").mean())
     two = pl.col("t") * 2
     half = ((two - two.round()).abs() < 1e-6) & (two.round() % 2 != 0)  # x.5 thresholds sit between integers
+    # each model's distinct thresholds ~ its bin edges ~ evenly spaced value quantiles
+    q = (thr.unique(["file", "feature", "t"]).group_by("file", "feature")
+         .agg(pl.col("t").quantile(0.1).alias("q_p10"), pl.col("t").median().alias("q_med"), pl.col("t").quantile(0.9).alias("q_p90"),
+              pl.len().alias("bins"))
+         .group_by("feature").agg(pl.col("q_p10", "q_med", "q_p90", "bins").median()))
     t = thr.group_by("feature").agg(
         pl.len().alias("n_thr"), pl.col("t").n_unique().alias("distinct"),
         pl.col("t").quantile(0.1).alias("t_p10"), pl.col("t").median().alias("t_med"), pl.col("t").quantile(0.9).alias("t_p90"),
         half.mean().alias("half_int"), (pl.col("t").abs() < 1e-20).mean().alias("at_zero"))
-    f = rng.join(t, on="feature", how="left")
+    f = rng.join(t, on="feature", how="left").join(q, on="feature", how="left")
     kind = (pl.when(pl.col("lo") == pl.col("hi")).then(pl.lit("const"))
             .when((pl.col("distinct") <= 2) & (pl.col("lo") >= 0) & (pl.col("hi") <= 1)).then(pl.lit("flag"))
             .when(pl.col("half_int") >= 0.9).then(pl.lit("count"))
@@ -158,7 +167,7 @@ def main() -> None:
         where = locate(f, a.models)
         rows.append({**where, **summ})
         imps.append(imp.with_columns(*[pl.lit(v).alias(k) for k, v in where.items()]))
-        thrs.append(thr)
+        thrs.append(thr.with_columns(pl.lit(where["file"]).alias("file")))
     models = pl.DataFrame(rows)
     imp = pl.concat(imps)
     thr = pl.concat(thrs)
@@ -230,10 +239,10 @@ def main() -> None:
                .sort("gain_share", descending=True).head(40))
         print("\ntop 40 features by mean gain share:")
         print(top)
-        print("\nfingerprint of the top 60 features: training range, split thresholds (p10 / median / p90, distinct,"
-              " share on half-integers, share at ~0) and the kind it suggests")
-        with pl.Config(tbl_rows=70, tbl_cols=14, tbl_width_chars=230, float_precision=6, fmt_str_lengths=12):
-            print(fp.head(60).select("feature", "gain_share", "lo", "hi", "t_p10", "t_med", "t_p90", "distinct",
+        print("\nfingerprint of the top 60 features: training range, value quantiles from the distinct thresholds (q_*),"
+              " split-weighted threshold p10 / p90 (t_*), distinct thresholds per model, share on half-integers / at ~0, kind")
+        with pl.Config(tbl_rows=70, tbl_cols=16, tbl_width_chars=250, float_precision=6, fmt_str_lengths=12):
+            print(fp.head(60).select("feature", "gain_share", "lo", "hi", "q_p10", "q_med", "q_p90", "t_p10", "t_p90", "bins",
                                      "half_int", "at_zero", "kind"))
             print("\nkinds per family (features of each kind):")
             print(fp.group_by("family").agg(pl.len().alias("features"), pl.col("gain_share").sum().alias("gain"),

@@ -20,7 +20,6 @@ from __future__ import annotations
 
 import argparse
 import itertools
-import json
 import sys
 from pathlib import Path
 
@@ -81,45 +80,30 @@ def pool(pooled: dict[str, list[np.ndarray]]) -> dict[str, np.ndarray]:
     return {k: v for k, v in cand.items() if v.size >= 50}
 
 
-def rank(features: pl.DataFrame, cand: dict[str, np.ndarray], top: int, levels: dict[str, float] | None = None) -> list[dict]:
-    """For each fingerprint row, the ``top`` best candidates.
+def rank(features: pl.DataFrame, cand: dict[str, np.ndarray], top: int) -> list[dict]:
+    """For each fingerprint row, the ``top`` candidates whose p10 / median / p90 sit closest to the feature's.
 
-    Without ``levels``: p10 / median / p90 closest to the thresholds' (in threshold-span units). With
-    ``levels`` (``fingerprint_calib.json``): where the thresholds fall in the candidate's own distribution
-    against where they fall in true feature values -- immune to the trees' tail bias.
+    The feature's quantiles are ``q_*`` (from each model's distinct thresholds, ~ value quantiles) when
+    the fingerprint has them, else the split-weighted ``t_*``; the gap is in units of their p10-p90 span.
     """
     rows = []
     for f in features.iter_rows(named=True):
-        if f["t_med"] is None:
+        pre = "q" if f.get("q_med") is not None else "t"  # distinct-threshold quantiles when the fingerprint has them
+        if f[f"{pre}_med"] is None:
             continue
-        tq = np.array([f["t_p10"], f["t_med"], f["t_p90"]])
+        tq = np.array([f[f"{pre}_p10"], f[f"{pre}_med"], f[f"{pre}_p90"]])
         span = max(tq[2] - tq[0], 1e-12)
         scored = []
         for k, v in cand.items():
             cq = np.quantile(v, [0.1, 0.5, 0.9])
             inr = float(np.mean((v >= f["lo"]) & (v <= f["hi"]))) if f["lo"] is not None else np.nan
-            if levels:
-                fq = np.array([np.mean(v <= x) for x in tq])
-                sc = float(np.abs(fq - np.array([levels["p10"], levels["med"], levels["p90"]])).sum())
-            else:
-                sc = float(np.abs(cq - tq).sum() / span)
-            scored.append((sc, k, cq, inr))
+            scored.append((float(np.abs(cq - tq).sum() / span), k, cq, inr))
         scored.sort(key=lambda t: t[0])
         for r, (sc, k, cq, inr) in enumerate(scored[:top], 1):
             rows.append({"feature": f["feature"], "gain_share": f["gain_share"], "kind": f["kind"], "rank": r, "candidate": k,
                          "score": sc, "in_range": inr, "t_p10": tq[0], "t_med": tq[1], "t_p90": tq[2],
                          "c_p10": cq[0], "c_med": cq[1], "c_p90": cq[2]})
     return rows
-
-
-def load_levels(path: Path | None) -> dict[str, float] | None:
-    """Calibration levels from ``fingerprint_calib.json``, or None (with a warning when the file is missing)."""
-    if path is None:
-        return None
-    if not path.exists():
-        print(f"WARNING: {path} not found -- scoring on raw threshold quantiles")
-        return None
-    return json.loads(path.read_text())["levels"]
 
 
 def main() -> None:
@@ -129,7 +113,6 @@ def main() -> None:
     ap.add_argument("--dcp-dir", type=Path, default=B.DCP)
     ap.add_argument("--since", default="20260901", help="state files from this day on")
     ap.add_argument("--top", type=int, default=3)
-    ap.add_argument("--calib", type=Path, help="fingerprint_calib.json: score by calibrated threshold levels")
     ap.add_argument("--out", type=Path, default=Path("data/reports/stage5"))
     args = ap.parse_args()
     fp = pl.read_parquet(args.fingerprint).with_columns(pl.col("feature").str.extract(r"^([^.]+)", 1).alias("stem"))
@@ -145,7 +128,7 @@ def main() -> None:
             for k, v in candidates(atoms(st, stem)).items():
                 pooled.setdefault(k, []).append(v)
         cand = pool(pooled)
-        rows += rank(fp.filter(pl.col("stem") == stem), cand, args.top, load_levels(args.calib))
+        rows += rank(fp.filter(pl.col("stem") == stem), cand, args.top)
         print(f"done {stem}: {len(cand)} candidates")
     if not rows:
         return
