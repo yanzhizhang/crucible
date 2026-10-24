@@ -43,9 +43,8 @@ RULES = {
     "zzxu.p": ("fast", 300, "price"), "zzup.ps": ("fast", 600, "price"), "zzxu.a": ("fast", 300, "hl"),
     "zzvx.trEmaD": ("fast", 30, "hl"), "zzvx.trEmaO": ("fast", 30, "hl"), "zzvx.trDEmaD": ("fast", 30, "hl"),
     "zzvx.trDEmaO": ("fast", 30, "hl"), "zzvx.rEmaD": ("fast", 30, "one"), "zzvx.rEmaO": ("fast", 30, "one"),
-    # base|variant: an alternative rule, checked against PM's base key next to the current one
-    "zzvx.trDEmaD|tr_pc": ("fast", 30, "tr_pc"), "zzvx.trDEmaO|tr_pc": ("fast", 30, "tr_pc"),
-    "zzvx.rEmaD|trr_pc": ("fast", 30, "trr_pc"), "zzvx.rEmaO|trr_pc": ("fast", 30, "trr_pc"),
+    # a key "base|variant" checks an alternative rule against PM's base key next to the current one
+    # (rejected on 97: zzvx.trDEma* as true range incl. the previous close 0.85, zzvx.rEma* as true range / range 0.84)
     "zzbd.pEmaS": ("fast", 100, "logp"), "zzeb.p": ("fast", 100, "mid"), "zzbd.rEmaS": ("fast", 200, "logret"),
     "zzba.p": ("fast", 240, "price"), "zzba.r": ("fast", 300, "tr_open"),  # value half-lives; weight rule still open
     "zzbd.pEmaT": ("slow", 100, "logp"), "zzbd.rEmaT": ("slow", 200, "logret"), "zzqj.r": ("slow", 30, "rvwap"),
