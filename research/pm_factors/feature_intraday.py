@@ -12,7 +12,10 @@ trained on features taken through the day, so this rebuilds the state at every 5
 2. **check** the same code at PM's stop against PM's day-end state (SZSE: share within 1e-4), so a
    wrong rule shows up before it pollutes the match;
 3. **match** every fingerprint feature whose stem has rebuilt keys: ``feature_match``'s candidate
-   expressions, pooled over stocks x marks x days, ranked by distance to the threshold quantiles.
+   expressions, pooled over stocks x marks x days, ranked by distance to the threshold quantiles --
+   or, with ``--calib`` (``fingerprint_calib.py``), by where the thresholds fall in each candidate's
+   distribution against where they fall in true feature values (the trees split more in the tails,
+   so raw threshold quantiles run 2-16x wider than the values).
 
     python research/pm_factors/feature_intraday.py --dates 20260923,20260929,20261009
 """
@@ -91,6 +94,8 @@ def rebuild(g_fast: pl.DataFrame | None, g_slow: pl.DataFrame | None, marks: np.
         c = s >= 34200
         cv, ca = np.cumsum(asl["vol"] * c), np.cumsum(asl["amt"] * c)
         out["zzqj.v"], out["zzqj.tpv"] = at_marks(t, cv, marks), at_marks(t, ca, marks)
+        # trade counts so far (zzgh.b's thresholds sit at a typical day's count): from 09:30 / all
+        out["zzgh.ntr"], out["zzgh.ntr_all"] = at_marks(t, np.cumsum(c).astype(float), marks), at_marks(t, np.arange(1.0, t.size + 1), marks)
         cont = c & (s < 53820)
         buy = np.cumsum(asl["amt"] * cont * (asl["side"] > 0))
         sell = np.cumsum(asl["amt"] * cont * (asl["side"] < 0))
@@ -115,6 +120,7 @@ def main() -> None:
     ap.add_argument("--fingerprint", type=Path, default=Path("data/reports/stage5/fingerprint.parquet"))
     ap.add_argument("--dcp-dir", type=Path, default=B.DCP)
     ap.add_argument("--top", type=int, default=3)
+    ap.add_argument("--calib", type=Path, help="fingerprint_calib.json: score by calibrated threshold levels")
     ap.add_argument("--out", type=Path, default=Path("data/reports/stage5"))
     args = ap.parse_args()
     t0 = time.perf_counter()
@@ -176,7 +182,7 @@ def main() -> None:
             for k, v in FM.candidates(FM.atoms(fr, stem)).items():
                 pooled.setdefault(k, []).append(v)
         cand = FM.pool(pooled)
-        out += FM.rank(fp.filter(pl.col("stem") == stem), cand, args.top)
+        out += FM.rank(fp.filter(pl.col("stem") == stem), cand, args.top, FM.load_levels(args.calib))
         print(f"matched {stem}: {len(cand)} candidates ({time.perf_counter() - t0:.0f}s)")
     if not out:
         return
