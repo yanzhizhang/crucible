@@ -53,7 +53,7 @@ VALUES = {
              "sp_hl", "adp_hl", "stoch"),
     "slow": ("price", "logp", "ret", "logret", "absret", "ret2", "logret2", "lp_open", "lp_pc", "ret_open", "ret_pc",
              "side", "svol", "samt", "vol", "lvol", "amt", "dp", "absdp", "one", "hl", "tr_pc", "tr_open", "inv_p", "pprev",
-             "dt", "dt_exch", "dd_hi", "du_lo", "dd_hi2", "du_lo2", "adp_hl", "stoch"),
+             "dt", "dt_exch", "dd_hi", "du_lo", "dd_hi2", "du_lo2", "adp_hl", "stoch", "rvwap", "rvwap_all"),
 }
 
 
@@ -67,7 +67,7 @@ def load(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop: float
         open::DOUBLE AS op, high::DOUBLE AS hi, low::DOUBLE AS lo, pre_close::DOUBLE AS pc
         FROM raw_quotation q JOIN want w ON w.sid = q.symbol_id WHERE q.date = {date} AND {L} <= {stop}
         ORDER BY sid, spider_ts""").pl()
-    slow = con.sql(f"""SELECT symbol_id AS sid, market_id AS mkt, {B.tc(L)} AS t_local, {B.tc(S)} AS t_exch, spider_ts AS ls,
+    slow = con.sql(f"""SELECT symbol_id AS sid, market_id AS mkt, {B.tc(L)} AS t_local, {B.tc(S)} AS t_exch, spider_ts AS ls, {S} AS s,
         price, volume::DOUBLE AS vol, volume * price AS amt, CASE dir WHEN 1063 THEN 1.0 WHEN 1550 THEN -1.0 ELSE 0.0 END AS side
         FROM raw_transaction r JOIN want w ON w.sid = r.symbol_id
         WHERE r.date = {date} AND r.trade_type = 1 AND {L} <= {stop} ORDER BY sid, spider_ts""").pl()
@@ -121,6 +121,10 @@ def arrays(g: pl.DataFrame, kind: str) -> dict[str, np.ndarray]:
         else:
             a.update(vol=f("vol"), amt=f("amt"), side=f("side"), lvol=np.log(f("vol")))
             a["svol"], a["samt"] = a["side"] * a["vol"], a["side"] * a["amt"]
+            cont = g["s"].to_numpy() >= 34200  # the day's VWAP so far: from 09:30 (zzqj.v / tpv) or with the open auction
+            with np.errstate(divide="ignore", invalid="ignore"):
+                a["rvwap"] = np.cumsum(a["amt"] * cont) / np.cumsum(a["vol"] * cont)
+                a["rvwap_all"] = np.cumsum(a["amt"]) / np.cumsum(a["vol"])
             hi, lo = np.fmax.accumulate(pos), np.fmin.accumulate(pos)  # the day's range so far, from the trades
             ls = g["ls"].to_numpy()
             a["set_all"] = np.ones(px.size, bool)

@@ -287,10 +287,11 @@ weights within 1e-4 for every snapshot EMA, 79-90 % of stocks for trade EMAs):
 | `zzbd.pEmaS` / `zzbd.pEmaT` | snapshots / trades | 100 s | log price |
 | `zzeb.p` | snapshots | 100 s | mid |
 | `zzbd.rEmaS` / `zzbd.rEmaT` | snapshots / trades | 200 s | log return against the previous update |
+| `zzqj.r` | trades | 30 s | the day's VWAP so far (PM's value / its own `zzqj.tpv / zzqj.v` = 1.00001 median, 89-99 % within 1e-4 on both exchanges; the per-trade running VWAP is being confirmed) |
 
 Open: `zzba.p/r` (price / range, ~3 h, but PM's range is 1.09x ours and no weight fits -- multi-day
-carry?), `zzcb.r` (ranks against the range at -0.92), `zzmh.r` (~4e-4), `zzeb.r` (~0.15 for all
-stocks), `zzqj.r` (0.9994 x price), `zztx.r` (mostly negative). Still open as well: the exact `nb` definition,
+carry?), `zzcb.r` (ranks against the range at -0.92), `zzmh.r` (~4e-4, a monotone function of the distance below
+the running snapshot high: rank 0.999999), `zzeb.r` (~0.15 for all stocks), `zztx.r` (mostly negative). Still open as well: the exact `nb` definition,
 the EMAs' tau / weight / value, the histograms' bins.
 
 ## Stage 1 -- CED in crucible (`research/ced`, `research/run_ced.py`)
