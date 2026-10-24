@@ -43,6 +43,9 @@ RULES = {
     "zzxu.p": ("fast", 300, "price"), "zzup.ps": ("fast", 600, "price"), "zzxu.a": ("fast", 300, "hl"),
     "zzvx.trEmaD": ("fast", 30, "hl"), "zzvx.trEmaO": ("fast", 30, "hl"), "zzvx.trDEmaD": ("fast", 30, "hl"),
     "zzvx.trDEmaO": ("fast", 30, "hl"), "zzvx.rEmaD": ("fast", 30, "one"), "zzvx.rEmaO": ("fast", 30, "one"),
+    # base|variant: an alternative rule, checked against PM's base key next to the current one
+    "zzvx.trDEmaD|tr_pc": ("fast", 30, "tr_pc"), "zzvx.trDEmaO|tr_pc": ("fast", 30, "tr_pc"),
+    "zzvx.rEmaD|trr_pc": ("fast", 30, "trr_pc"), "zzvx.rEmaO|trr_pc": ("fast", 30, "trr_pc"),
     "zzbd.pEmaS": ("fast", 100, "logp"), "zzeb.p": ("fast", 100, "mid"), "zzbd.rEmaS": ("fast", 200, "logret"),
     "zzba.p": ("fast", 240, "price"), "zzba.r": ("fast", 300, "tr_open"),  # value half-lives; weight rule still open
     "zzbd.pEmaT": ("slow", 100, "logp"), "zzbd.rEmaT": ("slow", 200, "logret"), "zzqj.r": ("slow", 30, "rvwap"),
@@ -156,7 +159,8 @@ def main() -> None:
         frames += [g.drop("mark") for g in long.partition_by("mark")]
         ours = pl.DataFrame(chk, schema=["sid", "mkt", "p", "ours"], orient="row").with_columns(pl.col("sid").cast(pl.Int64))
         pmv = pm_values(pm)
-        c = ours.join(pmv, on=["sid", "p"]).with_columns(((pl.col("ours") - pl.col("pm")).abs()
+        c = ours.with_columns(pl.col("p").str.replace(r"\|.*$", "").alias("base")).join(
+            pmv.rename({"p": "base"}), on=["sid", "base"]).with_columns(((pl.col("ours") - pl.col("pm")).abs()
                                                           / pl.col("pm").abs().clip(lower_bound=1e-12)).alias("err"))
         checks.append(c.with_columns(pl.lit(int(d)).alias("date")))
         print(f"{d}: rebuilt {len(sids)} stocks x {MARKS.size} marks ({time.perf_counter() - t0:.0f}s)")

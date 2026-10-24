@@ -50,7 +50,7 @@ VALUES = {
              "hl_pc", "lh_pc", "ll_pc", "dp", "absdp", "dmid", "absdmid", "imb1", "limb1", "timb", "ltimb", "dvol",
              "ldvol", "damt", "chg", "one", "hl", "tr_pc", "tr_open", "inv_p", "pprev", "spread_abs",
              "volchg", "bidchg", "askchg", "dt", "dt_exch", "dd_hi", "du_lo", "dd_hi2", "du_lo2", "dd_hm", "dd_hm2",
-             "sp_hl", "adp_hl", "stoch"),
+             "sp_hl", "adp_hl", "stoch", "trr_pc", "trr_open"),
     "slow": ("price", "logp", "ret", "logret", "absret", "ret2", "logret2", "lp_open", "lp_pc", "ret_open", "ret_pc",
              "side", "svol", "samt", "vol", "lvol", "amt", "dp", "absdp", "one", "hl", "tr_pc", "tr_open", "inv_p", "pprev",
              "dt", "dt_exch", "dd_hi", "du_lo", "dd_hi2", "du_lo2", "adp_hl", "stoch", "rvwap", "rvwap_all"),
@@ -131,6 +131,9 @@ def arrays(g: pl.DataFrame, kind: str) -> dict[str, np.ndarray]:
             a["set_batch"] = np.concatenate([ls[1:] != ls[:-1], [True]])  # last trade of each arrival batch
         # range in price units (true range against the previous close / the open)
         a["hl"], a["tr_pc"], a["tr_open"] = hi - lo, np.fmax(hi, pc) - np.fmin(lo, pc), np.fmax(hi, op) - np.fmin(lo, op)
+        # true range / range: 1 while the previous close (open) sits inside the day's range
+        a["trr_pc"] = np.where(a["hl"] > 0, a["tr_pc"] / a["hl"], 1.0)
+        a["trr_open"] = np.where(a["hl"] > 0, a["tr_open"] / a["hl"], 1.0)
         a["dd_hi"], a["du_lo"] = np.log(hi / pos), np.log(pos / lo)  # distance below the day high / above the low
         a["dd_hi2"], a["du_lo2"] = a["dd_hi"] ** 2, a["du_lo"] ** 2
         a["adp_hl"], a["stoch"] = a["absdp"] / (hi - lo), (pos - lo) / (hi - lo)
