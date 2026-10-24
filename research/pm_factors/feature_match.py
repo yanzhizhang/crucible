@@ -113,8 +113,13 @@ def rank(features: pl.DataFrame, cand: dict[str, np.ndarray], top: int, levels: 
 
 
 def load_levels(path: Path | None) -> dict[str, float] | None:
-    """Calibration levels from ``fingerprint_calib.json``, or None."""
-    return json.loads(path.read_text())["levels"] if path else None
+    """Calibration levels from ``fingerprint_calib.json``, or None (with a warning when the file is missing)."""
+    if path is None:
+        return None
+    if not path.exists():
+        print(f"WARNING: {path} not found -- scoring on raw threshold quantiles")
+        return None
+    return json.loads(path.read_text())["levels"]
 
 
 def main() -> None:

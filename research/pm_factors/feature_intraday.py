@@ -176,13 +176,14 @@ def main() -> None:
     stems = sorted(s for s in fp["stem"].unique().to_list() if any(k.startswith(s + ".") for k in keys))
     print(f"\nstems rebuilt: {stems}")
     out = []
+    levels = FM.load_levels(args.calib)
     for stem in stems:
         pooled: dict[str, list[np.ndarray]] = {}
         for fr in frames:
             for k, v in FM.candidates(FM.atoms(fr, stem)).items():
                 pooled.setdefault(k, []).append(v)
         cand = FM.pool(pooled)
-        out += FM.rank(fp.filter(pl.col("stem") == stem), cand, args.top, FM.load_levels(args.calib))
+        out += FM.rank(fp.filter(pl.col("stem") == stem), cand, args.top, levels)
         print(f"matched {stem}: {len(cand)} candidates ({time.perf_counter() - t0:.0f}s)")
     if not out:
         return

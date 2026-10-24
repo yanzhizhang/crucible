@@ -47,9 +47,8 @@ def family_values(fam_dir: Path, dates: set[str] | None) -> pl.DataFrame:
             print(f"skip {f}: columns {df.columns}")
             continue
         fam = fam_dir.name.lower()
-        out.append(df.select(pl.when(pl.col("V").cast(pl.String).str.contains(r"\."))
-                             .then(pl.col("V").cast(pl.String))
-                             .otherwise(pl.lit(fam + ".") + pl.col("V").cast(pl.String)).alias("feature"),
+        vname = pl.col("V").cast(pl.String).str.strip_chars(" \x00").str.to_lowercase()  # NC_CHAR names are padded
+        out.append(df.select(pl.when(vname.str.contains(r"\.")).then(vname).otherwise(pl.lit(fam + ".") + vname).alias("feature"),
                              pl.col(val[0]).cast(pl.Float64).alias("v")))
     return pl.concat(out).filter(pl.col("v").is_finite()) if out else pl.DataFrame(schema={"feature": pl.String, "v": pl.Float64})
 
@@ -69,6 +68,10 @@ def main() -> None:
     rows = []
     for fd in fams:
         vals = family_values(fd, dates)
+        have = sorted(vals["feature"].unique().to_list())
+        want = sorted(fp.filter(pl.col("family") == fd.name.upper())["feature"].to_list())
+        print(f"{fd.name}: samplerS {have[:12]}{' ...' if len(have) > 12 else ''} | model {want[:12]}{' ...' if len(want) > 12 else ''}"
+              f" | shared {len(set(have) & set(want))}")
         for g in vals.partition_by("feature"):
             feat = g["feature"][0]
             f = fp.filter(pl.col("feature") == feat)
