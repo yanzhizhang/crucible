@@ -33,7 +33,6 @@ import dcp_build as B  # catalog, state loader
 import dcp_ema as E  # tick loading
 
 SZSE = 3554
-R = np.round(np.arange(0.900, 0.9651, 0.0005), 4)
 SAMPLE = np.minimum(np.arange(16) * 900.0 + 870.0, 14190.0)  # zzhj sampling times, trading-clock s
 QN = ("vol", "amt", "n_tr", "vol_buy", "vol_sell", "net_vol", "abs_net_vol", "hl", "vwap", "lret", "abs_lret", "lret2", "mid", "one")
 
@@ -80,6 +79,47 @@ def per_window(gs: pl.DataFrame, mids: np.ndarray, kind: str) -> dict[str, np.nd
     return out
 
 
+TRAIL = (60, 180, 300, 600, 900, 1800, 3600)
+KINDS = ("win", "bar", *[f"last{L}" for L in TRAIL], "cum")
+
+
+def trailing(gs: pl.DataFrame, kind: str) -> dict[str, np.ndarray]:
+    """Flow quantities over the L seconds before each sampling time (``last<L>``) or since the open (``cum``)."""
+    t = gs["t_local"].to_numpy().astype(float)
+    cont = gs["s"].to_numpy() >= 34200
+    vol, amt, side = (gs[c].to_numpy().astype(float) for c in ("vol", "amt", "side"))
+    o = np.argsort(t, kind="stable")
+    t = t[o]
+    out = {}
+    for name, w in (("vol", vol), ("amt", amt), ("n_tr", np.ones(t.size)), ("vol_buy", vol * (side > 0)),
+                    ("vol_sell", vol * (side < 0)), ("net_vol", vol * side)):
+        c = np.concatenate([[0.0], np.cumsum((w * cont)[o])])
+        at = lambda x: c[np.searchsorted(t, x, side="right")]  # noqa: E731, B023 -- running total at times x
+        out[name] = at(SAMPLE) - (0.0 if kind == "cum" else at(SAMPLE - float(kind[4:])))
+    out["abs_net_vol"] = np.abs(out["net_vol"])
+    return out
+
+
+def solve_r(c: float) -> float:
+    """Solve sum_{k<16} r^k = c for r (bisection on 0.5 .. 0.9999)."""
+    lo, hi = 0.5, 0.9999
+    for _ in range(80):
+        m = (lo + hi) / 2
+        lo, hi = (m, hi) if (1 - m ** 16) / (1 - m) < c else (lo, m)
+    return (lo + hi) / 2
+
+
+def fit_ac(y0: np.ndarray, y: np.ndarray) -> tuple[float, float]:
+    """Least squares y = a y0 + c, refitted on the better half."""
+    keep = np.isfinite(y0) & np.isfinite(y)
+    a = c = np.nan
+    for _ in range(3):
+        (a, c), *_ = np.linalg.lstsq(np.column_stack([y0[keep], np.ones(keep.sum())]), y[keep], rcond=None)
+        r = np.abs(y - a * y0 - c)
+        keep = keep & (r <= np.nanquantile(r[keep], 0.5))
+    return float(a), float(c)
+
+
 def main() -> None:
     """CLI entry point."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
@@ -89,7 +129,6 @@ def main() -> None:
     args = ap.parse_args()
     con = duckdb.connect(str(B.CATALOG), read_only=True)
     files = sorted(p.stem for p in args.dcp_dir.glob("*.jz"))
-    P = R[:, None] ** (15 - np.arange(16))[None, :]  # (n_r, 16) weights of the day's 16 samples
     recs = []
     for d in [x.strip() for x in args.dates.split(",") if x.strip()]:
         prev = [f for f in files if f < d]
@@ -109,43 +148,49 @@ def main() -> None:
                 continue
             mids = np.array([kv.get(f"zzhj.c.{k}") or np.nan for k in range(16)], float)
             recs.append((d, sid, int(gs["mkt"][0]), kv[f"{p}.sum"], kv[f"{p}.wgt"], kv0[f"{p}.sum"], kv0[f"{p}.wgt"],
-                         {kind: per_window(gs, mids, kind) for kind in ("win", "bar")}))
+                         {kind: (per_window(gs, mids, kind) if kind in ("win", "bar") else trailing(gs, kind)) for kind in KINDS}))
         print(f"done {d} (prev {prev[-1]}): {len(recs)} records so far")
     if not recs:
         return
     mkt = np.array([r[2] for r in recs])
     s, w, s0, w0 = (np.array([r[i] for r in recs], float) for i in (3, 4, 5, 6))
     sz = mkt == SZSE
-    # weight: wgt = r^16 w0 + sum_k r^(15-k)
-    wpred = (R ** 16)[:, None] * w0[None, :] + P.sum(axis=1)[:, None]
-    werr = np.abs(wpred - w[None, :]) / np.abs(w[None, :])
-    wmre = np.nanmedian(werr[:, sz], axis=1)
-    ib = int(np.argmin(wmre))
-    print(f"\nweight: best r = {R[ib]} (half-life {np.log(0.5) / np.log(R[ib]):.2f} samples), median error {wmre[ib]:.2e}, "
-          f"within 1e-4 SZSE {np.mean(werr[ib, sz] <= 1e-4):.3f} / SSE {np.mean(werr[ib, ~sz] <= 1e-4):.3f}")
+    # weight: wgt = a w0 + c with a free overnight decay; within the day sum_k r^(15-k) = c gives r
+    a, c = fit_ac(w0[sz], w[sz])
+    r = solve_r(c)
+    werr = np.abs(a * w0 + c - w) / np.abs(w)
+    print(f"\nweight: wgt = {a:.6f} wgt_prev + {c:.6f}; within-day r = {r:.6f} (r^16 = {r ** 16:.4f}, overnight extra "
+          f"{a / r ** 16:.4f}); median error {np.nanmedian(werr[sz]):.2e}, within 1e-4 SZSE {np.mean(werr[sz] <= 1e-4):.3f} / "
+          f"SSE {np.mean(werr[~sz] <= 1e-4):.3f}")
+    with np.errstate(divide="ignore", invalid="ignore"):
+        x = (s - a * s0) / (w - a * w0)  # the day's own weighted value
+    print(f"implied day value x: p10 {np.nanquantile(x, 0.1):.4g}, median {np.nanmedian(x):.4g}, p90 {np.nanquantile(x, 0.9):.4g}")
     rows = []
-    for kind in ("win", "bar"):
-        for q in QN:
-            V = np.vstack([r[7][kind][q] for r in recs])  # (n, 16)
-            fin = np.isfinite(V)
-            V0 = np.where(fin, V, 0.0)
-            for i in (ib, *[j for j in (ib - 10, ib + 10) if 0 <= j < R.size]):
-                num = (R[i] ** 16) * s0 + V0 @ P[i]
-                den = (R[i] ** 16) * w0 + fin.astype(float) @ P[i]
+    for rr in (r, r - 0.01, r + 0.01, 1.0):
+        Pr = rr ** (15 - np.arange(16))
+        for kind in KINDS:
+            for q in (QN if kind in ("win", "bar") else ("vol", "amt", "n_tr", "vol_buy", "vol_sell", "net_vol", "abs_net_vol")):
+                V = np.vstack([rec[7][kind][q] for rec in recs])
+                fin = np.isfinite(V)
                 with np.errstate(divide="ignore", invalid="ignore"):
-                    pv, pmv = num / den, s / w
-                    e = np.abs(pv - pmv) / np.maximum(np.abs(pmv), 1e-12)
-                    kk = float(np.nanmedian((pmv / pv)[sz]))
-                    es = np.abs(kk * pv - pmv) / np.maximum(np.abs(pmv), 1e-12)
-                rows.append({"kind": kind, "q": q, "r": float(R[i]), "mre": float(np.nanmedian(e[sz])), "ok4_SZSE": float(np.nanmean(e[sz] <= 1e-4)),
-                             "ok4_SSE": float(np.nanmean(e[~sz] <= 1e-4)), "k": kk, "mre_k": float(np.nanmedian(es[sz])),
-                             "ok4_k": float(np.nanmean(es[sz] <= 1e-4))})
+                    pv = (np.where(fin, V, 0.0) @ Pr) / (fin.astype(float) @ Pr)
+                    e = np.abs(pv - x) / np.maximum(np.abs(x), 1e-12)
+                    kk = float(np.nanmedian((x / pv)[sz]))
+                    es = np.abs(kk * pv - x) / np.maximum(np.abs(x), 1e-12)
+                ok = np.isfinite(pv) & np.isfinite(x) & sz
+                rk = lambda z: np.argsort(np.argsort(z)).astype(float)  # noqa: E731 -- ranks for Spearman
+                rho = float(np.corrcoef(rk(pv[ok]), rk(x[ok]))[0, 1]) if ok.sum() > 10 else np.nan
+                rows.append({"kind": kind, "q": q, "r": round(float(rr), 5), "mre": float(np.nanmedian(e[sz])),
+                             "ok4_SZSE": float(np.nanmean(e[sz] <= 1e-4)), "ok4_SSE": float(np.nanmean(e[~sz] <= 1e-4)), "k": kk,
+                             "mre_k": float(np.nanmedian(es[sz])), "ok4_k": float(np.nanmean(es[sz] <= 1e-4)), "rho": rho})
     res = pl.DataFrame(rows)
     with pl.Config(tbl_rows=60, tbl_cols=12, tbl_width_chars=200, float_precision=6):
-        print(f"\n== {args.prefix} value: EMA over the 16 samples of per-window quantities (best r and r +/- 0.005)")
+        print(f"\n== {args.prefix} day value x against EMA-weighted per-sample quantities (r from the weight, +/- 0.01, and 1 = plain mean)")
         print(res.sort("mre").head(20))
         print("\n== up to a factor k")
-        print(res.sort("mre_k").head(12))
+        print(res.sort("mre_k").head(16))
+        print("\n== by rank correlation")
+        print(res.sort("rho", descending=True).head(12))
 
 
 if __name__ == "__main__":
