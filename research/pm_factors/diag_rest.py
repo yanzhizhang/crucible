@@ -64,7 +64,8 @@ VALS = {
 UNSOLVED = ("zzmh.r", "zzcb.r", "zzeb.r", "zztx.r")
 HIST = re.compile(r"^(.+)\.c\.(-?\d+)$")
 NMIN = 237  # continuous-session minutes: 09:31-11:30 and 13:01-14:57
-QN = ("n_tr", "vol", "amt", "n_buy", "n_sell", "vol_buy", "vol_sell", "amt_buy", "amt_sell", "n_snap", "one", "hl")
+QB = ("n_tr", "vol", "amt", "n_buy", "n_sell", "vol_buy", "vol_sell", "amt_buy", "amt_sell", "n_snap", "one", "hl")
+QN = (*QB, *[f"cum_{q}" for q in QB[:10]])  # plus running totals along the minutes (zzfb looks cumulative)
 
 
 def vkind(kind: str) -> str:
@@ -197,7 +198,7 @@ def minute_q(gs: pl.DataFrame, gf: pl.DataFrame | None) -> dict[str, np.ndarray]
     for lab in ("L", "R"):
         m = minute_idx(s, lab)
         ok = m >= 0
-        Q = np.zeros((len(QN), NMIN))
+        Q = np.zeros((len(QB), NMIN))
         for i, w in enumerate((np.ones(s.size), vol, amt, buy, sell, vol * buy, vol * sell, amt * buy, amt * sell)):
             np.add.at(Q[i], m[ok], w[ok])
         if gf is not None:
@@ -208,7 +209,7 @@ def minute_q(gs: pl.DataFrame, gf: pl.DataFrame | None) -> dict[str, np.ndarray]
         np.maximum.at(hi, m[ok], px[ok])
         np.minimum.at(lo, m[ok], px[ok])
         Q[11] = np.where(np.isfinite(hi - lo), hi - lo, 0.0)
-        out[lab] = Q
+        out[lab] = np.vstack([Q, np.cumsum(Q[:10], axis=1)])
     return out
 
 
