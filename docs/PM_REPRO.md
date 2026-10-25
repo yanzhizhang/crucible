@@ -294,6 +294,17 @@ carry?), `zzcb.r` (ranks against the range at -0.92), `zzmh.r` (~4e-4, a monoton
 the running snapshot high: rank 0.999999), `zzeb.r` (~0.15 for all stocks), `zztx.r` (mostly negative). Still open as well: the exact `nb` definition,
 the EMAs' tau / weight / value, the histograms' bins.
 
+**Per-slot profiles (`<p>.c.<bin>`)** -- intraday time grids of the 14220 s continuous session
+(`research/pm_factors/diag_profile.py`, `diag_slots.py`):
+
+| prefix | grid | content | holds |
+| --- | --- | --- | --- |
+| `zzfb` | 711 x 20 s | the snapshot's own `total_amount` (open auction included) of the last snapshot received before each slot end | 1.0 both exchanges |
+| `zzgh` / `zzgh2` | 948 x 15 s / 1422 x 10 s | per-slot amount imbalance (buy - sell) / (buy + sell) binned at -0.6 / -0.2 / 0.2 / 0.6 into 0..4, local time | 0.997 / 0.983 |
+| `zzjb` / `zzjb2` | 948 x 15 s / 1422 x 10 s | 4 or 0; 87 % of stocks never 0, the rest partly | open |
+| `zzhj` | 474 | exactly 16 non-zero entries (positions 0..15), price-like, inside the day's range: one per 15-minute bar? | open |
+
+
 ## Stage 1 -- CED in crucible (`research/ced`, `research/run_ced.py`)
 
 A port of shtcommon's `ced` (the PM's common equity data): the same SQL against Wind / JYDB /

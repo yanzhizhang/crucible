@@ -101,7 +101,7 @@ def main() -> None:
     ap.add_argument("--dcp-dir", type=Path, default=B.DCP)
     args = ap.parse_args()
     con = duckdb.connect(str(B.CATALOG), read_only=True)
-    fb, jb, gh, hj, jbz, hjd = [], [], [], [], [], []
+    fb, jb, gh, hj, jbz, hjd, jbq, hjb = [], [], [], [], [], [], [], []
     for d in [x.strip() for x in args.dates.split(",") if x.strip()]:
         f = args.dcp_dir / f"{d}.jz"
         if not f.exists():
@@ -165,6 +165,26 @@ def main() -> None:
                 n = y.size
                 zero = y == 0
                 jbz.append((d, sid, mkt, p, float(zero.mean()), int(gs.height), int(gf.height), sorted(set(y.tolist()))[:6]))
+                if 0 < zero.mean() < 1:
+                    sp = gf["a1"].to_numpy().astype(float) - gf["b1"].to_numpy().astype(float)
+                    kq = slot_of(ft_l, n)
+                    okq = (kq >= 0) & (kq < n)
+                    spr = np.zeros(n)
+                    cnt = np.zeros(n)
+                    np.add.at(spr, kq[okq], np.nan_to_num(sp[okq]))
+                    np.add.at(cnt, kq[okq], 1.0)
+                    kt = slot_of(tl, n)
+                    okt = (kt >= 0) & (kt < n)
+                    mx = np.zeros(n)
+                    np.maximum.at(mx, kt[okt], vol[okt])
+                    pxs = last_per_slot(ft_l, fpx, n)
+                    q = {"n_tr": per_slot(tl, np.ones(tl.size), n), "vol": per_slot(tl, vol, n), "amt": per_slot(tl, amt, n),
+                         "n_snap": cnt, "abs_dpx": np.abs(np.diff(pxs, prepend=pxs[0])), "spread": spr / np.maximum(cnt, 1),
+                         "max_trade": mx, "slot": np.arange(n, dtype=float), "price": pxs}
+                    jbq.append({"d": d, "sid": sid, "p": p, "zero": float(zero.mean()),
+                                **{f"{k}_ratio": float(np.nanmean(v[zero]) / np.nanmean(v[~zero])) if np.nanmean(v[~zero]) else np.nan
+                                   for k, v in q.items()},
+                                "first_zero": int(np.flatnonzero(zero)[0]), "runs": int(np.sum(np.diff(zero.astype(int)) != 0))})
                 for tname, t, ft in (("exch", te, ft_e), ("local", tl, ft_l)):
                     flags = {"no_trade": per_slot(t, np.ones(t.size), n) == 0,
                              "no_snap": per_slot(ft, np.ones(ft.size), n) == 0,
@@ -196,10 +216,11 @@ def main() -> None:
                         for ename, efill in (("empty_mid", 2.0), ("empty_0", 0.0), ("empty_skip", np.nan)):
                             for bname, edges in (("eq5", np.array([-0.6, -0.2, 0.2, 0.6])), ("sym", np.array([-0.5, -0.1, 0.1, 0.5])),
                                                  ("sign", np.array([-0.999999, -1e-9, 1e-9, 0.999999]))):
-                                code = np.where(np.isfinite(x), np.searchsorted(edges, x, side="right").astype(float), efill)
-                                ok = np.isfinite(code)
-                                gh.append((d, sid, mkt, p, tname, f"imb_{iname}", f"bins_{bname}_{ename}",
-                                           float(np.mean(code[ok] == y[ok])) if ok.any() else np.nan))
+                                for es in ("right", "left"):  # right: a value on an edge goes up a bin
+                                    code = np.where(np.isfinite(x), np.searchsorted(edges, x, side=es).astype(float), efill)
+                                    ok = np.isfinite(code)
+                                    gh.append((d, sid, mkt, p, tname, f"imb_{iname}", f"bins_{bname}_{ename}_{es[0]}",
+                                               float(np.mean(code[ok] == y[ok])) if ok.any() else np.nan))
                     for qn, q in qs.items():
                         code = quintile(q)
                         ok = np.isfinite(code)
@@ -223,6 +244,32 @@ def main() -> None:
                 for en, evp in ev.items():
                     found = float(np.mean(np.isin(np.round(nz, 4), np.round(evp, 4)))) if nz.size else np.nan
                     hj.append((d, sid, mkt, en, int(nz.size), int(evp.size), found))
+                if nz.size >= 16:
+                    v16 = y[:16]
+                    tcs = te  # trades on the exchange trading clock (close auction sits past 14220)
+                    bar = np.floor(np.where(tcs >= 0, tcs, -1) / 900.0)
+                    snap_bar = np.floor(np.where(ft_e >= 0, ft_e, -1) / 900.0)
+                    mid = (gf["a1"].to_numpy().astype(float) + gf["b1"].to_numpy().astype(float)) / 2
+                    for close in (True, False):
+                        keep = np.ones(tcs.size, bool) if close else (s < 53820)
+                        cands = {k: np.full(16, np.nan) for k in ("vwap", "mean_px", "first", "last", "high", "low", "twap_snap", "snap_end", "mid_end", "hl2")}
+                        for b in range(16):
+                            m = (bar == b) & keep & (s >= 34200)
+                            if m.any():
+                                pb, vb = px[m], vol[m]
+                                cands["vwap"][b] = (pb * vb).sum() / vb.sum()
+                                cands["mean_px"][b] = pb.mean()
+                                cands["first"][b], cands["last"][b] = pb[0], pb[-1]
+                                cands["high"][b], cands["low"][b] = pb.max(), pb.min()
+                                cands["hl2"][b] = (pb.max() + pb.min()) / 2
+                            ms = (snap_bar == b) & np.isfinite(fpx) & (fpx > 0)
+                            if ms.any():
+                                cands["twap_snap"][b] = fpx[ms].mean()
+                                cands["snap_end"][b] = fpx[ms][-1]
+                                cands["mid_end"][b] = mid[ms][-1]
+                        for cn, cv_ in cands.items():
+                            e = np.abs(cv_ - v16) / v16
+                            hjb.append((d, sid, mkt, cn, close, float(np.nanmean(e <= 1e-6)), float(np.nanmedian(e))))
                 if nz.size:
                     pos = np.flatnonzero(y)
                     last, hi_, lo_ = px[-1], np.nanmax(px), np.nanmin(px)
@@ -274,6 +321,18 @@ def main() -> None:
                                       pl.col("n_tr").filter(pl.col("zero") == 0).median().alias("n_tr_no_zero"),
                                       (pl.col("mkt") == SZSE).filter(pl.col("zero") == 1).mean().alias("all_zero_SZSE_share")))
             print(z.filter((pl.col("zero") > 0) & (pl.col("zero") < 1)).head(8))
+        if jbq:
+            q = pl.DataFrame(jbq)
+            print("\n== zzjb / zzjb2, partly-zero stocks: mean of each per-slot quantity in zero slots / in non-zero slots (1 = no difference)")
+            print(q.select(pl.exclude("d", "sid")).group_by("p").agg(pl.all().median()))
+            print(q.sort("zero", descending=True).head(6))
+        if hjb:
+            hb = pl.DataFrame(hjb, schema=["d", "sid", "mkt", "cand", "close_auction", "exact", "mre"], orient="row")
+            print("\n== zzhj.c.0..15 against 15-minute bar quantities (exact = share of the 16 bars within 1e-6; SZSE / SSE)")
+            print(hb.group_by("cand", "close_auction").agg(
+                pl.col("exact").filter(pl.col("mkt") == SZSE).median().alias("exact_SZSE"),
+                pl.col("exact").filter(pl.col("mkt") != SZSE).median().alias("exact_SSE"),
+                pl.col("mre").filter(pl.col("mkt") == SZSE).median().alias("mre_SZSE")).sort("mre_SZSE"))
         if hjd:
             hd = pl.DataFrame(hjd, schema=["d", "sid", "mkt", "n_nonzero", "first_pos", "last_pos", "v_over_last_med", "v_over_last_min",
                                            "v_over_last_max", "in_day_range", "two_decimals", "n_tr", "amt", "contiguous"], orient="row")
