@@ -122,33 +122,81 @@ def predict(models: list, X: np.ndarray) -> np.ndarray:
     return np.mean([m.predict(X) for m in models], axis=0)
 
 
+def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None) -> dict[str, np.ndarray]:
+    """Tick quantities at each mark for features whose family keeps no state: returns, imbalances, volatility, book."""
+    out: dict[str, np.ndarray] = {}
+    T = MARKS
+    if gf is not None and gf.height > 2:
+        a = E.arrays(gf, "fast")
+        t, mid = a["t_local"], a["mid"]
+        ok = np.isfinite(mid) & (mid > 0)
+        t, lm = t[ok], np.log(mid[ok])
+        at = lambda x, v: FI.at_marks(t, v, x)  # noqa: E731 -- value received by times x
+        l0 = at(T, lm)
+        for h in (10, 30, 60, 120, 300, 600, 900, 1800):
+            out[f"ret{h}"] = l0 - at(T - h, lm)
+        c2 = np.concatenate([[0.0], np.cumsum(np.diff(lm) ** 2)])
+        for h in (60, 300, 900):
+            i1, i0 = np.searchsorted(t, T, side="right") - 1, np.searchsorted(t, T - h, side="right") - 1
+            out[f"rv{h}"] = np.sqrt(np.where(i1 >= 0, c2[np.clip(i1, 0, None)], np.nan) - np.where(i0 >= 0, c2[np.clip(i0, 0, None)], 0.0))
+        for k in ("spread", "imb1", "timb", "lp_open", "lp_pc"):
+            out[k] = FI.at_marks(a["t_local"], a[k], T)
+    if gs is not None and gs.height > 2:
+        b = E.arrays(gs, "slow")
+        t = b["t_local"]
+        cont = gs["s"].to_numpy() >= 34200
+        cum = {k: np.concatenate([[0.0], np.cumsum(v * cont)]) for k, v in
+               (("v", b["vol"]), ("nv", b["vol"] * b["side"]), ("n", np.ones(t.size)), ("nn", b["side"]), ("a", b["amt"]), ("na", b["amt"] * b["side"]))}
+        upto = lambda x, k: cum[k][np.searchsorted(t, x, side="right")]  # noqa: E731 -- running total at times x
+        with np.errstate(divide="ignore", invalid="ignore"):
+            for w in (30, 60, 300, 900):
+                win = {k: upto(T, k) - upto(T - w, k) for k in cum}
+                out[f"imbv{w}"] = win["nv"] / win["v"]
+                out[f"imbn{w}"] = win["nn"] / win["n"]
+                out[f"imba{w}"] = win["na"] / win["a"]
+                out[f"lvol{w}"] = np.log1p(win["v"])
+            out["cum_imb"] = upto(T, "nv") / upto(T, "v")
+            px = FI.at_marks(t, b["price"], T)
+            out["lp_vwap"] = np.log(px / (upto(T, "a") / upto(T, "v")))
+            hi, lo = np.fmax.accumulate(np.where(cont, b["price"], np.nan)), np.fmin.accumulate(np.where(cont, b["price"], np.nan))
+            out["stoch"] = (px - FI.at_marks(t, lo, T)) / (FI.at_marks(t, hi, T) - FI.at_marks(t, lo, T))
+    return out
+
+
 def stem_frames(frames: list[pl.DataFrame], stem: str) -> list[tuple[np.ndarray, dict[str, np.ndarray]]]:
-    """Per mark: (sids, candidate expressions of the stem) -- feature_match.candidates, keeping the sid order."""
+    """Per mark: (sids, candidates) -- the stem's state expressions, or the generic tick quantities when it keeps no state."""
     out = []
     for fr in frames:
-        a = FM.atoms(fr, stem)
-        if a.is_empty():
-            out.append((np.array([], int), {}))
+        if fr.filter(pl.col("key").str.starts_with(stem + ".")).is_empty():
+            g = fr.filter(pl.col("key").str.starts_with("gen.")).pivot(on="key", index="sid", values="pm", aggregate_function="first").sort("sid")
+            out.append((g["sid"].to_numpy(), {c: g[c].to_numpy() for c in g.columns if c != "sid"}))
             continue
+        a = FM.atoms(fr, stem)
         sids = np.array(sorted(a["sid"].unique().to_list()))
         out.append((sids, FM.candidates(a)))
     return out
 
 
-def rank_ic(pred: np.ndarray, ret: np.ndarray, groups: np.ndarray) -> tuple[float, float, int]:
-    """Mean cross-sectional Spearman IC over groups (marks), its t-stat and the number of groups."""
-    ics = []
+def ic_vec(pred: np.ndarray, ret: np.ndarray, groups: np.ndarray) -> np.ndarray:
+    """Cross-sectional Spearman IC per group (mark), NaN where it cannot be computed."""
+    out = []
     for g in np.unique(groups):
         m = (groups == g) & np.isfinite(pred) & np.isfinite(ret)
         if m.sum() < 20 or np.std(pred[m]) == 0:
+            out.append(np.nan)
             continue
         r1 = np.argsort(np.argsort(pred[m])).astype(float)
         r2 = np.argsort(np.argsort(ret[m])).astype(float)
-        ics.append(np.corrcoef(r1, r2)[0, 1])
-    if not ics:
-        return np.nan, np.nan, 0
-    a = np.array(ics)
-    return float(a.mean()), float(a.mean() / (a.std(ddof=1) / np.sqrt(a.size))) if a.size > 1 else np.nan, int(a.size)
+        out.append(np.corrcoef(r1, r2)[0, 1])
+    return np.array(out)
+
+
+def summary(v: np.ndarray) -> tuple[float, float, int]:
+    """Mean, t-stat and count of the finite entries."""
+    v = v[np.isfinite(v)]
+    if v.size < 2:
+        return np.nan, np.nan, int(v.size)
+    return float(v.mean()), float(v.mean() / (v.std(ddof=1) / np.sqrt(v.size))), int(v.size)
 
 
 def main() -> None:
@@ -164,11 +212,12 @@ def main() -> None:
     ap.add_argument("--assign", type=Path, help="json feature -> expression to start from (default: KNOWN)")
     ap.add_argument("--shortlist", type=int, default=10)
     ap.add_argument("--passes", type=int, default=1)
-    ap.add_argument("--min-gain", type=float, default=0.002)
+    ap.add_argument("--min-t", type=float, default=2.0, help="keep a candidate when its paired IC gain over marks has t >= this")
     ap.add_argument("--max-features", type=int, default=30, help="scan this many features, by model gain")
     ap.add_argument("--out", type=Path, default=Path("data/reports/stage6"))
     args = ap.parse_args()
     t0 = time.perf_counter()
+    args.out.mkdir(parents=True, exist_ok=True)
     lines = [ln.strip() for ln in args.feature_csv.read_text(errors="replace").splitlines() if ln.strip()]
     names = [ln.split(",")[0].strip() for ln in lines]
     if names and names[0].lower() == "name":
@@ -204,6 +253,8 @@ def main() -> None:
                 with np.errstate(divide="ignore", invalid="ignore"):
                     rets[sid] = np.log(m1 / m0)
                 rows.append(pl.DataFrame({"sid": sid, "mark": MARKS, "key": "px", "pm": FI.at_marks(a["t_local"], a["price"], MARKS)}))
+            for k, v in generic(gf, gs).items():
+                rows.append(pl.DataFrame({"sid": sid, "mark": MARKS, "key": f"gen.{k}", "pm": v.astype(float)}))
         long = pl.concat(rows).filter(pl.col("pm").is_finite()).with_columns(pl.col("sid").cast(pl.Int64))
         frames = [long.filter(pl.col("mark") == m).drop("mark") for m in MARKS]
         models = load_models(args.models, d, args.fits.split(","), args.subs.split(","))
@@ -241,12 +292,12 @@ def main() -> None:
                             v[i] = x
         return v
 
-    def score(Xm: np.ndarray) -> tuple[float, float, int]:
+    def score(Xm: np.ndarray) -> np.ndarray:
         pred = np.empty(sid_a.size)
         for b, (_, models, _, _) in enumerate(blocks):
             m = blk == b
             pred[m] = predict(models, Xm[m])
-        return rank_ic(pred, ret, grp)
+        return ic_vec(pred, ret, grp)
 
     assign = dict(KNOWN)
     if args.assign and args.assign.exists():
@@ -254,7 +305,7 @@ def main() -> None:
     for feat, expr in assign.items():
         if feat in col:
             X[:, col[feat]] = column(feat, expr)
-    base = score(X)
+    base = summary(score(X))
     print(f"\nall-missing except the assignment {assign}: IC {base[0]:.4f} (t {base[1]:.2f}, {base[2]} marks) ({time.perf_counter() - t0:.0f}s)")
     log = []
     feats = [f for f in fp.sort("gain_share", descending=True)["feature"].to_list() if f in col][: args.max_features]
@@ -275,29 +326,32 @@ def main() -> None:
             cur = assign.get(feat)
             j = col[feat]
             keep_col = X[:, j].copy()
-            best = (score(X)[0], cur)
+            cur_v = np.nan_to_num(score(X), nan=0.0)  # a constant prediction (everything missing) ranks nothing: IC 0
+            best = (summary(cur_v)[0], cur, 0.0)
             tried = []
             for expr in short:
                 X[:, j] = column(feat, expr)
-                ic = score(X)[0]
-                tried.append((expr, ic))
-                if np.isfinite(ic) and ic > best[0] + args.min_gain:
-                    best = (ic, expr)
+                v = np.nan_to_num(score(X), nan=0.0)
+                dv = v - cur_v  # paired over marks: the same marks, the same other columns
+                _, t_gain, _ = summary(dv)
+                tried.append((expr, summary(v)[0], t_gain))
+                if np.isfinite(t_gain) and t_gain >= args.min_t and summary(v)[0] > best[0]:
+                    best = (summary(v)[0], expr, t_gain)
             if best[1] != cur and best[1] is not None:
                 assign[feat] = best[1]
                 X[:, j] = column(feat, best[1])
             else:
                 X[:, j] = keep_col
-            tried.sort(key=lambda t: -t[1] if np.isfinite(t[1]) else 1e9)
-            log.append({"pass": ps, "feature": feat, "kept": assign.get(feat), "ic_after": best[0],
-                        "top": "; ".join(f"{e} {ic:.4f}" for e, ic in tried[:3])})
-            print(f"pass {ps} {feat}: kept {assign.get(feat)} IC {best[0]:.4f} ({time.perf_counter() - t0:.0f}s)")
-    final = score(X)
+            tried.sort(key=lambda t: -t[2] if np.isfinite(t[2]) else 1e9)
+            log.append({"pass": ps, "feature": feat, "kept": assign.get(feat), "ic_after": best[0], "t_gain": best[2],
+                        "top": "; ".join(f"{e} {ic:.4f} (t {tg:.1f})" for e, ic, tg in tried[:3])})
+            print(f"pass {ps} {feat}: kept {assign.get(feat)} IC {best[0]:.4f} t_gain {best[2]:.1f} ({time.perf_counter() - t0:.0f}s)")
+    final = summary(score(X))
     args.out.mkdir(parents=True, exist_ok=True)
     (args.out / "ic_assign.json").write_text(json.dumps(assign, indent=1))
     with pl.Config(tbl_rows=100, tbl_cols=6, tbl_width_chars=230, fmt_str_lengths=90, float_precision=4):
         if log:
-            print("\n== scan: per feature, the expression kept and the best three tried (IC)")
+            print("\n== scan: per feature, the expression kept and the three with the largest paired gain (IC, t of the gain over marks)")
             print(pl.DataFrame(log))
     print(f"\nIC: start {base[0]:.4f} -> end {final[0]:.4f} (t {final[1]:.2f}, {final[2]} marks); "
           f"{len(assign)} of {len(names)} columns assigned -> {args.out / 'ic_assign.json'}")
