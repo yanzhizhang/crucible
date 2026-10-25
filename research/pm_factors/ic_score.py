@@ -169,7 +169,14 @@ def stem_frames(frames: list[pl.DataFrame], stem: str) -> list[tuple[np.ndarray,
     for fr in frames:
         if fr.filter(pl.col("key").str.starts_with(stem + ".")).is_empty():
             g = fr.filter(pl.col("key").str.starts_with("gen.")).pivot(on="key", index="sid", values="pm", aggregate_function="first").sort("sid")
-            out.append((g["sid"].to_numpy(), {c: g[c].to_numpy() for c in g.columns if c != "sid"}))
+            cand = {}
+            for c in g.columns:
+                if c == "sid":
+                    continue
+                v = g[c].to_numpy().astype(float)
+                # unit variants: a model column's thresholds are in its own units, so the sign / scale must match too
+                cand.update({c: v, f"-{c}": -v, f"|{c}|": np.abs(v), f"{c}*1e4": v * 1e4, f"|{c}|*1e4": np.abs(v) * 1e4})
+            out.append((g["sid"].to_numpy(), cand))
             continue
         a = FM.atoms(fr, stem)
         sids = np.array(sorted(a["sid"].unique().to_list()))
@@ -213,6 +220,8 @@ def main() -> None:
     ap.add_argument("--shortlist", type=int, default=10)
     ap.add_argument("--passes", type=int, default=1)
     ap.add_argument("--min-t", type=float, default=2.0, help="keep a candidate when its paired IC gain over marks has t >= this")
+    ap.add_argument("--min-in-range", type=float, default=0.95, help="a candidate must sit inside the feature's training range this often")
+    ap.add_argument("--max-score", type=float, default=1.5, help="and its p10 / median / p90 within this distance of the fingerprint's")
     ap.add_argument("--max-features", type=int, default=30, help="scan this many features, by model gain")
     ap.add_argument("--out", type=Path, default=Path("data/reports/stage6"))
     args = ap.parse_args()
@@ -322,7 +331,16 @@ def main() -> None:
             cand_all = FM.pool(pooled)
             if not cand_all:
                 continue
-            short = [r["candidate"] for r in FM.rank(fp.filter(pl.col("feature") == feat), cand_all, args.shortlist)]
+            ranked = FM.rank(fp.filter(pl.col("feature") == feat), cand_all, 5 * args.shortlist)
+            # gate on the fingerprint: right units and range first, IC second -- IC alone rewards any useful signal in any column
+            short = [r["candidate"] for r in ranked
+                     if (not np.isfinite(r["in_range"]) or r["in_range"] >= args.min_in_range) and r["score"] <= args.max_score][: args.shortlist]
+            if not short:
+                log.append({"pass": ps, "feature": feat, "kept": assign.get(feat), "ic_after": np.nan, "t_gain": 0.0,
+                            "top": "no candidate passes the fingerprint gate; closest: "
+                                   + "; ".join(f"{r['candidate']} (score {r['score']:.2f}, in {r['in_range']:.2f})" for r in ranked[:2])})
+                print(f"pass {ps} {feat}: no candidate passes the fingerprint gate ({time.perf_counter() - t0:.0f}s)")
+                continue
             cur = assign.get(feat)
             j = col[feat]
             keep_col = X[:, j].copy()
