@@ -80,7 +80,8 @@ def per_window(gs: pl.DataFrame, mids: np.ndarray, kind: str) -> dict[str, np.nd
 
 
 TRAIL = (60, 180, 300, 600, 900, 1800, 3600)
-KINDS = ("win", "bar", *[f"last{L}" for L in TRAIL], "cum")
+TAU = (10, 20, 30, 45, 60, 90, 120, 180, 300)
+KINDS = ("win", "bar", *[f"last{L}" for L in TRAIL], "cum", *[f"ema{t}" for t in TAU])  # ema<tau>: sum w exp(-(T - t) / tau)
 
 
 def trailing(gs: pl.DataFrame, kind: str) -> dict[str, np.ndarray]:
@@ -93,6 +94,11 @@ def trailing(gs: pl.DataFrame, kind: str) -> dict[str, np.ndarray]:
     out = {}
     for name, w in (("vol", vol), ("amt", amt), ("n_tr", np.ones(t.size)), ("vol_buy", vol * (side > 0)),
                     ("vol_sell", vol * (side < 0)), ("net_vol", vol * side)):
+        if kind.startswith("ema"):  # exponentially decayed flow at each sampling time
+            tau = float(kind[3:])
+            ww = (w * cont)[o]
+            out[name] = np.array([(ww[t <= T] * np.exp(-(T - t[t <= T]) / tau)).sum() for T in SAMPLE])
+            continue
         c = np.concatenate([[0.0], np.cumsum((w * cont)[o])])
         at = lambda x: c[np.searchsorted(t, x, side="right")]  # noqa: E731, B023 -- running total at times x
         out[name] = at(SAMPLE) - (0.0 if kind == "cum" else at(SAMPLE - float(kind[4:])))
