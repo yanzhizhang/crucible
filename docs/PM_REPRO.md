@@ -301,8 +301,8 @@ the EMAs' tau / weight / value, the histograms' bins.
 | --- | --- | --- | --- |
 | `zzfb` | 711 x 20 s | the snapshot's own `total_amount` (open auction included) of the last snapshot received before each slot end | 1.0 both exchanges |
 | `zzgh` / `zzgh2` | 948 x 15 s / 1422 x 10 s | per-slot amount imbalance (buy - sell) / (buy + sell) binned at -0.6 / -0.2 / 0.2 / 0.6 into 0..4, local time | 0.997 / 0.983 |
-| `zzjb` / `zzjb2` | 948 x 15 s / 1422 x 10 s | 4 or 0; 87 % of stocks never 0, the rest partly | open |
-| `zzhj` | 474 | exactly 16 non-zero entries (positions 0..15), price-like, inside the day's range: one per 15-minute bar? | open |
+| `zzjb` / `zzjb2` | 948 x 15 s / 1422 x 10 s | 0 when the slot's price is 3.04 % or more below the previous close, else 4 | 0.998 / 0.9986 (always-4 baseline 0.927) |
+| `zzhj` | 474 | entries 0..15: the mid 30 s before each quarter-hour end (k x 900 + 870 s); the 16th at 14:56:30 | bars 0..14 ~0.997; last point being confirmed |
 
 
 ## Stage 1 -- CED in crucible (`research/ced`, `research/run_ced.py`)
