@@ -59,7 +59,9 @@ VALS = {
     "slow": ("price", "logp", "ret", "logret", "absret", "side", "svol", "samt", "vol", "lvol", "rvwap", "rvwap_all", "hl",
              "tr_open", "dd_hi", "du_lo", "dt", "lp_open", "lp_pc", "inv_p", "stoch", "one", *[f"alpha{h}" for h in ALPHA]),
     "daily": ("last", "open", "high", "low", "vwap", "hl", "lp_oc", "lp_pc", "one", "snap", "logsnap", "mid", "lsnap_oc",
-              "lsnap_pc", "g_mean", "g_ret", "g_lrv", "g_sd", "p1457"),
+              "lsnap_pc", "g_mean", "g_ret", "g_lrv", "g_sd", "p1457", "lsnap_vwap",
+              *[f"pema{h}" for h in (30, 100, 300, 600, 1800, 3600)], *[f"lpema{h}" for h in (30, 100, 300, 600, 1800, 3600)],
+              "lema_30_300", "lema_100_600", "lema_300_600", "lema_300_1800"),
 }
 UNSOLVED = ("zzmh.r", "zzcb.r", "zzeb.r", "zztx.r")
 HIST = re.compile(r"^(.+)\.c\.(-?\d+)$")
@@ -111,11 +113,20 @@ def daily_stream(af: dict | None, asl: dict, trig: float | None) -> dict | None:
         grid = np.where(gi >= 0, pf[np.clip(gi, 0, None)], np.nan)
         j = np.searchsorted(tf, 14220, side="right") - 1  # last snapshot received by 14:57
         p1457 = pf[j] if j >= 0 else np.nan
+        ok = np.isfinite(pf[: k + 1])
+        for h in (30, 100, 300, 600, 1800, 3600):  # intraday price EMAs (weight 1 per snapshot) as of the trigger
+            e = np.exp(-(tf[k] - tf[: k + 1][ok]) * LN2 / h)
+            v[f"pema{h}"] = float((e * pf[: k + 1][ok]).sum() / e.sum()) if e.size else np.nan
     with np.errstate(divide="ignore", invalid="ignore"):
         lr = np.diff(np.log(grid))
         v.update(snap=snap, logsnap=np.log(snap), mid=mid, lsnap_oc=np.log(snap / op), lsnap_pc=np.log(snap / pc),
                  g_mean=np.nanmean(grid), g_ret=np.log(grid[-1] / grid[0]),
-                 g_lrv=np.log(np.nansum(lr ** 2)) if np.nansum(lr ** 2) > 0 else np.nan, g_sd=np.nanstd(lr), p1457=p1457)
+                 g_lrv=np.log(np.nansum(lr ** 2)) if np.nansum(lr ** 2) > 0 else np.nan, g_sd=np.nanstd(lr), p1457=p1457,
+                 lsnap_vwap=np.log(snap / v["vwap"]))
+        for h in (30, 100, 300, 600, 1800, 3600):
+            v[f"lpema{h}"] = np.log(snap / v[f"pema{h}"]) if f"pema{h}" in v else np.nan
+        for f_, s_ in ((30, 300), (100, 600), (300, 600), (300, 1800)):
+            v[f"lema_{f_}_{s_}"] = np.log(v[f"pema{f_}"] / v[f"pema{s_}"]) if f"pema{f_}" in v else np.nan
     return {**{n: np.array([x], float) for n, x in v.items()}, "t_local": np.zeros(1), "t_exch": np.zeros(1),
             "set_all": np.ones(1, bool)}
 
