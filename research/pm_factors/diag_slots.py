@@ -38,6 +38,10 @@ import dcp_ema as E  # tick loading
 SESSION = 14220.0  # 09:30-11:30 + 13:00-14:57 in trading-clock seconds
 SZSE = 3554
 HIST = re.compile(r"^(.+)\.c\.(-?\d+)$")
+DELTA = np.arange(-120, 901, 1.0)  # zzhj sampling offset scan, seconds
+GRIDS = {"900": 900.0, "888.75": SESSION / 16}  # zzhj grid steps: 15 minutes, or the session cut in 16
+HJQ = ("mid", "price", "bid1", "ask1")
+JBQ = ("ret_pc", "ret_open", "ret_vwap", "dd_high", "du_low", "cum_imb", "slot")
 
 
 def profiles(path: Path) -> dict[str, dict[int, np.ndarray]]:
@@ -102,6 +106,9 @@ def main() -> None:
     args = ap.parse_args()
     con = duckdb.connect(str(B.CATALOG), read_only=True)
     fb, jb, gh, hj, jbz, hjd, jbq, hjb = [], [], [], [], [], [], [], []
+    hjscan: dict[tuple, np.ndarray] = {}
+    hjn: dict[bool, int] = {}
+    jbf: dict[tuple[str, str], list[np.ndarray]] = {}
     for d in [x.strip() for x in args.dates.split(",") if x.strip()]:
         f = args.dcp_dir / f"{d}.jz"
         if not f.exists():
@@ -165,6 +172,20 @@ def main() -> None:
                 n = y.size
                 zero = y == 0
                 jbz.append((d, sid, mkt, p, float(zero.mean()), int(gs.height), int(gf.height), sorted(set(y.tolist()))[:6]))
+                if mkt == SZSE:
+                    pc0 = gf["pc"].to_numpy().astype(float)
+                    op0 = gf["op"].to_numpy().astype(float)
+                    pcv = pc0[pc0 > 0][0] if (pc0 > 0).any() else np.nan
+                    opv = op0[op0 > 0][0] if (op0 > 0).any() else np.nan
+                    pxs = last_per_slot(ft_l, np.where(fpx > 0, fpx, np.nan), n)
+                    cav, cvv = last_per_slot(ft_l, gf["ca"].to_numpy().astype(float), n), last_per_slot(ft_l, fcv, n)
+                    with np.errstate(divide="ignore", invalid="ignore"):
+                        hi_, lo_ = np.fmax.accumulate(pxs), np.fmin.accumulate(pxs)
+                        cimb = np.cumsum(per_slot(tl, amt * side, n)) / np.cumsum(per_slot(tl, amt, n))
+                        feats = {"ret_pc": np.log(pxs / pcv), "ret_open": np.log(pxs / opv), "ret_vwap": np.log(pxs / (cav / cvv)),
+                                 "dd_high": np.log(pxs / hi_), "du_low": np.log(pxs / lo_), "cum_imb": cimb, "slot": np.arange(n, dtype=float)}
+                    for fn_, fv in feats.items():
+                        jbf.setdefault((p, fn_), []).append(np.column_stack([fv, zero.astype(float)]))
                 if 0 < zero.mean() < 1:
                     sp = gf["a1"].to_numpy().astype(float) - gf["b1"].to_numpy().astype(float)
                     kq = slot_of(ft_l, n)
@@ -246,6 +267,18 @@ def main() -> None:
                     hj.append((d, sid, mkt, en, int(nz.size), int(evp.size), found))
                 if nz.size >= 16:
                     v16 = y[:16]
+                    b1_, a1_ = gf["b1"].to_numpy().astype(float), gf["a1"].to_numpy().astype(float)
+                    qv = {"mid": np.where((b1_ > 0) & (a1_ > 0), (b1_ + a1_) / 2, fpx), "price": fpx, "bid1": b1_, "ask1": a1_}
+                    for gname, step in GRIDS.items():
+                        T = (np.arange(16)[:, None] * step + DELTA[None, :])  # (16, n_delta)
+                        for tname, ft in (("exch", ft_e), ("local", ft_l)):
+                            i = np.searchsorted(ft, T.ravel(), side="right") - 1
+                            for qn in HJQ:
+                                v = np.where(i >= 0, qv[qn][np.clip(i, 0, None)], np.nan).reshape(T.shape)
+                                ok = np.abs(v - v16[:, None]) <= 1e-6 * np.abs(v16[:, None])
+                                key = (gname, tname, qn, mkt == SZSE)
+                                hjscan[key] = hjscan.get(key, 0) + ok.astype(float)  # (16, n_delta) counts
+                    hjn[mkt == SZSE] = hjn.get(mkt == SZSE, 0) + 1
                     tcs = te  # trades on the exchange trading clock (close auction sits past 14220)
                     bar = np.floor(np.where(tcs >= 0, tcs, -1) / 900.0)
                     snap_bar = np.floor(np.where(ft_e >= 0, ft_e, -1) / 900.0)
@@ -333,6 +366,40 @@ def main() -> None:
                 pl.col("exact").filter(pl.col("mkt") == SZSE).median().alias("exact_SZSE"),
                 pl.col("exact").filter(pl.col("mkt") != SZSE).median().alias("exact_SSE"),
                 pl.col("mre").filter(pl.col("mkt") == SZSE).median().alias("mre_SZSE")).sort("mre_SZSE"))
+        if hjscan:
+            rows = []
+            for (gname, tname, qn, sz), cnt in hjscan.items():
+                share = cnt / hjn[sz]  # (16, n_delta)
+                allb = share.mean(axis=0)
+                j = int(np.argmax(allb))
+                per_bar = share.max(axis=1)
+                rows.append({"grid": gname, "time": tname, "q": qn, "SZSE": sz, "best_delta": float(DELTA[j]), "exact_all": float(allb[j]),
+                             "exact_bar0": float(share[0, j]), "exact_bar15": float(share[15, j]),
+                             "per_bar_best_delta": ",".join(f"{DELTA[int(np.argmax(share[k]))]:g}" for k in range(16)),
+                             "per_bar_best": float(per_bar.mean())})
+            print("\n== zzhj.c.0..15 as the value at 16 grid times k*step + delta (exact share at the best common delta; per-bar best deltas)")
+            print(pl.DataFrame(rows).sort("exact_all", descending=True).head(12))
+        if jbf:
+            rows = []
+            for (p_, fn_), parts in jbf.items():
+                a = np.vstack(parts)
+                a = a[np.isfinite(a[:, 0])]
+                if a.shape[0] < 100:
+                    continue
+                o = np.argsort(a[:, 0], kind="stable")
+                x, z = a[o, 0], a[o, 1]
+                cz = np.concatenate([[0], np.cumsum(z)])  # zeros at or below each cut
+                n_, nz_ = z.size, z.sum()
+                below_zero = cz + ((n_ - np.arange(n_ + 1)) - (nz_ - cz))  # rule "zero iff x <= cut": correct = zeros below + non-zeros above
+                above_zero = n_ - below_zero
+                k1, k2 = int(np.argmax(below_zero)), int(np.argmax(above_zero))
+                cuts = np.concatenate([[-np.inf], x])  # threshold value at cut k (the k-th smallest)
+                best = (("zero_if_below", below_zero[k1] / n_, float(cuts[k1])) if below_zero[k1] >= above_zero[k2]
+                        else ("zero_if_above", above_zero[k2] / n_, float(cuts[k2])))
+                rows.append({"p": p_, "q": fn_, "rule": best[0], "accuracy": float(best[1]), "threshold": best[2],
+                             "base_rate": float(1 - nz_ / n_), "slots": int(n_)})
+            print("\n== zzjb / zzjb2 (SZSE, all stocks): best single threshold on a per-slot quantity separating 0 from 4 (base_rate = always 4)")
+            print(pl.DataFrame(rows).sort(["p", "accuracy"], descending=[False, True]))
         if hjd:
             hd = pl.DataFrame(hjd, schema=["d", "sid", "mkt", "n_nonzero", "first_pos", "last_pos", "v_over_last_med", "v_over_last_min",
                                            "v_over_last_max", "in_day_range", "two_decimals", "n_tr", "amt", "contiguous"], orient="row")
