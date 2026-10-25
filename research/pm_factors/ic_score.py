@@ -133,8 +133,21 @@ def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None) -> dict[str, np.nd
         t, lm = t[ok], np.log(mid[ok])
         at = lambda x, v: FI.at_marks(t, v, x)  # noqa: E731 -- value received by times x
         l0 = at(T, lm)
-        for h in (10, 30, 60, 120, 300, 600, 900, 1800):
-            out[f"ret{h}"] = l0 - at(T - h, lm)
+        bv, av = gf["bv1"].to_numpy().astype(float)[ok], gf["av1"].to_numpy().astype(float)[ok]
+        b1, a1 = gf["b1"].to_numpy().astype(float)[ok], gf["a1"].to_numpy().astype(float)[ok]
+        with np.errstate(divide="ignore", invalid="ignore"):
+            micro = np.where((bv + av > 0) & (b1 > 0) & (a1 > 0), (b1 * av + a1 * bv) / (bv + av), np.exp(lm))  # volume-weighted mid
+            lmi = np.log(micro)
+            lpx = np.log(np.where(a["price"][ok] > 0, a["price"][ok], np.nan))
+        lm0, li0, lp0 = l0, at(T, lmi), at(T, lpx)
+        for h in (5, 10, 15, 20, 30, 45, 60, 90, 120, 180, 240, 300, 450, 600, 900, 1800):
+            out[f"ret{h}"] = lm0 - at(T - h, lm)
+            out[f"mret{h}"] = li0 - at(T - h, lmi)  # microprice return
+            out[f"pret{h}"] = lp0 - at(T - h, lpx)  # last-price return
+        if "bv5" in gf.columns:
+            b5, a5 = gf["bv5"].to_numpy().astype(float), gf["av5"].to_numpy().astype(float)
+            with np.errstate(divide="ignore", invalid="ignore"):
+                out["imb5"] = FI.at_marks(a["t_local"], (b5 - a5) / (b5 + a5), T)
         c2 = np.concatenate([[0.0], np.cumsum(np.diff(lm) ** 2)])
         for h in (60, 300, 900):
             i1, i0 = np.searchsorted(t, T, side="right") - 1, np.searchsorted(t, T - h, side="right") - 1
@@ -149,7 +162,7 @@ def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None) -> dict[str, np.nd
                (("v", b["vol"]), ("nv", b["vol"] * b["side"]), ("n", np.ones(t.size)), ("nn", b["side"]), ("a", b["amt"]), ("na", b["amt"] * b["side"]))}
         upto = lambda x, k: cum[k][np.searchsorted(t, x, side="right")]  # noqa: E731 -- running total at times x
         with np.errstate(divide="ignore", invalid="ignore"):
-            for w in (30, 60, 300, 900):
+            for w in (10, 15, 20, 30, 45, 60, 90, 120, 180, 300, 600, 900):
                 win = {k: upto(T, k) - upto(T - w, k) for k in cum}
                 out[f"imbv{w}"] = win["nv"] / win["v"]
                 out[f"imbn{w}"] = win["nn"] / win["n"]
@@ -161,6 +174,11 @@ def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None) -> dict[str, np.nd
             hi, lo = np.fmax.accumulate(np.where(cont, b["price"], np.nan)), np.fmin.accumulate(np.where(cont, b["price"], np.nan))
             out["stoch"] = (px - FI.at_marks(t, lo, T)) / (FI.at_marks(t, hi, T) - FI.at_marks(t, lo, T))
     return out
+
+
+def family(expr: str) -> str:
+    """Drop an expression's horizon / window digits and price flavour: -gen.ret30 and -gen.mret45 share one family."""
+    return re.sub(r"\d+", "#", re.sub(r"gen\.[mp]?ret", "gen.ret", expr))
 
 
 def stem_frames(frames: list[pl.DataFrame], stem: str) -> list[tuple[np.ndarray, dict[str, np.ndarray]]]:
@@ -333,8 +351,12 @@ def main() -> None:
                 continue
             ranked = FM.rank(fp.filter(pl.col("feature") == feat), cand_all, 5 * args.shortlist)
             # gate on the fingerprint: right units and range first, IC second -- IC alone rewards any useful signal in any column
-            short = [r["candidate"] for r in ranked
-                     if (not np.isfinite(r["in_range"]) or r["in_range"] >= args.min_in_range) and r["score"] <= args.max_score][: args.shortlist]
+            passes = [r["candidate"] for r in ranked
+                      if (not np.isfinite(r["in_range"]) or r["in_range"] >= args.min_in_range) and r["score"] <= args.max_score]
+            short = passes[: args.shortlist]
+            if assign.get(feat):  # refine: every gate-passing neighbour of the current pick (other horizons / windows, mid / micro / last price)
+                fam = family(assign[feat])
+                short = list(dict.fromkeys(short + [c for c in passes if family(c) == fam and c != assign[feat]]))
             if not short:
                 log.append({"pass": ps, "feature": feat, "kept": assign.get(feat), "ic_after": np.nan, "t_gain": 0.0,
                             "top": "no candidate passes the fingerprint gate; closest: "

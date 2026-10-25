@@ -63,6 +63,7 @@ def load(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop: float
     con.register("want", pl.DataFrame({"sid": sids}))
     fast = con.sql(f"""SELECT symbol_id AS sid, market_id AS mkt, {B.tc(L)} AS t_local, {B.tc(S)} AS t_exch, spider_ts AS ls, {S} AS s,
         price, q.bid_px[1] AS b1, q.ask_px[1] AS a1, q.bid_vol[1]::DOUBLE AS bv1, q.ask_vol[1]::DOUBLE AS av1,
+        list_sum(q.bid_vol[1:5])::DOUBLE AS bv5, list_sum(q.ask_vol[1:5])::DOUBLE AS av5,
         total_bid_volume::DOUBLE AS tbv, total_ask_volume::DOUBLE AS tav, total_volume::DOUBLE AS cv, total_amount::DOUBLE AS ca,
         open::DOUBLE AS op, high::DOUBLE AS hi, low::DOUBLE AS lo, pre_close::DOUBLE AS pc
         FROM raw_quotation q JOIN want w ON w.sid = q.symbol_id WHERE q.date = {date} AND {L} <= {stop}
