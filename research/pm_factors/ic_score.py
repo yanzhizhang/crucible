@@ -16,6 +16,10 @@ model should predict the next 5-minute return better than with that feature miss
 4. **scan**: features in order of model gain; for each, its ``--shortlist`` candidates closest to
    the fingerprint (``feature_match.rank``) are tried one at a time with the others fixed, and the
    best is kept when it raises IC by more than ``--min-gain``. ``--passes`` repeats the sweep.
+   A stem without state draws from one shared ``Pool``: generic tick quantities, CED daily fields and
+   intraday-over-daily ratios (``--ced``), each also z-scored / ranked across stocks within its mark
+   (``--xs``). Those transforms share one CDF whatever they transform, so their bases are shortlisted by
+   their own |IC| (``--xs-shortlist``) and never accepted by CDF alone.
 
 The assignment found is written to ``ic_assign.json`` and can be fed back with ``--assign``.
 
@@ -182,24 +186,129 @@ def family(expr: str) -> str:
 
 
 def stem_frames(frames: list[pl.DataFrame], stem: str) -> list[tuple[np.ndarray, dict[str, np.ndarray]]]:
-    """Per mark: (sids, candidates) -- the stem's state expressions, or the generic tick quantities when it keeps no state."""
+    """Per mark: (sids, candidates) -- the stem's state expressions."""
     out = []
     for fr in frames:
-        if fr.filter(pl.col("key").str.starts_with(stem + ".")).is_empty():
-            g = fr.filter(pl.col("key").str.starts_with("gen.")).pivot(on="key", index="sid", values="pm", aggregate_function="first").sort("sid")
-            cand = {}
-            for c in g.columns:
-                if c == "sid":
-                    continue
-                v = g[c].to_numpy().astype(float)
-                # unit variants: a model column's thresholds are in its own units, so the sign / scale must match too
-                cand.update({c: v, f"-{c}": -v, f"|{c}|": np.abs(v), f"{c}*1e4": v * 1e4, f"|{c}|*1e4": np.abs(v) * 1e4})
-            out.append((g["sid"].to_numpy(), cand))
-            continue
         a = FM.atoms(fr, stem)
         sids = np.array(sorted(a["sid"].unique().to_list()))
         out.append((sids, FM.candidates(a)))
     return out
+
+
+XS = ("z:", "rank:", "crank:")  # cross-sectional transforms within a mark: each has the same CDF whatever it transforms
+
+
+def parse(expr: str) -> tuple[str, bool, bool, float, str]:
+    """``crank:-gen.ret30`` / ``|gen.timb|*1e4`` -> (transform, negate, abs, scale, base): the names ``Pool`` makes."""
+    pre = next((p for p in XS if expr.startswith(p)), "")
+    e = expr[len(pre):]
+    scale = 1e4 if e.endswith("*1e4") else 1.0
+    e = e.removesuffix("*1e4")
+    ab = len(e) > 1 and e.startswith("|") and e.endswith("|")
+    e = e[1:-1] if ab else e
+    return pre, e.startswith("-"), ab, scale, e.removeprefix("-")
+
+
+def xs(pre: str, v: np.ndarray) -> np.ndarray:
+    """One mark's values across stocks as is, z-scored, or ranked in [0, 1] / [-0.5, 0.5] (average ranks)."""
+    if not pre:
+        return v
+    f = np.isfinite(v)
+    out = np.full(v.size, np.nan)
+    if f.sum() < 2:
+        return out
+    if pre == "z:":
+        sd = v[f].std()
+        if sd > 0:
+            out[f] = (v[f] - v[f].mean()) / sd
+        return out
+    out[f] = (pl.Series(v[f]).rank("average").to_numpy() - 1) / (f.sum() - 1)
+    return out - 0.5 if pre == "crank:" else out
+
+
+class Pool:
+    """The candidates of features whose stem keeps no state, at every (day, mark).
+
+    Generic tick quantities (``gen.``), CED daily fields and intraday-over-daily ratios (``ced.``).
+
+    Only the bases are stored; a candidate name is evaluated on demand (``value``), so the unit variants and the
+    cross-sectional transforms cost no memory.
+    """
+
+    def __init__(self, xs_on: bool) -> None:
+        self.xs_on = xs_on
+        self.sids: list[list[np.ndarray]] = []  # per block, per mark
+        self.base: list[list[dict[str, np.ndarray]]] = []
+        self.daily: list[tuple[np.ndarray, dict[str, np.ndarray]]] = []  # per block: CED sids, CED columns
+        self.didx: list[list[np.ndarray]] = []  # per block, per mark: each stock's row in the CED columns, -1 = none
+        self._samples: dict[str, np.ndarray] | None = None
+
+    def add_block(self, frames: list[pl.DataFrame], dc: pl.DataFrame | None) -> None:
+        """One day: its per-mark frames (keys ``gen.*`` / ``ced.*``) and its CED daily table (one row per sid)."""
+        sids, base, didx = [], [], []
+        dsid = dc["sid"].to_numpy() if dc is not None else np.array([], int)
+        dcol = {f"ced.{c}": dc[c].to_numpy().astype(float) for c in dc.columns if c != "sid"} if dc is not None else {}
+        for fr in frames:
+            g = (fr.filter(pl.col("key").str.starts_with("gen.") | pl.col("key").str.starts_with("ced."))
+                 .pivot(on="key", index="sid", values="pm", aggregate_function="first").sort("sid"))
+            s = g["sid"].to_numpy()
+            sids.append(s)
+            base.append({c: g[c].to_numpy().astype(float) for c in g.columns if c != "sid"})
+            i = np.searchsorted(dsid, s)
+            ok = (i < dsid.size) & (dsid[np.clip(i, 0, max(dsid.size - 1, 0))] == s) if dsid.size else np.zeros(s.size, bool)
+            didx.append(np.where(ok, i, -1))
+        self.sids.append(sids)
+        self.base.append(base)
+        self.daily.append((dsid, dcol))
+        self.didx.append(didx)
+        self._samples = None
+
+    def bases(self) -> list[str]:
+        """Every base quantity seen on any day."""
+        out = {k for blk in self.base for b in blk for k in b} | {k for _, d in self.daily for k in d}
+        return sorted(out)
+
+    def names(self) -> list[str]:
+        """Every candidate: tick bases with sign / abs / bp units, CED bases with sign; each also cross-sectional."""
+        out = []
+        for c in self.bases():
+            out += [c, f"-{c}", f"|{c}|", f"{c}*1e4", f"|{c}|*1e4"] if c.startswith("gen.") else [c, f"-{c}"]
+            if self.xs_on:
+                out += [f"{p}{s}{c}" for p in XS for s in ("", "-")]
+        return out
+
+    def raw(self, b: int, m: int, base: str) -> np.ndarray | None:
+        """Return a base at (block, mark), aligned with ``sids[b][m]``."""
+        if base in self.base[b][m]:
+            return self.base[b][m][base]
+        col = self.daily[b][1].get(base)
+        if col is None:
+            return None
+        i = self.didx[b][m]
+        return np.where(i >= 0, col[np.clip(i, 0, None)], np.nan)
+
+    def value(self, b: int, m: int, expr: str) -> np.ndarray | None:
+        """Candidate ``expr`` at (block, mark), aligned with ``sids[b][m]``; None when its base is absent."""
+        pre, neg, ab, scale, base = parse(expr)
+        v = self.raw(b, m, base)
+        if v is None:
+            return None
+        v = np.abs(v) if ab else v
+        return xs(pre, (-v if neg else v) * scale)
+
+    def samples(self, n: int = 20000, every: int = 3) -> dict[str, np.ndarray]:
+        """Each candidate's finite values over every third mark of every day, subsampled to n: enough for a CDF to ~0.005."""
+        if self._samples is None:
+            rng = np.random.default_rng(0)
+            out = {}
+            for k in self.names():
+                vs = [self.value(b, m, k) for b in range(len(self.sids)) for m in range(0, len(self.sids[b]), every)]
+                v = np.concatenate([x for x in vs if x is not None] or [np.array([])])
+                v = v[np.isfinite(v)]
+                if v.size >= 50:
+                    out[k] = rng.choice(v, n, replace=False) if v.size > n else v
+            self._samples = out
+        return self._samples
 
 
 def ic_vec(pred: np.ndarray, ret: np.ndarray, groups: np.ndarray) -> np.ndarray:
@@ -247,6 +356,13 @@ def main() -> None:
     ap.add_argument("--accept-cdf", type=float, default=0.03,
                     help="with no IC winner, take the closest candidate by training CDF when its gap is at most this (sign by IC)")
     ap.add_argument("--max-features", type=int, default=30, help="scan this many features, by model gain")
+    ap.add_argument("--ced", action=argparse.BooleanOptionalAction, default=True,
+                    help="also CED daily fields and intraday amount / volume over daily baselines (ced_match.daily_candidates)")
+    ap.add_argument("--ced-xr", type=Path, help="read shtcommon's CED files from this directory instead of the crucible store")
+    ap.add_argument("--xs", action=argparse.BooleanOptionalAction, default=True,
+                    help="also each stateless candidate cross-sectionally z-scored / ranked within its mark")
+    ap.add_argument("--xs-shortlist", type=int, default=6,
+                    help="z / rank candidates look alike to the CDF: try the gate-passing ones of this many bases with the largest own |IC|")
     ap.add_argument("--out", type=Path, default=Path("data/reports/stage6"))
     args = ap.parse_args()
     t0 = time.perf_counter()
@@ -264,6 +380,15 @@ def main() -> None:
                 cdf[g["feature"][0]] = (g["t"].to_numpy(), g["p"].to_numpy())
         print(f"training-CDF points for {len(cdf)} features")
     con = duckdb.connect(str(B.CATALOG), read_only=True)
+    CM = None
+    if args.ced:
+        import ced_match as CM  # lazy: it reads the CED store
+
+        if args.ced_xr:
+            CM.S = CM.XRStore(args.ced_xr)
+        print(f"CED candidates from {CM.S.STORE}")
+    pool = Pool(args.xs)
+    state_stems: set[str] = set()
     blocks = []  # per day: (models, frames per mark, sids per mark, forward returns per mark)
     for d in [x.strip() for x in args.dates.split(",") if x.strip()]:
         f = args.dcp_dir / f"{d}.jz"
@@ -277,12 +402,20 @@ def main() -> None:
         up = E.load(con, int(d), sids, stop)
         fast = {int(g["sid"][0]): g for g in up["fast"].partition_by("sid")}
         slow = {int(g["sid"][0]): g for g in up["slow"].partition_by("sid")}
+        dc = CM.daily_candidates(d, sids) if CM is not None else None
+        dbase = {r["sid"]: r for r in dc.select("sid", "adv20", "avgvol20", "freeshare").fill_null(np.nan).iter_rows(named=True)} if dc is not None else {}
         rows, rets = [], {}
         for sid in sids:
             gf, gs = fast.get(sid), slow.get(sid)
             built = FI.rebuild(gf, gs, MARKS)
             for k, v in built.items():
                 rows.append(pl.DataFrame({"sid": sid, "mark": MARKS, "key": k, "pm": v}))
+            if sid in dbase and "zzqj.v" in built:  # intraday over daily: amount / volume since 09:30 over 20-day averages, volume over float
+                bs = dbase[sid]
+                with np.errstate(divide="ignore", invalid="ignore"):
+                    for k, v in (("amt_adv20", built["zzqj.tpv"] / bs["adv20"]), ("vol_avg20", built["zzqj.v"] / bs["avgvol20"]),
+                                 ("vol_float", built["zzqj.v"] / bs["freeshare"])):
+                        rows.append(pl.DataFrame({"sid": sid, "mark": MARKS, "key": f"ced.{k}", "pm": np.asarray(v, float)}))
             if gf is not None and gf.height > 2:
                 a = E.arrays(gf, "fast")
                 mid = a["mid"]
@@ -296,6 +429,8 @@ def main() -> None:
                 rows.append(pl.DataFrame({"sid": sid, "mark": MARKS, "key": f"gen.{k}", "pm": v.astype(float)}))
         long = pl.concat(rows).filter(pl.col("pm").is_finite()).with_columns(pl.col("sid").cast(pl.Int64))
         frames = [long.filter(pl.col("mark") == m).drop("mark") for m in MARKS]
+        pool.add_block(frames, dc)
+        state_stems |= set(long["key"].str.extract(r"^([^.]+)\.", 1).drop_nulls().unique().to_list()) - {"gen", "ced"}
         models = load_models(args.models, d, args.fits.split(","), args.subs.split(","))
         blocks.append((d, models, frames, rets))
         print(f"{d}: {len(sids)} stocks x {MARKS.size} marks, {len(models)} models ({time.perf_counter() - t0:.0f}s)")
@@ -314,22 +449,54 @@ def main() -> None:
     sid_a, grp, ret, blk, mk = (np.array(x) for x in (rows_sid, rows_grp, rows_ret, rows_blk, rows_mark))
     X = np.full((sid_a.size, len(names)), np.nan)
     pos = {(b, m, s): i for i, (b, m, s) in enumerate(zip(blk, mk, sid_a, strict=True))}
-    cache: dict[str, list] = {}  # stem -> per block, per mark: (sids, candidates)
+    cache: dict[str, list] = {}  # stateful stem -> per block, per mark: (sids, candidates)
+
+    def rows_of(b: int, m: int, sids: np.ndarray) -> np.ndarray:
+        """Panel row of each stock at (block, mark), -1 when it has no forward return."""
+        return np.array([pos.get((b, m, int(s)), -1) for s in sids], int)
+
+    pidx = [[rows_of(b, m, s) for m, s in enumerate(per)] for b, per in enumerate(pool.sids)]  # the pool's stocks -> panel rows
+
+    def stem_cache(stem: str) -> list:
+        if stem not in cache:
+            cache[stem] = [[(s, c, rows_of(b, m, s)) for m, (s, c) in enumerate(stem_frames(fr, stem))]
+                           for b, (_, _, fr, _) in enumerate(blocks)]
+        return cache[stem]
+
+    def stem_pool(stem: str) -> dict[str, np.ndarray]:
+        """Pool a stem's candidates over days and marks (the stateless pool: subsampled)."""
+        if stem not in state_stems:
+            return pool.samples()
+        pooled: dict[str, list[np.ndarray]] = {}
+        for per_mark in stem_cache(stem):
+            for _, cand, _ in per_mark:
+                for k, v in cand.items():
+                    pooled.setdefault(k, []).append(v)
+        return FM.pool(pooled)
 
     def column(feature: str, expr: str) -> np.ndarray:
         """One model column filled with expression ``expr`` of the feature's stem."""
         stem = feature.split(".")[0]
-        if stem not in cache:
-            cache[stem] = [stem_frames(fr, stem) for _, _, fr, _ in blocks]
         v = np.full(sid_a.size, np.nan)
-        for b, per_mark in enumerate(cache[stem]):
-            for m, (sids, cand) in enumerate(per_mark):
-                if expr in cand:
-                    for s, x in zip(sids, cand[expr], strict=True):
-                        i = pos.get((b, m, int(s)))
-                        if i is not None:
-                            v[i] = x
+        for b in range(len(blocks)):
+            for m in range(MARKS.size):
+                if stem in state_stems:
+                    _, cand, ix = stem_cache(stem)[b][m]
+                    x = cand.get(expr)
+                else:
+                    x, ix = pool.value(b, m, expr), pidx[b][m]
+                if x is not None:
+                    ok = ix >= 0
+                    v[ix[ok]] = x[ok]
         return v
+
+    base_ic: dict[str, float] = {}
+
+    def own_ic(base: str) -> float:
+        """Return a stateless base's own IC against the forward return: the same for its z-score and rank (Spearman, per mark)."""
+        if base not in base_ic:
+            base_ic[base] = summary(ic_vec(column("", base), ret, grp))[0]
+        return base_ic[base]
 
     def score(Xm: np.ndarray) -> np.ndarray:
         pred = np.empty(sid_a.size)
@@ -357,22 +524,22 @@ def main() -> None:
     for ps in range(args.passes):
         for feat in feats:
             stem = feat.split(".")[0]
-            if stem not in cache:
-                cache[stem] = [stem_frames(fr, stem) for _, _, fr, _ in blocks]
-            pooled: dict[str, list[np.ndarray]] = {}
-            for per_mark in cache[stem]:
-                for _, cand in per_mark:
-                    for k, v in cand.items():
-                        pooled.setdefault(k, []).append(v)
-            cand_all = FM.pool(pooled)
+            cand_all = stem_pool(stem)
             if not cand_all:
                 continue
-            ranked = FM.rank(fp.filter(pl.col("feature") == feat), cand_all, 5 * args.shortlist, cdf)
+            ranked = FM.rank(fp.filter(pl.col("feature") == feat), cand_all, len(cand_all), cdf)
             cut = args.max_cdf if feat in cdf else args.max_score
             # gate on the fingerprint: right units and range first, IC second -- IC alone rewards any useful signal in any column
             passes = [r["candidate"] for r in ranked
                       if (not np.isfinite(r["in_range"]) or r["in_range"] >= args.min_in_range) and r["score"] <= cut]
-            short = passes[: args.shortlist]
+            short = [c for c in passes if not c.startswith(XS)][: args.shortlist]
+            by_base: dict[str, dict[bool, str]] = {}  # z / rank: the CDF cannot tell what is transformed, so bases go by own |IC|
+            for c in passes:
+                if c.startswith(XS):
+                    _, neg, _, _, b = parse(c)
+                    by_base.setdefault(b, {}).setdefault(neg, c)  # per sign, the best-CDF transform
+            top_b = sorted(by_base, key=lambda b: -np.nan_to_num(abs(own_ic(b))))[: args.xs_shortlist]
+            short += [c for b in top_b for c in by_base[b].values()]
             if assign.get(feat):  # refine: every gate-passing neighbour of the current pick (other horizons / windows, mid / micro / last price)
                 fam = family(assign[feat])
                 short = list(dict.fromkeys(short + [c for c in passes if family(c) == fam and c != assign[feat]]))
@@ -397,8 +564,9 @@ def main() -> None:
                 if np.isfinite(t_gain) and t_gain >= args.min_t and summary(v)[0] > best[0]:
                     best = (summary(v)[0], expr, t_gain)
             # accept by the training CDF: the closest candidate within --accept-cdf, its sign picked by IC, unless IC drops significantly
-            if feat in cdf and best[1] == cur and ranked and ranked[0]["score"] <= args.accept_cdf and cur is None:
-                top = ranked[0]["candidate"]
+            plain = [r for r in ranked if not r["candidate"].startswith(XS)]  # a z / rank shape names no variable: never accepted by CDF
+            if feat in cdf and best[1] == cur and plain and plain[0]["score"] <= args.accept_cdf and cur is None:
+                top = plain[0]["candidate"]
                 pair = [top, top[1:] if top.startswith("-") else "-" + top]
                 opts = [(e, ic, tg) for e, ic, tg in tried if e in pair]
                 for e in pair:
@@ -411,7 +579,7 @@ def main() -> None:
                     e, ic, tg = max(opts, key=lambda o: o[1])
                     if not (np.isfinite(tg) and tg <= -args.min_t):
                         best = (ic, e, tg)
-                        print(f"  accept {feat} = {e} by training CDF (gap {ranked[0]['score']:.3f}), IC {ic:.4f} t {tg:.1f}")
+                        print(f"  accept {feat} = {e} by training CDF (gap {plain[0]['score']:.3f}), IC {ic:.4f} t {tg:.1f}")
             if best[1] != cur and best[1] is not None:
                 assign[feat] = best[1]
                 X[:, j] = column(feat, best[1])
@@ -427,13 +595,7 @@ def main() -> None:
         for feat, expr in assign.items():
             if feat not in cdf:
                 continue
-            stem = feat.split(".")[0]
-            pooled: dict[str, list[np.ndarray]] = {}
-            for per_mark in cache.get(stem, []):
-                for _, cand in per_mark:
-                    for k, v in cand.items():
-                        pooled.setdefault(k, []).append(v)
-            allc = FM.pool(pooled)
+            allc = stem_pool(feat.split(".")[0])
             gaps = sorted(((FM.cdf_gap(v, cdf[feat]), k) for k, v in allc.items()), key=lambda t: t[0])
             cur_gap = FM.cdf_gap(allc[expr], cdf[feat]) if expr in allc else np.nan
             rep.append({"feature": feat, "kept": expr, "kept_cdf_gap": cur_gap, "cdf_points": cdf[feat][0].size,
