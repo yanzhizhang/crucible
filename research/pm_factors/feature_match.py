@@ -80,10 +80,17 @@ def pool(pooled: dict[str, list[np.ndarray]]) -> dict[str, np.ndarray]:
     return {k: v for k, v in cand.items() if v.size >= 50}
 
 
+def interior(pts: tuple[np.ndarray, np.ndarray], lo: float = 0.02) -> tuple[np.ndarray, np.ndarray]:
+    """CDF points with lo <= p <= 1 - lo (tail-only points let any off-scale candidate match by default)."""
+    m = (pts[1] >= lo) & (pts[1] <= 1 - lo)
+    return (pts[0][m], pts[1][m]) if m.sum() >= 3 else pts
+
+
 def cdf_gap(v: np.ndarray, pts: tuple[np.ndarray, np.ndarray]) -> float:
-    """Mean |F_v(t) - p| over a feature's training-CDF points (t, p) from root splits."""
+    """Mean |F_v(t) - p| over a feature's interior training-CDF points (t, p) from root splits."""
     s = np.sort(v)
-    return float(np.mean(np.abs(np.searchsorted(s, pts[0], side="right") / s.size - pts[1])))
+    t, p = interior(pts)
+    return float(np.mean(np.abs(np.searchsorted(s, t, side="right") / s.size - p)))
 
 
 def rank(features: pl.DataFrame, cand: dict[str, np.ndarray], top: int,

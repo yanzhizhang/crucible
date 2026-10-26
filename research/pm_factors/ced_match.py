@@ -114,8 +114,8 @@ def transforms(v: np.ndarray) -> dict[str, np.ndarray]:
     """As is, negated, cross-sectional rank [0, 1] / [-0.5, 0.5], cross-sectional z-score."""
     f = np.isfinite(v)
     r = np.full(v.size, np.nan)
-    if f.sum() > 1:
-        r[f] = np.argsort(np.argsort(v[f])) / (f.sum() - 1)
+    if f.sum() > 1:  # average ranks: ties (0/1 industry dummies) share a rank
+        r[f] = (pl.Series(v[f]).rank("average").to_numpy() - 1) / (f.sum() - 1)
     z = (v - np.nanmean(v)) / np.nanstd(v) if f.sum() > 1 and np.nanstd(v) > 0 else np.full(v.size, np.nan)
     return {"": v, "-": -v, "rank:": r, "crank:": r - 0.5, "z:": z}
 
@@ -128,13 +128,16 @@ def main() -> None:
     ap.add_argument("--cdf", type=Path, default=Path("data/reports/stage5/cdf.parquet"))
     ap.add_argument("--fingerprint", type=Path, default=Path("data/reports/stage5/fingerprint.parquet"))
     ap.add_argument("--ticks", action=argparse.BooleanOptionalAction, default=True, help="also intraday amount / volume over daily baselines")
-    ap.add_argument("--max-gap", type=float, default=0.05)
+    ap.add_argument("--max-gap", type=float, default=0.03)
+    ap.add_argument("--min-in-range", type=float, default=0.95, help="share of a candidate's values inside the feature's training range")
     ap.add_argument("--ced-xr", type=Path, help="read shtcommon's CED files from this directory (e.g. /data/share/CED) instead of the crucible store")
     ap.add_argument("--out", type=Path, default=Path("data/reports/stage5"))
     args = ap.parse_args()
     cdf = {g["feature"][0]: (g["t"].to_numpy(), g["p"].to_numpy())
            for g in pl.read_parquet(args.cdf).filter(pl.col("nan_left") == 0).partition_by("feature") if g.height >= 8}
-    gain = dict(pl.read_parquet(args.fingerprint).select("feature", "gain_share").iter_rows())
+    fpr = pl.read_parquet(args.fingerprint)
+    gain = dict(fpr.select("feature", "gain_share").iter_rows())
+    span = {r["feature"]: (r["lo"], r["hi"]) for r in fpr.select("feature", "lo", "hi").iter_rows(named=True)}
     global S  # the CED source is chosen once per run
     if args.ced_xr:
         S = XRStore(args.ced_xr)
@@ -188,10 +191,16 @@ def main() -> None:
         return
     rows = []
     for feat, pts in cdf.items():
-        scored = sorted(((FM.cdf_gap(v, pts), k) for k, v in cand.items()), key=lambda t: t[0])
+        lo, hi = span.get(feat, (None, None))
+        ok = {k: v for k, v in cand.items()  # right scale first: inside the feature's training range
+              if lo is None or hi is None or np.mean((v >= lo) & (v <= hi)) >= args.min_in_range}
+        ti, _ = FM.interior(pts)
+        if not ok or ti.size < 5:  # too few interior points to tell distributions apart
+            continue
+        scored = sorted(((FM.cdf_gap(v, pts), k) for k, v in ok.items()), key=lambda t: t[0])
         # distance to a rank's CDF: uniform on [0, 1] (F(t) = t) or on [-0.5, 0.5] (F(t) = t + 0.5)
         u = float(min(np.mean(np.abs(np.clip(pts[0], 0, 1) - pts[1])), np.mean(np.abs(np.clip(pts[0] + 0.5, 0, 1) - pts[1]))))
-        rows.append({"feature": feat, "gain_share": gain.get(feat, 0.0), "cdf_points": pts[0].size, "best_gap": scored[0][0],
+        rows.append({"feature": feat, "gain_share": gain.get(feat, 0.0), "cdf_points": ti.size, "in_scale": len(ok), "best_gap": scored[0][0],
                      "best": "; ".join(f"{k} {g:.3f}" for g, k in scored[:3]), "t_min": float(pts[0].min()), "t_max": float(pts[0].max()),
                      "uniform_gap": u})
     res = pl.DataFrame(rows).sort("gain_share", descending=True)
@@ -199,7 +208,7 @@ def main() -> None:
     res.write_csv(args.out / "ced_match.csv")
     with pl.Config(tbl_rows=120, tbl_cols=8, tbl_width_chars=240, fmt_str_lengths=110, float_precision=4):
         print(f"\n== model features whose training CDF a CED candidate matches within {args.max_gap} (by model gain)")
-        print(res.filter(pl.col("best_gap") <= args.max_gap).select("feature", "gain_share", "best_gap", "best"))
+        print(res.filter(pl.col("best_gap") <= args.max_gap).select("feature", "gain_share", "cdf_points", "in_scale", "best_gap", "best"))
         print("\n== rank-like features: CDF close to a uniform rank on [0, 1] or [-0.5, 0.5] (the CDF cannot say WHAT is ranked; IC decides)")
         print(res.filter((pl.col("uniform_gap") <= 0.02) & (pl.col("t_min") >= -0.6) & (pl.col("t_max") <= 1.05))
               .select("feature", "gain_share", "t_min", "t_max", "uniform_gap", "best"))
