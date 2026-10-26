@@ -68,7 +68,9 @@ def ema_at(a: dict, x: str, half: float, marks: np.ndarray) -> np.ndarray:
 
 
 def at_marks(t: np.ndarray, v: np.ndarray, marks: np.ndarray) -> np.ndarray:
-    """Last value received at or before each mark."""
+    """Last value received at or before each mark (all NaN when there is none)."""
+    if t.size == 0:
+        return np.full(np.shape(marks), np.nan)
     k = np.searchsorted(t, marks, side="right") - 1
     return np.where(k >= 0, v[np.clip(k, 0, None)], np.nan)
 
