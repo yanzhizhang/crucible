@@ -23,6 +23,7 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
+from typing import ClassVar
 
 import numpy as np
 import polars as pl
@@ -34,6 +35,43 @@ import dcp_build as B  # state loader (the day's universe and PM's stop)
 import feature_match as FM  # cdf_gap
 from ced import store as S  # the CED store
 
+
+class XRStore:
+    """The production CED files of shtcommon (``{root}/daily/YYYYMMDD_EOD.xr`` ...) behind the crucible store's API."""
+
+    FILES: ClassVar[dict[str, tuple[str, str]]] = {"daily_eod": ("daily", "_EOD"), "daily_sod": ("daily", "_SOD"), "barra_exp": ("barra", "_exp"), "barra_stats": ("barra", "_stats")}
+    MATRIX: ClassVar[dict[str, tuple[str, str]]] = {"barra_exp": ("exposure", "factor"), "barra_stats": ("stats", "stat")}
+
+    def __init__(self, root: Path) -> None:
+        self.STORE = root
+
+    def dates(self, ds: str) -> list[str]:
+        """Days with a file of this dataset."""
+        if ds not in self.FILES:
+            return []
+        sub, suf = self.FILES[ds]
+        return sorted(f.name[:8] for f in (self.STORE / sub).glob(f"*{suf}.xr") if f.name[:8].isdigit())
+
+    def read(self, ds: str, start: str, end: str) -> pl.LazyFrame:
+        """Days in [start, end] as one frame: symbol, date and one column per field (matrix datasets widened)."""
+        from compare_pm import load_pm  # the one netCDF reader (xarray stays in compare_pm)
+
+        sub, suf = self.FILES[ds]
+        frames = []
+        for d in [x for x in self.dates(ds) if start <= x <= end]:
+            df = load_pm(self.STORE / sub / f"{d}{suf}.xr").rename({"symbol_id": "symbol"})
+            df = df.with_columns(pl.col("symbol").cast(pl.String).str.strip_chars(" " + chr(0)))
+            if ds in self.MATRIX:
+                var, dim = self.MATRIX[ds]
+                df = df.with_columns(pl.col(dim).cast(pl.String).str.strip_chars(" " + chr(0)).str.replace(r"^CNTRD_", ""))
+                df = df.pivot(on=dim, index="symbol", values=var, aggregate_function="first")
+            else:
+                num = [c for c, t in df.schema.items() if c != "symbol" and t.is_numeric()]
+                # the share columns carry an INT64_NULL sentinel
+                df = df.select("symbol", *[pl.when(pl.col(c).cast(pl.Float64) <= -(2.0 ** 62)).then(None)
+                                            .otherwise(pl.col(c).cast(pl.Float64)).alias(c) for c in num])
+            frames.append(df.with_columns(pl.lit(d).alias("date")))
+        return pl.concat(frames, how="diagonal_relaxed").lazy() if frames else pl.DataFrame({"symbol": [], "date": []}).lazy()
 
 def sid_of(sym: pl.Expr) -> pl.Expr:
     """Wind code ``600000.SH`` -> 600000."""
@@ -91,11 +129,15 @@ def main() -> None:
     ap.add_argument("--fingerprint", type=Path, default=Path("data/reports/stage5/fingerprint.parquet"))
     ap.add_argument("--ticks", action=argparse.BooleanOptionalAction, default=True, help="also intraday amount / volume over daily baselines")
     ap.add_argument("--max-gap", type=float, default=0.05)
+    ap.add_argument("--ced-xr", type=Path, help="read shtcommon's CED files from this directory (e.g. /data/share/CED) instead of the crucible store")
     ap.add_argument("--out", type=Path, default=Path("data/reports/stage5"))
     args = ap.parse_args()
     cdf = {g["feature"][0]: (g["t"].to_numpy(), g["p"].to_numpy())
            for g in pl.read_parquet(args.cdf).filter(pl.col("nan_left") == 0).partition_by("feature") if g.height >= 8}
     gain = dict(pl.read_parquet(args.fingerprint).select("feature", "gain_share").iter_rows())
+    global S  # the CED source is chosen once per run
+    if args.ced_xr:
+        S = XRStore(args.ced_xr)
     print(f"CED store {S.STORE}; training-CDF points for {len(cdf)} features")
     pooled: dict[str, list[np.ndarray]] = {}
     con = None
