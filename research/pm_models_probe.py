@@ -64,6 +64,7 @@ def parse_model(path: Path) -> tuple[dict, pl.DataFrame, pl.DataFrame]:
     splits = [0] * len(names)
     thr_f: list[int] = []
     thr_v: list[float] = []
+    roots: list[tuple[int, float, float, int]] = []  # (feature, threshold, share of the root's samples going left, NaN rows counted on the left)
     leaves = []
     shrink = []
     for block in re.split(r"\nTree=\d+\n", "\nTree=0" + rest)[1:]:
@@ -76,6 +77,15 @@ def parse_model(path: Path) -> tuple[dict, pl.DataFrame, pl.DataFrame]:
                 fs = [int(f) for f in kv["split_feature"].split()]
                 thr_f.extend(fs)
                 thr_v.extend(float(t) for t in kv["threshold"].split()[: len(fs)])
+                if "internal_count" in kv and "leaf_count" in kv and "left_child" in kv:
+                    ic_ = [float(x) for x in kv["internal_count"].split()]
+                    lc_ = [float(x) for x in kv["leaf_count"].split()]
+                    lft, rgt = int(kv["left_child"].split()[0]), int(kv["right_child"].split()[0])
+                    n_l = ic_[lft] if lft >= 0 else lc_[~lft]  # samples under each child (negative = leaf ~index)
+                    n_r = ic_[rgt] if rgt >= 0 else lc_[~rgt]
+                    dt0 = int(kv.get("decision_type", "0").split()[0])
+                    if n_l + n_r > 0 and not dt0 & 1:  # numerical root split: P(x <= t) over the tree's training rows
+                        roots.append((fs[0], float(kv["threshold"].split()[0]), n_l / (n_l + n_r), int(((dt0 >> 2) & 3) == 2 and (dt0 >> 1) & 1)))
         if "num_leaves" in kv:
             leaves.append(int(kv["num_leaves"]))
         if "shrinkage" in kv:
@@ -98,7 +108,10 @@ def parse_model(path: Path) -> tuple[dict, pl.DataFrame, pl.DataFrame]:
                         "lo": [b[0] for b in bounds], "hi": [b[1] for b in bounds]},
                        schema_overrides={"lo": pl.Float64, "hi": pl.Float64})
     thr = pl.DataFrame({"feature": [names[i] for i in thr_f], "t": thr_v}, schema={"feature": pl.String, "t": pl.Float64})
-    return summary, imp, thr
+    root = pl.DataFrame({"feature": [names[r[0]] for r in roots], "t": [r[1] for r in roots], "p": [r[2] for r in roots],
+                         "nan_left": [r[3] for r in roots]},
+                        schema={"feature": pl.String, "t": pl.Float64, "p": pl.Float64, "nan_left": pl.Int64})
+    return summary, imp, thr, root
 
 
 def _range(r: str) -> tuple[float | None, float | None]:
@@ -161,16 +174,18 @@ def main() -> None:
     files = sorted(a.models.glob(a.glob))
     if not files:
         raise SystemExit(f"no models matching {a.glob} under {a.models}")
-    rows, imps, thrs = [], [], []
+    rows, imps, thrs, rts = [], [], [], []
     for f in files:
-        summ, imp, thr = parse_model(f)
+        summ, imp, thr, root = parse_model(f)
         where = locate(f, a.models)
         rows.append({**where, **summ})
         imps.append(imp.with_columns(*[pl.lit(v).alias(k) for k, v in where.items()]))
         thrs.append(thr.with_columns(pl.lit(where["file"]).alias("file")))
+        rts.append(root.with_columns(pl.lit(where["file"]).alias("file")))
     models = pl.DataFrame(rows)
     imp = pl.concat(imps)
     thr = pl.concat(thrs)
+    rt = pl.concat(rts)
     csv = a.features or next(iter(sorted(a.models.glob("lgb_fn_*.csv"))), None)
     csv_names: list[str] = []
     if csv and csv.exists():
@@ -187,6 +202,7 @@ def main() -> None:
             mapping = {f"Column_{i}": n for i, n in enumerate(csv_names)}
             imp = imp.with_columns(pl.col("feature").replace_strict(mapping).alias("feature"))
             thr = thr.with_columns(pl.col("feature").replace_strict(mapping).alias("feature"))
+            rt = rt.with_columns(pl.col("feature").replace_strict(mapping).alias("feature"))
             print(f"Column_i -> csv name i for {n_feat} features (e.g. Column_0 = {csv_names[0]!r}, Column_97 = {mapping.get('Column_97')!r})")
         else:
             print(f"WARNING: csv has {len(csv_names)} names, models have {n_feat} features -- names left as Column_i")
@@ -215,6 +231,12 @@ def main() -> None:
     fams.write_parquet(a.out / "families.parquet")
     fp = fingerprint(imp, thr)
     fp.write_parquet(a.out / "fingerprint.parquet")
+    rt.write_parquet(a.out / "cdf.parquet")  # exact training-CDF points from root splits
+    print(f"\nroot-split CDF points: {rt.height} over {rt['feature'].n_unique()} features -> {a.out / 'cdf.parquet'}")
+    with pl.Config(tbl_rows=25, tbl_width_chars=160, float_precision=5):
+        print(rt.group_by("feature").agg(pl.len().alias("points"), pl.col("t").min().alias("t_min"), pl.col("t").max().alias("t_max"),
+                                         pl.col("p").min().alias("p_min"), pl.col("p").max().alias("p_max"))
+              .sort("points", descending=True).head(20))
 
     with pl.Config(tbl_rows=90, tbl_width_chars=220, tbl_cols=20, float_precision=4):
         print(f"\n{len(files)} models, months {sorted(models['month'].unique().to_list())}")

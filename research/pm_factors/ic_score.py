@@ -240,6 +240,9 @@ def main() -> None:
     ap.add_argument("--min-t", type=float, default=2.0, help="keep a candidate when its paired IC gain over marks has t >= this")
     ap.add_argument("--min-in-range", type=float, default=0.95, help="a candidate must sit inside the feature's training range this often")
     ap.add_argument("--max-score", type=float, default=1.5, help="and its p10 / median / p90 within this distance of the fingerprint's")
+    ap.add_argument("--cdf", type=Path, default=Path("data/reports/stage5/cdf.parquet"),
+                    help="root-split training-CDF points (pm_models_probe); when present a feature with >= 8 points is ranked and gated by them")
+    ap.add_argument("--max-cdf", type=float, default=0.08, help="gate: mean |F(t) - p| over the CDF points")
     ap.add_argument("--max-features", type=int, default=30, help="scan this many features, by model gain")
     ap.add_argument("--out", type=Path, default=Path("data/reports/stage6"))
     args = ap.parse_args()
@@ -251,6 +254,12 @@ def main() -> None:
         names = names[1:]
     col = {n: i for i, n in enumerate(names)}
     fp = pl.read_parquet(args.fingerprint).with_columns(pl.col("feature").str.extract(r"^([^.]+)", 1).alias("stem"))
+    cdf = {}
+    if args.cdf.exists():
+        for g in pl.read_parquet(args.cdf).filter(pl.col("nan_left") == 0).partition_by("feature"):  # NaN rows sit on the right: left share is exact
+            if g.height >= 8:
+                cdf[g["feature"][0]] = (g["t"].to_numpy(), g["p"].to_numpy())
+        print(f"training-CDF points for {len(cdf)} features")
     con = duckdb.connect(str(B.CATALOG), read_only=True)
     blocks = []  # per day: (models, frames per mark, sids per mark, forward returns per mark)
     for d in [x.strip() for x in args.dates.split(",") if x.strip()]:
@@ -349,10 +358,11 @@ def main() -> None:
             cand_all = FM.pool(pooled)
             if not cand_all:
                 continue
-            ranked = FM.rank(fp.filter(pl.col("feature") == feat), cand_all, 5 * args.shortlist)
+            ranked = FM.rank(fp.filter(pl.col("feature") == feat), cand_all, 5 * args.shortlist, cdf)
+            cut = args.max_cdf if feat in cdf else args.max_score
             # gate on the fingerprint: right units and range first, IC second -- IC alone rewards any useful signal in any column
             passes = [r["candidate"] for r in ranked
-                      if (not np.isfinite(r["in_range"]) or r["in_range"] >= args.min_in_range) and r["score"] <= args.max_score]
+                      if (not np.isfinite(r["in_range"]) or r["in_range"] >= args.min_in_range) and r["score"] <= cut]
             short = passes[: args.shortlist]
             if assign.get(feat):  # refine: every gate-passing neighbour of the current pick (other horizons / windows, mid / micro / last price)
                 fam = family(assign[feat])
@@ -387,6 +397,25 @@ def main() -> None:
                         "top": "; ".join(f"{e} {ic:.4f} (t {tg:.1f})" for e, ic, tg in tried[:3])})
             print(f"pass {ps} {feat}: kept {assign.get(feat)} IC {best[0]:.4f} t_gain {best[2]:.1f} ({time.perf_counter() - t0:.0f}s)")
     final = summary(score(X))
+    if cdf:  # what the model's own training distribution says about each assigned column
+        rep = []
+        for feat, expr in assign.items():
+            if feat not in cdf:
+                continue
+            stem = feat.split(".")[0]
+            pooled: dict[str, list[np.ndarray]] = {}
+            for per_mark in cache.get(stem, []):
+                for _, cand in per_mark:
+                    for k, v in cand.items():
+                        pooled.setdefault(k, []).append(v)
+            allc = FM.pool(pooled)
+            gaps = sorted(((FM.cdf_gap(v, cdf[feat]), k) for k, v in allc.items()), key=lambda t: t[0])
+            cur_gap = FM.cdf_gap(allc[expr], cdf[feat]) if expr in allc else np.nan
+            rep.append({"feature": feat, "kept": expr, "kept_cdf_gap": cur_gap, "cdf_points": cdf[feat][0].size,
+                        "closest_by_cdf": "; ".join(f"{k} {g:.3f}" for g, k in gaps[:5])})
+        with pl.Config(tbl_rows=60, tbl_cols=5, tbl_width_chars=230, fmt_str_lengths=120, float_precision=4):
+            print("\n== assigned columns against the model's training CDF (mean |F(t) - p| over root splits; 0 = same distribution)")
+            print(pl.DataFrame(rep))
     args.out.mkdir(parents=True, exist_ok=True)
     (args.out / "ic_assign.json").write_text(json.dumps(assign, indent=1))
     with pl.Config(tbl_rows=100, tbl_cols=6, tbl_width_chars=230, fmt_str_lengths=90, float_precision=4):

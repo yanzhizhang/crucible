@@ -80,7 +80,14 @@ def pool(pooled: dict[str, list[np.ndarray]]) -> dict[str, np.ndarray]:
     return {k: v for k, v in cand.items() if v.size >= 50}
 
 
-def rank(features: pl.DataFrame, cand: dict[str, np.ndarray], top: int) -> list[dict]:
+def cdf_gap(v: np.ndarray, pts: tuple[np.ndarray, np.ndarray]) -> float:
+    """Mean |F_v(t) - p| over a feature's training-CDF points (t, p) from root splits."""
+    s = np.sort(v)
+    return float(np.mean(np.abs(np.searchsorted(s, pts[0], side="right") / s.size - pts[1])))
+
+
+def rank(features: pl.DataFrame, cand: dict[str, np.ndarray], top: int,
+         cdf: dict[str, tuple[np.ndarray, np.ndarray]] | None = None) -> list[dict]:
     """For each fingerprint row, the ``top`` candidates whose p10 / median / p90 sit closest to the feature's.
 
     The feature's quantiles are ``q_*`` (from each model's distinct thresholds, ~ value quantiles) when
@@ -97,7 +104,10 @@ def rank(features: pl.DataFrame, cand: dict[str, np.ndarray], top: int) -> list[
         for k, v in cand.items():
             cq = np.quantile(v, [0.1, 0.5, 0.9])
             inr = float(np.mean((v >= f["lo"]) & (v <= f["hi"]))) if f["lo"] is not None else np.nan
-            scored.append((float(np.abs(cq - tq).sum() / span), k, cq, inr))
+            sc = float(np.abs(cq - tq).sum() / span)
+            if cdf and f["feature"] in cdf:  # exact training CDF where the model records it: rank by that instead
+                sc = cdf_gap(v, cdf[f["feature"]])
+            scored.append((sc, k, cq, inr))
         scored.sort(key=lambda t: t[0])
         for r, (sc, k, cq, inr) in enumerate(scored[:top], 1):
             rows.append({"feature": f["feature"], "gain_share": f["gain_share"], "kind": f["kind"], "rank": r, "candidate": k,
