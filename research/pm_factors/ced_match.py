@@ -147,7 +147,8 @@ def main() -> None:
     rows = []
     for feat, pts in cdf.items():
         scored = sorted(((FM.cdf_gap(v, pts), k) for k, v in cand.items()), key=lambda t: t[0])
-        u = float(np.mean(np.abs(np.clip((pts[0] - pts[0].min()) / max(pts[0].max() - pts[0].min(), 1e-12), 0, 1) - pts[1])))
+        # distance to a rank's CDF: uniform on [0, 1] (F(t) = t) or on [-0.5, 0.5] (F(t) = t + 0.5)
+        u = float(min(np.mean(np.abs(np.clip(pts[0], 0, 1) - pts[1])), np.mean(np.abs(np.clip(pts[0] + 0.5, 0, 1) - pts[1]))))
         rows.append({"feature": feat, "gain_share": gain.get(feat, 0.0), "cdf_points": pts[0].size, "best_gap": scored[0][0],
                      "best": "; ".join(f"{k} {g:.3f}" for g, k in scored[:3]), "t_min": float(pts[0].min()), "t_max": float(pts[0].max()),
                      "uniform_gap": u})
@@ -157,8 +158,8 @@ def main() -> None:
     with pl.Config(tbl_rows=120, tbl_cols=8, tbl_width_chars=240, fmt_str_lengths=110, float_precision=4):
         print(f"\n== model features whose training CDF a CED candidate matches within {args.max_gap} (by model gain)")
         print(res.filter(pl.col("best_gap") <= args.max_gap).select("feature", "gain_share", "best_gap", "best"))
-        print("\n== features whose split thresholds span [0, 1] or [-0.5, 0.5] and whose CDF is near uniform (rank-like)")
-        print(res.filter((pl.col("uniform_gap") <= 0.02) & (pl.col("t_min") >= -0.6) & (pl.col("t_max") <= 1.05) & (pl.col("t_max") - pl.col("t_min") >= 0.5))
+        print("\n== rank-like features: CDF close to a uniform rank on [0, 1] or [-0.5, 0.5] (the CDF cannot say WHAT is ranked; IC decides)")
+        print(res.filter((pl.col("uniform_gap") <= 0.02) & (pl.col("t_min") >= -0.6) & (pl.col("t_max") <= 1.05))
               .select("feature", "gain_share", "t_min", "t_max", "uniform_gap", "best"))
     print(f"table: {args.out / 'ced_match.csv'}")
 
