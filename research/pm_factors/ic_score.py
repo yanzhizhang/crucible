@@ -242,7 +242,8 @@ def main() -> None:
     ap.add_argument("--max-score", type=float, default=1.5, help="and its p10 / median / p90 within this distance of the fingerprint's")
     ap.add_argument("--cdf", type=Path, default=Path("data/reports/stage5/cdf.parquet"),
                     help="root-split training-CDF points (pm_models_probe); when present a feature with >= 8 points is ranked and gated by them")
-    ap.add_argument("--max-cdf", type=float, default=0.08, help="gate: mean |F(t) - p| over the CDF points")
+    ap.add_argument("--max-cdf", type=float, default=0.05, help="gate: mean |F(t) - p| over the CDF points (right formulas sit at 0.01-0.02 on 97)")
+    ap.add_argument("--drop-gap", type=float, default=0.05, help="drop a starting assignment whose training-CDF gap exceeds this")
     ap.add_argument("--max-features", type=int, default=30, help="scan this many features, by model gain")
     ap.add_argument("--out", type=Path, default=Path("data/reports/stage6"))
     args = ap.parse_args()
@@ -338,9 +339,15 @@ def main() -> None:
     assign = dict(KNOWN)
     if args.assign and args.assign.exists():
         assign = json.loads(args.assign.read_text())
-    for feat, expr in assign.items():
+    for feat, expr in list(assign.items()):
         if feat in col:
             X[:, col[feat]] = column(feat, expr)
+            v = X[:, col[feat]]
+            v = v[np.isfinite(v)]
+            if feat in cdf and v.size and (g := FM.cdf_gap(v, cdf[feat])) > args.drop_gap:  # a start pick off the training CDF is dropped
+                print(f"drop {feat} = {expr}: training-CDF gap {g:.3f} > {args.drop_gap}")
+                X[:, col[feat]] = np.nan
+                del assign[feat]
     base = summary(score(X))
     print(f"\nall-missing except the assignment {assign}: IC {base[0]:.4f} (t {base[1]:.2f}, {base[2]} marks) ({time.perf_counter() - t0:.0f}s)")
     log = []
