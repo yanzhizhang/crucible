@@ -361,6 +361,8 @@ def main() -> None:
     ap.add_argument("--ced-xr", type=Path, help="read shtcommon's CED files from this directory instead of the crucible store")
     ap.add_argument("--xs", action=argparse.BooleanOptionalAction, default=True,
                     help="also each stateless candidate cross-sectionally z-scored / ranked within its mark")
+    ap.add_argument("--max-worsen", type=float, default=None,
+                    help="a feature with a pick only moves to a candidate whose training-CDF gap is at most this much worse (off by default)")
     ap.add_argument("--xs-shortlist", type=int, default=6,
                     help="z / rank candidates look alike to the CDF: try the gate-passing ones of this many bases with the largest own |IC|")
     ap.add_argument("--out", type=Path, default=Path("data/reports/stage6"))
@@ -530,8 +532,9 @@ def main() -> None:
             ranked = FM.rank(fp.filter(pl.col("feature") == feat), cand_all, len(cand_all), cdf)
             cut = args.max_cdf if feat in cdf else args.max_score
             # gate on the fingerprint: right units and range first, IC second -- IC alone rewards any useful signal in any column
-            passes = [r["candidate"] for r in ranked
-                      if (not np.isfinite(r["in_range"]) or r["in_range"] >= args.min_in_range) and r["score"] <= cut]
+            rk = {r["candidate"]: r for r in ranked}
+            in_scale = lambda r: not np.isfinite(r["in_range"]) or r["in_range"] >= args.min_in_range  # noqa: E731
+            passes = [r["candidate"] for r in ranked if in_scale(r) and r["score"] <= cut]
             short = [c for c in passes if not c.startswith(XS)][: args.shortlist]
             by_base: dict[str, dict[bool, str]] = {}  # z / rank: the CDF cannot tell what is transformed, so bases go by own |IC|
             for c in passes:
@@ -550,6 +553,8 @@ def main() -> None:
                 print(f"pass {ps} {feat}: no candidate passes the fingerprint gate ({time.perf_counter() - t0:.0f}s)")
                 continue
             cur = assign.get(feat)
+            if args.max_worsen is not None and feat in cdf and cur in rk:  # IC may not trade a better-fitting formula for a worse one
+                short = [c for c in short if rk[c]["score"] <= rk[cur]["score"] + args.max_worsen]
             j = col[feat]
             keep_col = X[:, j].copy()
             cur_v = np.nan_to_num(score(X), nan=0.0)  # a constant prediction (everything missing) ranks nothing: IC 0
@@ -564,10 +569,12 @@ def main() -> None:
                 if np.isfinite(t_gain) and t_gain >= args.min_t and summary(v)[0] > best[0]:
                     best = (summary(v)[0], expr, t_gain)
             # accept by the training CDF: the closest candidate within --accept-cdf, its sign picked by IC, unless IC drops significantly
-            plain = [r for r in ranked if not r["candidate"].startswith(XS)]  # a z / rank shape names no variable: never accepted by CDF
+            plain = [r for r in ranked if not r["candidate"].startswith(XS) and in_scale(r)]  # a z / rank shape names no variable
             if feat in cdf and best[1] == cur and plain and plain[0]["score"] <= args.accept_cdf and cur is None:
                 top = plain[0]["candidate"]
-                pair = [top, top[1:] if top.startswith("-") else "-" + top]
+                # the other sign only when it fits too: negating a one-sided quantity (volatility, amount) moves its whole CDF
+                pair = [e for e in (top, top[1:] if top.startswith("-") else "-" + top)
+                        if e in rk and rk[e]["score"] <= args.accept_cdf and in_scale(rk[e])]
                 opts = [(e, ic, tg) for e, ic, tg in tried if e in pair]
                 for e in pair:
                     if e not in {o[0] for o in opts} and e in cand_all:
