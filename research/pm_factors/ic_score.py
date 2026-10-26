@@ -244,6 +244,8 @@ def main() -> None:
                     help="root-split training-CDF points (pm_models_probe); when present a feature with >= 8 points is ranked and gated by them")
     ap.add_argument("--max-cdf", type=float, default=0.05, help="gate: mean |F(t) - p| over the CDF points (right formulas sit at 0.01-0.02 on 97)")
     ap.add_argument("--drop-gap", type=float, default=0.05, help="drop a starting assignment whose training-CDF gap exceeds this")
+    ap.add_argument("--accept-cdf", type=float, default=0.03,
+                    help="with no IC winner, take the closest candidate by training CDF when its gap is at most this (sign by IC)")
     ap.add_argument("--max-features", type=int, default=30, help="scan this many features, by model gain")
     ap.add_argument("--out", type=Path, default=Path("data/reports/stage6"))
     args = ap.parse_args()
@@ -394,6 +396,22 @@ def main() -> None:
                 tried.append((expr, summary(v)[0], t_gain))
                 if np.isfinite(t_gain) and t_gain >= args.min_t and summary(v)[0] > best[0]:
                     best = (summary(v)[0], expr, t_gain)
+            # accept by the training CDF: the closest candidate within --accept-cdf, its sign picked by IC, unless IC drops significantly
+            if feat in cdf and best[1] == cur and ranked and ranked[0]["score"] <= args.accept_cdf and cur is None:
+                top = ranked[0]["candidate"]
+                pair = [top, top[1:] if top.startswith("-") else "-" + top]
+                opts = [(e, ic, tg) for e, ic, tg in tried if e in pair]
+                for e in pair:
+                    if e not in {o[0] for o in opts} and e in cand_all:
+                        X[:, j] = column(feat, e)
+                        v = np.nan_to_num(score(X), nan=0.0)
+                        opts.append((e, summary(v)[0], summary(v - cur_v)[1]))
+                opts = [o for o in opts if np.isfinite(o[1])]
+                if opts:
+                    e, ic, tg = max(opts, key=lambda o: o[1])
+                    if not (np.isfinite(tg) and tg <= -args.min_t):
+                        best = (ic, e, tg)
+                        print(f"  accept {feat} = {e} by training CDF (gap {ranked[0]['score']:.3f}), IC {ic:.4f} t {tg:.1f}")
             if best[1] != cur and best[1] is not None:
                 assign[feat] = best[1]
                 X[:, j] = column(feat, best[1])
