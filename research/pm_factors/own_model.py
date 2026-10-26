@@ -23,6 +23,7 @@ scale-free features at every 5-minute mark, a model fitted on some days and scor
 from __future__ import annotations
 
 import argparse
+import itertools
 import sys
 import time
 from pathlib import Path
@@ -167,6 +168,43 @@ def t0_backtest(panel: pl.DataFrame, preds: dict[str, np.ndarray], grp: np.ndarr
     return out
 
 
+SPREAD_BINS = (0.0, 3.0, 6.0, 10.0, 20.0, np.inf)  # quoted spread at entry, bp of mid
+
+
+def spread_backtest(panel: pl.DataFrame, preds: dict[str, np.ndarray], grp: np.ndarray, comm: float, stamp: float) -> list[dict]:
+    """Taker round trips by quoted spread at entry: the top / bottom 5% by prediction, and only trades the prediction pays for."""
+    out = []
+    q = {k: panel[k].to_numpy() for k in panel.columns if k.startswith("x_")}
+    fee = 2 * comm + stamp
+    with np.errstate(divide="ignore", invalid="ignore"):
+        spr = (q["x_ask0"] - q["x_bid0"]) / q["x_mid0"] * 1e4
+    for name, p in preds.items():
+        rank = np.full(p.size, np.nan)
+        for g in np.unique(grp):
+            m = np.flatnonzero((grp == g) & np.isfinite(p))
+            if m.size > 1:
+                rank[m] = np.argsort(np.argsort(p[m])) / (m.size - 1)
+        for h in (300, 900):
+            with np.errstate(divide="ignore", invalid="ignore"):
+                lt = (q[f"x_bid{h}"] / q["x_ask0"] - 1) * 1e4
+                st = (q["x_bid0"] / q[f"x_ask{h}"] - 1) * 1e4
+                lm = (q[f"x_mid{h}"] / q["x_mid0"] - 1) * 1e4
+            # pays: the predicted move (y units -> bp) clears the spread plus the fixed costs
+            rules = {"top5%": (rank >= 0.95, rank <= 0.05), "pays": (p * 1e4 > spr + fee, -p * 1e4 > spr + fee)}
+            for rule, (lo, sh) in rules.items():
+                for b0, b1 in itertools.pairwise(SPREAD_BINS):
+                    inb = (spr > b0) & (spr <= b1)
+                    tk = np.concatenate([lt[lo & inb], st[sh & inb]])
+                    md = np.concatenate([lm[lo & inb], -lm[sh & inb]])
+                    tk, md = tk[np.isfinite(tk)], md[np.isfinite(md)]
+                    out.append({"model": name, "hold_s": h, "rule": rule, "spread_bp": f"{b0:g}-{b1:g}", "trades": int(tk.size),
+                                "share_universe": float(np.mean(inb[np.isfinite(spr)])),
+                                "mid_gross_bp": float(md.mean()) if md.size else np.nan,
+                                "taker_net_bp": float(tk.mean() - fee) if tk.size else np.nan,
+                                "win": float(np.mean(tk > fee)) if tk.size else np.nan})
+    return out
+
+
 def main() -> None:
     """CLI entry point."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
@@ -264,6 +302,12 @@ def main() -> None:
         print(f"\n== T0 round trips, out of sample (taker: buy at ask, sell at bid; mid: no spread; costs: commission {args.commission_bp} bp"
               f" per side + stamp {args.stamp_bp} bp on the sell; bp per round trip, raw returns, market included)")
         print(t0r.sort("model", "hold_s", "top"))
+        sp = pl.DataFrame(spread_backtest(panel, preds, grp, args.commission_bp, args.stamp_bp))
+        sp.write_csv(args.out / "own_model_spread.csv")
+        print("\n== taker round trips by quoted spread at entry (top5%: strongest 5% each side; pays: |prediction| > spread + fixed"
+              " costs; mid_gross: before spread and costs; taker_net: after both)")
+        with pl.Config(tbl_rows=60, tbl_cols=9, tbl_width_chars=160, float_precision=2):
+            print(sp.sort("model", "hold_s", "rule"))
     print(f"tables: {args.out} ({time.perf_counter() - t0:.0f}s)")
 
 
