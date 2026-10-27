@@ -7,7 +7,8 @@ for every decoded day -- so the overview notebook renders instantly instead of r
 
 Views
 -----
-raw_order / raw_transaction / raw_quotation / raw_index   decoded feitu v3 ticks (+ ``date``)
+raw_order / raw_transaction / raw_quotation / raw_index   decoded feitu v3 ticks (+ ``date``); days converted from
+                        the XTP TDF dump by ``decode_tdf_day.py`` sit in the same tree (manifest ``source = xtp_tdf``)
 raw_manifest            one row per source dump file (minute, rows, bytes, time range)
 bars_1min               right-labelled 1-minute stock bars (+ ``date``)
 quality_checks          every quality check result (+ ``date``, ``source``)
