@@ -58,7 +58,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 LEVELS = 10
 SSE, SZSE = 3553, 3554
 BUY, SELL = 1063, 1550
-STOCKS = re.compile(r"^(60|68|00|30)\d{4}\.(SH|SZ)$")  # A-share stocks: SH main / STAR, SZ main / ChiNext
+STOCKS = re.compile(r"^(6[08]\d{4}\.SH|(00|30)\d{4}\.SZ)$")  # A-share stocks; 000xxx.SH are indices
 SUBS = {"0": "quotation", "2": "order", "3": "transaction"}
 CST_NS = 8 * 3600 * 10**9
 
