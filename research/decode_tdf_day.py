@@ -406,9 +406,9 @@ def quality(out: Path, date: str, kinds: tuple[str, ...]) -> None:
         with pl.Config(tbl_rows=40, tbl_width_chars=160):
             print(f"\n== {date} sequence coverage per (market, channel): missing_frac > 0 = lost records (SSE channel-wide "
                   "BizIndex covers only the symbols converted, so a small positive value there is the universe filter, not loss)")
-            print(q.select("market_id", "channel_id", "records", "seq_span", "seq_distinct", "missing_frac"))
             print(q.group_by("market_id").agg(pl.col("records").sum(), pl.col("seq_span").sum(), pl.col("seq_distinct").sum())
                   .with_columns((1 - pl.col("seq_distinct") / pl.col("seq_span")).alias("missing_frac")).sort("market_id"))
+            print(q.select("market_id", "channel_id", "records", "seq_span", "seq_distinct", "missing_frac"))
     if "quotation" in kinds:
         d = out / "kind=quotation" / f"date={date}"
         if list(d.glob("part-*.parquet")):
