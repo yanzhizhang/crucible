@@ -35,17 +35,20 @@ Usage (97)::
 
     python research/decode_tdf_day.py --root /data/xtp_tdf --date 20261026 --probe       # headers + mapping only
     python research/decode_tdf_day.py --root /data/xtp_tdf --date 20261026              # convert + quality
+    python research/decode_tdf_day.py --root /data/xtp_tdf --date 20261023,20261026 --workers 96   # several days, one pool
 """
 
 from __future__ import annotations
 
 import argparse
 import io
+import multiprocessing as mp
+import os
 import re
 import sys
 import time as _time
 import zipfile
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
 
@@ -333,12 +336,13 @@ def probe(root: Path, date: str, syms: list[tuple[str, int, int]]) -> None:
 ROW_GROUP = 1 << 20
 
 
-def _write_part(kind: str, part: list[tuple[str, int, Path]], market: int, day: int, dst: Path, threads: int,
-                row: dict[str, Any]) -> None:
-    """Stream one part to disk: symbols decoded ``threads`` at a time, ~1M-row row groups, rows grouped by symbol.
+def _write_part(task: dict[str, Any]) -> dict[str, Any]:
+    """Worker process: decode one part's symbols in order and stream them to disk in ~1M-row row groups.
 
-    Only one batch plus one row group is ever held in memory (a whole SSE order part is tens of millions of rows).
+    Only one symbol plus one row group is ever held in memory (a whole SSE order part is tens of millions of rows).
     """
+    kind, market, day, dst, row = task["kind"], task["market"], task["day"], Path(task["dst"]), task["row"]
+    t0 = _time.perf_counter()
     tmp = dst.with_suffix(".parquet.tmp")
     writer: pq.ParquetWriter | None = None
     buf: list[pl.DataFrame] = []
@@ -354,66 +358,85 @@ def _write_part(kind: str, part: list[tuple[str, int, Path]], market: int, day: 
         writer.write_table(t, row_group_size=ROW_GROUP)
         buf, n_buf = [], 0
 
-    with ThreadPoolExecutor(threads) as ex:
-        for bi in range(0, len(part), threads):
-            batch = part[bi:bi + threads]
-            for df in ex.map(lambda x, k=kind, m=market: _one(k, x[2], x[1], m, day), batch):
-                if df is None or df.is_empty():
-                    continue
-                row["rows"] += df.height
-                for key, col, fn in (("exchange_ts_min", "time", min), ("exchange_ts_max", "time", max),
-                                     ("arrival_ts_min", "spider_ts", min), ("arrival_ts_max", "spider_ts", max)):
-                    v = int(df[col].min() if fn is min else df[col].max())
-                    row[key] = v if row[key] is None else fn(row[key], v)
-                buf.append(df)
-                n_buf += df.height
-                if n_buf >= ROW_GROUP:
-                    flush()
+    for _, code, path in task["part"]:
+        df = _one(kind, Path(path), code, market, day)
+        if df is None or df.is_empty():
+            continue
+        row["rows"] += df.height
+        for key, col, fn in (("exchange_ts_min", "time", min), ("exchange_ts_max", "time", max),
+                             ("arrival_ts_min", "spider_ts", min), ("arrival_ts_max", "spider_ts", max)):
+            v = int(df[col].min() if fn is min else df[col].max())
+            row[key] = v if row[key] is None else fn(row[key], v)
+        buf.append(df)
+        n_buf += df.height
+        if n_buf >= ROW_GROUP:
+            flush()
     flush()
     if writer is not None:
         writer.close()
         tmp.replace(dst)
+    row["seconds"] = round(_time.perf_counter() - t0, 1)
+    return row
 
 
-def convert_day(root: Path, date: str, out: Path, syms: list[tuple[str, int, int]], *, kinds: tuple[str, ...],
-                threads: int, chunk: int, overwrite: bool) -> None:
-    """Write every kind as per-exchange symbol-chunk parts plus the manifest; then the quality table."""
-    day = int(date)
-    for kind in kinds:
-        sub = next(s for s, k in SUBS.items() if k == kind)
-        dst_dir = out / f"kind={kind}" / f"date={date}"
-        dst_dir.mkdir(parents=True, exist_ok=True)
-        foreign = [f.name for f in dst_dir.glob("part-*.parquet") if not re.match(r"part-(SH|SZ)-\d{3}\.parquet$", f.name)]
-        if foreign:  # a feitu day already lives here; two sources in one partition would double-count in the views
-            sys.exit(f"{dst_dir} already holds feitu parts {foreign[:3]}: convert this day with another --out (e.g. xtp_raw)")
-        rows: list[dict[str, Any]] = []
-        t0 = _time.perf_counter()
-        total = 0
-        for market, tag in ((SSE, "SH"), (SZSE, "SZ")):
-            todo = [(s, c, _file(root, s, sub, date)) for s, c, m in syms if m == market]
-            todo = [(s, c, f) for s, c, f in todo if f is not None]
-            if not todo:
-                print(f"[{kind}] no {tag} files for {date} under {root}")
-                continue
-            for ci in range(0, len(todo), chunk):
-                part = todo[ci:ci + chunk]
-                dst = dst_dir / f"part-{tag}-{ci // chunk:03d}.parquet"
-                row: dict[str, Any] = {"file": f"{tag}:{part[0][0]}..{part[-1][0]}", "minute": tag, "bytes": sum(f.stat().st_size for _, _, f in part),
-                                       "rows": 0, "n_truncated_books": 0, "exchange_ts_min": None, "exchange_ts_max": None,
-                                       "arrival_ts_min": None, "arrival_ts_max": None, "skipped": False,
-                                       "source": "xtp_tdf", "n_symbols": len(part)}
-                if dst.exists() and not overwrite:
-                    row["rows"], row["skipped"] = pq.read_metadata(dst).num_rows, True
-                    rows.append(row)
-                    total += row["rows"]
+def convert_days(root: Path, dates: list[str], out: Path, syms: list[tuple[str, int, int]], *, kinds: tuple[str, ...],
+                 workers: int, chunk: int, overwrite: bool) -> None:
+    """Convert every (day, kind, symbol chunk) part through one process pool, then manifests and quality per day.
+
+    Parts are independent, so several days run at once and the biggest parts start first; each worker runs polars
+    single-threaded (``POLARS_MAX_THREADS=1``), so ``workers`` is the number of cores used.
+    """
+    tasks: list[dict[str, Any]] = []
+    done: dict[tuple[str, str], list[dict[str, Any]]] = {}
+    for date in dates:
+        for kind in kinds:
+            sub = next(s for s, k in SUBS.items() if k == kind)
+            dst_dir = out / f"kind={kind}" / f"date={date}"
+            dst_dir.mkdir(parents=True, exist_ok=True)
+            foreign = [f.name for f in dst_dir.glob("part-*.parquet") if not re.match(r"part-(SH|SZ)-\d{3}\.parquet$", f.name)]
+            if foreign:  # a feitu day already lives here; two sources in one partition would double-count in the views
+                sys.exit(f"{dst_dir} already holds feitu parts {foreign[:3]}: convert this day with another --out (e.g. xtp_raw)")
+            done[(date, kind)] = []
+            for market, tag in ((SSE, "SH"), (SZSE, "SZ")):
+                todo = [(s, c, _file(root, s, sub, date)) for s, c, m in syms if m == market]
+                todo = [(s, c, str(f)) for s, c, f in todo if f is not None]
+                if not todo:
+                    print(f"[{kind}] no {tag} files for {date} under {root}")
                     continue
-                _write_part(kind, part, market, day, dst, threads, row)
-                rows.append(row)
-                total += row["rows"]
-                print(f"[{kind}] {dst.name}: {len(part)} symbols, {row['rows']:,} rows ({_time.perf_counter() - t0:.0f}s)")
+                for ci in range(0, len(todo), chunk):
+                    part = todo[ci:ci + chunk]
+                    dst = dst_dir / f"part-{tag}-{ci // chunk:03d}.parquet"
+                    row: dict[str, Any] = {"file": f"{tag}:{part[0][0]}..{part[-1][0]}", "minute": tag,
+                                           "bytes": sum(Path(f).stat().st_size for _, _, f in part),
+                                           "rows": 0, "n_truncated_books": 0, "exchange_ts_min": None, "exchange_ts_max": None,
+                                           "arrival_ts_min": None, "arrival_ts_max": None, "skipped": False,
+                                           "source": "xtp_tdf", "n_symbols": len(part), "seconds": 0.0}
+                    if dst.exists() and not overwrite:
+                        row["rows"], row["skipped"] = pq.read_metadata(dst).num_rows, True
+                        done[(date, kind)].append(row)
+                        continue
+                    tasks.append({"kind": kind, "market": market, "day": int(date), "date": date, "dst": str(dst),
+                                  "part": part, "row": row})
+    tasks.sort(key=lambda t: -t["row"]["bytes"])
+    print(f"{len(tasks)} parts to write over {len(dates)} day(s) with {workers} workers "
+          f"({sum(len(v) for v in done.values())} already on disk, skipped)")
+    t0 = _time.perf_counter()
+    os.environ["POLARS_MAX_THREADS"] = "1"  # read by each spawned worker when it imports polars
+    with ProcessPoolExecutor(workers, mp_context=mp.get_context("spawn")) as ex:
+        futs = {ex.submit(_write_part, t): t for t in tasks}
+        for i, fut in enumerate(as_completed(futs), 1):
+            t = futs[fut]
+            row = fut.result()
+            done[(t["date"], t["kind"])].append(row)
+            print(f"[{t['kind']}] {t['date']} {Path(t['dst']).name}: {row['n_symbols']} symbols, {row['rows']:,} rows, "
+                  f"{row['seconds']:.0f}s ({i}/{len(tasks)}, {_time.perf_counter() - t0:.0f}s elapsed)")
+    for (date, kind), rows in done.items():
+        dst_dir = out / f"kind={kind}" / f"date={date}"
+        rows.sort(key=lambda r: r["file"])
         pq.write_table(pa.Table.from_pylist(rows), dst_dir / "_manifest.parquet")
-        print(f"[{kind}] {date}: {total:,} rows in {_time.perf_counter() - t0:.0f}s -> {dst_dir}")
-    quality(out, date, kinds)
+        print(f"[{kind}] {date}: {sum(r['rows'] for r in rows):,} rows in {_time.perf_counter() - t0:.0f}s -> {dst_dir}")
+    for date in dates:
+        quality(out, date, kinds)
 
 
 def quality(out: Path, date: str, kinds: tuple[str, ...]) -> None:
@@ -462,26 +485,28 @@ def main() -> None:
     """CLI entry point."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--root", type=Path, required=True, help="directory holding the <symbol>.<SH|SZ>/<sub>/<date>.zip tree")
-    ap.add_argument("--date", required=True, help="trading day YYYYMMDD")
+    ap.add_argument("--date", required=True, help="trading day YYYYMMDD, or several comma-separated (one pool for all)")
     ap.add_argument("--out", type=Path, default=Path("/work/crucible_data/feitu_raw"))
     ap.add_argument("--kinds", default="quotation,order,transaction")
     ap.add_argument("--symbols", default=STOCKS.pattern, help="regex on the symbol folder name")
-    ap.add_argument("--threads", type=int, default=12)
+    ap.add_argument("--workers", type=int, default=min(os.cpu_count() or 8, 96), help="worker processes = cores used")
     ap.add_argument("--chunk", type=int, default=250, help="symbols per Parquet part")
     ap.add_argument("--overwrite", action="store_true")
     ap.add_argument("--probe", action="store_true", help="print headers, mapping and three converted rows; write nothing")
     ap.add_argument("--quality-only", action="store_true", help="recompute the coverage table from existing parts")
     args = ap.parse_args()
     kinds = tuple(k.strip() for k in args.kinds.split(",") if k.strip())
+    dates = [d.strip() for d in args.date.split(",") if d.strip()]
     if args.quality_only:
-        quality(args.out, args.date, kinds)
+        for d in dates:
+            quality(args.out, d, kinds)
         return
     syms = symbols(args.root, re.compile(args.symbols))
     print(f"{len(syms)} symbols under {args.root} match {args.symbols!r}")
     if args.probe:
-        probe(args.root, args.date, syms)
+        probe(args.root, dates[0], syms)
         return
-    convert_day(args.root, args.date, args.out, syms, kinds=kinds, threads=args.threads, chunk=args.chunk, overwrite=args.overwrite)
+    convert_days(args.root, dates, args.out, syms, kinds=kinds, workers=args.workers, chunk=args.chunk, overwrite=args.overwrite)
 
 
 if __name__ == "__main__":

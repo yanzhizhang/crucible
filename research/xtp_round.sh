@@ -9,7 +9,7 @@ mkdir -p $R
 ROOT=${ROOT:-/data/xtp_tdf}
 OVERLAP=${OVERLAP:-20261009}
 DAYS=${DAYS:-all}
-T=${T:-48}  # decode workers; nproc (384) held too many symbols in memory at once
+T=${T:-96}  # worker processes, polars single-threaded in each; lower it if memory runs short
 FEITU=/work/crucible_data/feitu_raw
 XTP=/work/crucible_data/xtp_raw
 
@@ -22,13 +22,20 @@ echo "### 0/4 probe the layout ($OVERLAP)"
 python -u research/decode_tdf_day.py --root $ROOT --date $OVERLAP --probe 2>&1 | tee $R/probe.txt | grep -E "^==|UNMAPPED|left at 0|symbols under|rows [0-9]"
 
 echo "### 1/4 convert"
+NEW=; OLD=
 for d in ${DAYS//,/ }; do
-  out=$FEITU
   if ls $FEITU/kind=transaction/date=$d/part-*.parquet 2>/dev/null | grep -vqE 'part-(SH|SZ)-[0-9]{3}\.parquet$'; then
-    out=$XTP  # feitu already has this day
+    OLD="$OLD,$d"  # feitu already has this day
+  else
+    NEW="$NEW,$d"
   fi
-  echo "-- $d -> $out"
-  python -u research/decode_tdf_day.py --root $ROOT --date $d --out $out --threads $T 2>&1 | tee $R/convert_$d.txt | grep -E "rows in|Error|error:"
+done
+for pair in "$XTP:${OLD#,}" "$FEITU:${NEW#,}"; do
+  out=${pair%%:*}; ds=${pair#*:}
+  [ -n "$ds" ] || continue
+  echo "-- $ds -> $out"
+  python -u research/decode_tdf_day.py --root $ROOT --date $ds --out $out --workers $T 2>&1 | tee $R/convert_$(basename $out).txt \
+    | grep -E "parts to write|rows in|Error|error:|\((25|50|100|200|400|800)/"
 done
 
 echo "### 2/4 compare $OVERLAP with feitu"
