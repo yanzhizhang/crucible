@@ -11,7 +11,7 @@ Output: exactly the columns, dtypes and column order of ``decode_feitu_day.py`` 
 ``catalog.py``'s ``raw_order / raw_transaction / raw_quotation`` views and everything built on them read these days
 unchanged::
 
-    <out>/kind=<order|transaction|quotation>/date=YYYYMMDD/part-<SH|SZ>-NNN.parquet   NNN = symbol chunk
+    <out>/kind=<order|transaction|quotation>/date=YYYYMMDD/part-<SH|SZ>-NNN.parquet   NNN = symbol chunk, rows grouped by symbol
     <out>/kind=<...>/date=YYYYMMDD/_manifest.parquet   one row per part, ``source = "xtp_tdf"``
     <out>/kind=<...>/date=YYYYMMDD/_quality.parquet    per (exchange, channel) sequence coverage, see ``quality``
 
@@ -330,6 +330,51 @@ def probe(root: Path, date: str, syms: list[tuple[str, int, int]]) -> None:
                 print(out.head(3))
 
 
+ROW_GROUP = 1 << 20
+
+
+def _write_part(kind: str, part: list[tuple[str, int, Path]], market: int, day: int, dst: Path, threads: int,
+                row: dict[str, Any]) -> None:
+    """Stream one part to disk: symbols decoded ``threads`` at a time, ~1M-row row groups, rows grouped by symbol.
+
+    Only one batch plus one row group is ever held in memory (a whole SSE order part is tens of millions of rows).
+    """
+    tmp = dst.with_suffix(".parquet.tmp")
+    writer: pq.ParquetWriter | None = None
+    buf: list[pl.DataFrame] = []
+    n_buf = 0
+
+    def flush() -> None:
+        nonlocal writer, buf, n_buf
+        if not buf:
+            return
+        t = _to_table(pl.concat(buf), kind)
+        if writer is None:
+            writer = pq.ParquetWriter(tmp, t.schema, compression="zstd", compression_level=3)
+        writer.write_table(t, row_group_size=ROW_GROUP)
+        buf, n_buf = [], 0
+
+    with ThreadPoolExecutor(threads) as ex:
+        for bi in range(0, len(part), threads):
+            batch = part[bi:bi + threads]
+            for df in ex.map(lambda x, k=kind, m=market: _one(k, x[2], x[1], m, day), batch):
+                if df is None or df.is_empty():
+                    continue
+                row["rows"] += df.height
+                for key, col, fn in (("exchange_ts_min", "time", min), ("exchange_ts_max", "time", max),
+                                     ("arrival_ts_min", "spider_ts", min), ("arrival_ts_max", "spider_ts", max)):
+                    v = int(df[col].min() if fn is min else df[col].max())
+                    row[key] = v if row[key] is None else fn(row[key], v)
+                buf.append(df)
+                n_buf += df.height
+                if n_buf >= ROW_GROUP:
+                    flush()
+    flush()
+    if writer is not None:
+        writer.close()
+        tmp.replace(dst)
+
+
 def convert_day(root: Path, date: str, out: Path, syms: list[tuple[str, int, int]], *, kinds: tuple[str, ...],
                 threads: int, chunk: int, overwrite: bool) -> None:
     """Write every kind as per-exchange symbol-chunk parts plus the manifest; then the quality table."""
@@ -362,16 +407,7 @@ def convert_day(root: Path, date: str, out: Path, syms: list[tuple[str, int, int
                     rows.append(row)
                     total += row["rows"]
                     continue
-                with ThreadPoolExecutor(threads) as ex:
-                    frames = [d for d in ex.map(lambda x, k=kind, m=market: _one(k, x[2], x[1], m, day), part) if d is not None]
-                if frames:
-                    df = pl.concat(frames).sort("spider_ts", "symbol_id")
-                    row["rows"] = df.height
-                    row["exchange_ts_min"], row["exchange_ts_max"] = int(df["time"].min()), int(df["time"].max())
-                    row["arrival_ts_min"], row["arrival_ts_max"] = int(df["spider_ts"].min()), int(df["spider_ts"].max())
-                    tmp = dst.with_suffix(".parquet.tmp")
-                    pq.write_table(_to_table(df, kind), tmp, compression="zstd", compression_level=3, row_group_size=1 << 20)
-                    tmp.replace(dst)
+                _write_part(kind, part, market, day, dst, threads, row)
                 rows.append(row)
                 total += row["rows"]
                 print(f"[{kind}] {dst.name}: {len(part)} symbols, {row['rows']:,} rows ({_time.perf_counter() - t0:.0f}s)")

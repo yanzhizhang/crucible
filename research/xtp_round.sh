@@ -9,7 +9,7 @@ mkdir -p $R
 ROOT=${ROOT:-/data/xtp_tdf}
 OVERLAP=${OVERLAP:-20261009}
 DAYS=${DAYS:-all}
-T=$(nproc)
+T=${T:-48}  # decode workers; nproc (384) held too many symbols in memory at once
 FEITU=/work/crucible_data/feitu_raw
 XTP=/work/crucible_data/xtp_raw
 
@@ -28,7 +28,7 @@ for d in ${DAYS//,/ }; do
     out=$XTP  # feitu already has this day
   fi
   echo "-- $d -> $out"
-  python -u research/decode_tdf_day.py --root $ROOT --date $d --out $out --threads $T 2>&1 | tee $R/convert_$d.txt | grep -E "rows in"
+  python -u research/decode_tdf_day.py --root $ROOT --date $d --out $out --threads $T 2>&1 | tee $R/convert_$d.txt | grep -E "rows in|Error|error:"
 done
 
 echo "### 2/4 compare $OVERLAP with feitu"
@@ -54,6 +54,8 @@ for root in map(Path, sys.argv[1:]):
         if s is not None:
             a = a.join(s, on="market_id", how="left")
         rows.append(a.with_columns(pl.lit(d).alias("date"), pl.lit(root.name).alias("tree")))
+if not rows:
+    sys.exit("no kind=order/date=*/_quality.parquet yet: the order/transaction conversion did not finish")
 df = pl.concat(rows, how="diagonal_relaxed").select("date", "tree", "market_id", "records", "missing_frac", "snap_med", "symbols").sort("date", "market_id")
 with pl.Config(tbl_rows=120, tbl_width_chars=150, float_precision=5):
     print(df)

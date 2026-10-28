@@ -61,7 +61,7 @@ def main() -> None:
                 print(r.filter(pl.col("ratio") < 0.999).sort("ratio").head(15))
                 print("-- receiver clock: xtp spider_ts - feitu spider_ts on trades matched by (symbol_id, seq_id), ms")
                 print(con.sql(f"""
-                    SELECT a.market_id, count(*) matched,
+                    SELECT a.market_id, count(*) n_matched,
                            quantile_cont((a.spider_ts - b.spider_ts) / 1e6, 0.5) dt_ms_p50,
                            quantile_cont((a.spider_ts - b.spider_ts) / 1e6, 0.9) dt_ms_p90,
                            quantile_cont((a.spider_ts - b.spider_ts) / 1e6, 0.1) dt_ms_p10,
@@ -71,7 +71,7 @@ def main() -> None:
             if kind == "quotation":
                 print("-- snapshots matched by (symbol_id, time): clock offset and field agreement")
                 print(con.sql(f"""
-                    SELECT a.market_id, count(*) matched,
+                    SELECT a.market_id, count(*) n_matched,
                            quantile_cont((a.spider_ts - b.spider_ts) / 1e6, 0.5) dt_ms_p50,
                            quantile_cont((a.spider_ts - b.spider_ts) / 1e6, 0.9) dt_ms_p90,
                            avg(CASE WHEN a.bid_px[1] = b.bid_px[1] AND a.ask_px[1] = b.ask_px[1] THEN 1 ELSE 0 END) same_top,
