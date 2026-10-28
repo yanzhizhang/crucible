@@ -11,13 +11,18 @@ scale-free features at every 5-minute mark, a model fitted on some days and scor
   log(snapshot high / price), PM's 10 s grid return and the cumulative amount imbalance;
 * **label**: the next 5-minute mid log return, demeaned across stocks at each mark;
 * **models**: ridge on per-mark ranks (numpy, always) and LightGBM when importable;
-* **validation**: leave-one-day-out -- each day is predicted by a model fitted on the other days;
-  per day the mean cross-sectional Spearman IC, and overall mean / t over all marks;
+* **validation**: leave-one-day-out (``--cv lodo``) -- each day is predicted by a model fitted on the
+  other days -- or walk-forward (``--cv walk``) -- only on the days before it; per day the mean
+  cross-sectional Spearman IC, and overall mean / t over all marks;
+* **universe**: PM's HS300 state file of the day fixes the stocks and the tick cut-off; a day without
+  one takes the stocks of the nearest earlier file and stops at 15:02:30;
 * **long-short**: at each mark the top / bottom ``--q`` of stocks by prediction, held 5 minutes,
   mean return per side and per round trip after ``--cost-bp`` per side (a signal check, not the T0
   execution of chrono).
 
     python research/pm_factors/own_model.py --dates 20260922,20260923,20260924,20260929,20260930,20261009
+    python research/pm_factors/own_model.py --dates all --out data/reports/stage7/all
+    python research/pm_factors/own_model.py --from-panel data/reports/stage7/all/panel.parquet --cv walk --out data/reports/stage7/walk
 """
 
 from __future__ import annotations
@@ -74,16 +79,30 @@ def state_features(built: dict[str, np.ndarray], px: np.ndarray) -> dict[str, np
     return out
 
 
+DEFAULT_STOP = 54150.005  # 15:02:30 local, PM's usual stop, for days without a state file
+
+
+def universe(dcp: Path, d: str) -> tuple[list[int], float, str]:
+    """Stocks and tick cut-off of one day: from its PM state file, else the nearest earlier (later) one with the default stop."""
+    f = dcp / f"{d}.jz"
+    if f.exists():
+        pm = B.load_state(f)
+        tz = pm.filter(pl.col("key") == "zzba.p.t")["pm"].max()
+        return sorted(pm["sid"].unique().to_list()), (tz + 34200 if tz <= 7200 else tz - 7200 + 46800) + 0.005, f.name
+    files = sorted(p for p in dcp.glob("20*.jz") if p.stem.isdigit())
+    if not files:
+        return [], DEFAULT_STOP, ""
+    near = max((p for p in files if p.stem <= d), default=files[0], key=lambda p: p.stem)
+    return sorted(B.load_state(near)["sid"].unique().to_list()), DEFAULT_STOP, f"{near.name} (universe only)"
+
+
 def build_day(con: duckdb.DuckDBPyConnection, d: str, dcp: Path) -> pl.DataFrame | None:
     """One row per (mark, stock): features and the forward 5-minute mid return."""
-    f = dcp / f"{d}.jz"
-    if not f.exists():
-        print(f"skip {d}: no state file (it fixes the universe and PM's stop)")
+    sids, stop, src = universe(dcp, d)
+    if not sids:
+        print(f"skip {d}: no state file under {dcp} to fix the universe")
         return None
-    pm = B.load_state(f)
-    tz = pm.filter(pl.col("key") == "zzba.p.t")["pm"].max()
-    stop = (tz + 34200 if tz <= 7200 else tz - 7200 + 46800) + 0.005
-    sids = sorted(pm["sid"].unique().to_list())
+    print(f"{d}: {len(sids)} stocks from {src}, ticks up to {stop:.0f} s")
     up = E.load(con, int(d), sids, stop)
     if up["slow"].is_empty():
         print(f"skip {d}: no decoded ticks")
@@ -208,7 +227,10 @@ def spread_backtest(panel: pl.DataFrame, preds: dict[str, np.ndarray], grp: np.n
 def main() -> None:
     """CLI entry point."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--dates", default="")
+    ap.add_argument("--dates", default="", help="comma list, or 'all' = every day in raw_quotation")
+    ap.add_argument("--cv", choices=("lodo", "walk"), default="lodo",
+                    help="lodo: each day predicted from all other days; walk: only from earlier days (needs --min-train)")
+    ap.add_argument("--min-train", type=int, default=5, help="walk: days needed before the first predicted day")
     ap.add_argument("--from-panel", type=Path, help="reuse panel.parquet from an earlier run (must hold the x_ quote columns)")
     ap.add_argument("--dcp-dir", type=Path, default=B.DCP)
     ap.add_argument("--ridge", type=float, default=50.0)
@@ -225,7 +247,11 @@ def main() -> None:
     if args.from_panel:  # reuse a saved panel (features + labels + quotes) instead of rebuilding from ticks
         days = [pl.read_parquet(args.from_panel)]
         print(f"panel from {args.from_panel}: {days[0].height} rows")
-    for d in [] if args.from_panel else [x.strip() for x in args.dates.split(",") if x.strip()]:
+    dates = [x.strip() for x in args.dates.split(",") if x.strip()]
+    if dates == ["all"]:
+        dates = [str(r[0]) for r in con.sql("SELECT DISTINCT date FROM raw_quotation ORDER BY 1").fetchall()]
+        print(f"{len(dates)} days in raw_quotation: {dates[0]} .. {dates[-1]}")
+    for d in [] if args.from_panel else dates:
         df = build_day(con, d, args.dcp_dir)
         if df is not None:
             days.append(df)
@@ -252,8 +278,12 @@ def main() -> None:
         print("lightgbm not importable: ridge only")
     preds = {"ridge": np.full(y.size, np.nan), **({"lgbm": np.full(y.size, np.nan)} if lgb else {})}
     imp = np.zeros(len(feats))
-    for d in np.unique(date):
-        tr, te = date != d, date == d
+    udays = np.unique(date)
+    print(f"cv {args.cv}: {udays.size} days" + (f", first {args.min_train} only train" if args.cv == "walk" else ""))
+    for i, d in enumerate(udays):
+        if args.cv == "walk" and i < args.min_train:
+            continue
+        tr, te = (date < d) if args.cv == "walk" else (date != d), date == d
         w = fit_ridge(R[tr], y[tr], args.ridge)
         preds["ridge"][te] = np.column_stack([np.ones(te.sum()), R[te]]) @ w
         if lgb:
@@ -266,6 +296,8 @@ def main() -> None:
     for name, p in preds.items():
         for d in np.unique(date):
             m = date == d
+            if not np.isfinite(p[m]).any():  # walk: a training-only day
+                continue
             ic = IC.summary(IC.ic_vec(p[m], y[m], grp[m]))
             ls = []
             for g in np.unique(grp[m]):
@@ -281,8 +313,8 @@ def main() -> None:
     res = pl.DataFrame(rows)
     t0_rows = t0_backtest(panel, preds, grp, args.commission_bp, args.stamp_bp)
     res.write_csv(args.out / "own_model_days.csv")
-    with pl.Config(tbl_rows=60, tbl_width_chars=160, float_precision=4):
-        print("\n== leave-one-day-out, per day (ls_bp_side: top-minus-bottom decile 5-minute return per side, bp; net after --cost-bp)")
+    with pl.Config(tbl_rows=60, tbl_cols=-1, tbl_width_chars=200, float_precision=4):
+        print(f"\n== out of sample ({args.cv}), per day (ls_bp_side: top-minus-bottom decile 5-minute return per side, bp; net after --cost-bp)")
         print(res.sort("model", "date"))
         print(res.group_by("model").agg(pl.col("ic").mean(), pl.col("ls_bp_side").mean(), pl.col("net_bp_side").mean()))
         if lgb:
