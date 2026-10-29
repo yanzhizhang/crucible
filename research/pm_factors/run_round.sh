@@ -8,6 +8,7 @@
 set -u
 cd /work/crucible
 CPUS=${CPUS:-32}
+ALL=$(nproc --all); [ $CPUS -gt $ALL ] && CPUS=$ALL
 DAYS=${DAYS:-20260923,20260924,20260929,20260930,20261009}
 export POLARS_MAX_THREADS=$CPUS OMP_NUM_THREADS=8 OPENBLAS_NUM_THREADS=8 MKL_NUM_THREADS=8
 H=/data/prod/hstats/HS300
@@ -16,7 +17,7 @@ RF=data/reports/stage4f
 X=data/pm_export
 mkdir -p $R4 $RF $X
 run() { taskset -c 0-$((CPUS - 1)) nice -n 5 python -u "$@"; }
-echo "cpus $CPUS of $(nproc), $(free -g | awk '/Mem:/ {print $7}') GB free"
+echo "cpus $CPUS of $ALL on the box ($(nproc) in this shell's mask), $(free -g | awk '/Mem:/ {print $7}') GB free"
 
 echo "### A0 inventory: PM hstats dates per family vs our tick days"
 python - "$H" "$DAYS" <<'EOF' | tee $R4/inventory.txt
@@ -45,6 +46,7 @@ WANT=$(cat $R4/days.txt)
 echo "### A1 export PM samplerS, candidates with PM's ZZCR tiers of the previous PM day, rank per family"
 for d in $WANT; do
   prev=$(ls $H/ZZCR | grep -E '^[0-9]{8}$' | awk -v d=$d '$1 < d' | tail -1)
+  [ -n "$prev" ] || { echo "-- $d: no earlier PM day for the size tiers, skipped"; continue; }
   thr=$H/ZZCR/$prev/samplerR.parquet
   echo "-- $d (size tiers: $thr)"
   run research/pm_factors/candidates.py --dates $d --thr-file $thr --memory 16GB 2>&1 | tee $R4/candidates_$d.txt | grep -E "rows,|Error|error:|WARN"
@@ -52,7 +54,8 @@ for d in $WANT; do
     s=$(ls $H/$f/$d/sampler*.nc 2>/dev/null | head -1)
     [ -n "$s" ] || continue
     run research/compare_pm.py --pm $s --export $X/${f}_$d.parquet > $R4/export_${f}_$d.txt 2>&1 || { echo "export $f $d failed"; continue; }
-    run research/pm_factors/rank_candidates.py --family $f --pm $X/${f}_$d.parquet --out $R4/${f}_$d.parquet > $R4/rank_${f}_$d.txt 2>&1 \
+    ours=; [ $f = ZZUG2 ] && ours="--ours /work/crucible_data/store/pm_factors/candidates/family=ZZUG"  # no candidates of its own yet
+    run research/pm_factors/rank_candidates.py --family $f --pm $X/${f}_$d.parquet $ours --out $R4/${f}_$d.parquet > $R4/rank_${f}_$d.txt 2>&1 \
       && echo "  $f: $(grep -m1 '^PM ' $R4/rank_${f}_$d.txt | cut -c1-150)" || echo "  $f: rank failed ($(tail -1 $R4/rank_${f}_$d.txt | cut -c1-120))"
   done
 done
