@@ -1,15 +1,13 @@
 #!/usr/bin/env bash
 # One round on 97, on CPUS cores (taskset + nice; libraries told the same budget):
-#   A. Stage 4 for real: PM's sampler files of every family on the days we hold ticks for -- export (every sampler*.nc of
-#      the folder), our candidate formulas (size tiers = PM's own ZZCR samplerR of the previous PM day; reused when
-#      already built, REUSE=0 rebuilds), each PM file routed to the candidate family its COLUMNS match (stage4_route),
-#      rank_candidates per file and day, a value profile of PM's columns on the first day, one summary; then the
-#      basics table (basics.py: every plain tick quantity per stock-minute) and every PM column scored against every basic
-#      (basic_match.py) -- the generic answer to "what is this column";
-#   C. the engine (research/engine): run + verify against PM's .jz and the vectorized rebuild, the keys not at 1.0 listed;
-#   B. Stage 4f: the six open day-end state keys against fresh candidates (dcp_open.py), plus the raw key names of the
-#      prefixes still open (zzvx / zzba / zzcb / zztx) for one stock, so a key we look for under the wrong name shows.
-# Foreground; logs under data/reports/stage4 and stage4f. DAYS = the days to run (default: the SZSE-reference days
+#   A. Stage 4: PM's sampler files of every family on the days we hold ticks for -- export, candidate formulas (size tiers =
+#      PM's own ZZCR samplerR of the previous PM day; reused once built, REUSE=0 rebuilds), each PM file ranked against the
+#      candidate family its COLUMNS match (stage4_route), one summary; the basics table for EVERY overlap day (basics.py) and
+#      every PM column scored against every basic at the same day / the day before / multi-day blends (basic_match.py);
+#      the size-like columns against PM's own samplerR quantiles (sampler_pm.py);
+#   B. (DCP=1 only) Stage 4f: the six open day-end state keys (dcp_open.py);
+#   C. the engine (research/engine): run + verify against PM's .jz and the vectorized rebuild, the keys not at 1.0 listed.
+# Foreground; logs under data/reports/stage4, stage4f, engine. DAYS = the days to run (default: the SZSE-reference days
 # that PM's hstats tree also has; DAYS=all for every overlap day).
 set -u
 cd /work/crucible
@@ -20,15 +18,17 @@ REUSE=${REUSE:-1}
 export POLARS_MAX_THREADS=$CPUS OMP_NUM_THREADS=8 OPENBLAS_NUM_THREADS=8 MKL_NUM_THREADS=8
 H=/data/prod/hstats/HS300
 C=/work/crucible_data/store/pm_factors/candidates
+BS=/work/crucible_data/store/pm_factors/basics
 R4=data/reports/stage4
 RF=data/reports/stage4f
+RE=data/reports/engine
 X=data/pm_export
-mkdir -p $R4 $RF $X
+mkdir -p $R4 $RF $RE $X data/engine
 run() { taskset -c 0-$((CPUS - 1)) nice -n 5 python -u "$@"; }
 echo "cpus $CPUS of $ALL on the box ($(nproc) in this shell's mask), $(free -g | awk '/Mem:/ {print $7}') GB free"
 
 echo "### A0 inventory: PM hstats dates per family vs our tick days"
-python - "$H" "$DAYS" <<'EOF' | tee $R4/inventory.txt
+python - "$H" "$DAYS" <<'PYEOF' | tee $R4/inventory.txt
 import sys
 from pathlib import Path
 import duckdb
@@ -43,20 +43,27 @@ for f in fams:
     allpm |= set(ds)
     print(f"{f}: {len(ds)} days {ds[0] if ds else '-'}..{ds[-1] if ds else '-'}, {len(both)} with our ticks; files {files}")
 both = sorted(allpm & ours)
-print(f"overlap days: {both}")
+print(f"overlap days: {' '.join(both)}")
 want = both if days == "all" else [d for d in days.split(",") if d in both]
 print(f"DAYS: {' '.join(want)}")
 Path("data/reports/stage4/days.txt").write_text(" ".join(want))
-EOF
+Path("data/reports/stage4/overlap.txt").write_text(" ".join(both))
+PYEOF
 WANT=$(cat $R4/days.txt)
 [ -n "$WANT" ] || { echo "no overlap day to run"; exit 1; }
+tiers() { local prev; prev=$(ls $H/ZZCR | grep -E '^[0-9]{8}$' | awk -v d=$1 '$1 < d' | tail -1); [ -n "$prev" ] && echo $H/ZZCR/$prev/samplerR.parquet; }
+
+echo "### A1a basics for every overlap day (basic_match's blends need the days before each PM day)"
+for d in $(cat $R4/overlap.txt); do
+  thr=$(tiers $d); [ -n "$thr" ] || continue
+  [ "$REUSE" = 1 ] && [ -f $BS/date=$d/m1.parquet ] && continue
+  run research/pm_factors/basics.py --dates $d --thr-file $thr --memory 16GB 2>&1 | grep -E "stock-minutes|Error|error:" | tail -1
+done
 
 echo "### A1 export PM sampler files, candidates with PM's ZZCR tiers of the previous PM day, rank per file (routed by columns)"
 first=
 for d in $WANT; do
-  prev=$(ls $H/ZZCR | grep -E '^[0-9]{8}$' | awk -v d=$d '$1 < d' | tail -1)
-  [ -n "$prev" ] || { echo "-- $d: no earlier PM day for the size tiers, skipped"; continue; }
-  thr=$H/ZZCR/$prev/samplerR.parquet
+  thr=$(tiers $d); [ -n "$thr" ] || { echo "-- $d: no earlier PM day for the size tiers, skipped"; continue; }
   echo "-- $d (size tiers: $thr)"
   if [ "$REUSE" = 1 ] && [ -f $C/family=ZZXC/date=$d/part.parquet ] && [ -f $C/family=ZZCR/date=$d/part.parquet ]; then
     echo "  candidates already built, reused"
@@ -66,15 +73,13 @@ for d in $WANT; do
     grep -q "rows," $R4/candidates_$d.txt || { echo "  candidates failed:"; tail -3 $R4/candidates_$d.txt; continue; }
   fi
   [ -n "$first" ] || first=$d
-  if [ "$REUSE" = 1 ] && [ -f /work/crucible_data/store/pm_factors/basics/date=$d/m1.parquet ]; then
-    echo "  basics already built, reused"
-  else
-    run research/pm_factors/basics.py --dates $d --thr-file $thr --memory 16GB 2>&1 | grep -E "stock-minutes|Error|error:" | tail -2
-  fi
   for f in $(ls $H); do
     for s in $(ls $H/$f/$d/sampler*.nc 2>/dev/null); do
       tag=$f; [ "$(basename $s)" = samplerS.nc ] || tag=${f}$(basename $s .nc | sed 's/^sampler//')  # ZZDS has sampler.nc and samplerS.nc
-      run research/compare_pm.py --pm $s --export $X/${tag}_$d.parquet > $R4/export_${tag}_$d.txt 2>&1 || { echo "  export $tag $d failed"; continue; }
+      if [ "$REUSE" = 1 ] && [ -f $X/${tag}_$d.parquet ]; then :; else
+        run research/compare_pm.py --pm $s --export $X/${tag}_$d.parquet > $R4/export_${tag}_$d.txt 2>&1 || { echo "  export $tag $d failed"; continue; }
+      fi
+      [ "$REUSE" = 1 ] && [ -f $R4/${tag}_$d.parquet ] && continue
       route=$(run research/pm_factors/stage4_route.py --pm $X/${tag}_$d.parquet --date $d)
       [ -n "$route" ] || { echo "  $tag: no candidate family covers its columns"; continue; }
       run research/pm_factors/rank_candidates.py --family $f --pm $X/${tag}_$d.parquet $route --dates $d --out $R4/${tag}_$d.parquet > $R4/rank_${tag}_$d.txt 2>&1 \
@@ -83,44 +88,36 @@ for d in $WANT; do
     done
   done
 done
-[ -n "$first" ] && run research/pm_factors/stage4_profile.py --exports $X --date $first > $R4/profile.txt 2>&1
 run research/pm_factors/stage4_summary.py --reports $R4 2>&1 | tee $R4/summary.txt | tail -3
-echo "### A2 every PM column against every basic quantity (basic_match)"
-run research/pm_factors/basic_match.py --dates $(echo $WANT | tr ' ' ',') --exports $X --out $R4/basic_match.csv > $R4/basic_match.txt 2>&1
-grep -E "^[0-9]{8} |^table|Error|error:" $R4/basic_match.txt | tail -5
 
+echo "### A2 every PM column against every basic quantity, same day / day before / multi-day blends (basic_match)"
+run research/pm_factors/basic_match.py --dates $(echo $WANT | tr ' ' ',') --exports $X --out $R4/basic_match.csv > $R4/basic_match.txt 2>&1
+grep -E "^[0-9]{8} |^table|Error|error:|nothing joined" $R4/basic_match.txt | tail -8
+echo "### A3 size-like samplerS columns against PM's own samplerR quantiles (sampler_pm)"
+for d in $WANT; do
+  run research/pm_factors/sampler_pm.py --date $d --hstats $H --exports $X --out $R4 > $R4/sampler_pm_$d.txt 2>&1 || tail -2 $R4/sampler_pm_$d.txt
+done
+
+if [ "${DCP:-0}" = 1 ]; then
 echo "### B open state keys"
 run research/pm_factors/dcp_open.py --dates $(echo $WANT | tr ' ' ',') --out $RF 2>&1 | tee $RF/dcp_open.txt | grep -E "stocks scored|Error|error:|^tables"
-python - <<'EOF' | tee $RF/keys.txt
-import gzip, json, re
-from pathlib import Path
-f = sorted(Path("/data/prod/h/HS300/p1_intrading_dcp").glob("202610*.jz"))[-1]
-d = json.loads(gzip.open(f).read())
-sid, kv = next(iter(d.items()))
-print(f"== {f.name} stock {sid}: keys of the open prefixes (histogram bins collapsed)")
-for p in ("zzvx", "zzba", "zzcb", "zztx", "zzgh", "zzhj"):
-    ks = sorted({re.sub(r"\.c\.\d+$", ".c.<n>", k) for k in kv if k.startswith(p + ".")})
-    print(f"{p}: {ks}")
-EOF
+fi
 
 echo "### C the engine: every solved rule as one event loop, day-end state against PM's .jz and the vectorized rebuild"
-RE=data/reports/engine
-mkdir -p $RE data/engine
 for d in $WANT; do
   jz=/data/prod/h/HS300/p1_intrading_dcp/$d.jz
   [ -f $jz ] || { echo "-- $d: no state file"; continue; }
-  run research/engine/run.py --date $d --universe pm:$jz --out data/engine 2>&1 | tail -1
-  run research/engine/verify.py --date $d --engine data/engine/engine_$d.json.gz --pm $jz --reference > $RE/verify_$d.txt 2>&1     && echo "  verified -> $RE/verify_$d.txt" || { echo "  verify failed:"; tail -3 $RE/verify_$d.txt; }
+  run research/engine/run.py --date $d --universe pm:$jz --out data/engine > $RE/run_$d.txt 2>&1; tail -1 $RE/run_$d.txt
+  run research/engine/verify.py --date $d --engine data/engine/engine_$d.json.gz --pm $jz --reference > $RE/verify_$d.txt 2>&1 \
+    && echo "  verified -> $RE/verify_$d.txt" || { echo "  verify failed:"; tail -3 $RE/verify_$d.txt; }
 done
 
 echo
 echo "########## SUMMARY (photograph from here) ##########"
-cat $R4/inventory.txt | tail -4
-grep -vE "^│ (---|str|f64|u32|i64)|^shape" $R4/profile.txt
+tail -2 $R4/inventory.txt
 sed -n '/^== PM column -> basic/,$p' $R4/basic_match.txt | grep -vE "^│ (---|str|f64|u32|i64)|^shape"
-sed -n '/^== families/,/^== per PM column/p' $R4/summary.txt | grep -vE "^│ (---|str|f64|u32|i64)|^shape"
-cat $RF/keys.txt
-sed -n '/^== zzba/,$p' $RF/dcp_open.txt | grep -vE "^│ (---|str|f64|u32|i64)|^shape"
+[ -f $R4/sampler_pm_$first.txt ] && grep -vE "^│ (---|str|f64|u32|i64)|^shape" $R4/sampler_pm_$first.txt
 for d in $WANT; do
-  [ -f $RE/verify_$d.txt ] && { echo "== engine $d"; grep -E "^PM |^== engine|^│ (zz|cdc)" $RE/verify_$d.txt | grep -vE "┆ 1.0000 ┆ 1.0000" | head -30; }
+  echo "== engine $d: $(tail -1 $RE/run_$d.txt 2>/dev/null | cut -c1-120)"
+  [ -f $RE/verify_$d.txt ] && grep -E "^PM |^== engine|^│ (zz|cdc)|Error|Traceback" $RE/verify_$d.txt | grep -vE "┆ 1.0000 ┆ 1.0000" | head -30
 done
