@@ -49,14 +49,16 @@ for d in $WANT; do
   [ -n "$prev" ] || { echo "-- $d: no earlier PM day for the size tiers, skipped"; continue; }
   thr=$H/ZZCR/$prev/samplerR.parquet
   echo "-- $d (size tiers: $thr)"
-  run research/pm_factors/candidates.py --dates $d --thr-file $thr --memory 16GB 2>&1 | tee $R4/candidates_$d.txt | grep -E "rows,|Error|error:|WARN"
+  run research/pm_factors/candidates.py --dates $d --thr-file $thr --memory 16GB > $R4/candidates_$d.txt 2>&1
+  grep -E "rows,|universe|WARN" $R4/candidates_$d.txt | head -20
+  grep -q "rows," $R4/candidates_$d.txt || { echo "  candidates failed:"; tail -3 $R4/candidates_$d.txt; continue; }
   for f in $(ls $H); do
     s=$(ls $H/$f/$d/sampler*.nc 2>/dev/null | head -1)
     [ -n "$s" ] || continue
     run research/compare_pm.py --pm $s --export $X/${f}_$d.parquet > $R4/export_${f}_$d.txt 2>&1 || { echo "export $f $d failed"; continue; }
     ours=; [ $f = ZZUG2 ] && ours="--ours /work/crucible_data/store/pm_factors/candidates/family=ZZUG"  # no candidates of its own yet
     run research/pm_factors/rank_candidates.py --family $f --pm $X/${f}_$d.parquet $ours --out $R4/${f}_$d.parquet > $R4/rank_${f}_$d.txt 2>&1 \
-      && echo "  $f: $(grep -m1 '^PM ' $R4/rank_${f}_$d.txt | cut -c1-150)" || echo "  $f: rank failed ($(tail -1 $R4/rank_${f}_$d.txt | cut -c1-120))"
+      && echo "  $f: $(grep -m1 '^PM ' $R4/rank_${f}_$d.txt | cut -c1-150)"       || { echo "  $f: rank failed ($(tail -1 $R4/rank_${f}_$d.txt | cut -c1-120))"; grep -E "^PM |^ours " $R4/rank_${f}_$d.txt | cut -c1-200; }
   done
 done
 run research/pm_factors/stage4_summary.py --reports $R4 2>&1 | tee $R4/summary.txt | tail -3

@@ -399,13 +399,17 @@ def main() -> None:
     fams = list(table) if a.families == "all" else [f.strip().upper() for f in a.families.split(",") if f.strip()]
     want = set().union(*(needs[f] for f in fams))
     for d in filter(None, a.dates.split(",")):
-        uni = ced_universe(a.index, d)  # CED on the intranet; the public cache otherwise
-        con.register("uni", uni if uni is not None else universe(a.index))
         if a.thr_file:
             thr, thr_day = pl.read_parquet(a.thr_file), d
             print(f"  size tiers from {a.thr_file}")
         else:
             thr, thr_day = thresholds(d, a.thr_variant)
+        uni = ced_universe(a.index, d)  # CED on the intranet; else PM's own stock list (the tiers file); else the public cache
+        if uni is None and a.thr_file:
+            uni = thr.select(pl.col("sid").cast(pl.Int32).alias("symbol_id"),
+                             pl.when(pl.col("sid") >= 600000).then(3553).otherwise(3554).cast(pl.Int16).alias("market_id"))
+            print(f"  universe: the {uni.height} stocks of {a.thr_file}")
+        con.register("uni", uni if uni is not None else universe(a.index))
         con.register("thr", thr)
         if "tr" in want:
             _trades_view(con, d, a.thr_variant)
