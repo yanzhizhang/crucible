@@ -3,7 +3,8 @@ r"""Stage 7: our own tk5m-style model on the reproduced state and tick features,
 Not PM's formulas one by one: the reproduced state rules plus generic tick quantities, turned into
 scale-free features at every 5-minute mark, a model fitted on some days and scored on the others.
 
-* **features** per (day, mark, stock): every generic tick quantity of ``ic_score.generic``
+* **features** per (day, mark, stock): the order-flow quantities of ``tick_flow`` (ticket-size buckets, new orders,
+  cancels, price impact, queue refill), every generic tick quantity of ``ic_score.generic``
   (returns 5 s - 30 min of mid / microprice / last, trade imbalance 10 s - 15 min, realized
   volatility, spread, book imbalance, position vs open / previous close / VWAP / range) and, from the
   5-minute state rebuild (``feature_intraday.rebuild``), each price-like EMA as log(price / EMA), each
@@ -23,6 +24,7 @@ scale-free features at every 5-minute mark, a model fitted on some days and scor
 
     python research/pm_factors/own_model.py --dates 20260922,20260923,20260924,20260929,20260930,20261009
     python research/pm_factors/own_model.py --dates all --out data/reports/stage7/all
+    python research/pm_factors/own_model.py --dates all --step 30 --workers 8 --cv walk --drop-dates 20260429,20260430 --out data/reports/stage7/dense
     python research/pm_factors/own_model.py --from-panel data/reports/stage7/all/panel.parquet --cv walk --out data/reports/stage7/walk
     python research/pm_factors/own_model.py --from-panel data/reports/stage7/all/panel.parquet --cv walk --drop-dates 20260429,20260430 --horizon 900
 """
@@ -45,6 +47,7 @@ import dcp_build as B  # catalog, state loader
 import dcp_ema as E  # tick loading and per-update arrays
 import feature_intraday as FI  # the 5-minute state rebuild
 import ic_score as IC  # marks, horizon, generic tick quantities, IC helpers
+import tick_flow as TF  # order-flow features
 
 PRICE_EMA = ("zzpk.p", "zzab2.r", "zzup.pf", "zzxu.p", "zzup.ps", "zzeb.p", "zzba.p", "zzqj.r")
 RANGE_EMA = ("zzxu.a", "zzvx.trEmaD", "zzba.r")
@@ -101,8 +104,9 @@ def universe(dcp: Path, d: str) -> tuple[list[int], float, str]:
     return sorted(B.load_state(near)["sid"].unique().to_list()), DEFAULT_STOP, f"{near.name} (universe only)"
 
 
-def build_day(con: duckdb.DuckDBPyConnection, d: str, dcp: Path) -> pl.DataFrame | None:
-    """One row per (mark, stock): features and the forward 5-minute mid return."""
+def build_day(con: duckdb.DuckDBPyConnection, d: str, dcp: Path, step: float = 300.0) -> pl.DataFrame | None:
+    """One row per (mark, stock): features and the forward 5-minute mid return; marks every step seconds from 09:35."""
+    marks = np.arange(300.0, 13801.0, step)
     sids, stop, src = universe(dcp, d)
     if not sids:
         print(f"skip {d}: no state file under {dcp} to fix the universe")
@@ -114,35 +118,47 @@ def build_day(con: duckdb.DuckDBPyConnection, d: str, dcp: Path) -> pl.DataFrame
         return None
     fast = {int(g["sid"][0]): g for g in up["fast"].partition_by("sid")}
     slow = {int(g["sid"][0]): g for g in up["slow"].partition_by("sid")}
+    orders = {int(g["sid"][0]): g for g in TF.load_orders(con, int(d), sids, stop).partition_by("sid")}
     rows = []
     for sid in sids:
-        gf, gs = fast.get(sid), slow.get(sid)
+        gf, gs, go = fast.get(sid), slow.get(sid), orders.get(sid)
         if gf is None or gf.height < 3:
             continue
         a = E.arrays(gf, "fast")
         ok = np.isfinite(a["mid"]) & (a["mid"] > 0)
-        m0 = FI.at_marks(a["t_local"][ok], a["mid"][ok], IC.MARKS)
-        m1 = FI.at_marks(a["t_local"][ok], a["mid"][ok], IC.MARKS + IC.HORIZON)
+        m0 = FI.at_marks(a["t_local"][ok], a["mid"][ok], marks)
+        m1 = FI.at_marks(a["t_local"][ok], a["mid"][ok], marks + IC.HORIZON)
         tb = a["t_local"]
         okb = np.isfinite(a["bid1"]) & np.isfinite(a["ask1"])
         quotes = {}  # executable prices now and after each holding period (x_ prefix: not a feature)
         for h in (0, *HOLDS):
-            quotes[f"x_bid{h}"] = FI.at_marks(tb[okb], a["bid1"][okb], IC.MARKS + h)
-            quotes[f"x_ask{h}"] = FI.at_marks(tb[okb], a["ask1"][okb], IC.MARKS + h)
-            quotes[f"x_mid{h}"] = FI.at_marks(tb[ok], a["mid"][ok], IC.MARKS + h)
-        px = FI.at_marks(a["t_local"][ok], a["mid"][ok], IC.MARKS)
-        feats = {f"gen.{k}": v for k, v in IC.generic(gf, gs).items()}
-        feats.update(state_features(FI.rebuild(gf, gs, IC.MARKS), px))
+            quotes[f"x_bid{h}"] = FI.at_marks(tb[okb], a["bid1"][okb], marks + h)
+            quotes[f"x_ask{h}"] = FI.at_marks(tb[okb], a["ask1"][okb], marks + h)
+            quotes[f"x_mid{h}"] = FI.at_marks(tb[ok], a["mid"][ok], marks + h)
+        px = FI.at_marks(a["t_local"][ok], a["mid"][ok], marks)
+        feats = {f"gen.{k}": v for k, v in IC.generic(gf, gs, marks).items()}
+        feats.update({f"flow.{k}": v for k, v in TF.flow(go, gs, gf, marks).items()})
+        feats.update(state_features(FI.rebuild(gf, gs, marks), px))
         with np.errstate(divide="ignore", invalid="ignore"):
             y = np.log(m1 / m0)
-        rows.append(pl.DataFrame({"date": int(d), "mark": np.arange(IC.MARKS.size), "sid": sid, "y": y, **quotes,
-                                  **{k: np.asarray(v, float) for k, v in feats.items()}}))
+        rows.append(pl.DataFrame({"date": int(d), "mark": np.arange(marks.size), "t": marks, "sid": sid, "y": y, **quotes,
+                                  **{k: np.asarray(v, np.float32) for k, v in feats.items()}}))
     return pl.concat(rows, how="diagonal_relaxed") if rows else None
+
+
+def build_job(job: tuple) -> tuple[str, pl.DataFrame | None]:
+    """build_day in a worker process (its own catalog connection)."""
+    d, dcp, step = job
+    con = duckdb.connect(str(B.CATALOG), read_only=True)
+    try:
+        return d, build_day(con, d, dcp, step)
+    finally:
+        con.close()
 
 
 def rank_by_mark(x: np.ndarray, grp: np.ndarray) -> np.ndarray:
     """Per-mark ranks scaled to [-0.5, 0.5]; NaN -> 0 (the middle)."""
-    out = np.zeros_like(x)
+    out = np.zeros(x.shape, np.float32)
     for g in np.unique(grp):
         m = grp == g
         for j in range(x.shape[1]):
@@ -172,7 +188,7 @@ def round_trips(panel: pl.DataFrame, h: int) -> tuple[np.ndarray, np.ndarray, np
     if f"x_mid{h}" not in panel.columns:
         return None
     q = {k: panel[k].to_numpy() for k in ("x_bid0", "x_ask0", "x_mid0", f"x_bid{h}", f"x_ask{h}", f"x_mid{h}")}
-    late = IC.MARKS[panel["mark"].to_numpy()] + h > END
+    late = panel["t"].to_numpy() + h > END
     with np.errstate(divide="ignore", invalid="ignore"):
         lt = (q[f"x_bid{h}"] / q["x_ask0"] - 1) * 1e4
         st = (q["x_bid0"] / q[f"x_ask{h}"] - 1) * 1e4
@@ -255,6 +271,9 @@ def main() -> None:
     ap.add_argument("--horizon", type=int, choices=HOLDS, default=300,
                     help="label: mid return over the next h seconds; above 300 it comes from the panel's x_mid<h>, only marks whose window ends by 14:57")
     ap.add_argument("--dcp-dir", type=Path, default=B.DCP)
+    ap.add_argument("--step", type=float, default=300.0, help="seconds between marks (30 = a dense panel, ~10x the rows)")
+    ap.add_argument("--workers", type=int, default=1, help="days built in parallel")
+    ap.add_argument("--threads", type=int, default=8, help="LightGBM threads")
     ap.add_argument("--ridge", type=float, default=50.0)
     ap.add_argument("--q", type=float, default=0.1, help="top / bottom share of stocks for the long-short check")
     ap.add_argument("--cost-bp", type=float, default=1.5, help="cost per side in bp for the decile check (rough)")
@@ -268,23 +287,30 @@ def main() -> None:
     days = []
     if args.from_panel:  # reuse a saved panel (features + labels + quotes) instead of rebuilding from ticks
         days = [pl.read_parquet(args.from_panel)]
+        if "t" not in days[0].columns:  # panels saved before the dense grid: 5-minute marks
+            days[0] = days[0].with_columns(pl.Series("t", IC.MARKS[days[0]["mark"].to_numpy()]))
         print(f"panel from {args.from_panel}: {days[0].height} rows")
     dates = [x.strip() for x in args.dates.split(",") if x.strip()]
     if dates == ["all"]:
         dates = [str(r[0]) for r in con.sql("SELECT DISTINCT date FROM raw_quotation ORDER BY 1").fetchall()]
         print(f"{len(dates)} days in raw_quotation: {dates[0]} .. {dates[-1]}")
-    for d in [] if args.from_panel else dates:
-        df = build_day(con, d, args.dcp_dir)
+    jobs = [(d, args.dcp_dir, args.step) for d in ([] if args.from_panel else dates)]
+    if args.workers > 1 and jobs:
+        from concurrent.futures import ProcessPoolExecutor
+        with ProcessPoolExecutor(args.workers) as ex:
+            built = list(ex.map(build_job, jobs))
+    else:
+        built = [(d, build_day(con, d, args.dcp_dir, args.step)) for d, _, _ in jobs]
+    for d, df in built:
         if df is not None:
             days.append(df)
-            print(f"{d}: {df.height} rows, {df.width - 4} features ({time.perf_counter() - t0:.0f}s)")
+            print(f"{d}: {df.height} rows, {df.width - 5} features ({time.perf_counter() - t0:.0f}s)")
     if not days or (len(days) < 2 and not args.from_panel):
         print("need at least two days")
         return
     panel = pl.concat(days, how="diagonal_relaxed")
     if args.horizon != 300:  # 15-minute label from the saved quotes, windows that end inside the continuous session
-        keep = np.flatnonzero(IC.MARKS + args.horizon <= END).tolist()
-        panel = panel.filter(pl.col("mark").is_in(keep)).with_columns((pl.col(f"x_mid{args.horizon}") / pl.col("x_mid0")).log().alias("y"))
+        panel = panel.filter(pl.col("t") + args.horizon <= END).with_columns((pl.col(f"x_mid{args.horizon}") / pl.col("x_mid0")).log().alias("y"))
     panel = panel.filter(pl.col("y").is_finite())
     big = panel.filter(pl.col("y").abs() > 0.03)  # a 300 bp move of an HS300 mid within the horizon: rare, or a data fault
     print(f"label check (horizon {args.horizon} s): rows with |y| > 300 bp per day")
@@ -299,13 +325,13 @@ def main() -> None:
     panel = panel.with_columns((pl.col("y") - pl.col("y").mean().over("date", "mark")).alias("y"))
     if not args.from_panel:
         panel.write_parquet(args.out / "panel.parquet")
-    feats = [c for c in panel.columns if c.startswith(("gen.", "st."))]
+    feats = [c for c in panel.columns if c.startswith(("gen.", "st.", "flow."))]
     feats = [c for c in feats if panel[c].is_finite().mean() > 0.5]
-    X = panel.select(feats).to_numpy().astype(float)
+    X = panel.select(feats).to_numpy().astype(np.float32)
     X[~np.isfinite(X)] = np.nan
     y = panel["y"].to_numpy()
     date = panel["date"].to_numpy()
-    grp = date * 100 + panel["mark"].to_numpy()
+    grp = date.astype(np.int64) * 100000 + panel["mark"].to_numpy()
     R = rank_by_mark(X, grp)
     print(f"panel: {panel.height} rows, {len(feats)} features ({time.perf_counter() - t0:.0f}s)")
     try:
@@ -324,7 +350,7 @@ def main() -> None:
         w = fit_ridge(R[tr], y[tr], args.ridge)
         preds["ridge"][te] = np.column_stack([np.ones(te.sum()), R[te]]) @ w
         if lgb:
-            m = lgb.train(LGB_PARAMS, lgb.Dataset(X[tr], y[tr]), LGB_ROUNDS)
+            m = lgb.train({**LGB_PARAMS, "num_threads": args.threads}, lgb.Dataset(X[tr], y[tr]), LGB_ROUNDS)
             preds["lgbm"][te] = m.predict(X[te])
             imp += m.feature_importance("gain")
     rows = []

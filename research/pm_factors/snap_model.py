@@ -1,6 +1,6 @@
 r"""Stage 8: our model scored on every snapshot, PM-style (a decision each time a stock's snapshot arrives, every 3-6 s).
 
-* **model**: LightGBM on the generic tick features (``gen.``) of own_model's 5-minute panel, walk-forward: the model
+* **model**: LightGBM on the generic tick and order-flow features (``gen.`` / ``flow.``) of own_model's panel, walk-forward: the model
   for day d is fitted on the panel days before d (the first ``--min-train`` days only train);
 * **scoring**: each test day, every stock at each of its own continuous-session snapshots (local arrival time, from
   09:35), the same features (``ic_score.generic`` at those times) -> the predicted next 5-minute relative return;
@@ -33,6 +33,7 @@ import dcp_ema as E  # tick loading and per-update arrays
 import feature_intraday as FI  # at_marks
 import ic_score as IC  # generic tick quantities
 import own_model as O  # universe, LightGBM settings, END
+import tick_flow as TF  # order-flow features
 
 try:
     from numba import njit
@@ -69,9 +70,10 @@ def score_day(job: tuple) -> str:
     up = E.load(con, int(d), sids, stop)
     fast = {int(g["sid"][0]): g for g in up["fast"].partition_by("sid")}
     slow = {int(g["sid"][0]): g for g in up["slow"].partition_by("sid")}
+    orders = {int(g["sid"][0]): g for g in TF.load_orders(con, int(d), sids, stop).partition_by("sid")}
     frames, Xs = [], []
     for sid in sids:
-        gf, gs = fast.get(sid), slow.get(sid)
+        gf, gs, go = fast.get(sid), slow.get(sid), orders.get(sid)
         if gf is None or gf.height < 3:
             continue
         a = E.arrays(gf, "fast")
@@ -82,8 +84,9 @@ def score_day(job: tuple) -> str:
         T = np.unique(t[dec & (t >= 300)])
         if T.size == 0:
             continue
-        g = IC.generic(gf, gs, T)
-        Xs.append(np.column_stack([np.asarray(g.get(f.removeprefix("gen."), np.full(T.size, np.nan)), float) for f in feats]))
+        g = {f"gen.{k}": v for k, v in IC.generic(gf, gs, T).items()}
+        g.update({f"flow.{k}": v for k, v in TF.flow(go, gs, gf, T).items()})
+        Xs.append(np.column_stack([np.asarray(g.get(f, np.full(T.size, np.nan)), np.float32) for f in feats]))
         ok = np.isfinite(a["mid"]) & (a["mid"] > 0)
         okb = np.isfinite(a["bid1"]) & np.isfinite(a["ask1"])
         cols = {"sid": np.full(T.size, sid), "t": T}
@@ -155,19 +158,19 @@ def main() -> None:
     targets = [int(x) for x in args.targets.split(",")]
     fee = 2 * (args.commission_bp + args.other_bp) + args.stamp_bp
     panel = pl.read_parquet(args.panel)
-    feats = [c for c in panel.columns if c.startswith("gen.") and panel[c].is_finite().mean() > 0.5]
+    feats = [c for c in panel.columns if c.startswith(("gen.", "flow.")) and panel[c].is_finite().mean() > 0.5]
     days = sorted(panel["date"].unique().to_list())
     test = days[args.min_train:]
-    print(f"panel {panel.height} rows, {len(feats)} gen. features, {len(days)} days; test {test[0]} .. {test[-1]}; fee {fee:g} bp a round trip")
+    print(f"panel {panel.height} rows, {len(feats)} features, {len(days)} days; test {test[0]} .. {test[-1]}; fee {fee:g} bp a round trip")
 
     jobs = []
     for d in test:
         if args.reuse and (args.out / f"snap_{d}.parquet").exists():
             continue
         tr = panel.filter(pl.col("date") < d)
-        X = tr.select(feats).to_numpy().astype(float)
+        X = tr.select(feats).to_numpy().astype(np.float32)
         X[~np.isfinite(X)] = np.nan
-        m = lgb.train(O.LGB_PARAMS, lgb.Dataset(X, tr["y"].to_numpy()), O.LGB_ROUNDS)
+        m = lgb.train({**O.LGB_PARAMS, "num_threads": args.workers * args.threads}, lgb.Dataset(X, tr["y"].to_numpy()), O.LGB_ROUNDS)
         jobs.append((str(d), m.model_to_string(), feats, holds, args.out, args.dcp_dir, args.threads))
     print(f"{len(jobs)} models fitted ({time.perf_counter() - t0:.0f}s)")
     with ProcessPoolExecutor(args.workers) as ex:

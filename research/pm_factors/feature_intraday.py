@@ -57,14 +57,27 @@ def ema_at(a: dict, x: str, half: float, marks: np.ndarray) -> np.ndarray:
     t, v = a["t_local"], a[x]
     ok = np.isfinite(v)
     t, v = t[ok], v[ok]
+    if t.size == 0:
+        return np.full(marks.size, np.nan)
     lam = np.log(2) / half
-    out = np.full(marks.size, np.nan)
-    for i, (m, k) in enumerate(zip(marks, np.searchsorted(t, marks, side="right"), strict=True)):
-        if k:
-            lo = np.searchsorted(t, m - 60 / lam)  # older updates weigh < e^-60
-            e = np.exp(-(m - t[lo:k]) * lam)
-            out[i] = (e * v[lo:k]).sum() / e.sum()
-    return out
+    # running decayed sums s (values) and w (weights) after each update, in blocks short enough for exp not to overflow;
+    # the ratio s / w does not change between updates, so the EMA at a mark is the ratio after the last update before it
+    s, w = np.empty(t.size), np.empty(t.size)
+    span = 600.0 / lam
+    cs = cw = 0.0
+    i = 0
+    while i < t.size:
+        j = np.searchsorted(t, t[i] + span, side="right")
+        e = np.exp((t[i:j] - t[i]) * lam)
+        d = np.exp(-(t[i:j] - t[i]) * lam)
+        s[i:j] = (cs + np.cumsum(v[i:j] * e)) * d
+        w[i:j] = (cw + np.cumsum(e)) * d
+        if j < t.size:
+            dec = np.exp(-(t[j] - t[i]) * lam)
+            cs, cw = s[j - 1] / d[-1] * dec, w[j - 1] / d[-1] * dec
+        i = j
+    k = np.searchsorted(t, marks, side="right") - 1
+    return np.where(k >= 0, s[np.clip(k, 0, None)] / w[np.clip(k, 0, None)], np.nan)
 
 
 def at_marks(t: np.ndarray, v: np.ndarray, marks: np.ndarray) -> np.ndarray:
