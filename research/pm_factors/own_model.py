@@ -9,7 +9,8 @@ scale-free features at every 5-minute mark, a model fitted on some days and scor
   5-minute state rebuild (``feature_intraday.rebuild``), each price-like EMA as log(price / EMA), each
   range EMA over price, the return EMAs, log(day high / price), log(price / day low),
   log(snapshot high / price), PM's 10 s grid return and the cumulative amount imbalance;
-* **label**: the next 5-minute mid log return, demeaned across stocks at each mark;
+* **label**: the next 5-minute mid log return (``--horizon 900``: 15 minutes, from the saved quotes),
+  demeaned across stocks at each mark; rows with a move over 300 bp are listed first (a data check);
 * **models**: ridge on per-mark ranks (numpy, always) and LightGBM when importable;
 * **validation**: leave-one-day-out (``--cv lodo``) -- each day is predicted by a model fitted on the
   other days -- or walk-forward (``--cv walk``) -- only on the days before it; per day the mean
@@ -23,6 +24,7 @@ scale-free features at every 5-minute mark, a model fitted on some days and scor
     python research/pm_factors/own_model.py --dates 20260922,20260923,20260924,20260929,20260930,20261009
     python research/pm_factors/own_model.py --dates all --out data/reports/stage7/all
     python research/pm_factors/own_model.py --from-panel data/reports/stage7/all/panel.parquet --cv walk --out data/reports/stage7/walk
+    python research/pm_factors/own_model.py --from-panel data/reports/stage7/all/panel.parquet --cv walk --drop-dates 20260429,20260430 --horizon 900
 """
 
 from __future__ import annotations
@@ -232,6 +234,9 @@ def main() -> None:
                     help="lodo: each day predicted from all other days; walk: only from earlier days (needs --min-train)")
     ap.add_argument("--min-train", type=int, default=5, help="walk: days needed before the first predicted day")
     ap.add_argument("--from-panel", type=Path, help="reuse panel.parquet from an earlier run (must hold the x_ quote columns)")
+    ap.add_argument("--drop-dates", default="", help="comma list of days left out of the model (after the label check)")
+    ap.add_argument("--horizon", type=int, choices=(300, 900), default=300,
+                    help="label: next 5 or 15 minutes of mid return; 900 uses the panel's x_mid900 and only marks whose window ends by 14:57")
     ap.add_argument("--dcp-dir", type=Path, default=B.DCP)
     ap.add_argument("--ridge", type=float, default=50.0)
     ap.add_argument("--q", type=float, default=0.1, help="top / bottom share of stocks for the long-short check")
@@ -259,9 +264,24 @@ def main() -> None:
     if not days or (len(days) < 2 and not args.from_panel):
         print("need at least two days")
         return
-    panel = pl.concat(days, how="diagonal_relaxed").filter(pl.col("y").is_finite())
+    panel = pl.concat(days, how="diagonal_relaxed")
+    if args.horizon != 300:  # 15-minute label from the saved quotes, windows that end inside the continuous session
+        keep = np.flatnonzero(IC.MARKS + args.horizon <= 14220).tolist()
+        panel = panel.filter(pl.col("mark").is_in(keep)).with_columns((pl.col(f"x_mid{args.horizon}") / pl.col("x_mid0")).log().alias("y"))
+    panel = panel.filter(pl.col("y").is_finite())
+    big = panel.filter(pl.col("y").abs() > 0.03)  # a 300 bp move of an HS300 mid within the horizon: rare, or a data fault
+    print(f"label check (horizon {args.horizon} s): rows with |y| > 300 bp per day")
+    with pl.Config(tbl_rows=40, tbl_cols=-1, tbl_width_chars=200, float_precision=4):
+        print(big.group_by("date").agg(pl.len().alias("n"), (pl.col("y").abs().max() * 1e4).alias("max_bp")).sort("date"))
+        print(big.sort(pl.col("y").abs(), descending=True).select("date", "sid", "mark", "y", "x_bid0", "x_ask0", "x_mid0",
+                                                                  f"x_mid{args.horizon}").head(8))
+    drop = [int(x) for x in args.drop_dates.split(",") if x.strip()]
+    if drop:
+        panel = panel.filter(~pl.col("date").is_in(drop))
+        print(f"dropped days {drop}: {panel.height} rows left")
     panel = panel.with_columns((pl.col("y") - pl.col("y").mean().over("date", "mark")).alias("y"))
-    panel.write_parquet(args.out / "panel.parquet")
+    if not args.from_panel:
+        panel.write_parquet(args.out / "panel.parquet")
     feats = [c for c in panel.columns if c.startswith(("gen.", "st."))]
     feats = [c for c in feats if panel[c].is_finite().mean() > 0.5]
     X = panel.select(feats).to_numpy().astype(float)
@@ -314,7 +334,8 @@ def main() -> None:
     t0_rows = t0_backtest(panel, preds, grp, args.commission_bp, args.stamp_bp)
     res.write_csv(args.out / "own_model_days.csv")
     with pl.Config(tbl_rows=60, tbl_cols=-1, tbl_width_chars=200, float_precision=4):
-        print(f"\n== out of sample ({args.cv}), per day (ls_bp_side: top-minus-bottom decile 5-minute return per side, bp; net after --cost-bp)")
+        print(f"\n== out of sample ({args.cv}, horizon {args.horizon} s), per day (ls_bp_side: top-minus-bottom decile return per side, bp;"
+              " net after --cost-bp)")
         print(res.sort("model", "date"))
         print(res.group_by("model").agg(pl.col("ic").mean(), pl.col("ls_bp_side").mean(), pl.col("net_bp_side").mean()))
         if lgb:
