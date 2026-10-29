@@ -148,6 +148,7 @@ def decode_day(
     threads: int,
     overwrite: bool,
     mem_budget: int,
+    keep_going: bool = False,
 ) -> int:
     """Decode every minute file of ``kinds`` under ``root``; return total rows."""
     total = 0
@@ -157,6 +158,13 @@ def decode_day(
         held = budget.acquire(f.stat().st_size * MEM_PER_COMPRESSED_BYTE)
         try:
             return _decode_one(kind, f, d, overwrite)
+        except Exception as e:  # --keep-going: a corrupt dump becomes a manifest row with its error, not a crash
+            if not keep_going:
+                raise
+            m = _MINUTE.search(f.name)
+            return {"file": f.name, "minute": m.group(4) + m.group(5) if m else "", "bytes": f.stat().st_size, "rows": 0,
+                    "n_truncated_books": 0, "exchange_ts_min": None, "exchange_ts_max": None, "arrival_ts_min": None,
+                    "arrival_ts_max": None, "skipped": False, "error": f"{type(e).__name__}: {e}"[:300]}
         finally:
             budget.release(held)
 
@@ -165,7 +173,8 @@ def decode_day(
         day_dir = src_dir / f"{date[:4]}_{date[4:6]}_{date[6:]}"  # multi-day dump: one folder per day
         tag = f"_{date[:4]}_{date[4:6]}_{date[6:]}_"
         found = ([f for f in day_dir.glob(f"v3_{kind}_*.zst") if tag in f.name]
-                 or [f for f in src_dir.glob(f"v3_{kind}_*.zst") if tag in f.name or _MINUTE.search(f.name)]
+                 or [f for f in src_dir.glob(f"v3_{kind}_*.zst") if tag in f.name]  # flat folder holding several days
+                 or [f for f in src_dir.glob(f"v3_{kind}_*.zst") if _MINUTE.search(f.name)]
                  or [f for f in root.glob(f"v3_{kind}_*.zst") if _DAYFILE.search(f.name) and tag in f.name + "_"])
         # Largest first: the open-of-day files dominate, so start them early to cut the tail.
         files = sorted(found, key=lambda f: -f.stat().st_size)
@@ -184,6 +193,8 @@ def decode_day(
         assert mon.stats is not None
         print(mon.stats.line())
         append_history(mon.stats, out.parent / "bench" / "history.parquet")
+        for r in rows:
+            r.setdefault("error", None)
         pa_rows = pa.Table.from_pylist(rows)
         pq.write_table(pa_rows, dst_dir / "_manifest.parquet")
         total += mon.rows
@@ -200,6 +211,7 @@ def main() -> None:
     ap.add_argument("--kinds", default=",".join(KINDS))
     ap.add_argument("--threads", type=int, default=12)
     ap.add_argument("--overwrite", action="store_true")
+    ap.add_argument("--keep-going", action="store_true", help="a file that fails to decode is listed in the manifest's error column")
     ap.add_argument(
         "--mem-frac",
         type=float,
@@ -221,6 +233,7 @@ def main() -> None:
         threads=a.threads,
         overwrite=a.overwrite,
         mem_budget=mem_budget,
+        keep_going=a.keep_going,
     )
     print(f"done {a.date}: {n:,} rows")
 
