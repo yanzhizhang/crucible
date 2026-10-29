@@ -3,7 +3,9 @@
 #   A. Stage 4 for real: PM's sampler files of every family on the days we hold ticks for -- export (every sampler*.nc of
 #      the folder), our candidate formulas (size tiers = PM's own ZZCR samplerR of the previous PM day; reused when
 #      already built, REUSE=0 rebuilds), each PM file routed to the candidate family its COLUMNS match (stage4_route),
-#      rank_candidates per file and day, a value profile of PM's columns on the first day, one summary;
+#      rank_candidates per file and day, a value profile of PM's columns on the first day, one summary; then the
+#      basics table (basics.py: every plain tick quantity per stock-minute) and every PM column scored against every basic
+#      (basic_match.py) -- the generic answer to "what is this column";
 #   B. Stage 4f: the six open day-end state keys against fresh candidates (dcp_open.py), plus the raw key names of the
 #      prefixes still open (zzvx / zzba / zzcb / zztx) for one stock, so a key we look for under the wrong name shows.
 # Foreground; logs under data/reports/stage4 and stage4f. DAYS = the days to run (default: the SZSE-reference days
@@ -63,6 +65,11 @@ for d in $WANT; do
     grep -q "rows," $R4/candidates_$d.txt || { echo "  candidates failed:"; tail -3 $R4/candidates_$d.txt; continue; }
   fi
   [ -n "$first" ] || first=$d
+  if [ "$REUSE" = 1 ] && [ -f /work/crucible_data/store/pm_factors/basics/date=$d/m1.parquet ]; then
+    echo "  basics already built, reused"
+  else
+    run research/pm_factors/basics.py --dates $d --thr-file $thr --memory 16GB 2>&1 | grep -E "stock-minutes|Error|error:" | tail -2
+  fi
   for f in $(ls $H); do
     for s in $(ls $H/$f/$d/sampler*.nc 2>/dev/null); do
       tag=$f; [ "$(basename $s)" = samplerS.nc ] || tag=${f}$(basename $s .nc | sed 's/^sampler//')  # ZZDS has sampler.nc and samplerS.nc
@@ -77,6 +84,9 @@ for d in $WANT; do
 done
 [ -n "$first" ] && run research/pm_factors/stage4_profile.py --exports $X --date $first > $R4/profile.txt 2>&1
 run research/pm_factors/stage4_summary.py --reports $R4 2>&1 | tee $R4/summary.txt | tail -3
+echo "### A2 every PM column against every basic quantity (basic_match)"
+run research/pm_factors/basic_match.py --dates $(echo $WANT | tr ' ' ',') --exports $X --out $R4/basic_match.csv > $R4/basic_match.txt 2>&1
+grep -E "^[0-9]{8} |^table|Error|error:" $R4/basic_match.txt | tail -5
 
 echo "### B open state keys"
 run research/pm_factors/dcp_open.py --dates $(echo $WANT | tr ' ' ',') --out $RF 2>&1 | tee $RF/dcp_open.txt | grep -E "stocks scored|Error|error:|^tables"
@@ -96,6 +106,7 @@ echo
 echo "########## SUMMARY (photograph from here) ##########"
 cat $R4/inventory.txt | tail -4
 grep -vE "^│ (---|str|f64|u32|i64)|^shape" $R4/profile.txt
-sed -n '/^== families/,$p' $R4/summary.txt | grep -vE "^│ (---|str|f64|u32|i64)|^shape"
+sed -n '/^== PM column -> basic/,$p' $R4/basic_match.txt | grep -vE "^│ (---|str|f64|u32|i64)|^shape"
+sed -n '/^== families/,/^== per PM column/p' $R4/summary.txt | grep -vE "^│ (---|str|f64|u32|i64)|^shape"
 cat $RF/keys.txt
 sed -n '/^== zzba/,$p' $RF/dcp_open.txt | grep -vE "^│ (---|str|f64|u32|i64)|^shape"
