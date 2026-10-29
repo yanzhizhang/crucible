@@ -11,7 +11,7 @@
 # that PM's hstats tree also has; DAYS=all for every overlap day).
 set -u
 cd /work/crucible
-CPUS=${CPUS:-32}
+CPUS=${CPUS:-64}
 ALL=$(nproc --all); [ $CPUS -gt $ALL ] && CPUS=$ALL
 DAYS=${DAYS:-20260923,20260924,20260929,20260930,20261009}
 REUSE=${REUSE:-1}
@@ -54,11 +54,13 @@ WANT=$(cat $R4/days.txt)
 tiers() { local prev; prev=$(ls $H/ZZCR | grep -E '^[0-9]{8}$' | awk -v d=$1 '$1 < d' | tail -1); [ -n "$prev" ] && echo $H/ZZCR/$prev/samplerR.parquet; }
 
 echo "### A1a basics for every overlap day (basic_match's blends need the days before each PM day)"
+todo=
 for d in $(cat $R4/overlap.txt); do
-  thr=$(tiers $d); [ -n "$thr" ] || continue
+  [ -n "$(tiers $d)" ] || continue
   [ "$REUSE" = 1 ] && [ -f $BS/date=$d/m1.parquet ] && continue
-  run research/pm_factors/basics.py --dates $d --thr-file $thr --memory 16GB 2>&1 | grep -E "stock-minutes|Error|error:" | tail -1
+  todo="$todo,$d"
 done
+[ -n "$todo" ] && run research/pm_factors/basics.py --dates ${todo#,} --thr-dir $H/ZZCR --workers $((CPUS / 4)) --threads 4 --memory 8GB 2>&1 | grep -E "stock-minutes|Error|error:|Traceback"
 
 echo "### A1 export PM sampler files, candidates with PM's ZZCR tiers of the previous PM day, rank per file (routed by columns)"
 first=
@@ -91,7 +93,7 @@ done
 run research/pm_factors/stage4_summary.py --reports $R4 2>&1 | tee $R4/summary.txt | tail -3
 
 echo "### A2 every PM column against every basic quantity, same day / day before / multi-day blends (basic_match)"
-run research/pm_factors/basic_match.py --dates $(echo $WANT | tr ' ' ',') --exports $X --out $R4/basic_match.csv > $R4/basic_match.txt 2>&1
+POLARS_MAX_THREADS=4 run research/pm_factors/basic_match.py --dates $(echo $WANT | tr ' ' ',') --exports $X --workers $((CPUS / 4)) --out $R4/basic_match.csv > $R4/basic_match.txt 2>&1
 grep -E "^[0-9]{8} |^table|Error|error:|nothing joined" $R4/basic_match.txt | tail -8
 echo "### A3 size-like samplerS columns against PM's own samplerR quantiles (sampler_pm)"
 for d in $WANT; do
@@ -107,7 +109,7 @@ echo "### C the engine: every solved rule as one event loop, day-end state again
 for d in $WANT; do
   jz=/data/prod/h/HS300/p1_intrading_dcp/$d.jz
   [ -f $jz ] || { echo "-- $d: no state file"; continue; }
-  run research/engine/run.py --date $d --universe pm:$jz --out data/engine > $RE/run_$d.txt 2>&1; tail -1 $RE/run_$d.txt
+  run research/engine/run.py --date $d --universe pm:$jz --workers $((CPUS / 2)) --out data/engine > $RE/run_$d.txt 2>&1; tail -1 $RE/run_$d.txt
   run research/engine/verify.py --date $d --engine data/engine/engine_$d.json.gz --pm $jz --reference > $RE/verify_$d.txt 2>&1 \
     && echo "  verified -> $RE/verify_$d.txt" || { echo "  verify failed:"; tail -3 $RE/verify_$d.txt; }
 done

@@ -44,6 +44,17 @@ def run_day(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop: fl
     return out
 
 
+def run_chunk(args: tuple) -> dict[int, dict[str, float]]:
+    """Run run_day for a chunk of stocks on its own catalog connection (a worker process)."""
+    catalog, date, sids, stop = args
+    con = duckdb.connect(str(catalog), read_only=True)
+    con.execute("SET threads=2")
+    try:
+        return run_day(con, date, sids, stop)
+    finally:
+        con.close()
+
+
 def main() -> None:
     """CLI entry point."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
@@ -51,6 +62,7 @@ def main() -> None:
     ap.add_argument("--universe", required=True, help="pm:<state .jz> | thr:<samplerR parquet> | all")
     ap.add_argument("--stop", type=float, help="local second of day PM stopped at (default: from the state file, else 15:02:30)")
     ap.add_argument("--catalog", type=Path, default=CATALOG)
+    ap.add_argument("--workers", type=int, default=1, help="stock chunks run in parallel")
     ap.add_argument("--out", type=Path, default=Path("data/engine"))
     a = ap.parse_args()
     t0 = time.perf_counter()
@@ -65,7 +77,15 @@ def main() -> None:
     else:
         sids = [int(r[0]) for r in con.sql(f"SELECT DISTINCT symbol_id FROM raw_quotation WHERE date = {int(a.date)} ORDER BY 1").fetchall()]
     stop = stop or DEFAULT_STOP
-    state = run_day(con, int(a.date), sids, stop)
+    if a.workers > 1:
+        import multiprocessing as mp
+        chunks = [sids[i::a.workers * 2] for i in range(a.workers * 2)]
+        state = {}
+        with mp.get_context("spawn").Pool(a.workers) as pool:
+            for part in pool.imap_unordered(run_chunk, [(a.catalog, int(a.date), c, stop) for c in chunks if c]):
+                state.update(part)
+    else:
+        state = run_day(con, int(a.date), sids, stop)
     a.out.mkdir(parents=True, exist_ok=True)
     dst = a.out / f"engine_{a.date}.json.gz"
     with gzip.open(dst, "wt") as f:

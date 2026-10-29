@@ -159,31 +159,61 @@ def aggregate(m1: pl.DataFrame, step: int | None) -> pl.DataFrame:
     return out.with_columns(pl.when(pl.col("minute") > 900).then(900).otherwise(pl.col("minute")).alias("minute")) if step else out
 
 
+def build_day(d: str, index: str, thr_file: Path | None, memory: str, out: Path, threads: int) -> str:
+    """Build one day's basics tables (its own catalog connection, so days can run in parallel)."""
+    con = duckdb.connect(str(CATALOG), read_only=True)
+    con.execute(f"SET memory_limit='{memory}'")
+    con.execute(f"SET threads={threads}")
+    uni = ced_universe(index, d)
+    if uni is None and thr_file:
+        thr = pl.read_parquet(thr_file)
+        uni = thr.select(pl.col("sid").cast(pl.Int32).alias("symbol_id"),
+                         pl.when(pl.col("sid") >= 600000).then(3553).otherwise(3554).cast(pl.Int16).alias("market_id"))
+    con.register("uni", uni if uni is not None else universe(index))
+    m1 = minute_table(con, d)
+    dst = out / f"date={d}"
+    dst.mkdir(parents=True, exist_ok=True)
+    m1.write_parquet(dst / "m1.parquet")
+    aggregate(m1, 5).write_parquet(dst / "m5.parquet")
+    aggregate(m1, None).write_parquet(dst / "d1.parquet")
+    con.close()
+    return f"{d}: {m1.height:,} stock-minutes, {m1.width - 2} basics -> {dst}"
+
+
+def _job(args: tuple) -> str:
+    return build_day(*args)
+
+
 def main() -> None:
     """CLI entry point."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--dates", required=True)
     ap.add_argument("--index", default="000300")
-    ap.add_argument("--thr-file", type=Path, help="PM's samplerR: its sid column is the universe when CED lacks the day")
-    ap.add_argument("--memory", default="16GB")
+    ap.add_argument("--thr-file", type=Path, help="PM's samplerR: its sid column is the universe when CED lacks the day (one file for every date)")
+    ap.add_argument("--thr-dir", type=Path, help="PM's ZZCR folder: each date takes the samplerR of the latest earlier PM day")
+    ap.add_argument("--memory", default="8GB", help="per worker")
+    ap.add_argument("--workers", type=int, default=1, help="days built in parallel")
+    ap.add_argument("--threads", type=int, default=4, help="DuckDB threads per worker")
     ap.add_argument("--out", type=Path, default=OUT)
     a = ap.parse_args()
-    con = duckdb.connect(str(CATALOG), read_only=True)
-    con.execute(f"SET memory_limit='{a.memory}'")
-    for d in filter(None, a.dates.split(",")):
-        uni = ced_universe(a.index, d)
-        if uni is None and a.thr_file:
-            thr = pl.read_parquet(a.thr_file)
-            uni = thr.select(pl.col("sid").cast(pl.Int32).alias("symbol_id"),
-                             pl.when(pl.col("sid") >= 600000).then(3553).otherwise(3554).cast(pl.Int16).alias("market_id"))
-        con.register("uni", uni if uni is not None else universe(a.index))
-        m1 = minute_table(con, d)
-        dst = a.out / f"date={d}"
-        dst.mkdir(parents=True, exist_ok=True)
-        m1.write_parquet(dst / "m1.parquet")
-        aggregate(m1, 5).write_parquet(dst / "m5.parquet")
-        aggregate(m1, None).write_parquet(dst / "d1.parquet")
-        print(f"{d}: {m1.height:,} stock-minutes, {m1.width - 2} basics -> {dst}")
+    dates = [d for d in a.dates.split(",") if d]
+    pm_days = sorted(p.name for p in a.thr_dir.iterdir() if p.name.isdigit()) if a.thr_dir else []
+
+    def thr_of(d: str) -> Path | None:
+        if a.thr_dir:
+            prev = [x for x in pm_days if x < d]
+            return a.thr_dir / prev[-1] / "samplerR.parquet" if prev else None
+        return a.thr_file
+
+    jobs = [(d, a.index, thr_of(d), a.memory, a.out, a.threads) for d in dates]
+    if a.workers > 1:
+        import multiprocessing as mp
+        with mp.get_context("spawn").Pool(a.workers) as pool:
+            for msg in pool.imap_unordered(_job, jobs):
+                print(msg, flush=True)
+    else:
+        for job in jobs:
+            print(build_day(*job), flush=True)
 
 
 if __name__ == "__main__":

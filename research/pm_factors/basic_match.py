@@ -60,6 +60,57 @@ def blend_table(parts: list[tuple[pl.DataFrame, float]]) -> pl.DataFrame:
          / pl.col("_w").filter(pl.col(c).is_not_null() & pl.col(c).is_not_nan()).sum() for c in cols])
 
 
+def match_file(f: Path, d: str, days: list[str], basics_dir: Path) -> list[pl.DataFrame]:
+    """Score one PM export: every (blend, shift, basic), the basics unpivoted once and one group_by per (blend, shift)."""
+    cache: dict[tuple[str, str], pl.DataFrame | None] = {}
+
+    def table_of(day: str, table: str) -> pl.DataFrame | None:
+        if (day, table) not in cache:
+            g = basics_dir / f"date={day}" / f"{table}.parquet"
+            cache[(day, table)] = (pl.read_parquet(g).rename({"symbol_id": "code"})
+                                   .with_columns(pl.col("code").cast(pl.Int64), pl.col("minute").cast(pl.Int64))) if g.exists() else None
+        return cache[(day, table)]
+
+    rows: list[pl.DataFrame] = []
+    pm, vals, kind = pm_frame(f, None, None, None, None, None)
+    pm = pm.with_columns(pl.lit(int(d)).alias("date"))  # the folder's day, whatever the file's D coordinate says
+    step = 1
+    if kind == "time":
+        step = int(pm.select(pl.col("minute").unique().sort().diff().drop_nulls().min()).item() or 1)
+        table = "m5" if step >= 5 else "m1"
+    elif kind == "daily":
+        table = "d1"
+    else:
+        print(f"{f.name}: I kind {kind} not handled")
+        return rows
+    name = f.stem.rsplit("_", 1)[0]
+    for blend, parts in blends(days, d).items():
+        frames = [(t, w) for day, w in parts if (t := table_of(day, table)) is not None]
+        if len(frames) < len(parts):
+            continue
+        ours = blend_table(frames).with_columns(pl.lit(int(d)).alias("date"))
+        basics = [c for c in ours.columns if c not in ("code", "minute", "date")]
+        long = ours.unpivot(index=["code", "minute", "date"], on=basics, variable_name="basic", value_name="ours")
+        for sh in ((0, step, -step) if kind == "time" else (0,)):
+            p = pm.with_columns(pl.col("minute") + sh) if kind == "time" else pm
+            keys = ["code", "date", "minute"] if kind == "time" else ["code", "date"]
+            j = p.join(long if kind != "daily" else long.drop("minute"), on=keys)
+            if j.height == 0:
+                print(f"  {f.stem}: nothing joined for blend {blend} shift {sh} (pm codes {pm['code'].min()}..{pm['code'].max()}, "
+                      f"ours {ours['code'].min()}..{ours['code'].max()}, pm minutes {pm['minute'].min()}..{pm['minute'].max()})")
+                continue
+            for c in vals:
+                r = score(j, c, ["V", "basic"], within=kind == "time")
+                rows.append(r.with_columns(pl.lit(name).alias("file"), pl.lit(c).alias("value_col"), pl.lit(sh).alias("shift"),
+                                           pl.lit(blend).alias("blend"), pl.lit(d).alias("day")))
+    print(f"{d} {name}: {kind}, {len(vals)} value columns, {pm['V'].n_unique()} V, blends {list(blends(days, d))}", flush=True)
+    return rows
+
+
+def _job(args: tuple) -> list[pl.DataFrame]:
+    return match_file(*args)
+
+
 def main() -> None:
     """CLI entry point."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
@@ -67,54 +118,21 @@ def main() -> None:
     ap.add_argument("--exports", type=Path, default=Path("data/pm_export"))
     ap.add_argument("--basics", type=Path, default=BASICS)
     ap.add_argument("--top", type=int, default=4)
+    ap.add_argument("--workers", type=int, default=1, help="(day, file) pairs scored in parallel")
     ap.add_argument("--out", type=Path, default=Path("data/reports/stage4/basic_match.csv"))
     a = ap.parse_args()
     dates = [x for x in a.dates.split(",") if x]
     days = sorted(p.name.split("=")[1] for p in a.basics.glob("date=*"))
-    cache: dict[tuple[str, str], pl.DataFrame] = {}
-
-    def table_of(day: str, table: str) -> pl.DataFrame | None:
-        if (day, table) not in cache:
-            f = a.basics / f"date={day}" / f"{table}.parquet"
-            cache[(day, table)] = (pl.read_parquet(f).rename({"symbol_id": "code"})
-                                   .with_columns(pl.col("code").cast(pl.Int64), pl.col("minute").cast(pl.Int64))) if f.exists() else None
-        return cache[(day, table)]
-
-    rows = []
-    for d in dates:
-        for f in sorted(a.exports.glob(f"*_{d}.parquet")):
-            pm, vals, kind = pm_frame(f, None, None, None, None, None)
-            pm = pm.with_columns(pl.lit(int(d)).alias("date"))  # the folder's day, whatever the file's D coordinate says
-            step = 1
-            if kind == "time":
-                step = int(pm.select(pl.col("minute").unique().sort().diff().drop_nulls().min()).item() or 1)
-                table = "m5" if step >= 5 else "m1"
-            elif kind == "daily":
-                table = "d1"
-            else:
-                print(f"{f.name}: I kind {kind} not handled")
-                continue
-            for blend, parts in blends(days, d).items():
-                frames = [(t, w) for day, w in parts if (t := table_of(day, table)) is not None]
-                if len(frames) < len(parts):
-                    continue
-                ours = blend_table(frames).with_columns(pl.lit(int(d)).alias("date"))
-                basics = [c for c in ours.columns if c not in ("code", "minute", "date")]
-                for sh in ((0, step, -step) if kind == "time" else (0,)):
-                    p = pm.with_columns(pl.col("minute") + sh) if kind == "time" else pm
-                    keys = ["code", "date", "minute"] if kind == "time" else ["code", "date"]
-                    j = p.join(ours if kind != "daily" else ours.drop("minute"), on=keys)
-                    if j.height == 0:
-                        print(f"  {f.stem}: nothing joined for blend {blend} shift {sh} (pm codes {pm['code'].min()}..{pm['code'].max()}, "
-                              f"ours {ours['code'].min()}..{ours['code'].max()}, pm minutes {pm['minute'].min()}..{pm['minute'].max()})")
-                        continue
-                    for c in vals:
-                        for bcol in basics:
-                            jj = j.select(pl.col(c), pl.col(bcol).alias("ours"), "code", "date", pl.col("V"))
-                            r = score(jj.with_columns(pl.lit(bcol).alias("basic")), c, ["V", "basic"], within=kind == "time")
-                            rows.append(r.with_columns(pl.lit(f.stem.rsplit("_", 1)[0]).alias("file"), pl.lit(c).alias("value_col"),
-                                                       pl.lit(sh).alias("shift"), pl.lit(blend).alias("blend"), pl.lit(d).alias("day")))
-            print(f"{d} {f.stem.rsplit('_', 1)[0]}: {kind}, {len(vals)} value columns, {pm['V'].n_unique()} V, blends {list(blends(days, d))}")
+    jobs = [(f, d, days, a.basics) for d in dates for f in sorted(a.exports.glob(f"*_{d}.parquet"))]
+    rows: list[pl.DataFrame] = []
+    if a.workers > 1:
+        import multiprocessing as mp
+        with mp.get_context("spawn").Pool(a.workers) as pool:
+            for r in pool.imap_unordered(_job, jobs):
+                rows += r
+    else:
+        for job in jobs:
+            rows += match_file(*job)
     if not rows:
         print("nothing scored")
         return
