@@ -21,9 +21,15 @@ def main() -> None:
     ap.add_argument("--reports", type=Path, default=Path("data/reports/stage4"))
     a = ap.parse_args()
     parts = []
-    for f in sorted(a.reports.glob("*.parquet")):
+    for f in sorted(a.reports.glob("ZZ*_[0-9]*.parquet")):  # this round's rank outputs only, not older diagnostics
         fam, _, day = f.stem.rpartition("_")
-        parts.append(pl.read_parquet(f).with_columns(pl.lit(fam).alias("family"), pl.lit(day).alias("day")))
+        if not day.isdigit():
+            continue
+        t = pl.read_parquet(f).with_columns(pl.lit(fam).alias("family"), pl.lit(day).alias("day"))
+        # one row per candidate variant per day: its best slot grid / shift
+        t = (t.sort("exact_scaled", "score", descending=[True, True], nulls_last=True)
+             .group_by("family", "day", "value_col", "V", "cand", "VV", maintain_order=True).first())
+        parts.append(t)
     if not parts:
         print(f"no rank_candidates output under {a.reports}")
         return

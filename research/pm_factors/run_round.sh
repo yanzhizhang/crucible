@@ -1,17 +1,22 @@
 #!/usr/bin/env bash
 # One round on 97, on CPUS cores (taskset + nice; libraries told the same budget):
-#   A. Stage 4 for real: PM's samplerS of every family on the days we hold ticks for -- export, our candidate formulas
-#      (size tiers from PM's own ZZCR samplerR of the previous PM day), rank_candidates per family and day, one summary;
-#   B. Stage 4f: the six open day-end state keys against fresh candidates (dcp_open.py).
+#   A. Stage 4 for real: PM's sampler files of every family on the days we hold ticks for -- export (every sampler*.nc of
+#      the folder), our candidate formulas (size tiers = PM's own ZZCR samplerR of the previous PM day; reused when
+#      already built, REUSE=0 rebuilds), each PM file routed to the candidate family its COLUMNS match (stage4_route),
+#      rank_candidates per file and day, a value profile of PM's columns on the first day, one summary;
+#   B. Stage 4f: the six open day-end state keys against fresh candidates (dcp_open.py), plus the raw key names of the
+#      prefixes still open (zzvx / zzba / zzcb / zztx) for one stock, so a key we look for under the wrong name shows.
 # Foreground; logs under data/reports/stage4 and stage4f. DAYS = the days to run (default: the SZSE-reference days
-# that PM's hstats tree also has; set DAYS=all for every overlap day).
+# that PM's hstats tree also has; DAYS=all for every overlap day).
 set -u
 cd /work/crucible
 CPUS=${CPUS:-32}
 ALL=$(nproc --all); [ $CPUS -gt $ALL ] && CPUS=$ALL
 DAYS=${DAYS:-20260923,20260924,20260929,20260930,20261009}
+REUSE=${REUSE:-1}
 export POLARS_MAX_THREADS=$CPUS OMP_NUM_THREADS=8 OPENBLAS_NUM_THREADS=8 MKL_NUM_THREADS=8
 H=/data/prod/hstats/HS300
+C=/work/crucible_data/store/pm_factors/candidates
 R4=data/reports/stage4
 RF=data/reports/stage4f
 X=data/pm_export
@@ -43,31 +48,54 @@ EOF
 WANT=$(cat $R4/days.txt)
 [ -n "$WANT" ] || { echo "no overlap day to run"; exit 1; }
 
-echo "### A1 export PM samplerS, candidates with PM's ZZCR tiers of the previous PM day, rank per family"
+echo "### A1 export PM sampler files, candidates with PM's ZZCR tiers of the previous PM day, rank per file (routed by columns)"
+first=
 for d in $WANT; do
   prev=$(ls $H/ZZCR | grep -E '^[0-9]{8}$' | awk -v d=$d '$1 < d' | tail -1)
   [ -n "$prev" ] || { echo "-- $d: no earlier PM day for the size tiers, skipped"; continue; }
   thr=$H/ZZCR/$prev/samplerR.parquet
   echo "-- $d (size tiers: $thr)"
-  run research/pm_factors/candidates.py --dates $d --thr-file $thr --memory 16GB > $R4/candidates_$d.txt 2>&1
-  grep -E "rows,|universe|WARN" $R4/candidates_$d.txt | head -20
-  grep -q "rows," $R4/candidates_$d.txt || { echo "  candidates failed:"; tail -3 $R4/candidates_$d.txt; continue; }
+  if [ "$REUSE" = 1 ] && [ -f $C/family=ZZXC/date=$d/part.parquet ] && [ -f $C/family=ZZCR/date=$d/part.parquet ]; then
+    echo "  candidates already built, reused"
+  else
+    run research/pm_factors/candidates.py --dates $d --thr-file $thr --memory 16GB > $R4/candidates_$d.txt 2>&1
+    grep -E "rows,|universe|WARN" $R4/candidates_$d.txt | head -20
+    grep -q "rows," $R4/candidates_$d.txt || { echo "  candidates failed:"; tail -3 $R4/candidates_$d.txt; continue; }
+  fi
+  [ -n "$first" ] || first=$d
   for f in $(ls $H); do
-    s=$(ls $H/$f/$d/sampler*.nc 2>/dev/null | head -1)
-    [ -n "$s" ] || continue
-    run research/compare_pm.py --pm $s --export $X/${f}_$d.parquet > $R4/export_${f}_$d.txt 2>&1 || { echo "export $f $d failed"; continue; }
-    ours=; [ $f = ZZUG2 ] && ours="--ours /work/crucible_data/store/pm_factors/candidates/family=ZZUG"  # no candidates of its own yet
-    run research/pm_factors/rank_candidates.py --family $f --pm $X/${f}_$d.parquet $ours --out $R4/${f}_$d.parquet > $R4/rank_${f}_$d.txt 2>&1 \
-      && echo "  $f: $(grep -m1 '^PM ' $R4/rank_${f}_$d.txt | cut -c1-150)"       || { echo "  $f: rank failed ($(tail -1 $R4/rank_${f}_$d.txt | cut -c1-120))"; grep -E "^PM |^ours " $R4/rank_${f}_$d.txt | cut -c1-200; }
+    for s in $(ls $H/$f/$d/sampler*.nc 2>/dev/null); do
+      tag=$f; [ "$(basename $s)" = samplerS.nc ] || tag=${f}$(basename $s .nc | sed 's/^sampler//')  # ZZDS has sampler.nc and samplerS.nc
+      run research/compare_pm.py --pm $s --export $X/${tag}_$d.parquet > $R4/export_${tag}_$d.txt 2>&1 || { echo "  export $tag $d failed"; continue; }
+      route=$(run research/pm_factors/stage4_route.py --pm $X/${tag}_$d.parquet --date $d)
+      [ -n "$route" ] || { echo "  $tag: no candidate family covers its columns"; continue; }
+      run research/pm_factors/rank_candidates.py --family $f --pm $X/${tag}_$d.parquet $route --dates $d --out $R4/${tag}_$d.parquet > $R4/rank_${tag}_$d.txt 2>&1 \
+        && echo "  $tag -> ${route#--ours */family=}: $(grep -m1 '^PM ' $R4/rank_${tag}_$d.txt | cut -c1-120)" \
+        || { echo "  $tag -> ${route#--ours */family=}: rank failed ($(tail -1 $R4/rank_${tag}_$d.txt | cut -c1-100))"; grep -E "^PM |^ours |^PM columns" $R4/rank_${tag}_$d.txt | cut -c1-200; }
+    done
   done
 done
+[ -n "$first" ] && run research/pm_factors/stage4_profile.py --exports $X --date $first > $R4/profile.txt 2>&1
 run research/pm_factors/stage4_summary.py --reports $R4 2>&1 | tee $R4/summary.txt | tail -3
 
 echo "### B open state keys"
 run research/pm_factors/dcp_open.py --dates $(echo $WANT | tr ' ' ',') --out $RF 2>&1 | tee $RF/dcp_open.txt | grep -E "stocks scored|Error|error:|^tables"
+python - <<'EOF' | tee $RF/keys.txt
+import gzip, json, re
+from pathlib import Path
+f = sorted(Path("/data/prod/h/HS300/p1_intrading_dcp").glob("202610*.jz"))[-1]
+d = json.loads(gzip.open(f).read())
+sid, kv = next(iter(d.items()))
+print(f"== {f.name} stock {sid}: keys of the open prefixes (histogram bins collapsed)")
+for p in ("zzvx", "zzba", "zzcb", "zztx", "zzgh", "zzhj"):
+    ks = sorted({re.sub(r"\.c\.\d+$", ".c.<n>", k) for k in kv if k.startswith(p + ".")})
+    print(f"{p}: {ks}")
+EOF
 
 echo
 echo "########## SUMMARY (photograph from here) ##########"
-cat $R4/inventory.txt
+cat $R4/inventory.txt | tail -4
+grep -vE "^│ (---|str|f64|u32|i64)|^shape" $R4/profile.txt
 sed -n '/^== families/,$p' $R4/summary.txt | grep -vE "^│ (---|str|f64|u32|i64)|^shape"
-sed -n '/^== zzcb.r/,$p' $RF/dcp_open.txt | grep -vE "^│ (---|str|f64|u32|i64)|^shape"
+cat $RF/keys.txt
+sed -n '/^== zzba/,$p' $RF/dcp_open.txt | grep -vE "^│ (---|str|f64|u32|i64)|^shape"

@@ -94,16 +94,16 @@ def pm_frame(path: Path, s: str | None, d: str | None, i: str | None, v: str | N
         *[pl.col(c).cast(pl.Float64) for c in vals],
     )
     it = out.schema["I"]
-    if it.is_temporal():
+    if out["I"].n_unique() == 1:  # one slot = a daily family, whatever the slot's type
+        out = out.with_columns(pl.lit(-1).alias("minute"))
+        kind = "daily"
+    elif it.is_temporal():
         out = out.with_columns((pl.col("I").dt.hour().cast(pl.Int32) * 60 + pl.col("I").dt.minute()).alias("minute"))
         kind = "time"
     elif it == pl.String and out["I"].str.contains(r"^\d{1,2}:\d{2}").all():
         hm = out["I"].str.extract_groups(r"^(\d{1,2}):(\d{2})")  # '09:30:00' -> 570
         out = out.with_columns((hm.struct.field("1").cast(pl.Int64) * 60 + hm.struct.field("2").cast(pl.Int64)).alias("minute"))
         kind = "time"
-    elif out["I"].n_unique() == 1:
-        out = out.with_columns(pl.lit(-1).alias("minute"))
-        kind = "daily"
     elif it.is_integer() and out["I"].min() >= 900 and out["I"].max() <= 1500:
         out = out.with_columns(((pl.col("I") // 100) * 60 + pl.col("I") % 100).alias("minute"))
         kind = "hhmm"
@@ -145,6 +145,7 @@ def main() -> None:
     ap.add_argument("--ours", type=Path, help="default: store/pm_factors/candidates/family=<F>")
     ap.add_argument("--s"), ap.add_argument("--d"), ap.add_argument("--i"), ap.add_argument("--v")
     ap.add_argument("--values", help="PM value columns, comma-separated (default: all numeric)")
+    ap.add_argument("--map", default="", help="rename our V to PM's, ours=pm comma-separated (e.g. c=qb,d=qa,cd=qab)")
     ap.add_argument("--dates", help="our dates to use when the PM file has no date dimension")
     ap.add_argument("--top", type=int, default=3)
     ap.add_argument("--out", type=Path)
@@ -157,6 +158,9 @@ def main() -> None:
         pl.col("sid").round(0).cast(pl.Int64).alias("code"), "date",
         pl.col("minute").cast(pl.Int64), "cand", pl.col("V").alias("VV"), pl.col("value").alias("ours"),
     ).with_columns(pl.col("VV").str.split("@").list.first().alias("V"))
+    if a.map:
+        ren = dict(kv.split("=") for kv in a.map.split(","))
+        ours = ours.with_columns(pl.col("V").replace(ren), pl.col("VV").str.replace(r"^[^@]+", pl.col("V").replace(ren)))
     has_date = "date" in pm.columns
     if not has_date:
         if not a.dates:
