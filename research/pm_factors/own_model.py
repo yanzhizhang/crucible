@@ -9,7 +9,7 @@ scale-free features at every 5-minute mark, a model fitted on some days and scor
   5-minute state rebuild (``feature_intraday.rebuild``), each price-like EMA as log(price / EMA), each
   range EMA over price, the return EMAs, log(day high / price), log(price / day low),
   log(snapshot high / price), PM's 10 s grid return and the cumulative amount imbalance;
-* **label**: the next 5-minute mid log return (``--horizon 900``: 15 minutes, from the saved quotes),
+* **label**: the next 5-minute mid log return (``--horizon`` 900 / 1800 / 3600 s: from the saved quotes),
   demeaned across stocks at each mark; rows with a move over 300 bp are listed first (a data check);
 * **models**: ridge on per-mark ranks (numpy, always) and LightGBM when importable;
 * **validation**: leave-one-day-out (``--cv lodo``) -- each day is predicted by a model fitted on the
@@ -123,7 +123,7 @@ def build_day(con: duckdb.DuckDBPyConnection, d: str, dcp: Path) -> pl.DataFrame
         tb = a["t_local"]
         okb = np.isfinite(a["bid1"]) & np.isfinite(a["ask1"])
         quotes = {}  # executable prices now and after each holding period (x_ prefix: not a feature)
-        for h in (0, 300, 900):
+        for h in (0, *HOLDS):
             quotes[f"x_bid{h}"] = FI.at_marks(tb[okb], a["bid1"][okb], IC.MARKS + h)
             quotes[f"x_ask{h}"] = FI.at_marks(tb[okb], a["ask1"][okb], IC.MARKS + h)
             quotes[f"x_mid{h}"] = FI.at_marks(tb[ok], a["mid"][ok], IC.MARKS + h)
@@ -160,10 +160,26 @@ def fit_ridge(X: np.ndarray, y: np.ndarray, lam: float) -> np.ndarray:
     return np.linalg.solve(Xa.T @ Xa + reg, Xa.T @ y)
 
 
+HOLDS = (300, 900, 1800, 3600)  # label horizons and holding periods, s of trading clock
+END = 14220  # 14:57 on the trading clock: a window ending later would run into the close auction
+
+
+def round_trips(panel: pl.DataFrame, h: int) -> tuple[np.ndarray, np.ndarray, np.ndarray] | None:
+    """Per row, bp: buy at the ask now and sell at the bid after h, sell base at the bid and buy back at the ask, and the mid return."""
+    if f"x_mid{h}" not in panel.columns:
+        return None
+    q = {k: panel[k].to_numpy() for k in ("x_bid0", "x_ask0", "x_mid0", f"x_bid{h}", f"x_ask{h}", f"x_mid{h}")}
+    late = IC.MARKS[panel["mark"].to_numpy()] + h > END
+    with np.errstate(divide="ignore", invalid="ignore"):
+        lt = (q[f"x_bid{h}"] / q["x_ask0"] - 1) * 1e4
+        st = (q["x_bid0"] / q[f"x_ask{h}"] - 1) * 1e4
+        lm = (q[f"x_mid{h}"] / q["x_mid0"] - 1) * 1e4
+    return tuple(np.where(late, np.nan, v) for v in (lt, st, lm))
+
+
 def t0_backtest(panel: pl.DataFrame, preds: dict[str, np.ndarray], grp: np.ndarray, comm: float, stamp: float) -> list[dict]:
     """Round trips on the strongest predictions: buy-then-sell on the top, sell-base-then-buy-back on the bottom."""
     out = []
-    q = {k: panel[k].to_numpy() for k in panel.columns if k.startswith("x_")}
     fee = 2 * comm + stamp
     for name, p in preds.items():
         rank = np.full(p.size, np.nan)
@@ -171,12 +187,11 @@ def t0_backtest(panel: pl.DataFrame, preds: dict[str, np.ndarray], grp: np.ndarr
             m = np.flatnonzero((grp == g) & np.isfinite(p))
             if m.size > 1:
                 rank[m] = np.argsort(np.argsort(p[m])) / (m.size - 1)
-        for h in (300, 900):
-            with np.errstate(divide="ignore", invalid="ignore"):
-                long_taker = (q[f"x_bid{h}"] / q["x_ask0"] - 1) * 1e4  # buy at the ask now, sell at the bid later
-                short_taker = (q["x_bid0"] / q[f"x_ask{h}"] - 1) * 1e4  # sell base at the bid now, buy back at the ask later
-                long_mid = (q[f"x_mid{h}"] / q["x_mid0"] - 1) * 1e4
-                short_mid = -long_mid
+        for h in HOLDS:
+            if (rt := round_trips(panel, h)) is None:
+                continue
+            long_taker, short_taker, long_mid = rt
+            short_mid = -long_mid
             for top in (0.01, 0.02, 0.05, 0.1):
                 lo, sh = rank >= 1 - top, rank <= top
                 for fill, lr, sr in (("taker", long_taker, short_taker), ("mid", long_mid, short_mid)):
@@ -205,11 +220,10 @@ def spread_backtest(panel: pl.DataFrame, preds: dict[str, np.ndarray], grp: np.n
             m = np.flatnonzero((grp == g) & np.isfinite(p))
             if m.size > 1:
                 rank[m] = np.argsort(np.argsort(p[m])) / (m.size - 1)
-        for h in (300, 900):
-            with np.errstate(divide="ignore", invalid="ignore"):
-                lt = (q[f"x_bid{h}"] / q["x_ask0"] - 1) * 1e4
-                st = (q["x_bid0"] / q[f"x_ask{h}"] - 1) * 1e4
-                lm = (q[f"x_mid{h}"] / q["x_mid0"] - 1) * 1e4
+        for h in HOLDS:
+            if (rt := round_trips(panel, h)) is None:
+                continue
+            lt, st, lm = rt
             # pays: the predicted move (y units -> bp) clears the spread plus the fixed costs
             rules = {"top5%": (rank >= 0.95, rank <= 0.05), "pays": (p * 1e4 > spr + fee, -p * 1e4 > spr + fee)}
             for rule, (lo, sh) in rules.items():
@@ -235,8 +249,8 @@ def main() -> None:
     ap.add_argument("--min-train", type=int, default=5, help="walk: days needed before the first predicted day")
     ap.add_argument("--from-panel", type=Path, help="reuse panel.parquet from an earlier run (must hold the x_ quote columns)")
     ap.add_argument("--drop-dates", default="", help="comma list of days left out of the model (after the label check)")
-    ap.add_argument("--horizon", type=int, choices=(300, 900), default=300,
-                    help="label: next 5 or 15 minutes of mid return; 900 uses the panel's x_mid900 and only marks whose window ends by 14:57")
+    ap.add_argument("--horizon", type=int, choices=HOLDS, default=300,
+                    help="label: mid return over the next h seconds; above 300 it comes from the panel's x_mid<h>, only marks whose window ends by 14:57")
     ap.add_argument("--dcp-dir", type=Path, default=B.DCP)
     ap.add_argument("--ridge", type=float, default=50.0)
     ap.add_argument("--q", type=float, default=0.1, help="top / bottom share of stocks for the long-short check")
@@ -266,7 +280,7 @@ def main() -> None:
         return
     panel = pl.concat(days, how="diagonal_relaxed")
     if args.horizon != 300:  # 15-minute label from the saved quotes, windows that end inside the continuous session
-        keep = np.flatnonzero(IC.MARKS + args.horizon <= 14220).tolist()
+        keep = np.flatnonzero(IC.MARKS + args.horizon <= END).tolist()
         panel = panel.filter(pl.col("mark").is_in(keep)).with_columns((pl.col(f"x_mid{args.horizon}") / pl.col("x_mid0")).log().alias("y"))
     panel = panel.filter(pl.col("y").is_finite())
     big = panel.filter(pl.col("y").abs() > 0.03)  # a 300 bp move of an HS300 mid within the horizon: rare, or a data fault
