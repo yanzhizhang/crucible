@@ -100,6 +100,10 @@ for d in $WANT; do
   run research/pm_factors/sampler_pm.py --date $d --hstats $H --exports $X --out $R4 > $R4/sampler_pm_$d.txt 2>&1 || tail -2 $R4/sampler_pm_$d.txt
 done
 
+echo "### A4 half-life scan of the cross-day EMA behind the profile-like columns (profile_fit)"
+run research/pm_factors/profile_fit.py --dates all --exports $X --out $R4/profile_fit.csv > $R4/profile_fit.txt 2>&1 || tail -3 $R4/profile_fit.txt
+grep -E "^test days|Error|Traceback" $R4/profile_fit.txt | head -3
+
 if [ "${DCP:-0}" = 1 ]; then
 echo "### B open state keys"
 run research/pm_factors/dcp_open.py --dates $(echo $WANT | tr ' ' ',') --out $RF 2>&1 | tee $RF/dcp_open.txt | grep -E "stocks scored|Error|error:|^tables"
@@ -118,8 +122,9 @@ echo
 echo "########## SUMMARY (photograph from here) ##########"
 tail -2 $R4/inventory.txt
 sed -n '/^== PM column -> basic/,$p' $R4/basic_match.txt | grep -vE "^│ (---|str|f64|u32|i64)|^shape"
-[ -f $R4/sampler_pm_$first.txt ] && grep -vE "^│ (---|str|f64|u32|i64)|^shape" $R4/sampler_pm_$first.txt
+sed -n '/^== half-life scan/,$p' $R4/profile_fit.txt | grep -vE "^│ (---|str|f64|u32|i64|bool)|^shape"
+grep -E "daily:" $R4/basic_match.txt | head -8
 for d in $WANT; do
   echo "== engine $d: $(tail -1 $RE/run_$d.txt 2>/dev/null | cut -c1-120)"
-  [ -f $RE/verify_$d.txt ] && grep -E "^PM |^== engine|^│ (zz|cdc)|Error|Traceback" $RE/verify_$d.txt | grep -vE "┆ 1.0000 ┆ 1.0000" | head -30
+  [ -f $RE/verify_$d.txt ] && grep -E "^PM |^== engine vs PM|^│ (zz|cdc)|Error|Traceback" $RE/verify_$d.txt | grep -vE "┆ 1.0000 ┆ 1.0000 ┆ 1.0000 ┆ 1.0000" | sed -n '1,/^== engine vs vec/p' | head -40
 done

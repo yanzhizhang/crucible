@@ -20,6 +20,12 @@ EMAS: dict[str, tuple[str, float, str]] = {
     "zzbd.pEmaS": ("snap", 100, "logp"), "zzeb.p": ("snap", 100, "mid"), "zzbd.rEmaS": ("snap", 200, "logret"),
     "zzba.p": ("snap", 240, "price"), "zzba.r": ("snap", 300, "tr_open"),
     "zzbd.pEmaT": ("trade", 100, "logp"), "zzbd.rEmaT": ("trade", 200, "logret"), "zzqj.r": ("trade", 30, "rvwap"),
+    # variants: "<pm key>|<tag>" is scored against the PM key next to the rule above (verify strips the tag)
+    "zzba.p|t240": ("trade", 240, "price"), "zzba.p|t300": ("trade", 300, "price"), "zzba.r|t300": ("trade", 300, "hl"),
+    "zzvx.rEmaD|valid": ("snap", 30, "hl_valid"), "zzvx.rEmaO|valid": ("snap", 30, "hl_valid"),
+    "zzvx.trEmaD|z": ("snap", 30, "hl0"), "zzvx.trEmaO|z": ("snap", 30, "hl0"), "zzvx.trDEmaD|z": ("snap", 30, "hl0"),
+    "zzvx.trDEmaO|z": ("snap", 30, "hl0"), "zzxu.a|z": ("snap", 300, "hl0"),
+    "zzup.ps|s900": ("snap", 900, "price"), "zzup.ps|s1200": ("snap", 1200, "price"),
 }
 
 
@@ -37,6 +43,11 @@ def snap_value(st: Stock, what: str) -> float:
         return _log(st.snap_px)
     if what == "hl":
         return st.hi_f - st.lo_f
+    if what == "hl0":  # a missing range counts as 0 (and the update still carries weight)
+        v = st.hi_f - st.lo_f
+        return v if v == v else 0.0
+    if what == "hl_valid":  # indicator: this snapshot had a range
+        return 1.0 if st.hi_f - st.lo_f == st.hi_f - st.lo_f else 0.0
     if what == "tr_open":
         return max(st.hi_f, st.op) - min(st.lo_f, st.op)
     if what == "logret":
@@ -48,6 +59,10 @@ def snap_value(st: Stock, what: str) -> float:
 
 def trade_value(st: Stock, what: str) -> float:
     """Value of a trade-clock average's input from the state just updated by the trade."""
+    if what == "price":
+        return st.trade_px
+    if what == "hl":
+        return st.high - st.low
     if what == "logp":
         return _log(st.trade_px)
     if what == "logret":

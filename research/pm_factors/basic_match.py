@@ -41,11 +41,11 @@ def blends(days: list[str], d: str) -> dict[str, list[tuple[str, float]]]:
             out[f"m{n}"] = [(x, 1.0) for x in prev[-n:]]
     if d in days and len(prev) >= 2:
         out["m3i"] = [(x, 1.0) for x in [*prev[-2:], d]]
-    for h in (2, 5):
+    for h in (2, 5, 10, 20):
         if len(prev) >= 3:
-            out[f"e{h}"] = [(x, 0.5 ** ((k - 1) / h)) for k, x in enumerate(reversed(prev[-10:]), start=1)]
+            out[f"e{h}"] = [(x, 0.5 ** ((k - 1) / h)) for k, x in enumerate(reversed(prev[-40:]), start=1)]
             if d in days:
-                out[f"e{h}i"] = [(d, 1.0), *[(x, 0.5 ** (k / h)) for k, x in enumerate(reversed(prev[-10:]), start=1)]]
+                out[f"e{h}i"] = [(d, 1.0), *[(x, 0.5 ** (k / h)) for k, x in enumerate(reversed(prev[-40:]), start=1)]]
     return out
 
 
@@ -84,6 +84,11 @@ def match_file(f: Path, d: str, days: list[str], basics_dir: Path) -> list[pl.Da
         print(f"{f.name}: I kind {kind} not handled")
         return rows
     name = f.stem.rsplit("_", 1)[0]
+    if kind == "daily":
+        t0 = table_of(d, "d1")
+        print(f"  {name} {d} daily: pm {pm.height} rows, codes {pm['code'].min()}..{pm['code'].max()} ({pm['code'].n_unique()} distinct), "
+              f"V {sorted(pm['V'].unique().to_list())}; d1 {None if t0 is None else t0.height} rows, "
+              f"codes {None if t0 is None else (t0['code'].min(), t0['code'].max())}", flush=True)
     for blend, parts in blends(days, d).items():
         frames = [(t, w) for day, w in parts if (t := table_of(day, table)) is not None]
         if len(frames) < len(parts):

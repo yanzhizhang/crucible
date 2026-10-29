@@ -115,22 +115,26 @@ def compare(ours: dict[int, dict[str, float]], ref: dict[int, dict[str, float]],
             continue
         ov = values(kv)
         for k, v in ov.items():
-            r = rv.get(k)
-            if r is None:
+            base, _, tag = k.partition("|")  # "<pm key>|<variant>" is scored against the PM key
+            r = rv.get(base)
+            if r is None or (tag and k.endswith(".t")):  # a variant's clock says nothing new
                 continue
-            fam = BIN.sub(r"\1.<n>", k)
+            fam = BIN.sub(r"\1.<n>", base) + (f"|{tag}" if tag else "")
             tol = 0.01 if k.endswith(".t") else max(1e-6, 1e-9 * abs(r))
-            ok = (math.isnan(v) and math.isnan(r)) or abs(v - r) <= tol
-            rows.append({"key": fam, "sid": sid, "szse": mkt.get(sid) == 3554, "ok": ok, "ours": v, "ref": r})
+            both_nan = math.isnan(v) and math.isnan(r)
+            ok = both_nan or abs(v - r) <= tol
+            ok4 = both_nan or abs(v - r) <= max(1e-4 * abs(r), 1e-6)
+            rows.append({"key": fam, "sid": sid, "szse": mkt.get(sid) == 3554, "ok": ok, "ok4": ok4, "ours": v, "ref": r})
     if not rows:
         print(f"{label}: nothing to compare")
         return
     t = pl.DataFrame(rows)
     agg = (t.group_by("key").agg(pl.len().alias("n"), pl.col("ok").mean().alias("all"), pl.col("ok").filter(pl.col("szse")).mean().alias("SZSE"),
+                                 pl.col("ok4").mean().alias("all_1e4"), pl.col("ok4").filter(pl.col("szse")).mean().alias("SZSE_1e4"),
                                  ((pl.col("ours") - pl.col("ref")).abs() / pl.col("ref").abs()).median().alias("mre"))
            .sort("all", "key"))
     with pl.Config(tbl_rows=200, tbl_width_chars=160, float_precision=4):
-        print(f"\n== engine vs {label}: share of stocks (bins) equal, worst first")
+        print(f"\n== engine vs {label}: share of stocks (bins) equal at 1e-6 and at 1e-4, worst first")
         print(agg)
 
 
