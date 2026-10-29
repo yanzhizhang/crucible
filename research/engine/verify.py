@@ -118,7 +118,7 @@ def compare(ours: dict[int, dict[str, float]], ref: dict[int, dict[str, float]],
             r = rv.get(k)
             if r is None:
                 continue
-            fam = BIN.sub(r"\1.c.<n>", k)
+            fam = BIN.sub(r"\1.<n>", k)
             tol = 0.01 if k.endswith(".t") else max(1e-6, 1e-9 * abs(r))
             ok = (math.isnan(v) and math.isnan(r)) or abs(v - r) <= tol
             rows.append({"key": fam, "sid": sid, "szse": mkt.get(sid) == 3554, "ok": ok, "ours": v, "ref": r})
