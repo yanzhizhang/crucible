@@ -6,6 +6,7 @@
 #      rank_candidates per file and day, a value profile of PM's columns on the first day, one summary; then the
 #      basics table (basics.py: every plain tick quantity per stock-minute) and every PM column scored against every basic
 #      (basic_match.py) -- the generic answer to "what is this column";
+#   C. the engine (research/engine): run + verify against PM's .jz and the vectorized rebuild, the keys not at 1.0 listed;
 #   B. Stage 4f: the six open day-end state keys against fresh candidates (dcp_open.py), plus the raw key names of the
 #      prefixes still open (zzvx / zzba / zzcb / zztx) for one stock, so a key we look for under the wrong name shows.
 # Foreground; logs under data/reports/stage4 and stage4f. DAYS = the days to run (default: the SZSE-reference days
@@ -102,6 +103,16 @@ for p in ("zzvx", "zzba", "zzcb", "zztx", "zzgh", "zzhj"):
     print(f"{p}: {ks}")
 EOF
 
+echo "### C the engine: every solved rule as one event loop, day-end state against PM's .jz and the vectorized rebuild"
+RE=data/reports/engine
+mkdir -p $RE data/engine
+for d in $WANT; do
+  jz=/data/prod/h/HS300/p1_intrading_dcp/$d.jz
+  [ -f $jz ] || { echo "-- $d: no state file"; continue; }
+  run research/engine/run.py --date $d --universe pm:$jz --out data/engine 2>&1 | tail -1
+  run research/engine/verify.py --date $d --engine data/engine/engine_$d.json.gz --pm $jz --reference > $RE/verify_$d.txt 2>&1     && echo "  verified -> $RE/verify_$d.txt" || { echo "  verify failed:"; tail -3 $RE/verify_$d.txt; }
+done
+
 echo
 echo "########## SUMMARY (photograph from here) ##########"
 cat $R4/inventory.txt | tail -4
@@ -110,3 +121,6 @@ sed -n '/^== PM column -> basic/,$p' $R4/basic_match.txt | grep -vE "^│ (---|s
 sed -n '/^== families/,/^== per PM column/p' $R4/summary.txt | grep -vE "^│ (---|str|f64|u32|i64)|^shape"
 cat $RF/keys.txt
 sed -n '/^== zzba/,$p' $RF/dcp_open.txt | grep -vE "^│ (---|str|f64|u32|i64)|^shape"
+for d in $WANT; do
+  [ -f $RE/verify_$d.txt ] && { echo "== engine $d"; grep -E "^PM |^== engine|^│ (zz|cdc)" $RE/verify_$d.txt | grep -vE "┆ 1.0000 ┆ 1.0000" | head -30; }
+done
