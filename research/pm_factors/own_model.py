@@ -82,6 +82,9 @@ def state_features(built: dict[str, np.ndarray], px: np.ndarray) -> dict[str, np
 
 
 DEFAULT_STOP = 54150.005  # 15:02:30 local, PM's usual stop, for days without a state file
+LGB_PARAMS = {"objective": "regression", "learning_rate": 0.03, "num_leaves": 31, "min_data_in_leaf": 200,
+              "feature_fraction": 0.7, "bagging_fraction": 0.8, "bagging_freq": 1, "lambda_l2": 10.0, "verbose": -1}
+LGB_ROUNDS = 300
 
 
 def universe(dcp: Path, d: str) -> tuple[list[int], float, str]:
@@ -321,9 +324,7 @@ def main() -> None:
         w = fit_ridge(R[tr], y[tr], args.ridge)
         preds["ridge"][te] = np.column_stack([np.ones(te.sum()), R[te]]) @ w
         if lgb:
-            m = lgb.train({"objective": "regression", "learning_rate": 0.03, "num_leaves": 31, "min_data_in_leaf": 200,
-                           "feature_fraction": 0.7, "bagging_fraction": 0.8, "bagging_freq": 1, "lambda_l2": 10.0, "verbose": -1},
-                          lgb.Dataset(X[tr], y[tr]), 300)
+            m = lgb.train(LGB_PARAMS, lgb.Dataset(X[tr], y[tr]), LGB_ROUNDS)
             preds["lgbm"][te] = m.predict(X[te])
             imp += m.feature_importance("gain")
     rows = []

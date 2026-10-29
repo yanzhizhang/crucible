@@ -126,10 +126,9 @@ def predict(models: list, X: np.ndarray) -> np.ndarray:
     return np.mean([m.predict(X) for m in models], axis=0)
 
 
-def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None) -> dict[str, np.ndarray]:
-    """Tick quantities at each mark for features whose family keeps no state: returns, imbalances, volatility, book."""
+def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None, T: np.ndarray = MARKS) -> dict[str, np.ndarray]:
+    """Tick quantities at each time of T (default: the 5-minute marks) for stateless families: returns, imbalances, volatility, book."""
     out: dict[str, np.ndarray] = {}
-    T = MARKS
     if gf is not None and gf.height > 2:
         a = E.arrays(gf, "fast")
         t, mid = a["t_local"], a["mid"]
