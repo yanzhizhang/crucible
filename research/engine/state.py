@@ -90,8 +90,13 @@ class SlotSum:
 class Stock:
     """Everything the engine keeps for one stock during the day."""
 
-    def __init__(self, emas: dict[str, tuple[str, float, str]]) -> None:
+    def __init__(self, emas: dict[str, tuple[str, float, str]], prev: dict[str, float] | None = None) -> None:
         self.ema = {p: (Ema(half), clock, what) for p, (clock, half, what) in emas.items()}
+        for p, (e, _, _) in self.ema.items():  # "<key>|c<N>": carry yesterday's sum / wgt, decayed by N seconds
+            base, _, tag = p.partition("|")
+            if prev and tag.startswith("c") and tag[1:].isdigit() and prev.get(f"{base}.wgt"):
+                d = math.exp(-float(tag[1:]) * e.k)
+                e.s, e.w = prev[f"{base}.sum"] * d, prev[f"{base}.wgt"] * d
         self.high = self.low = self.open = self.last = math.nan  # trades, auctions included
         self.vol = self.amt = 0.0  # from 09:30 exchange time, close auction included
         self.buy = self.sell = 0.0  # continuous-session amounts for zzgh.nb

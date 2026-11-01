@@ -93,6 +93,54 @@ def main() -> None:
                                      "rho": float(jn.select(pl.corr("x", "v", method="spearman")).item()), "within": float(w.drop_nans().drop_nulls().mean()),
                                      "k": float(np.exp(np.median(lr))), "lr_iqr": float(np.quantile(lr, 0.75) - np.quantile(lr, 0.25))})
             print(f"{fam} {V} ~ {basic} on {d}: {len(hist)} days of history", flush=True)
+    # one-step update: PM's value of day d from its own value of the previous PM day and our quantity -- no history needed
+    steps = []
+    for fam, V, basic in pairs:
+        for d in dates:
+            prevs = [x for x in pm_days if x < d and (a.exports / f"{fam}_{x}.parquet").exists()]
+            f = a.exports / f"{fam}_{d}.parquet"
+            if not prevs or not f.exists():
+                continue
+            dp = prevs[-1]
+            pm, vals, kind = pm_frame(f, None, None, None, None, None)
+            if kind != "time":
+                continue
+            pm = pm.filter(pl.col("V") == V).select("code", "minute", pl.col(vals[0]).alias("x"))
+            pmp, valsp, _ = pm_frame(a.exports / f"{fam}_{dp}.parquet", None, None, None, None, None)
+            pmp = pmp.filter(pl.col("V") == V).select("code", "minute", pl.col(valsp[0]).alias("xp"))
+            step = int(pm.select(pl.col("minute").unique().sort().diff().drop_nulls().min()).item() or 1)
+            tab = "m5" if step >= 5 else "m1"
+            for oday in (d, dp):
+                t_ = table(oday, tab)
+                if t_ is None or basic not in t_.columns:
+                    continue
+                ours = t_.select("code", "minute", pl.col(basic).alias("v"))
+                for sh in (0, step, -step):
+                    jn = (pm.join(pmp, on=["code", "minute"]).with_columns(pl.col("minute") + sh).join(ours, on=["code", "minute"])
+                          .filter(pl.col("x").is_finite() & pl.col("xp").is_finite() & pl.col("v").is_finite()))
+                    if jn.height < 100:
+                        continue
+                    x, xp, v = (jn[c].to_numpy() for c in ("x", "xp", "v"))
+                    (a1, b1), *_ = np.linalg.lstsq(np.column_stack([xp, v]), x, rcond=None)
+                    r1 = x - a1 * xp - b1 * v
+                    (a2, b2, c2), *_ = np.linalg.lstsq(np.column_stack([xp, v, np.ones(x.size)]), x, rcond=None)
+                    r2_ = x - a2 * xp - b2 * v - c2
+                    sst = float(((x - x.mean()) ** 2).sum())
+                    steps.append({"file": fam, "V": V, "basic": basic, "day": d, "ours_day": "d" if oday == d else "d-1", "shift": sh, "n": x.size,
+                                  "a": float(a1), "b": float(b1), "r2": 1 - float((r1 ** 2).sum()) / sst,
+                                  "ok3": float(np.mean(np.abs(r1) <= 1e-3 * np.abs(x))), "a_c": float(a2), "b_c": float(b2), "c": float(c2),
+                                  "r2_c": 1 - float((r2_ ** 2).sum()) / sst, "ok3_c": float(np.mean(np.abs(r2_) <= 1e-3 * np.abs(x)))})
+    if steps:
+        st = pl.DataFrame(steps)
+        sagg = (st.group_by("file", "V", "basic", "ours_day", "shift").agg(pl.len().alias("days"), pl.col("a").median(), pl.col("a").std().alias("a_sd"),
+                                                                        pl.col("b").median(), pl.col("r2").mean(), pl.col("ok3").mean(),
+                                                                        pl.col("a_c").median(), pl.col("b_c").median(), pl.col("c").median(),
+                                                                        pl.col("r2_c").mean(), pl.col("ok3_c").mean())
+                .sort("file", "V", "basic", "r2", descending=[False, False, False, True]))
+        sagg.write_csv(a.out.with_name("profile_step.csv"))
+        with pl.Config(tbl_rows=300, tbl_cols=-1, tbl_width_chars=220, float_precision=3):
+            print("\n== one-step fit: pm_d = a pm_prev + b ours (+ c); ok3 = share of cells within 1e-3; best 3 per column by r2")
+            print(sagg.group_by("file", "V", "basic", maintain_order=True).head(3))
     if not rows:
         print("nothing fitted")
         return

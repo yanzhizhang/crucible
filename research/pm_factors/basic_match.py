@@ -86,9 +86,10 @@ def match_file(f: Path, d: str, days: list[str], basics_dir: Path) -> list[pl.Da
     name = f.stem.rsplit("_", 1)[0]
     if kind == "daily":
         t0 = table_of(d, "d1")
+        fin = {c: round(float(t0[c].is_finite().mean()), 2) for c in ("vol", "atot_amt", "spread", "bno", "no_mean") if t0 is not None and c in t0.columns}
         print(f"  {name} {d} daily: pm {pm.height} rows, codes {pm['code'].min()}..{pm['code'].max()} ({pm['code'].n_unique()} distinct), "
-              f"V {sorted(pm['V'].unique().to_list())}; d1 {None if t0 is None else t0.height} rows, "
-              f"codes {None if t0 is None else (t0['code'].min(), t0['code'].max())}", flush=True)
+              f"V {sorted(pm['V'].unique().to_list())}, finite {float(pm[vals[0]].is_finite().mean()):.2f}; d1 {None if t0 is None else t0.height} rows, "
+              f"finite {fin}", flush=True)
     for blend, parts in blends(days, d).items():
         frames = [(t, w) for day, w in parts if (t := table_of(day, table)) is not None]
         if len(frames) < len(parts):
@@ -146,7 +147,8 @@ def main() -> None:
                 pl.len().alias("days"), pl.col("n").sum(), pl.col("exact").mean(), pl.col("exact_scaled").mean(),
                 pl.col("ratio").median(), pl.col("spearman").mean(), pl.col("within").mean())
            .with_columns(pl.max_horizontal(pl.col("spearman").abs(), pl.col("within").abs().fill_null(0)).alias("score"))
-           .sort("file", "V", "exact_scaled", "score", descending=[False, False, True, True]))
+           .filter(pl.col("n") >= 50 * pl.col("days"))  # a row needs cells: a handful of zero-zero matches is not a match
+           .sort("file", "V", "exact_scaled", "score", descending=[False, False, True, True], nulls_last=True))
     agg.write_csv(a.out)
     best = agg.group_by("file", "value_col", "V", maintain_order=True).head(a.top)
     with pl.Config(tbl_rows=400, tbl_cols=-1, tbl_width_chars=220, float_precision=3):

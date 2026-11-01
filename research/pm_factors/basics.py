@@ -148,7 +148,7 @@ def aggregate(m1: pl.DataFrame, step: int | None) -> pl.DataFrame:
         if c in FLOW or c == "n_snap" or (stem in flow_pairs and c.endswith(("_sum", "_mean"))):
             agg.append(pl.col(c).sum().alias(c))
         elif c in state or c.startswith("cum_") or (stem is not None and stem not in flow_pairs and not c.endswith("_imb") and PAIRS[stem][0] in state):
-            agg.append(pl.col(c).last().alias(c))
+            agg.append(pl.col(c).drop_nulls().last().alias(c))
         elif c == "high":
             agg.append(pl.col(c).max().alias(c))
         elif c == "low":

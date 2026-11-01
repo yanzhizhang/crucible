@@ -30,11 +30,20 @@ DEFAULT_STOP = 54150.005  # 15:02:30 local
 CATALOG = Path("/work/crucible_data/catalog.duckdb")
 
 
-def run_day(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop: float) -> dict[int, dict[str, float]]:
+def load_prev(path: Path | None) -> dict[int, dict[str, float]]:
+    """Load the previous day's state (PM's .jz or an engine file): sid -> key -> value."""
+    if path is None:
+        return {}
+    with gzip.open(path) as f:
+        d = json.load(f)
+    return {int(s): {k: v for k, v in kv.items() if v is not None} for s, kv in d.items()}
+
+
+def run_day(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop: float, prev: dict[int, dict[str, float]] | None = None) -> dict[int, dict[str, float]]:
     """Every stock's day-end state."""
     out = {}
     for sid, _mkt, events in streams(con, date, sids, stop):
-        st = Stock(EMAS)
+        st = Stock(EMAS, (prev or {}).get(sid))
         for e in events:
             if e[0] == "snap":
                 on_snap(st, *e[1:12])
@@ -46,11 +55,11 @@ def run_day(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop: fl
 
 def run_chunk(args: tuple) -> dict[int, dict[str, float]]:
     """Run run_day for a chunk of stocks on its own catalog connection (a worker process)."""
-    catalog, date, sids, stop = args
+    catalog, date, sids, stop, prev = args
     con = duckdb.connect(str(catalog), read_only=True)
     con.execute("SET threads=2")
     try:
-        return run_day(con, date, sids, stop)
+        return run_day(con, date, sids, stop, load_prev(prev))
     finally:
         con.close()
 
@@ -63,6 +72,7 @@ def main() -> None:
     ap.add_argument("--stop", type=float, help="local second of day PM stopped at (default: from the state file, else 15:02:30)")
     ap.add_argument("--catalog", type=Path, default=CATALOG)
     ap.add_argument("--workers", type=int, default=1, help="stock chunks run in parallel")
+    ap.add_argument("--prev", type=Path, help="previous day's state (PM .jz or engine file) for the |c<N> carry variants")
     ap.add_argument("--out", type=Path, default=Path("data/engine"))
     a = ap.parse_args()
     t0 = time.perf_counter()
@@ -82,10 +92,10 @@ def main() -> None:
         chunks = [sids[i::a.workers * 2] for i in range(a.workers * 2)]
         state = {}
         with mp.get_context("spawn").Pool(a.workers) as pool:
-            for part in pool.imap_unordered(run_chunk, [(a.catalog, int(a.date), c, stop) for c in chunks if c]):
+            for part in pool.imap_unordered(run_chunk, [(a.catalog, int(a.date), c, stop, a.prev) for c in chunks if c]):
                 state.update(part)
     else:
-        state = run_day(con, int(a.date), sids, stop)
+        state = run_day(con, int(a.date), sids, stop, load_prev(a.prev))
     a.out.mkdir(parents=True, exist_ok=True)
     dst = a.out / f"engine_{a.date}.json.gz"
     with gzip.open(dst, "wt") as f:

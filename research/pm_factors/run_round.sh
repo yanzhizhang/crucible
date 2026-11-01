@@ -113,7 +113,8 @@ echo "### C the engine: every solved rule as one event loop, day-end state again
 for d in $WANT; do
   jz=/data/prod/h/HS300/p1_intrading_dcp/$d.jz
   [ -f $jz ] || { echo "-- $d: no state file"; continue; }
-  run research/engine/run.py --date $d --universe pm:$jz --workers $((CPUS / 2)) --out data/engine > $RE/run_$d.txt 2>&1; tail -1 $RE/run_$d.txt
+  pjz=$(ls /data/prod/h/HS300/p1_intrading_dcp/ | grep -E '^[0-9]{8}\.jz$' | awk -v d=$d.jz '$1 < d' | tail -1)
+  run research/engine/run.py --date $d --universe pm:$jz --prev /data/prod/h/HS300/p1_intrading_dcp/$pjz --workers $((CPUS / 2)) --out data/engine > $RE/run_$d.txt 2>&1; tail -1 $RE/run_$d.txt
   run research/engine/verify.py --date $d --engine data/engine/engine_$d.json.gz --pm $jz --reference > $RE/verify_$d.txt 2>&1 \
     && echo "  verified -> $RE/verify_$d.txt" || { echo "  verify failed:"; tail -3 $RE/verify_$d.txt; }
 done
@@ -122,7 +123,7 @@ echo
 echo "########## SUMMARY (photograph from here) ##########"
 tail -2 $R4/inventory.txt
 sed -n '/^== PM column -> basic/,$p' $R4/basic_match.txt | grep -vE "^│ (---|str|f64|u32|i64)|^shape"
-sed -n '/^== half-life scan/,$p' $R4/profile_fit.txt | grep -vE "^│ (---|str|f64|u32|i64|bool)|^shape"
+sed -n '/^== one-step fit/,/^== half-life/p' $R4/profile_fit.txt | grep -vE "^│ (---|str|f64|u32|i64|bool)|^shape"
 grep -E "daily:" $R4/basic_match.txt | head -8
 for d in $WANT; do
   echo "== engine $d: $(tail -1 $RE/run_$d.txt 2>/dev/null | cut -c1-120)"

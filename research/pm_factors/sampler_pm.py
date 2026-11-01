@@ -30,14 +30,14 @@ def ac_long(path: Path) -> pl.DataFrame:
     d = pl.read_parquet(path)
     d = d.with_columns(pl.from_epoch(pl.col("rec_epoch").cast(pl.Int64), "s").dt.replace_time_zone("UTC").dt.convert_time_zone("Asia/Shanghai").alias("ts"))
     d = d.with_columns((pl.col("ts").dt.hour().cast(pl.Int64) * 60 + pl.col("ts").dt.minute()).alias("minute"), pl.col("sid").round(0).cast(pl.Int64).alias("code"))
-    cols = [c for c in d.columns if c[:3] in ("as.", "bs.")]
+    cols = [c for c in d.columns if c not in ("sid", "rec_epoch", "ts", "minute", "code") and d.schema[c].is_numeric()]
     return d.unpivot(index=["code", "minute"], on=cols, variable_name="col", value_name="r")
 
 
 def cr_long(path: Path) -> pl.DataFrame:
     """ZZCR samplerR -> (code, col, r)."""
     d = pl.read_parquet(path).with_columns(pl.col("sid").round(0).cast(pl.Int64).alias("code"))
-    cols = [c for c in d.columns if "." in c]
+    cols = [c for c in d.columns if c not in ("sid", "code") and d.schema[c].is_numeric()]
     return d.unpivot(index=["code"], on=cols, variable_name="col", value_name="r")
 
 
@@ -58,11 +58,14 @@ def main() -> None:
     ap.add_argument("--out", type=Path, default=Path("data/reports/stage4"))
     a = ap.parse_args()
     d = a.date
-    pm_days = sorted(p.name for p in (a.hstats / "ZZAC").iterdir() if p.name.isdigit())
+    pm_days = sorted({p.name for fam in a.hstats.iterdir() if fam.is_dir() for p in fam.iterdir() if p.name.isdigit()})
     nxt = [x for x in pm_days if x > d]
-    srcs = [("AC", d, a.hstats / "ZZAC" / d / "samplerR.parquet"), ("CR", d, a.hstats / "ZZCR" / d / "samplerR.parquet")]
-    if nxt:
-        srcs += [("AC", nxt[0], a.hstats / "ZZAC" / nxt[0] / "samplerR.parquet"), ("CR", nxt[0], a.hstats / "ZZCR" / nxt[0] / "samplerR.parquet")]
+    srcs = []
+    for day_r in [d, *nxt[:1]]:
+        for path in sorted(a.hstats.glob(f"*/{day_r}/samplerR.parquet")):
+            kind_r = "AC" if "rec_epoch" in pl.read_parquet_schema(path) else "CR"
+            srcs.append((kind_r, f"{path.parent.parent.name}/{day_r}", path))
+    print(f"samplerR sources: {[s for _, s, _ in srcs]}")
     rows = []
     for fam, vs in TARGETS.items():
         f = a.exports / f"{fam}_{d}.parquet"
@@ -75,7 +78,7 @@ def main() -> None:
                 continue
             if kind_r == "CR":
                 j = pm.join(cr_long(path), on="code")
-                rows.append(score(j).with_columns(pl.lit(fam).alias("file"), pl.lit(f"ZZCR/{day_r}").alias("source"), pl.lit(0).alias("shift")))
+                rows.append(score(j).with_columns(pl.lit(fam).alias("file"), pl.lit(day_r).alias("source"), pl.lit(0).alias("shift")))
                 continue
             ac = ac_long(path)
             for sh in (0, -1, 1, -5, 5) if kind == "time" else (0,):
@@ -84,7 +87,7 @@ def main() -> None:
                 else:  # a daily file against ZZAC's last epoch
                     j = pm.drop("minute").join(ac.filter(pl.col("minute") == ac["minute"].max()).drop("minute"), on="code")
                 if j.height:
-                    rows.append(score(j).with_columns(pl.lit(fam).alias("file"), pl.lit(f"ZZAC/{day_r}").alias("source"), pl.lit(sh).alias("shift")))
+                    rows.append(score(j).with_columns(pl.lit(fam).alias("file"), pl.lit(day_r).alias("source"), pl.lit(sh).alias("shift")))
     if not rows:
         print("nothing to compare")
         return

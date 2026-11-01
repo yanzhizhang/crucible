@@ -21,7 +21,13 @@ EMAS: dict[str, tuple[str, float, str]] = {
     "zzba.p": ("snap", 240, "price"), "zzba.r": ("snap", 300, "tr_open"),
     "zzbd.pEmaT": ("trade", 100, "logp"), "zzbd.rEmaT": ("trade", 200, "logret"), "zzqj.r": ("trade", 30, "rvwap"),
     # variants: "<pm key>|<tag>" is scored against the PM key next to the rule above (verify strips the tag)
-    "zzba.p|t240": ("trade", 240, "price"), "zzba.p|t300": ("trade", 300, "price"), "zzba.r|t300": ("trade", 300, "hl"),
+    "zzba.p|t300": ("trade", 300, "price"), "zzba.p|t600": ("trade", 600, "price"), "zzba.p|t300mid": ("trade", 300, "mid"),
+    "zzba.p|t300snap": ("trade", 300, "snap_px"), "zzba.r|t300": ("trade", 300, "hl"), "zzba.r|t600": ("trade", 600, "hl"),
+    "zzba.r|t300snaphl": ("trade", 300, "hl_snap"),
+    # "|c<N>": seeded from the previous day's PM state (sum / wgt) decayed by N trading-clock seconds, then today's updates
+    "zzup.ps|c0": ("snap", 600, "price"), "zzup.ps|c3600": ("snap", 600, "price"), "zzup.ps|c7200": ("snap", 600, "price"),
+    "zzup.ps|c10000": ("snap", 600, "price"), "zzup.ps|c14220": ("snap", 600, "price"), "zzup.ps|c20000": ("snap", 600, "price"),
+    "zzpk.p|c10000": ("snap", 300, "price"),
     "zzvx.rEmaD|valid": ("snap", 30, "hl_valid"), "zzvx.rEmaO|valid": ("snap", 30, "hl_valid"),
     "zzvx.trEmaD|z": ("snap", 30, "hl0"), "zzvx.trEmaO|z": ("snap", 30, "hl0"), "zzvx.trDEmaD|z": ("snap", 30, "hl0"),
     "zzvx.trDEmaO|z": ("snap", 30, "hl0"), "zzxu.a|z": ("snap", 300, "hl0"),
@@ -63,6 +69,12 @@ def trade_value(st: Stock, what: str) -> float:
         return st.trade_px
     if what == "hl":
         return st.high - st.low
+    if what == "mid":
+        return st.mid
+    if what == "snap_px":
+        return st.snap_px
+    if what == "hl_snap":
+        return st.hi_f - st.lo_f
     if what == "logp":
         return _log(st.trade_px)
     if what == "logret":
