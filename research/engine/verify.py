@@ -115,7 +115,9 @@ def compare(ours: dict[int, dict[str, float]], ref: dict[int, dict[str, float]],
             continue
         ov = values(kv)
         for k, v in ov.items():
-            base, _, tag = k.partition("|")  # "<pm key>|<variant>" is scored against the PM key
+            base, _, tag = k.partition("|")  # "<pm key>|<variant>" is scored against the PM key (its .t against the key's .t)
+            if tag.endswith(".t"):
+                base, tag = base + ".t", tag[:-2]
             r = rv.get(base)
             if r is None:
                 continue

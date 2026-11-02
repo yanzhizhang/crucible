@@ -26,23 +26,11 @@ EMAS: dict[str, tuple[str, float, str]] = {
     # both = snapshots and trades; bothc = both plus the SZSE cancel records of the transaction stream; bothn = both with each
     # event's own value; all = everything incl. orders (state value). zzup.ps: 1e-6 residual ~1e-7 relative, unexplained --
     # lunch, exchange clock, carry (c/w/wt seeds), price-less snapshots, 09:30 start all tried and all identical.
-    # tradec = trades plus cancels, no snapshots. One wide batch per round: clocks x values x half-lives.
-    "zzba.p|b300snap": ("both", 300, "snap_px"), "zzba.p|c300snap": ("bothc", 300, "snap_px"), "zzba.p|tc300snap": ("tradec", 300, "snap_px"),
-    "zzba.p|c300mid": ("bothc", 300, "mid"), "zzba.p|c240snap": ("bothc", 240, "snap_px"), "zzba.p|c360snap": ("bothc", 360, "snap_px"),
-    "zzba.p|c300snapx": ("bothc_exch", 300, "snap_px"), "zzba.p|c300nat": ("bothn", 300, "price"),
-    "zzba.r|b300hl": ("both", 300, "hl_trade"), "zzba.r|c300hl": ("bothc", 300, "hl_trade"), "zzba.r|tc300hl": ("tradec", 300, "hl_trade"),
-    "zzba.r|c300tro": ("bothc", 300, "tro"), "zzba.r|c300hls": ("bothc", 300, "hl"), "zzba.r|c240hl": ("bothc", 240, "hl_trade"),
-    "zzba.r|c360hl": ("bothc", 360, "hl_trade"),
-    # trade-clock keys whose .t fails: do cancels tick the trade clock?
-    "zzqj.r|tc30": ("tradec", 30, "rvwap"), "zzqj.r|t30all": ("trade", 30, "rvwap_all"), "zzqj.r|tc30all": ("tradec", 30, "rvwap_all"),
-    "zzbd.pEmaT|tc100": ("tradec", 100, "logp"), "zzbd.rEmaT|tc200": ("tradec", 200, "logret"),
-    # zzvx: rEma ~ 1 but not exactly -> a ratio; trDEma = a normalised range?
-    "zzvx.rEmaO|po": ("snap", 30, "ret_open"), "zzvx.rEmaD|ppc": ("snap", 30, "ret_pc"), "zzvx.rEmaD|po": ("snap", 30, "ret_open"),
-    "zzvx.rEmaO|ppc": ("snap", 30, "ret_pc"), "zzvx.rEmaO|pm": ("snap", 30, "ret_mid"), "zzvx.rEmaD|pm": ("snap", 30, "ret_mid"),
-    "zzvx.trDEmaD|hlpc": ("snap", 30, "hl_pc"), "zzvx.trDEmaD|hlop": ("snap", 30, "hl_op"), "zzvx.trDEmaD|hlpx": ("snap", 30, "hl_px"),
-    "zzvx.trDEmaD|hlt": ("snap", 30, "hl_trade"), "zzvx.trDEmaO|hlpc": ("snap", 30, "hl_pc"), "zzvx.trDEmaO|hlop": ("snap", 30, "hl_op"),
-    "zzvx.trDEmaO|hlpx": ("snap", 30, "hl_px"), "zzvx.trDEmaO|hlt": ("snap", 30, "hl_trade"),
-    "zzvx.trEmaD|hlt": ("snap", 30, "hl_trade"), "zzvx.trEmaD|tro": ("snap", 30, "tr_open"),
+    # zzba: both-event clock (snapshots and trades; cancels / orders tested and excluded), 1e-4 exact on every day. The 1e-6
+    # residual (zzba.p 19%, zzba.r 4%) only hits keys both feeds tick, so it is the two feeds' interleaving at PM's receiver
+    # differing from ours -- not recoverable from data. Two last controls: the last trade price, price-less snapshots as 0.
+    "zzba.p|b300snap": ("both", 300, "snap_px"), "zzba.p|b300last": ("both", 300, "last_px"), "zzba.p|b300snap0": ("both", 300, "price0"),
+    "zzba.r|b300hl": ("both", 300, "hl_trade"),
 }
 
 
@@ -99,25 +87,8 @@ def snap_value(st: Stock, what: str) -> float:
         return st.snap_px if st.snap_px == st.snap_px else st.pc
     if what == "rvwap":
         return st.amt / st.vol if st.vol > 0 else math.nan
-    return extra_value(st, what)
-
-
-def extra_value(st: Stock, what: str) -> float:
-    """Value kinds shared by both clocks: ratios to the open / previous close / mid, normalised ranges, the all-day VWAP."""
-    if what == "ret_open":
-        return st.snap_px / st.op if st.op > 0 else math.nan
-    if what == "ret_pc":
-        return st.snap_px / st.pc if st.pc > 0 else math.nan
-    if what == "ret_mid":
-        return st.snap_px / st.mid if st.mid > 0 else math.nan
-    if what == "hl_pc":
-        return (st.hi_f - st.lo_f) / st.pc if st.pc > 0 else math.nan
-    if what == "hl_op":
-        return (st.hi_f - st.lo_f) / st.op if st.op > 0 else math.nan
-    if what == "hl_px":
-        return (st.hi_f - st.lo_f) / st.snap_px if st.snap_px > 0 else math.nan
-    if what == "rvwap_all":
-        return st.amt_all / st.vol_all if st.vol_all > 0 else math.nan
+    if what == "last_px":
+        return st.last
     raise KeyError(what)
 
 
@@ -141,7 +112,11 @@ def trade_value(st: Stock, what: str) -> float:
         return _log(st.trade_px / st.trade_prev) if st.trade_prev == st.trade_prev and st.trade_prev > 0 else math.nan
     if what == "rvwap":
         return st.amt / st.vol if st.vol > 0 else math.nan
-    return extra_value(st, what)
+    if what == "last_px":
+        return st.last
+    if what == "price0":
+        return st.snap_px if st.snap_px == st.snap_px else 0.0
+    raise KeyError(what)
 
 
 def on_snap(st: Stock, t: float, s: float, lsod: float, price: float, b1: float, a1: float, hi: float, lo: float,

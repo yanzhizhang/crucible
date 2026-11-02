@@ -29,7 +29,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from basic_match import BASICS
 from rank_candidates import pm_frame
 
-A_GRID = (0.0, 0.3, 0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.93, 0.95, 0.96, 0.97, 0.98, 0.985, 0.99, 0.995, 1.0)
+A_GRID = (0.0, 0.3, 0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.93, 0.95, 0.96, 0.97, 0.98, 0.985, 0.99, 0.995)
 MAX_CELLS = 60000  # cells scored per (file, V, day); a random subset is plenty for ranks and medians
 TOL = 1e-3
 
@@ -223,6 +223,11 @@ def match_file(f: Path, d: str, dp: str | None, basics_dir: Path, search: bool, 
                     if j.height > MAX_CELLS:
                         j = j[np.sort(rng.choice(j.height, MAX_CELLS, replace=False))]
                     x, xp = j["x"].to_numpy(), j["xp"].to_numpy().astype(float)
+                    # a samplerS cell that saw no data on day d is carried over unchanged (pm_d == pm_prev bit for bit, a third of the
+                    # cells on some files): those cells say nothing about the input and are dropped from every score; their share is reported
+                    same = np.isfinite(xp) & (x == xp)
+                    same_share = float(same.mean()) if np.isfinite(xp).mean() > 0.5 else float("nan")
+                    x = np.where(same, np.nan, x)
                     B = np.asfortranarray(j.select(names).to_numpy().astype(float))  # column-contiguous: the kernel scans columns
                     RB = rank_cols(B)
                     has_prev = np.isfinite(xp).mean() > 0.5
@@ -235,7 +240,8 @@ def match_file(f: Path, d: str, dp: str | None, basics_dir: Path, search: bool, 
                         for k, nm in enumerate(names):
                             if n[k] >= 100:
                                 rows.append({"file": name, "V": V, "value_col": val, "day": d, "ours_day": "d" if oday == d else "d-1", "shift": sh,
-                                             "a": a_, "basic": nm, "n": int(n[k]), "ratio": float(ratio[k]), "exact_scaled": float(exact[k]), "spearman": float(rho[k])})
+                                             "a": a_, "basic": nm, "n": int(n[k]), "ratio": float(ratio[k]), "exact_scaled": float(exact[k]), "spearman": float(rho[k]),
+                                             "same": same_share})
                         best_exact = max(best_exact, float(exact.max()))
                     if search and oday == d and sh == 0 and best_exact < 0.5:
                         for r in structure_search(x, xp, B, names, RB):
@@ -284,7 +290,8 @@ def main() -> None:
         return
     t = pl.DataFrame(rows)
     agg = (t.group_by("file", "value_col", "V", "basic", "ours_day", "shift", "a").agg(
-                pl.len().alias("days"), pl.col("n").sum(), pl.col("exact_scaled").mean(), pl.col("ratio").median(), pl.col("spearman").mean())
+                pl.len().alias("days"), pl.col("n").sum(), pl.col("exact_scaled").mean(), pl.col("ratio").median(), pl.col("spearman").mean(),
+                pl.col("same").mean())
            .sort("file", "V", "exact_scaled", "spearman", descending=[False, False, True, True], nulls_last=True))
     agg.write_csv(a.out)
     best = agg.group_by("file", "value_col", "V", maintain_order=True).head(a.top)

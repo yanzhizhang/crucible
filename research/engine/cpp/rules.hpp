@@ -17,7 +17,7 @@ inline double pymax(double a, double b) { return b > a ? b : a; }
 inline double pymin(double a, double b) { return b < a ? b : a; }
 
 enum class what : int { price, mid, logp, hl, hl0, hl_valid, tr_open, logret, one, snap_px, hl_snap, rvwap, hl_trade, tro, price0, price_pc,
-                        ret_open, ret_pc, ret_mid, hl_pc, hl_op, hl_px, rvwap_all };
+                        last_px };
 enum class clock_mod : int { none, wall, exch, o930 };
 
 inline double tc(double s) { return s <= 41400 ? s - 34200 : (s < 46800 ? 7200.0 : s - 46800 + 7200); }
@@ -47,13 +47,7 @@ inline what parse_what(const std::string& w) {
     if (w == "tro") return what::tro;
     if (w == "price0") return what::price0;
     if (w == "price_pc") return what::price_pc;
-    if (w == "ret_open") return what::ret_open;
-    if (w == "ret_pc") return what::ret_pc;
-    if (w == "ret_mid") return what::ret_mid;
-    if (w == "hl_pc") return what::hl_pc;
-    if (w == "hl_op") return what::hl_op;
-    if (w == "hl_px") return what::hl_px;
-    if (w == "rvwap_all") return what::rvwap_all;
+    if (w == "last_px") return what::last_px;
     throw std::runtime_error("unknown value kind " + w);
 }
 
@@ -63,20 +57,6 @@ inline clock_mod parse_mod(const std::string& m) {
     if (m == "exch") return clock_mod::exch;
     if (m == "o930") return clock_mod::o930;
     throw std::runtime_error("unknown clock modifier " + m);
-}
-
-// Value kinds shared by both clocks: ratios to the open / previous close / mid, normalised ranges, the all-day VWAP.
-inline double extra_value(const stock& st, what w) {
-    switch (w) {
-    case what::ret_open: return st.op > 0 ? st.snap_px / st.op : qnan;
-    case what::ret_pc: return st.pc > 0 ? st.snap_px / st.pc : qnan;
-    case what::ret_mid: return st.mid > 0 ? st.snap_px / st.mid : qnan;
-    case what::hl_pc: return st.pc > 0 ? (st.hi_f - st.lo_f) / st.pc : qnan;
-    case what::hl_op: return st.op > 0 ? (st.hi_f - st.lo_f) / st.op : qnan;
-    case what::hl_px: return st.snap_px > 0 ? (st.hi_f - st.lo_f) / st.snap_px : qnan;
-    case what::rvwap_all: return st.vol_all > 0 ? st.amt_all / st.vol_all : qnan;
-    default: throw std::runtime_error("unknown value kind");
-    }
 }
 
 inline double snap_value(const stock& st, what w) {
@@ -96,7 +76,8 @@ inline double snap_value(const stock& st, what w) {
     case what::price0: return std::isnan(st.snap_px) ? 0.0 : st.snap_px;
     case what::price_pc: return std::isnan(st.snap_px) ? st.pc : st.snap_px;
     case what::rvwap: return st.vol > 0 ? st.amt / st.vol : qnan;
-    default: return extra_value(st, w);
+    case what::last_px: return st.last;
+    default: throw std::runtime_error("value kind not on the snapshot clock");
     }
 }
 
@@ -111,7 +92,9 @@ inline double trade_value(const stock& st, what w) {
     case what::logp: return plog(st.trade_px);
     case what::logret: return (!std::isnan(st.trade_prev) && st.trade_prev > 0) ? plog(st.trade_px / st.trade_prev) : qnan;
     case what::rvwap: return st.vol > 0 ? st.amt / st.vol : qnan;
-    default: return extra_value(st, w);
+    case what::last_px: return st.last;
+    case what::price0: return std::isnan(st.snap_px) ? 0.0 : st.snap_px;
+    default: throw std::runtime_error("value kind not on the trade clock");
     }
 }
 
