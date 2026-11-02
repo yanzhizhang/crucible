@@ -1,0 +1,12 @@
+cmake_minimum_required(VERSION 3.16)
+project(crucible_engine CXX)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+# -O2 and no -ffast-math: the C++ engine must reproduce the Python engine bit for bit (same IEEE operations, same order).
+set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG -ffp-contract=off")
+add_executable(engine main.cpp)
+find_package(Threads REQUIRED)
+target_link_libraries(engine PRIVATE Threads::Threads)

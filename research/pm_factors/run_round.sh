@@ -114,7 +114,12 @@ for d in $WANT; do
   jz=/data/prod/h/HS300/p1_intrading_dcp/$d.jz
   [ -f $jz ] || { echo "-- $d: no state file"; continue; }
   pjz=$(ls /data/prod/h/HS300/p1_intrading_dcp/ | grep -E '^[0-9]{8}\.jz$' | awk -v d=$d.jz '$1 < d' | tail -1)
-  run research/engine/run.py --date $d --universe pm:$jz --prev /data/prod/h/HS300/p1_intrading_dcp/$pjz --workers $((CPUS / 2)) --out data/engine > $RE/run_$d.txt 2>&1; tail -1 $RE/run_$d.txt
+  # C++ engine (research/engine/cpp, built on first use); ENGINE=py falls back to the Python event loop
+  if [ "${ENGINE:-cpp}" = cpp ]; then
+    run research/engine/run_cpp.py --date $d --universe pm:$jz --prev /data/prod/h/HS300/p1_intrading_dcp/$pjz --threads $((CPUS / 2)) --out data/engine > $RE/run_$d.txt 2>&1       || { echo "  C++ engine failed, falling back to run.py:"; grep -E "Error|error" $RE/run_$d.txt | tail -3; ENGINE=py; }
+  fi
+  [ "${ENGINE:-cpp}" = py ] && run research/engine/run.py --date $d --universe pm:$jz --prev /data/prod/h/HS300/p1_intrading_dcp/$pjz --workers $((CPUS / 2)) --out data/engine > $RE/run_$d.txt 2>&1
+  tail -1 $RE/run_$d.txt
   run research/engine/verify.py --date $d --engine data/engine/engine_$d.json.gz --pm $jz --reference > $RE/verify_$d.txt 2>&1 \
     && echo "  verified -> $RE/verify_$d.txt" || { echo "  verify failed:"; tail -3 $RE/verify_$d.txt; }
 done
