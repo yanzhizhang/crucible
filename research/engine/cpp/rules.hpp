@@ -16,7 +16,17 @@ inline double plog(double x) { return x > 0 ? std::log(x) : qnan; }
 inline double pymax(double a, double b) { return b > a ? b : a; }
 inline double pymin(double a, double b) { return b < a ? b : a; }
 
-enum class what : int { price, mid, logp, hl, hl0, hl_valid, tr_open, logret, one, snap_px, hl_snap, rvwap };
+enum class what : int { price, mid, logp, hl, hl0, hl_valid, tr_open, logret, one, snap_px, hl_snap, rvwap, hl_trade, tro };
+enum class clock_mod : int { none, wall, exch };
+
+inline double tc(double s) { return s <= 41400 ? s - 34200 : (s < 46800 ? 7200.0 : s - 46800 + 7200); }
+
+// The time an ema sees: t (local trading clock), t without lunch removal, or the exchange stamp's clock.
+inline double clock_time(clock_mod m, double t, double s) {
+    if (m == clock_mod::wall) return t > 7200 ? t + 5400.0 : t;
+    if (m == clock_mod::exch) return tc(s);
+    return t;
+}
 
 inline what parse_what(const std::string& w) {
     if (w == "price") return what::price;
@@ -31,7 +41,16 @@ inline what parse_what(const std::string& w) {
     if (w == "snap_px") return what::snap_px;
     if (w == "hl_snap") return what::hl_snap;
     if (w == "rvwap") return what::rvwap;
+    if (w == "hl_trade") return what::hl_trade;
+    if (w == "tro") return what::tro;
     throw std::runtime_error("unknown value kind " + w);
+}
+
+inline clock_mod parse_mod(const std::string& m) {
+    if (m.empty()) return clock_mod::none;
+    if (m == "wall") return clock_mod::wall;
+    if (m == "exch") return clock_mod::exch;
+    throw std::runtime_error("unknown clock modifier " + m);
 }
 
 inline double snap_value(const stock& st, what w) {
@@ -45,6 +64,9 @@ inline double snap_value(const stock& st, what w) {
     case what::tr_open: return pymax(st.hi_f, st.op) - pymin(st.lo_f, st.op);
     case what::logret: return (!std::isnan(st.snap_prev) && st.snap_prev > 0) ? plog(st.snap_px / st.snap_prev) : qnan;
     case what::one: return 1.0;
+    case what::hl_trade: return st.high - st.low;
+    case what::tro: return pymax(st.high, st.op) - pymin(st.low, st.op);
+    case what::snap_px: return st.snap_px;
     default: throw std::runtime_error("value kind not on the snapshot clock");
     }
 }
@@ -52,7 +74,8 @@ inline double snap_value(const stock& st, what w) {
 inline double trade_value(const stock& st, what w) {
     switch (w) {
     case what::price: return st.trade_px;
-    case what::hl: return st.high - st.low;
+    case what::hl: case what::hl_trade: return st.high - st.low;
+    case what::tro: return pymax(st.high, st.op) - pymin(st.low, st.op);
     case what::mid: return st.mid;
     case what::snap_px: return st.snap_px;
     case what::hl_snap: return st.hi_f - st.lo_f;
@@ -66,10 +89,12 @@ inline double trade_value(const stock& st, what w) {
 // Rules resolved once: clock and value kind per ema, table order.
 struct compiled_rules {
     std::vector<int> clock;
+    std::vector<clock_mod> mod;
     std::vector<what> kind;
     explicit compiled_rules(const std::vector<rule>& r) {
         for (const auto& x : r) {
             clock.push_back(x.clock);
+            mod.push_back(parse_mod(x.mod));
             kind.push_back(parse_what(x.what));
         }
     }
@@ -88,7 +113,7 @@ inline void on_snap(stock& st, const compiled_rules& cr, double t, double s, dou
     if (pc > 0) st.pc = pc;
     if (34200 <= s && s < 53820 && price > 0 && !(st.hm >= price)) st.hm = price;
     for (std::size_t i = 0; i < st.emas.size(); ++i)
-        if (cr.clock[i] == 0) st.emas[i].update(t, snap_value(st, cr.kind[i]));
+        if (cr.clock[i] != 1) st.emas[i].update(clock_time(cr.mod[i], t, s), snap_value(st, cr.kind[i]));
     st.zzfb.feed(t, amount);
     st.jb_px.feed(t, st.snap_px);
     for (int k = 0; k < n_hj; ++k)
@@ -111,17 +136,33 @@ inline void on_trade(stock& st, const compiled_rules& cr, double t, double s, do
         st.last = price;
     }
     double amt = vol * price;
+    double b = side > 0 ? 1.0 : 0.0, sl = side < 0 ? 1.0 : 0.0;
+    st.nb_all[0] += amt * b;
+    st.nb_all[1] += amt * sl;
+    st.nb_vall[0] += vol * b;
+    st.nb_vall[1] += vol * sl;
+    if (s < 53820) {
+        st.nb_open[0] += amt * b;
+        st.nb_open[1] += amt * sl;
+    }
     if (s >= 34200) {
         st.vol += vol;
         st.amt += amt;
+        if (s < 54000) {
+            st.nb_1500[0] += amt * b;
+            st.nb_1500[1] += amt * sl;
+        }
         if (s < 53820) {
             if (side > 0) st.buy += amt;
             else if (side < 0) st.sell += amt;
+            st.nb_vol[0] += vol * b;
+            st.nb_vol[1] += vol * sl;
             st.gh_feed(t, side > 0 ? amt : 0.0, side < 0 ? amt : 0.0);
         }
     }
     for (std::size_t i = 0; i < st.emas.size(); ++i)
-        if (cr.clock[i] == 1) st.emas[i].update(t, trade_value(st, cr.kind[i]));
+        if (cr.clock[i] != 0)
+            st.emas[i].update(clock_time(cr.mod[i], t, s), cr.clock[i] == 1 ? trade_value(st, cr.kind[i]) : snap_value(st, cr.kind[i]));
 }
 
 }  // namespace eng

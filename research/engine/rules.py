@@ -20,19 +20,30 @@ EMAS: dict[str, tuple[str, float, str]] = {
     "zzbd.pEmaS": ("snap", 100, "logp"), "zzeb.p": ("snap", 100, "mid"), "zzbd.rEmaS": ("snap", 200, "logret"),
     "zzba.p": ("snap", 240, "price"), "zzba.r": ("snap", 300, "tr_open"),
     "zzbd.pEmaT": ("trade", 100, "logp"), "zzbd.rEmaT": ("trade", 200, "logret"), "zzqj.r": ("trade", 30, "rvwap"),
-    # variants: "<pm key>|<tag>" is scored against the PM key next to the rule above (verify strips the tag)
-    "zzba.p|t300": ("trade", 300, "price"), "zzba.p|t600": ("trade", 600, "price"), "zzba.p|t300mid": ("trade", 300, "mid"),
-    "zzba.p|t300snap": ("trade", 300, "snap_px"), "zzba.r|t300": ("trade", 300, "hl"), "zzba.r|t600": ("trade", 600, "hl"),
-    "zzba.r|t300snaphl": ("trade", 300, "hl_snap"),
-    # "|c<N>": seeded from the previous day's PM state (sum / wgt) decayed by N trading-clock seconds, then today's updates
-    "zzup.ps|c0": ("snap", 600, "price"), "zzup.ps|c3600": ("snap", 600, "price"), "zzup.ps|c7200": ("snap", 600, "price"),
-    "zzup.ps|c10000": ("snap", 600, "price"), "zzup.ps|c14220": ("snap", 600, "price"), "zzup.ps|c20000": ("snap", 600, "price"),
-    "zzpk.p|c10000": ("snap", 300, "price"),
-    "zzvx.rEmaD|valid": ("snap", 30, "hl_valid"), "zzvx.rEmaO|valid": ("snap", 30, "hl_valid"),
-    "zzvx.trEmaD|z": ("snap", 30, "hl0"), "zzvx.trEmaO|z": ("snap", 30, "hl0"), "zzvx.trDEmaD|z": ("snap", 30, "hl0"),
-    "zzvx.trDEmaO|z": ("snap", 30, "hl0"), "zzxu.a|z": ("snap", 300, "hl0"),
-    "zzup.ps|s900": ("snap", 900, "price"), "zzup.ps|s1200": ("snap", 1200, "price"),
+    # variants: "<pm key>|<tag>" is scored against the PM key next to the rule above (verify strips the tag).
+    # clocks: snap / trade / both (updated by every event); "_wall" = no lunch removal (afternoon t + 5400),
+    # "_exch" = the exchange stamp's trading clock; "|c<N>" (none now) = seeded from yesterday's PM state decayed by N s
+    "zzba.p|t300snap": ("trade", 300, "snap_px"), "zzba.p|b300snap": ("both", 300, "snap_px"), "zzba.p|b300mid": ("both", 300, "mid"),
+    "zzba.p|t300snapw": ("trade_wall", 300, "snap_px"), "zzba.p|t300snapx": ("trade_exch", 300, "snap_px"),
+    "zzba.r|t300": ("trade", 300, "hl_trade"), "zzba.r|t300tro": ("trade", 300, "tro"), "zzba.r|b300hl": ("both", 300, "hl_trade"),
+    "zzba.r|b300tro": ("both", 300, "tro"), "zzba.r|t300w": ("trade_wall", 300, "hl_trade"),
+    "zzup.ps|w": ("snap_wall", 600, "price"), "zzup.ps|x": ("snap_exch", 600, "price"),
+    "zzpk.p|w": ("snap_wall", 300, "price"), "zzbd.rEmaS|w": ("snap_wall", 200, "logret"),
 }
+
+
+def tc(s: float) -> float:
+    """Trading clock of an exchange second of day (dcp_build.tc)."""
+    return s - 34200 if s <= 41400 else (7200.0 if s < 46800 else s - 46800 + 7200)
+
+
+def clock_time(mod: str, t: float, s: float) -> float:
+    """The time an ema sees: t (local trading clock), t without lunch removal, or the exchange stamp's clock."""
+    if mod == "wall":
+        return t + 5400.0 if t > 7200 else t
+    if mod == "exch":
+        return tc(s)
+    return t
 
 
 def _log(x: float) -> float:
@@ -60,6 +71,12 @@ def snap_value(st: Stock, what: str) -> float:
         return _log(st.snap_px / st.snap_prev) if st.snap_prev == st.snap_prev and st.snap_prev > 0 else math.nan
     if what == "one":
         return 1.0
+    if what == "hl_trade":
+        return st.high - st.low
+    if what == "tro":  # true range of the day's trades against the snapshot open
+        return max(st.high, st.op) - min(st.low, st.op)
+    if what == "snap_px":
+        return st.snap_px
     raise KeyError(what)
 
 
@@ -67,8 +84,10 @@ def trade_value(st: Stock, what: str) -> float:
     """Value of a trade-clock average's input from the state just updated by the trade."""
     if what == "price":
         return st.trade_px
-    if what == "hl":
+    if what in ("hl", "hl_trade"):
         return st.high - st.low
+    if what == "tro":
+        return max(st.high, st.op) - min(st.low, st.op)
     if what == "mid":
         return st.mid
     if what == "snap_px":
@@ -99,8 +118,9 @@ def on_snap(st: Stock, t: float, s: float, lsod: float, price: float, b1: float,
     if 34200 <= s < 53820 and price > 0 and not (st.hm >= price):
         st.hm = price
     for e, clock, what in st.ema.values():
-        if clock == "snap":
-            e.update(t, snap_value(st, what))
+        base, _, mod = clock.partition("_")
+        if base != "trade":
+            e.update(clock_time(mod, t, s), snap_value(st, what))
     st.zzfb.feed(t, amount)
     st.jb_px.feed(t, st.snap_px)
     for k, ts in enumerate(HJ_SAMPLE):  # last snapshot received at or before each sample
@@ -125,15 +145,29 @@ def on_trade(st: Stock, t: float, s: float, price: float, vol: float, side: floa
             st.open = price
         st.last = price
     amt = vol * price
+    b, sl = (side > 0), (side < 0)
+    st.nb_all[0] += amt * b
+    st.nb_all[1] += amt * sl
+    st.nb_vall[0] += vol * b
+    st.nb_vall[1] += vol * sl
+    if s < 53820:
+        st.nb_open[0] += amt * b
+        st.nb_open[1] += amt * sl
     if s >= 34200:
         st.vol += vol
         st.amt += amt
+        if s < 54000:
+            st.nb_1500[0] += amt * b
+            st.nb_1500[1] += amt * sl
         if s < 53820:
             if side > 0:
                 st.buy += amt
             elif side < 0:
                 st.sell += amt
+            st.nb_vol[0] += vol * b
+            st.nb_vol[1] += vol * sl
             st.zzgh.feed(t, amt if side > 0 else 0.0, amt if side < 0 else 0.0)
     for e, clock, what in st.ema.values():
-        if clock == "trade":
-            e.update(t, trade_value(st, what))
+        base, _, mod = clock.partition("_")
+        if base != "snap":
+            e.update(clock_time(mod, t, s), trade_value(st, what) if base == "trade" else snap_value(st, what))

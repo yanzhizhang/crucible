@@ -56,10 +56,11 @@ struct last_before {
     }
 };
 
-// One line of rules.tsv: clock 0 snap / 1 trade, half-life s, value kind, carry seconds (-1 = none).
+// One line of rules.tsv: clock 0 snap / 1 trade / 2 both, clock modifier (none / wall / exch), half-life s, value kind, carry s (-1 = none).
 struct rule {
     std::string name;
     int clock;
+    std::string mod;
     double half;
     std::string what;
     double carry;
@@ -69,6 +70,7 @@ struct stock {
     std::vector<ema> emas;  // one per rule, table order
     double high = qnan, low = qnan, open = qnan, last = qnan;
     double vol = 0, amt = 0, buy = 0, sell = 0;
+    double nb_all[2] = {0, 0}, nb_vall[2] = {0, 0}, nb_vol[2] = {0, 0}, nb_1500[2] = {0, 0}, nb_open[2] = {0, 0};  // zzgh.nb variants
     double hm = qnan, pc = qnan, op = qnan;
     double snap_px = qnan, snap_prev = qnan, trade_px = qnan, trade_prev = qnan;
     double bid = qnan, ask = qnan, mid = qnan, hi_f = qnan, lo_f = qnan;
