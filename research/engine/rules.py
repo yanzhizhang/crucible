@@ -23,14 +23,14 @@ EMAS: dict[str, tuple[str, float, str]] = {
     # variants: "<pm key>|<tag>" is scored against the PM key next to the rule above (verify strips the tag).
     # clocks: snap / trade / both (updated by every event); "_wall" = no lunch removal (afternoon t + 5400),
     # "_exch" = the exchange stamp's trading clock; "|c<N>" (none now) = seeded from yesterday's PM state decayed by N s
-    # bothn = both events, each with its own value (snapshot: snap_value, trade: trade_value)
-    "zzba.p|b300snap": ("both", 300, "snap_px"), "zzba.p|b300nat": ("bothn", 300, "price"), "zzba.p|b300snapx": ("both_exch", 300, "snap_px"),
-    "zzba.p|b300snapw": ("both_wall", 300, "snap_px"), "zzba.p|b600snap": ("both", 600, "snap_px"), "zzba.p|b240snap": ("both", 240, "snap_px"),
-    "zzba.r|b300hl": ("both", 300, "hl_trade"), "zzba.r|b300nat": ("bothn", 300, "hl"), "zzba.r|b300hlx": ("both_exch", 300, "hl_trade"),
-    "zzba.r|b300tro": ("both", 300, "tro"), "zzba.r|b600hl": ("both", 600, "hl_trade"),
-    # zzup.ps day-start variants: the pre-open price-less snapshots fed as 0 / as the previous close / everything before 09:30 skipped
-    "zzup.ps|z0": ("snap", 600, "price0"), "zzup.ps|zpc": ("snap", 600, "price_pc"), "zzup.ps|o930": ("snap_o930", 600, "price"),
-    "zzup.ps|zpcx": ("snap_exch", 600, "price_pc"), "zzpk.p|zpc": ("snap", 300, "price_pc"), "zzxu.a|z0": ("snap", 300, "hl0"),
+    # both = snapshots and trades, bothn = both with each event's own value, all = snapshots, trades AND orders (state value)
+    "zzba.p|b300snap": ("both", 300, "snap_px"), "zzba.p|a300snap": ("all", 300, "snap_px"),
+    "zzba.r|b300hl": ("both", 300, "hl_trade"), "zzba.r|a300hl": ("all", 300, "hl_trade"),
+    "zzqj.r|b30": ("both", 30, "rvwap"), "zzqj.r|a30": ("all", 30, "rvwap"),
+    # zzup.ps day-start variants: price-less snapshots fed as 0; seeded from yesterday's PM state -- w0 = yesterday's weight with
+    # the sum zeroed (no decay), wt0 = the same but the first update decays from 09:30, c0 = sum and weight; zzpk.p|w0 = control
+    "zzup.ps|z0": ("snap", 600, "price0"), "zzup.ps|w0": ("snap", 600, "price"), "zzup.ps|wt0": ("snap", 600, "price"),
+    "zzup.ps|c0": ("snap", 600, "price"), "zzpk.p|w0": ("snap", 300, "price"),
 }
 
 
@@ -85,6 +85,8 @@ def snap_value(st: Stock, what: str) -> float:
         return st.snap_px if st.snap_px == st.snap_px else 0.0
     if what == "price_pc":  # a price-less snapshot counts as the previous close
         return st.snap_px if st.snap_px == st.snap_px else st.pc
+    if what == "rvwap":
+        return st.amt / st.vol if st.vol > 0 else math.nan
     raise KeyError(what)
 
 
@@ -142,6 +144,16 @@ def on_snap(st: Stock, t: float, s: float, lsod: float, price: float, b1: float,
             for k in range(n):
                 if lsod <= 53820 - (n - 1 - k) * 10:
                     g[k] = price
+
+
+def on_order(st: Stock, t: float, s: float) -> None:
+    """Apply an order event received at trading-clock t: only the all-event averages move, on the state as it stands."""
+    for e, clock, what in st.ema.values():
+        base, _, mod = clock.partition("_")
+        if base == "all":
+            tt = clock_time(mod, t, s)
+            if tt == tt:
+                e.update(tt, snap_value(st, what))
 
 
 def on_trade(st: Stock, t: float, s: float, price: float, vol: float, side: float) -> None:

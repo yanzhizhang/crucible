@@ -2,8 +2,9 @@ r"""Write the C++ engine's inputs: ``events.bin`` from the catalog, ``rules.tsv`
 
 The event layout mirrors ``cpp/event.hpp`` (96 bytes, every number a double, sorted by sid, local receive stamp, kind);
 ``rules.tsv`` is the EMAS table one rule per line (name, clock, half-life, value kind, carry seconds or -1); ``prev.bin``
-holds yesterday's ``<base>.sum / .wgt`` for every ``|c<N>`` rule as (sid, rule index, sum, wgt), undecayed -- the engine
-applies ``exp(-N ln2 / half)`` itself, exactly as ``state.Stock`` does.
+holds yesterday's ``<base>.sum / .wgt`` for every seeded rule (``|c<N>`` / ``|w<N>`` / ``|wt<N>``) as (sid, rule index, sum,
+wgt), undecayed -- the engine applies the seed kind and ``exp(-N ln2 / half)`` itself, exactly as ``state.Stock`` does.
+Order events (kind 2) carry stamps only; they tick the all-event clock.
 """
 
 from __future__ import annotations
@@ -19,6 +20,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "pm_factors"))
 
 import dcp_build as B  # clocks
+from state import seed_of
 
 EVENT_DTYPE = np.dtype([("sid", "<i4"), ("mkt", "<i2"), ("kind", "<i2"), ("t", "<f8"), ("s", "<f8"), ("lsod", "<f8"),
                         ("price", "<f8"), ("f", "<f8", (7,))])
@@ -26,10 +28,10 @@ assert EVENT_DTYPE.itemsize == 96
 PREV_DTYPE = np.dtype([("sid", "<i4"), ("rule", "<i4"), ("sum", "<f8"), ("wgt", "<f8")])
 
 
-def carry_of(name: str) -> float:
-    """Carry seconds of a "<key>|c<N>" rule, -1 for every other rule."""
-    _, _, tag = name.partition("|")
-    return float(tag[1:]) if tag.startswith("c") and tag[1:].isdigit() else -1.0
+def seed_tag(name: str) -> str:
+    """The seed column of rules.tsv: "c0" / "w0" / "wt0" ..., "-" for an unseeded rule."""
+    sd = seed_of(name)
+    return f"{sd[0]}{int(sd[1])}" if sd else "-"
 
 
 def write_rules(emas: dict[str, tuple[str, float, str]], dst: Path) -> list[str]:
@@ -38,7 +40,7 @@ def write_rules(emas: dict[str, tuple[str, float, str]], dst: Path) -> list[str]
     with dst.open("w", newline="\n") as f:
         for p in names:
             clock, half, what = emas[p]
-            f.write(f"{p}\t{clock}\t{half!r}\t{what}\t{carry_of(p)!r}\n")
+            f.write(f"{p}\t{clock}\t{half!r}\t{what}\t{seed_tag(p)}\n")
     return names
 
 
@@ -46,7 +48,7 @@ def write_prev(prev: dict[int, dict[str, float]], names: list[str], dst: Path) -
     """prev.bin: yesterday's sum / wgt for every carry rule and stock that has them."""
     rows = []
     for i, p in enumerate(names):
-        if carry_of(p) < 0:
+        if seed_of(p) is None:
             continue
         base = p.partition("|")[0]
         for sid, kv in prev.items():
@@ -74,6 +76,9 @@ def load_events(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop
           SELECT symbol_id, market_id, 1::SMALLINT, {B.tc(L)}::DOUBLE, {S}::DOUBLE, {L}::DOUBLE, spider_ts, price::DOUBLE,
                  volume::DOUBLE, CASE dir WHEN 1063 THEN 1.0 WHEN 1550 THEN -1.0 ELSE 0.0 END, 0.0, 0.0, 0.0, 0.0, 0.0
           FROM raw_transaction r JOIN want w ON w.sid = r.symbol_id WHERE r.date = {date} AND r.trade_type = 1 AND {L} <= {stop}
+          UNION ALL
+          SELECT symbol_id, market_id, 2::SMALLINT, {B.tc(L)}::DOUBLE, {S}::DOUBLE, {L}::DOUBLE, spider_ts, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+          FROM raw_order o JOIN want w ON w.sid = o.symbol_id WHERE o.date = {date} AND {L} <= {stop}
         ) ORDER BY sid, ls, kind""").pl()
     con.unregister("want")
     n = df.height

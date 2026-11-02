@@ -26,11 +26,24 @@ def _lsod(ls: np.ndarray) -> np.ndarray:
     return (ls / 1e9 + 28800.0) % 86400.0
 
 
+def load_orders(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop: float) -> pl.DataFrame:
+    """Order events (stamps only) received by the stop: the all-event clock ticks on them."""
+    import dcp_build as B
+
+    S, L = B.SOD, B.LSOD
+    con.register("want_o", pl.DataFrame({"sid": sids}))
+    out = con.sql(f"""SELECT symbol_id AS sid, {B.tc(L)} AS t_local, spider_ts AS ls, {S} AS s
+        FROM raw_order o JOIN want_o w ON w.sid = o.symbol_id WHERE o.date = {date} AND {L} <= {stop} ORDER BY sid, spider_ts""").pl()
+    con.unregister("want_o")
+    return out
+
+
 def streams(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop: float) -> Iterator[tuple[int, int, list[tuple]]]:
     """(sid, market, events) for every stock with ticks."""
     up = E.load(con, date, sids, stop)
     fast = {int(g["sid"][0]): g for g in up["fast"].partition_by("sid")} if not up["fast"].is_empty() else {}
     slow = {int(g["sid"][0]): g for g in up["slow"].partition_by("sid")} if not up["slow"].is_empty() else {}
+    orders = {int(g["sid"][0]): g for g in load_orders(con, date, sids, stop).partition_by("sid")}
     for sid in sids:
         gf, gs = fast.get(sid), slow.get(sid)
         if gf is None and gs is None:
@@ -48,7 +61,12 @@ def streams(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop: fl
             ls = gs["ls"].to_numpy().astype(float)
             ev += [("trade", float(g["t_local"][i]), float(g["s"][i]), float(g["price"][i]), float(g["vol"][i]), float(g["side"][i]), float(ls[i]), 1)
                    for i in range(gs.height)]
-        ev.sort(key=lambda e: (e[-2], e[-1]))  # receive stamp, snapshots before trades at the same stamp
+        go = orders.get(sid)
+        if go is not None:
+            ls = go["ls"].to_numpy().astype(float)
+            tl, s_ = go["t_local"].to_numpy().astype(float), go["s"].to_numpy().astype(float)
+            ev += [("order", float(tl[i]), float(s_[i]), float(ls[i]), 2) for i in range(go.height)]
+        ev.sort(key=lambda e: (e[-2], e[-1]))  # receive stamp; snapshots, then trades, then orders at the same stamp
         mkt = int((gf if gf is not None else gs)["mkt"][0])
         yield sid, mkt, ev
 

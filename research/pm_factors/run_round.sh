@@ -96,6 +96,9 @@ run research/pm_factors/stage4_summary.py --reports $R4 2>&1 | tee $R4/summary.t
 echo "### A2 every PM column's implied input (pm_d - a pm_prev) against every basic + structure search (implied_match)"
 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 POLARS_MAX_THREADS=2 run research/pm_factors/implied_match.py --dates $(echo $WANT | tr ' ' ',') --exports $X --workers $((CPUS / 2)) --out $R4/implied_match.csv > $R4/implied_match.txt 2>&1
 grep -E "^[0-9]{8} |^table|Error|error:|Traceback" $R4/implied_match.txt | tail -6
+echo "### A5 fingerprints of every PM column from the PM files alone (fingerprint)"
+run research/pm_factors/fingerprint.py --dates $(echo $WANT | tr ' ' ',') --exports $X --out $R4 > $R4/fingerprint.txt 2>&1 || tail -3 $R4/fingerprint.txt
+grep -E "^table|Error|Traceback" $R4/fingerprint.txt | head -3
 echo "### A3 size-like samplerS columns against PM's own samplerR quantiles (sampler_pm)"
 for d in $WANT; do
   run research/pm_factors/sampler_pm.py --date $d --hstats $H --exports $X --out $R4 > $R4/sampler_pm_$d.txt 2>&1 || tail -2 $R4/sampler_pm_$d.txt
@@ -126,6 +129,7 @@ done
 echo
 echo "########## SUMMARY (photograph from here) ##########"
 tail -2 $R4/inventory.txt
+sed -n '/^== fingerprints/,$p' $R4/fingerprint.txt | grep -vE "^│ (---|str|f64|u32|i64)|^shape"
 sed -n '/^== implied input/,$p' $R4/implied_match.txt | grep -vE "^│ (---|str|f64|u32|i64)|^shape"
 for d in $WANT; do
   echo "== engine $d: $(tail -1 $RE/run_$d.txt 2>/dev/null | cut -c1-120)"

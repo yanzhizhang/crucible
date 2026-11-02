@@ -56,14 +56,15 @@ struct last_before {
     }
 };
 
-// One line of rules.tsv: clock 0 snap / 1 trade / 2 both, clock modifier (none / wall / exch), half-life s, value kind, carry s (-1 = none).
+// One line of rules.tsv: clock 0 snap / 1 trade / 2 both / 3 bothn / 4 all, clock modifier, half-life s, value kind,
+// seed ("-" none, "c<N>" sum + wgt, "w<N>" wgt only, "wt<N>" wgt only with t = 0; N = decay seconds).
 struct rule {
     std::string name;
     int clock;
     std::string mod;
     double half;
     std::string what;
-    double carry;
+    std::string seed;
 };
 
 struct stock {
@@ -86,12 +87,19 @@ struct stock {
         for (double& x : xo) x = qnan;
         for (double& x : ui) x = qnan;
     }
-    // Seed rule i from yesterday's sum / wgt decayed by the rule's carry seconds (Python Stock.__init__).
-    void seed(std::size_t i, double carry, double sum, double wgt) {
-        if (wgt == 0) return;
-        double d = std::exp(-carry * emas[i].k);
-        emas[i].s = sum * d;
+    // Seed rule i from yesterday's sum / wgt per its seed tag (Python Stock.__init__).
+    void seed(std::size_t i, const std::string& tag, double sum, double wgt) {
+        if (wgt == 0 || tag == "-") return;
+        std::size_t k = tag.find_first_of("0123456789");
+        std::string kind = tag.substr(0, k);
+        double n = std::stod(tag.substr(k));
+        double d = std::exp(-n * emas[i].k);
+        emas[i].s = kind == "c" ? sum * d : 0.0;
         emas[i].w = wgt * d;
+        if (kind == "wt") {
+            emas[i].t = 0.0;
+            emas[i].has_t = true;
+        }
     }
     void gh_feed(double t, double b, double s) {
         if (0 <= t && t < session) {

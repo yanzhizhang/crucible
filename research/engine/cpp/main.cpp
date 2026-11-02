@@ -62,11 +62,11 @@ std::vector<rule> read_rules(const char* path) {
         rule r;
         std::string clock;
         if (!(std::getline(ss, r.name, '\t') && std::getline(ss, clock, '\t') && (ss >> r.half) && ss.ignore() &&
-              std::getline(ss, r.what, '\t') && (ss >> r.carry)))
+              std::getline(ss, r.what, '\t') && (ss >> r.seed)))
             throw std::runtime_error("bad rules line: " + line);
         std::string base = clock.substr(0, clock.find('_'));  // "snap" / "trade" / "both" [+ "_wall" / "_exch"]
         r.mod = clock.find('_') == std::string::npos ? "" : clock.substr(clock.find('_') + 1);
-        r.clock = base == "trade" ? 1 : base == "both" ? 2 : base == "bothn" ? 3 : 0;  // bothn: both events, each its own value
+        r.clock = base == "trade" ? 1 : base == "both" ? 2 : base == "bothn" ? 3 : base == "all" ? 4 : 0;  // all: orders tick it too
         out.push_back(r);
     }
     return out;
@@ -124,6 +124,13 @@ std::string dump(stock& st, const std::vector<rule>& rules) {
                                                          {"zzgh.nb|tick", st.nb_tick}, {"zzgh.nb|mid", st.nb_mid}, {"zzgh.nb|loc", st.nb_loc}};
     for (const auto& [k, v] : nbs) put(o, k, v[0] + v[1] ? (v[0] - v[1]) / (v[0] + v[1]) : qnan);
     put(o, "zzgh.nb|den", st.nb_den ? (st.buy - st.sell) / st.nb_den : qnan);
+    double ssum = 0;
+    int scount = 0;
+    for (int k = 0; k < n_gh; ++k) {
+        double b = st.gh_buy[k], s = st.gh_sell[k];
+        if (b + s > 0) { ssum += (b - s) / (b + s); ++scount; }
+    }
+    put(o, "zzgh.nb|slotmean", scount ? ssum / scount : qnan);
     put(o, "zzmh.hm", st.hm);
     for (int k = 0; k < n_xo; ++k) put(o, "zzxo.r." + std::to_string(k), st.xo[k]);
     for (int k = 0; k < n_ui; ++k) put(o, "zzui.r." + std::to_string(k), st.ui[k]);
@@ -194,11 +201,12 @@ int main(int argc, char** argv) {
             stock st(rules);
             auto it = prev.find(ev[ranges[r].first].sid);
             if (it != prev.end())
-                for (const auto& p : it->second) st.seed(p.rule, rules[p.rule].carry, p.sum, p.wgt);
+                for (const auto& p : it->second) st.seed(p.rule, rules[p.rule].seed, p.sum, p.wgt);
             for (std::uint64_t i = ranges[r].first; i < ranges[r].second; ++i) {
                 const event& e = ev[i];
                 if (e.kind == 0) on_snap(st, cr, e.t, e.s, e.lsod, e.price, e.f[0], e.f[1], e.f[2], e.f[3], e.f[4], e.f[5], e.f[6]);
-                else on_trade(st, cr, e.t, e.s, e.price, e.f[0], e.f[1]);
+                else if (e.kind == 1) on_trade(st, cr, e.t, e.s, e.price, e.f[0], e.f[1]);
+                else on_order(st, cr, e.t, e.s);
             }
             out[r] = dump(st, rules);
         }

@@ -16,6 +16,15 @@ quarter-hour mids ``zzhj.c``) and ``dump()`` writes them under PM's key names.
 from __future__ import annotations
 
 import math
+import re
+
+SEED = re.compile(r"^(c|w|wt)(\d+)$")  # variant tags seeded from yesterday: c = sum + wgt, w = wgt only, wt = wgt only with t = 0
+
+
+def seed_of(name: str) -> tuple[str, float] | None:
+    """(kind, decay seconds) of a "<key>|<seed tag>" rule, None for every other rule."""
+    m = SEED.match(name.partition("|")[2])
+    return (m.group(1), float(m.group(2))) if m else None
 
 SESSION = 14220.0  # continuous session on the trading clock: 09:30-11:30 + 13:00-14:57
 LN2 = math.log(2.0)
@@ -92,11 +101,15 @@ class Stock:
 
     def __init__(self, emas: dict[str, tuple[str, float, str]], prev: dict[str, float] | None = None) -> None:
         self.ema = {p: (Ema(half), clock, what) for p, (clock, half, what) in emas.items()}
-        for p, (e, _, _) in self.ema.items():  # "<key>|c<N>": carry yesterday's sum / wgt, decayed by N seconds
-            base, _, tag = p.partition("|")
-            if prev and tag.startswith("c") and tag[1:].isdigit() and prev.get(f"{base}.wgt"):
-                d = math.exp(-float(tag[1:]) * e.k)
-                e.s, e.w = prev[f"{base}.sum"] * d, prev[f"{base}.wgt"] * d
+        for p, (e, _, _) in self.ema.items():  # seeded variants: yesterday's state (sum / wgt, or wgt alone) decayed by N seconds
+            sd = seed_of(p)
+            base = p.partition("|")[0]
+            if sd and prev and prev.get(f"{base}.wgt"):
+                kind, n = sd
+                d = math.exp(-n * e.k)
+                e.s, e.w = (prev[f"{base}.sum"] * d if kind == "c" else 0.0), prev[f"{base}.wgt"] * d
+                if kind == "wt":
+                    e.t = 0.0
         self.high = self.low = self.open = self.last = math.nan  # trades, auctions included
         self.vol = self.amt = 0.0  # from 09:30 exchange time, close auction included
         self.buy = self.sell = 0.0  # continuous-session amounts for zzgh.nb
@@ -138,6 +151,12 @@ class Stock:
                             ("tick", self.nb_tick), ("mid", self.nb_mid), ("loc", self.nb_loc)):
             out[f"zzgh.nb|{tag}"] = (b - s) / (b + s) if b + s else math.nan
         out["zzgh.nb|den"] = (self.buy - self.sell) / self.nb_den if self.nb_den else math.nan
+        acc, cnt = 0.0, 0  # plain left-to-right accumulation (sum() compensates since 3.12 and would differ from C++ by an ulp)
+        for b, s in zip(*self.zzgh.vals, strict=True):
+            if b + s > 0:
+                acc += (b - s) / (b + s)
+                cnt += 1
+        out["zzgh.nb|slotmean"] = acc / cnt if cnt else math.nan
         out["zzmh.hm"] = self.hm
         for fam, g in self.grid.items():
             for k, v in enumerate(g):

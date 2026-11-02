@@ -73,6 +73,7 @@ inline double snap_value(const stock& st, what w) {
     case what::snap_px: return st.snap_px;
     case what::price0: return std::isnan(st.snap_px) ? 0.0 : st.snap_px;
     case what::price_pc: return std::isnan(st.snap_px) ? st.pc : st.snap_px;
+    case what::rvwap: return st.vol > 0 ? st.amt / st.vol : qnan;
     default: throw std::runtime_error("value kind not on the snapshot clock");
     }
 }
@@ -133,6 +134,15 @@ inline void on_snap(stock& st, const compiled_rules& cr, double t, double s, dou
         for (int k = 0; k < n_ui; ++k)
             if (lsod <= 53820 - (n_ui - 1 - k) * 10) st.ui[k] = price;
     }
+}
+
+// An order event: only the all-event averages (clock 4) move, on the state as it stands.
+inline void on_order(stock& st, const compiled_rules& cr, double t, double s) {
+    for (std::size_t i = 0; i < st.emas.size(); ++i)
+        if (cr.clock[i] == 4) {
+            double tt = clock_time(cr.mod[i], t, s);
+            if (!std::isnan(tt)) st.emas[i].update(tt, snap_value(st, cr.kind[i]));
+        }
 }
 
 inline void on_trade(stock& st, const compiled_rules& cr, double t, double s, double price, double vol, double side) {

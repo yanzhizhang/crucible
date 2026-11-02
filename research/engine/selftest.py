@@ -22,7 +22,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from export import EVENT_DTYPE, write_events, write_prev, write_rules
-from rules import EMAS, on_snap, on_trade
+from rules import EMAS, on_order, on_snap, on_trade
 from run_cpp import ensure_binary
 from state import Stock
 
@@ -35,7 +35,7 @@ def tc(s: float) -> float:
 def synth(rng: np.random.Generator, sid: int, n: int) -> np.ndarray:
     """One stock's random day, sorted like the export."""
     ls = np.sort(rng.integers(33000, 54200, n).astype(float) + rng.integers(0, 3, n) * 0.0)  # whole seconds -> ties
-    kind = rng.integers(0, 2, n).astype(np.int16)
+    kind = rng.integers(0, 3, n).astype(np.int16)  # 0 snapshot, 1 trade, 2 order
     out = np.zeros(n, dtype=EVENT_DTYPE)
     out["sid"], out["mkt"], out["kind"] = sid, 1, kind
     out["lsod"] = ls
@@ -54,8 +54,10 @@ def synth(rng: np.random.Generator, sid: int, n: int) -> np.ndarray:
     amt = np.cumsum(rng.integers(0, 100000, n).astype(float))
     vol = rng.integers(1, 50, n) * 100.0
     side = rng.choice([1.0, -1.0, 0.0], n)
-    out["f"][:, 0] = np.where(snap, b1, vol)
-    out["f"][:, 1] = np.where(snap, a1, side)
+    trade = kind == 1
+    out["f"][:, 0] = np.where(snap, b1, np.where(trade, vol, 0.0))
+    out["f"][:, 1] = np.where(snap, a1, np.where(trade, side, 0.0))
+    out["price"] = np.where(kind == 2, 0.0, px)
     out["f"][:, 2] = np.where(snap, hi, 0.0)
     out["f"][:, 3] = np.where(snap, lo, 0.0)
     out["f"][:, 4] = np.where(snap, op, 0.0)
@@ -74,8 +76,10 @@ def py_run(ev: np.ndarray, prev: dict[int, dict[str, float]]) -> dict[int, dict[
             f = [float(x) for x in e["f"]]
             if e["kind"] == 0:
                 on_snap(st, float(e["t"]), float(e["s"]), float(e["lsod"]), float(e["price"]), *f)
-            else:
+            elif e["kind"] == 1:
                 on_trade(st, float(e["t"]), float(e["s"]), float(e["price"]), f[0], f[1])
+            else:
+                on_order(st, float(e["t"]), float(e["s"]))
         out[int(sid)] = st.dump()
     return out
 
