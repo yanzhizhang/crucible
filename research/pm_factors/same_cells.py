@@ -91,5 +91,58 @@ def main() -> None:
         print(pl.DataFrame(out, infer_schema_length=None))
 
 
-if __name__ == "__main__":
+if __name__ == "__main__" and "--by-stock" not in sys.argv:
     main()
+
+
+def by_stock(exports: Path, basics: Path, dates: list[str], files: list[str]) -> None:
+    """Per-stock rate of unchanged cells: its distribution, and how it lines up with market, price, amount and code."""
+    rows = []
+    for name in files:
+        frames = {d: r for d in dates if (r := load(exports, name, d))}
+        days = sorted(frames)
+        if len(days) < 2:
+            continue
+        V = sorted(frames[days[0]][0]["V"].unique().to_list())[0]
+        pairs = []
+        for d0, d1 in itertools.pairwise(days):
+            j = (frames[d1][0].filter(pl.col("V") == V).join(frames[d0][0].filter(pl.col("V") == V).rename({"x": "xp"}), on=["code", "minute", "V"])
+                 .filter(pl.col("x").is_finite() & pl.col("xp").is_finite()).with_columns((pl.col("x") == pl.col("xp")).alias("same")))
+            pairs.append(j.select("code", "same"))
+        rate = pl.concat(pairs).group_by("code").agg(pl.col("same").mean().alias("rate"), pl.len().alias("cells"))
+        attrs = []
+        for d in days:
+            g = basics / f"date={d}" / "m5.parquet"
+            if g.exists():
+                attrs.append(pl.read_parquet(g, columns=["symbol_id", "n", "amt", "vwap"]).group_by("symbol_id")
+                             .agg(pl.col("n").sum().alias("trades"), pl.col("amt").sum().alias("amount"), pl.col("vwap").mean().alias("price")))
+        if attrs:
+            at = pl.concat(attrs).group_by("symbol_id").agg(pl.all().mean()).rename({"symbol_id": "code"}).with_columns(pl.col("code").cast(pl.Int64))
+            rate = rate.join(at, on="code", how="left")
+        rate = rate.with_columns(pl.when(pl.col("code") >= 600000).then(pl.lit("SSE")).otherwise(pl.lit("SZSE")).alias("mkt"))
+        r = rate["rate"]
+        row = {"file": name, "V": V, "stocks": rate.height, "rate<0.05": float((r < 0.05).mean()), "0.05-0.5": float(((r >= 0.05) & (r < 0.5)).mean()),
+               "rate>=0.5": float((r >= 0.5).mean()), "SSE": float(rate.filter(pl.col("mkt") == "SSE")["rate"].mean()),
+               "SZSE": float(rate.filter(pl.col("mkt") == "SZSE")["rate"].mean())}
+        for c in ("trades", "amount", "price"):
+            if c in rate.columns:
+                row[f"rho_{c}"] = float(rate.select(pl.corr("rate", c, method="spearman")).item())
+        row["rho_code"] = float(rate.select(pl.corr("rate", pl.col("code").cast(pl.Float64), method="spearman")).item())
+        top = rate.sort("rate", descending=True).head(5)
+        row["top5"] = " ".join(f"{c}:{x:.2f}" for c, x in zip(top["code"].to_list(), top["rate"].to_list(), strict=True))
+        rows.append(row)
+    with pl.Config(tbl_rows=100, tbl_cols=-1, tbl_width_chars=220, float_precision=3, fmt_str_lengths=80):
+        print("\n== per-stock rate of unchanged cells (first V of each file): distribution, by market, rank correlation with activity / price / code, top stocks")
+        print(pl.DataFrame(rows))
+
+
+if __name__ == "__main__":
+    import sys as _s
+    if "--by-stock" in _s.argv:
+        _s.argv.remove("--by-stock")
+        _ap = argparse.ArgumentParser()
+        _ap.add_argument("--dates", required=True)
+        _ap.add_argument("--exports", type=Path, default=Path("data/pm_export"))
+        _ap.add_argument("--basics", type=Path, default=BASICS)
+        _a = _ap.parse_args()
+        by_stock(_a.exports, _a.basics, sorted(_a.dates.split(",")), ["ZZAL", "ZZMS", "ZZQO", "ZZTS", "ZZXC", "ZZDS", "ZZUGSS", "ZZVC"])
