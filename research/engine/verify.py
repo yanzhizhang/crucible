@@ -106,7 +106,7 @@ def reference(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop: 
     return out
 
 
-def compare(ours: dict[int, dict[str, float]], ref: dict[int, dict[str, float]], mkt: dict[int, int], label: str) -> None:
+def compare(ours: dict[int, dict[str, float]], ref: dict[int, dict[str, float]], mkt: dict[int, int], label: str, csv: Path | None = None) -> None:
     """Print agreement per key / grid family, overall and on SZSE."""
     rows = []
     for sid, kv in ours.items():
@@ -133,6 +133,8 @@ def compare(ours: dict[int, dict[str, float]], ref: dict[int, dict[str, float]],
                                  pl.col("ok4").mean().alias("all_1e4"), pl.col("ok4").filter(pl.col("szse")).mean().alias("SZSE_1e4"),
                                  ((pl.col("ours") - pl.col("ref")).abs() / pl.col("ref").abs()).median().alias("mre"))
            .sort("all", "key"))
+    if csv is not None:
+        agg.write_csv(csv)
     with pl.Config(tbl_rows=200, tbl_width_chars=160, float_precision=4):
         print(f"\n== engine vs {label}: share of stocks (bins) equal at 1e-6 and at 1e-4, worst first")
         print(agg)
@@ -147,6 +149,7 @@ def main() -> None:
     ap.add_argument("--reference", action="store_true", help="compare with the vectorized research rebuild")
     ap.add_argument("--stop", type=float, default=54150.005, help="local second of day (reference mode; pm mode takes it from the file)")
     ap.add_argument("--catalog", type=Path, default=Path("/work/crucible_data/catalog.duckdb"))
+    ap.add_argument("--csv", type=Path, help="write the engine-vs-PM table here (summarize.py folds the days)")
     a = ap.parse_args()
     ours = load_engine(a.engine)
     sids = sorted(ours)
@@ -160,7 +163,7 @@ def main() -> None:
         for sid, g in pm.group_by("sid"):
             kv = dict(zip(g["key"].to_list(), g["pm"].to_list(), strict=True))
             ref[int(sid[0])] = values(kv)
-        compare(ours, ref, mkt, "PM")
+        compare(ours, ref, mkt, "PM", a.csv)
     if a.reference:
         compare(ours, reference(con, int(a.date), sids, a.stop), mkt, "vectorized reference")
 

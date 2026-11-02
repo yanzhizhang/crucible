@@ -22,7 +22,7 @@ import polars as pl
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from rules import EMAS, on_order, on_snap, on_trade
+from rules import EMAS, on_cancel, on_order, on_snap, on_trade
 from state import Stock
 from stream import streams, universe_from_state
 
@@ -49,6 +49,8 @@ def run_day(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop: fl
                 on_snap(st, *e[1:12])
             elif e[0] == "trade":
                 on_trade(st, *e[1:6])
+            elif e[0] == "cancel":
+                on_cancel(st, e[1], e[2])
             else:
                 on_order(st, e[1], e[2])
         out[sid] = st.dump()

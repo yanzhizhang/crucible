@@ -17,7 +17,7 @@ constexpr char magic[8] = {'C', 'R', 'U', 'E', 'V', '0', '0', '1'};
 struct event {
     std::int32_t sid;
     std::int16_t mkt;
-    std::int16_t kind;  // 0 snapshot, 1 trade, 2 order (stamps only)
+    std::int16_t kind;  // 0 snapshot, 1 trade, 2 order (stamps only), 3 cancel record of the transaction stream
     double t;           // trading clock of local arrival (09:30 = 0, lunch removed)
     double s;           // exchange second of day
     double lsod;        // local second of day

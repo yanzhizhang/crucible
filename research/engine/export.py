@@ -4,7 +4,8 @@ The event layout mirrors ``cpp/event.hpp`` (96 bytes, every number a double, sor
 ``rules.tsv`` is the EMAS table one rule per line (name, clock, half-life, value kind, carry seconds or -1); ``prev.bin``
 holds yesterday's ``<base>.sum / .wgt`` for every seeded rule (``|c<N>`` / ``|w<N>`` / ``|wt<N>``) as (sid, rule index, sum,
 wgt), undecayed -- the engine applies the seed kind and ``exp(-N ln2 / half)`` itself, exactly as ``state.Stock`` does.
-Order events (kind 2) carry stamps only; they tick the all-event clock.
+Order events (kind 2) carry stamps only and tick the all-event clock; cancel records of the transaction stream (kind 3,
+SZSE trade_type 2) tick the bothc and all clocks.
 """
 
 from __future__ import annotations
@@ -79,6 +80,10 @@ def load_events(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop
           UNION ALL
           SELECT symbol_id, market_id, 2::SMALLINT, {B.tc(L)}::DOUBLE, {S}::DOUBLE, {L}::DOUBLE, spider_ts, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
           FROM raw_order o JOIN want w ON w.sid = o.symbol_id WHERE o.date = {date} AND {L} <= {stop}
+          UNION ALL
+          SELECT symbol_id, market_id, 3::SMALLINT, {B.tc(L)}::DOUBLE, {S}::DOUBLE, {L}::DOUBLE, spider_ts, 0.0,
+                 volume::DOUBLE, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+          FROM raw_transaction r JOIN want w ON w.sid = r.symbol_id WHERE r.date = {date} AND r.trade_type = 2 AND {L} <= {stop}
         ) ORDER BY sid, ls, kind""").pl()
     con.unregister("want")
     n = df.height

@@ -122,16 +122,16 @@ for d in $WANT; do
   fi
   [ "${ENGINE:-cpp}" = py ] && run research/engine/run.py --date $d --universe pm:$jz --prev /data/prod/h/HS300/p1_intrading_dcp/$pjz --workers $((CPUS / 2)) --out data/engine > $RE/run_$d.txt 2>&1
   tail -1 $RE/run_$d.txt
-  run research/engine/verify.py --date $d --engine data/engine/engine_$d.json.gz --pm $jz --reference > $RE/verify_$d.txt 2>&1 \
+  run research/engine/verify.py --date $d --engine data/engine/engine_$d.json.gz --pm $jz --reference --csv $RE/verify_$d.csv > $RE/verify_$d.txt 2>&1 \
     && echo "  verified -> $RE/verify_$d.txt" || { echo "  verify failed:"; tail -3 $RE/verify_$d.txt; }
 done
 
 echo
 echo "########## SUMMARY (photograph from here) ##########"
 tail -2 $R4/inventory.txt
-sed -n '/^== fingerprints/,$p' $R4/fingerprint.txt | grep -vE "^│ (---|str|f64|u32|i64)|^shape"
-sed -n '/^== implied input/,$p' $R4/implied_match.txt | grep -vE "^│ (---|str|f64|u32|i64)|^shape"
-for d in $WANT; do
-  echo "== engine $d: $(tail -1 $RE/run_$d.txt 2>/dev/null | cut -c1-120)"
-  [ -f $RE/verify_$d.txt ] && grep -E "^PM |^== engine vs PM|^│ (zz|cdc)|Error|Traceback" $RE/verify_$d.txt | grep -vE "┆ 1.0000 ┆ 1.0000 ┆ 1.0000 ┆ 1.0000" | sed -n '1,/^== engine vs vec/p' | head -40
-done
+# fingerprints are a property of PM's files, not of our code: shown only with FP=1 (full table in $R4/fingerprint.txt)
+[ "${FP:-0}" = 1 ] && sed -n '/^== fingerprints/,$p' $R4/fingerprint.txt | grep -vE "^│ (---|str|f64|u32|i64)|^shape"
+run research/pm_factors/stage4_brief.py --reports $R4 | grep -vE "^│ (---|str|f64|u32|i64)|^shape"
+for d in $WANT; do echo "== engine $d: $(tail -1 $RE/run_$d.txt 2>/dev/null | cut -c1-100)"; done
+grep -lE "Error|Traceback" $RE/verify_*.txt 2>/dev/null | head -3
+run research/engine/summarize.py $(for d in $WANT; do echo $RE/verify_$d.csv; done) | grep -vE "^│ (---|str|f64|u32|i64)|^shape"

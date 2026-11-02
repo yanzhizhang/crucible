@@ -66,7 +66,7 @@ std::vector<rule> read_rules(const char* path) {
             throw std::runtime_error("bad rules line: " + line);
         std::string base = clock.substr(0, clock.find('_'));  // "snap" / "trade" / "both" [+ "_wall" / "_exch"]
         r.mod = clock.find('_') == std::string::npos ? "" : clock.substr(clock.find('_') + 1);
-        r.clock = base == "trade" ? 1 : base == "both" ? 2 : base == "bothn" ? 3 : base == "all" ? 4 : 0;  // all: orders tick it too
+        r.clock = base == "trade" ? 1 : base == "both" ? 2 : base == "bothn" ? 3 : base == "all" ? 4 : base == "bothc" ? 5 : 0;
         out.push_back(r);
     }
     return out;
@@ -119,18 +119,8 @@ std::string dump(stock& st, const std::vector<rule>& rules) {
     put(o, "zzqj.tpv", st.amt);
     put(o, "zzvm.c.tpv", st.amt);
     put(o, "zzgh.nb", st.buy + st.sell ? (st.buy - st.sell) / (st.buy + st.sell) : qnan);
-    const std::pair<const char*, const double*> nbs[] = {{"zzgh.nb|all", st.nb_all}, {"zzgh.nb|volall", st.nb_vall}, {"zzgh.nb|vol", st.nb_vol},
-                                                         {"zzgh.nb|to1500", st.nb_1500}, {"zzgh.nb|open", st.nb_open},
-                                                         {"zzgh.nb|tick", st.nb_tick}, {"zzgh.nb|mid", st.nb_mid}, {"zzgh.nb|loc", st.nb_loc}};
+    const std::pair<const char*, const double*> nbs[] = {{"zzgh.nb|vol", st.nb_vol}, {"zzgh.nb|cnt", st.nb_cnt}, {"zzgh.nb|snappx", st.nb_snappx}};
     for (const auto& [k, v] : nbs) put(o, k, v[0] + v[1] ? (v[0] - v[1]) / (v[0] + v[1]) : qnan);
-    put(o, "zzgh.nb|den", st.nb_den ? (st.buy - st.sell) / st.nb_den : qnan);
-    double ssum = 0;
-    int scount = 0;
-    for (int k = 0; k < n_gh; ++k) {
-        double b = st.gh_buy[k], s = st.gh_sell[k];
-        if (b + s > 0) { ssum += (b - s) / (b + s); ++scount; }
-    }
-    put(o, "zzgh.nb|slotmean", scount ? ssum / scount : qnan);
     put(o, "zzmh.hm", st.hm);
     for (int k = 0; k < n_xo; ++k) put(o, "zzxo.r." + std::to_string(k), st.xo[k]);
     for (int k = 0; k < n_ui; ++k) put(o, "zzui.r." + std::to_string(k), st.ui[k]);
@@ -206,6 +196,7 @@ int main(int argc, char** argv) {
                 const event& e = ev[i];
                 if (e.kind == 0) on_snap(st, cr, e.t, e.s, e.lsod, e.price, e.f[0], e.f[1], e.f[2], e.f[3], e.f[4], e.f[5], e.f[6]);
                 else if (e.kind == 1) on_trade(st, cr, e.t, e.s, e.price, e.f[0], e.f[1]);
+                else if (e.kind == 3) on_cancel(st, cr, e.t, e.s);
                 else on_order(st, cr, e.t, e.s);
             }
             out[r] = dump(st, rules);

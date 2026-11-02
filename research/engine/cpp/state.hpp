@@ -56,7 +56,7 @@ struct last_before {
     }
 };
 
-// One line of rules.tsv: clock 0 snap / 1 trade / 2 both / 3 bothn / 4 all, clock modifier, half-life s, value kind,
+// One line of rules.tsv: clock 0 snap / 1 trade / 2 both / 3 bothn / 4 all / 5 bothc, clock modifier, half-life s, value kind,
 // seed ("-" none, "c<N>" sum + wgt, "w<N>" wgt only, "wt<N>" wgt only with t = 0; N = decay seconds).
 struct rule {
     std::string name;
@@ -71,8 +71,7 @@ struct stock {
     std::vector<ema> emas;  // one per rule, table order
     double high = qnan, low = qnan, open = qnan, last = qnan;
     double vol = 0, amt = 0, buy = 0, sell = 0;
-    double nb_all[2] = {0, 0}, nb_vall[2] = {0, 0}, nb_vol[2] = {0, 0}, nb_1500[2] = {0, 0}, nb_open[2] = {0, 0};  // zzgh.nb variants
-    double nb_tick[2] = {0, 0}, nb_mid[2] = {0, 0}, nb_loc[2] = {0, 0}, nb_den = 0, tick_side = 0;
+    double nb_vol[2] = {0, 0}, nb_cnt[2] = {0, 0}, nb_snappx[2] = {0, 0};  // zzgh.nb variants
     double hm = qnan, pc = qnan, op = qnan;
     double snap_px = qnan, snap_prev = qnan, trade_px = qnan, trade_prev = qnan;
     double bid = qnan, ask = qnan, mid = qnan, hi_f = qnan, lo_f = qnan;

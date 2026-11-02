@@ -145,6 +145,15 @@ inline void on_order(stock& st, const compiled_rules& cr, double t, double s) {
         }
 }
 
+// A cancel record of the transaction stream: the bothc (5) and all (4) averages move, on the state as it stands.
+inline void on_cancel(stock& st, const compiled_rules& cr, double t, double s) {
+    for (std::size_t i = 0; i < st.emas.size(); ++i)
+        if (cr.clock[i] == 4 || cr.clock[i] == 5) {
+            double tt = clock_time(cr.mod[i], t, s);
+            if (!std::isnan(tt)) st.emas[i].update(tt, snap_value(st, cr.kind[i]));
+        }
+}
+
 inline void on_trade(stock& st, const compiled_rules& cr, double t, double s, double price, double vol, double side) {
     st.trade_prev = st.trade_px;
     st.trade_px = price > 0 ? price : qnan;
@@ -156,36 +165,16 @@ inline void on_trade(stock& st, const compiled_rules& cr, double t, double s, do
     }
     double amt = vol * price;
     double b = side > 0 ? 1.0 : 0.0, sl = side < 0 ? 1.0 : 0.0;
-    double tick = st.tick_side;  // tick rule: up = buy, down = sell, flat = the previous tick's side
-    if (price > 0 && !std::isnan(st.trade_prev)) tick = price > st.trade_prev ? 1.0 : (price < st.trade_prev ? -1.0 : st.tick_side);
-    st.tick_side = tick;
-    double msd = price > st.mid ? 1.0 : (price < st.mid ? -1.0 : 0.0);  // side against the last snapshot mid (NaN mid -> 0)
-    if (34200 <= s && s < 53820) {
-        st.nb_den += amt;
-        st.nb_tick[0] += amt * (tick > 0 ? 1.0 : 0.0);
-        st.nb_tick[1] += amt * (tick < 0 ? 1.0 : 0.0);
-        st.nb_mid[0] += amt * (msd > 0 ? 1.0 : 0.0);
-        st.nb_mid[1] += amt * (msd < 0 ? 1.0 : 0.0);
-    }
-    if (0 <= t && t < session) {
-        st.nb_loc[0] += amt * b;
-        st.nb_loc[1] += amt * sl;
-    }
-    st.nb_all[0] += amt * b;
-    st.nb_all[1] += amt * sl;
-    st.nb_vall[0] += vol * b;
-    st.nb_vall[1] += vol * sl;
-    if (s < 53820) {
-        st.nb_open[0] += amt * b;
-        st.nb_open[1] += amt * sl;
+    if (34200 <= s && s < 53820) {  // zzgh.nb variants: trade count, amount at the last snapshot price
+        st.nb_cnt[0] += b;
+        st.nb_cnt[1] += sl;
+        double px = std::isnan(st.snap_px) ? price : st.snap_px;
+        st.nb_snappx[0] += vol * px * b;
+        st.nb_snappx[1] += vol * px * sl;
     }
     if (s >= 34200) {
         st.vol += vol;
         st.amt += amt;
-        if (s < 54000) {
-            st.nb_1500[0] += amt * b;
-            st.nb_1500[1] += amt * sl;
-        }
         if (s < 53820) {
             if (side > 0) st.buy += amt;
             else if (side < 0) st.sell += amt;

@@ -38,12 +38,26 @@ def load_orders(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop
     return out
 
 
+def load_cancels(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop: float) -> pl.DataFrame:
+    """Cancel records of the transaction stream (SZSE trade_type 2) received by the stop: the bothc / all clocks tick on them."""
+    import dcp_build as B
+
+    S, L = B.SOD, B.LSOD
+    con.register("want_c", pl.DataFrame({"sid": sids}))
+    out = con.sql(f"""SELECT symbol_id AS sid, {B.tc(L)} AS t_local, spider_ts AS ls, {S} AS s
+        FROM raw_transaction r JOIN want_c w ON w.sid = r.symbol_id WHERE r.date = {date} AND r.trade_type = 2 AND {L} <= {stop}
+        ORDER BY sid, spider_ts""").pl()
+    con.unregister("want_c")
+    return out
+
+
 def streams(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop: float) -> Iterator[tuple[int, int, list[tuple]]]:
     """(sid, market, events) for every stock with ticks."""
     up = E.load(con, date, sids, stop)
     fast = {int(g["sid"][0]): g for g in up["fast"].partition_by("sid")} if not up["fast"].is_empty() else {}
     slow = {int(g["sid"][0]): g for g in up["slow"].partition_by("sid")} if not up["slow"].is_empty() else {}
     orders = {int(g["sid"][0]): g for g in load_orders(con, date, sids, stop).partition_by("sid")}
+    cancels = {int(g["sid"][0]): g for g in load_cancels(con, date, sids, stop).partition_by("sid")}
     for sid in sids:
         gf, gs = fast.get(sid), slow.get(sid)
         if gf is None and gs is None:
@@ -61,6 +75,11 @@ def streams(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop: fl
             ls = gs["ls"].to_numpy().astype(float)
             ev += [("trade", float(g["t_local"][i]), float(g["s"][i]), float(g["price"][i]), float(g["vol"][i]), float(g["side"][i]), float(ls[i]), 1)
                    for i in range(gs.height)]
+        gc = cancels.get(sid)
+        if gc is not None:
+            ls = gc["ls"].to_numpy().astype(float)
+            tl, s_ = gc["t_local"].to_numpy().astype(float), gc["s"].to_numpy().astype(float)
+            ev += [("cancel", float(tl[i]), float(s_[i]), float(ls[i]), 3) for i in range(gc.height)]
         go = orders.get(sid)
         if go is not None:
             ls = go["ls"].to_numpy().astype(float)

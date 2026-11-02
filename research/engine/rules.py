@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import math
 
-from state import HJ_SAMPLE, SESSION, XO_GRID, Stock
+from state import HJ_SAMPLE, XO_GRID, Stock
 
 EMAS: dict[str, tuple[str, float, str]] = {
     "zzpk.p": ("snap", 300, "price"), "zzab2.r": ("snap", 300, "price"), "zzup.pf": ("snap", 300, "price"),
@@ -23,14 +23,11 @@ EMAS: dict[str, tuple[str, float, str]] = {
     # variants: "<pm key>|<tag>" is scored against the PM key next to the rule above (verify strips the tag).
     # clocks: snap / trade / both (updated by every event); "_wall" = no lunch removal (afternoon t + 5400),
     # "_exch" = the exchange stamp's trading clock; "|c<N>" (none now) = seeded from yesterday's PM state decayed by N s
-    # both = snapshots and trades, bothn = both with each event's own value, all = snapshots, trades AND orders (state value)
-    "zzba.p|b300snap": ("both", 300, "snap_px"), "zzba.p|a300snap": ("all", 300, "snap_px"),
-    "zzba.r|b300hl": ("both", 300, "hl_trade"), "zzba.r|a300hl": ("all", 300, "hl_trade"),
-    "zzqj.r|b30": ("both", 30, "rvwap"), "zzqj.r|a30": ("all", 30, "rvwap"),
-    # zzup.ps day-start variants: price-less snapshots fed as 0; seeded from yesterday's PM state -- w0 = yesterday's weight with
-    # the sum zeroed (no decay), wt0 = the same but the first update decays from 09:30, c0 = sum and weight; zzpk.p|w0 = control
-    "zzup.ps|z0": ("snap", 600, "price0"), "zzup.ps|w0": ("snap", 600, "price"), "zzup.ps|wt0": ("snap", 600, "price"),
-    "zzup.ps|c0": ("snap", 600, "price"), "zzpk.p|w0": ("snap", 300, "price"),
+    # both = snapshots and trades; bothc = both plus the SZSE cancel records of the transaction stream; bothn = both with each
+    # event's own value; all = everything incl. orders (state value). zzup.ps: 1e-6 residual ~1e-7 relative, unexplained --
+    # lunch, exchange clock, carry (c/w/wt seeds), price-less snapshots, 09:30 start all tried and all identical.
+    "zzba.p|b300snap": ("both", 300, "snap_px"), "zzba.p|c300snap": ("bothc", 300, "snap_px"),
+    "zzba.r|b300hl": ("both", 300, "hl_trade"), "zzba.r|c300hl": ("bothc", 300, "hl_trade"),
 }
 
 
@@ -156,6 +153,16 @@ def on_order(st: Stock, t: float, s: float) -> None:
                 e.update(tt, snap_value(st, what))
 
 
+def on_cancel(st: Stock, t: float, s: float) -> None:
+    """Apply a cancel record of the transaction stream (SZSE): the bothc / all averages move, on the state as it stands."""
+    for e, clock, what in st.ema.values():
+        base, _, mod = clock.partition("_")
+        if base in ("bothc", "all"):
+            tt = clock_time(mod, t, s)
+            if tt == tt:
+                e.update(tt, snap_value(st, what))
+
+
 def on_trade(st: Stock, t: float, s: float, price: float, vol: float, side: float) -> None:
     """Apply a trade received at trading-clock t (exchange second of day s); side +1 buy / -1 sell / 0."""
     st.t_slow = t
@@ -168,33 +175,15 @@ def on_trade(st: Stock, t: float, s: float, price: float, vol: float, side: floa
         st.last = price
     amt = vol * price
     b, sl = (side > 0), (side < 0)
-    tick = st.tick_side  # tick rule: up = buy, down = sell, flat = the previous tick's side
-    if price > 0 and st.trade_prev == st.trade_prev:
-        tick = 1.0 if price > st.trade_prev else (-1.0 if price < st.trade_prev else st.tick_side)
-    st.tick_side = tick
-    msd = 1.0 if price > st.mid else (-1.0 if price < st.mid else 0.0)  # side against the last snapshot mid
-    if 34200 <= s < 53820:
-        st.nb_den += amt
-        st.nb_tick[0] += amt * (tick > 0)
-        st.nb_tick[1] += amt * (tick < 0)
-        st.nb_mid[0] += amt * (msd > 0)
-        st.nb_mid[1] += amt * (msd < 0)
-    if 0 <= t < SESSION:
-        st.nb_loc[0] += amt * b
-        st.nb_loc[1] += amt * sl
-    st.nb_all[0] += amt * b
-    st.nb_all[1] += amt * sl
-    st.nb_vall[0] += vol * b
-    st.nb_vall[1] += vol * sl
-    if s < 53820:
-        st.nb_open[0] += amt * b
-        st.nb_open[1] += amt * sl
+    if 34200 <= s < 53820:  # zzgh.nb variants: trade count, amount at the last snapshot price
+        st.nb_cnt[0] += b
+        st.nb_cnt[1] += sl
+        px = st.snap_px if st.snap_px == st.snap_px else price
+        st.nb_snappx[0] += vol * px * b
+        st.nb_snappx[1] += vol * px * sl
     if s >= 34200:
         st.vol += vol
         st.amt += amt
-        if s < 54000:
-            st.nb_1500[0] += amt * b
-            st.nb_1500[1] += amt * sl
         if s < 53820:
             if side > 0:
                 st.buy += amt
@@ -205,7 +194,7 @@ def on_trade(st: Stock, t: float, s: float, price: float, vol: float, side: floa
             st.zzgh.feed(t, amt if side > 0 else 0.0, amt if side < 0 else 0.0)
     for e, clock, what in st.ema.values():
         base, _, mod = clock.partition("_")
-        if base != "snap":
+        if base != "snap":  # trade / both / bothc / bothn / all
             tt = clock_time(mod, t, s)
             if tt == tt:
                 e.update(tt, trade_value(st, what) if base in ("trade", "bothn") else snap_value(st, what))
