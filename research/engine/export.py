@@ -74,11 +74,11 @@ def load_events(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop
           SELECT symbol_id, market_id, 1::SMALLINT, {B.tc(L)}::DOUBLE, {S}::DOUBLE, {L}::DOUBLE, spider_ts, price::DOUBLE,
                  volume::DOUBLE, CASE dir WHEN 1063 THEN 1.0 WHEN 1550 THEN -1.0 ELSE 0.0 END, 0.0, 0.0, 0.0, 0.0, 0.0
           FROM raw_transaction r JOIN want w ON w.sid = r.symbol_id WHERE r.date = {date} AND r.trade_type = 1 AND {L} <= {stop}
-        ) ORDER BY sid, ls, kind""").arrow()
+        ) ORDER BY sid, ls, kind""").pl()
     con.unregister("want")
-    n = df.num_rows
+    n = df.height
     out = np.empty(n, dtype=EVENT_DTYPE)
-    col = lambda c: df.column(c).to_numpy(zero_copy_only=False)  # noqa: E731 -- one arrow column as numpy
+    col = lambda c: df[c].to_numpy()  # noqa: E731 -- one column as numpy (nulls -> NaN for floats)
     out["sid"], out["mkt"], out["kind"] = col("sid"), col("mkt"), col("kind")
     for c in ("t", "s", "lsod", "price"):
         out[c] = col(c).astype(np.float64)  # nulls arrive as NaN, as the Python stream's astype(float) made them
