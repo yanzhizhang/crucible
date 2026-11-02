@@ -280,6 +280,7 @@ def main() -> None:
     ap.add_argument("--commission-bp", type=float, default=1.0, help="T0 backtest: commission per side, bp")
     ap.add_argument("--stamp-bp", type=float, default=5.0, help="T0 backtest: stamp duty on the sell leg, bp")
     ap.add_argument("--out", type=Path, default=Path("data/reports/stage7"))
+    ap.add_argument("--save-preds", action="store_true", help="write the out-of-sample predictions to <out>/preds.parquet (for research/strategy)")
     args = ap.parse_args()
     t0 = time.perf_counter()
     args.out.mkdir(parents=True, exist_ok=True)
@@ -372,6 +373,11 @@ def main() -> None:
         tot = IC.summary(IC.ic_vec(p, y, grp))
         print(f"{name}: out-of-sample IC {tot[0]:.4f} (t {tot[1]:.2f}, {tot[2]} marks)")
     res = pl.DataFrame(rows)
+    if args.save_preds:
+        keep = [c for c in ("date", "sid", "t", "mark", "y", "x_bid0", "x_ask0", "x_mid0") if c in panel.columns]
+        out = panel.select(keep).with_columns(*[pl.Series(f"pred_{k}", v) for k, v in preds.items()])
+        out.filter(pl.any_horizontal([pl.col(f"pred_{k}").is_finite() for k in preds])).write_parquet(args.out / "preds.parquet")
+        print(f"predictions -> {args.out / 'preds.parquet'}")
     t0_rows = t0_backtest(panel, preds, grp, args.commission_bp, args.stamp_bp)
     res.write_csv(args.out / "own_model_days.csv")
     with pl.Config(tbl_rows=60, tbl_cols=-1, tbl_width_chars=200, float_precision=4):
