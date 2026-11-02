@@ -113,8 +113,10 @@ class Stock:
         self.high = self.low = self.open = self.last = math.nan  # trades, auctions included
         self.vol = self.amt = 0.0  # from 09:30 exchange time, close auction included
         self.buy = self.sell = 0.0  # continuous-session amounts for zzgh.nb
-        # zzgh.nb variants, [buy, sell]: continuous volume, trade count, amount at the last snapshot price
-        self.nb_vol, self.nb_cnt, self.nb_snappx = [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]
+        # zzgh.nb variants, [buy, sell]: continuous volume, trade count, amount at the last snapshot price, order-flow amount / volume
+        self.nb_vol, self.nb_cnt, self.nb_snappx, self.nb_ord, self.nb_ordvol = [0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]
+        # zzqj.v / tpv variants: whole day, without the close auction, local-clock session
+        self.vol_all = self.amt_all = self.vol_o = self.amt_o = self.vol_loc = self.amt_loc = 0.0
         self.hm = math.nan  # highest snapshot price in the continuous session (exchange time)
         self.pc = self.op = math.nan  # previous close / open from the snapshots
         self.snap_px = self.snap_prev = math.nan  # last two snapshot prices (zzbd.rEmaS)
@@ -145,8 +147,11 @@ class Stock:
         out["zzqj.v"] = out["zzvm.c.v"] = self.vol
         out["zzqj.tpv"] = out["zzvm.c.tpv"] = self.amt
         out["zzgh.nb"] = (self.buy - self.sell) / (self.buy + self.sell) if self.buy + self.sell else math.nan
-        for tag, (b, s) in (("vol", self.nb_vol), ("cnt", self.nb_cnt), ("snappx", self.nb_snappx)):
+        for tag, (b, s) in (("vol", self.nb_vol), ("cnt", self.nb_cnt), ("snappx", self.nb_snappx), ("ord", self.nb_ord), ("ordvol", self.nb_ordvol)):
             out[f"zzgh.nb|{tag}"] = (b - s) / (b + s) if b + s else math.nan
+        out["zzqj.v|all"], out["zzqj.tpv|all"] = self.vol_all, self.amt_all
+        out["zzqj.v|noclose"], out["zzqj.tpv|noclose"] = self.vol_o, self.amt_o
+        out["zzqj.v|loc"], out["zzqj.tpv|loc"] = self.vol_loc, self.amt_loc
         out["zzmh.hm"] = self.hm
         for fam, g in self.grid.items():
             for k, v in enumerate(g):

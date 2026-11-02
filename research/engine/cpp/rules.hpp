@@ -16,7 +16,8 @@ inline double plog(double x) { return x > 0 ? std::log(x) : qnan; }
 inline double pymax(double a, double b) { return b > a ? b : a; }
 inline double pymin(double a, double b) { return b < a ? b : a; }
 
-enum class what : int { price, mid, logp, hl, hl0, hl_valid, tr_open, logret, one, snap_px, hl_snap, rvwap, hl_trade, tro, price0, price_pc };
+enum class what : int { price, mid, logp, hl, hl0, hl_valid, tr_open, logret, one, snap_px, hl_snap, rvwap, hl_trade, tro, price0, price_pc,
+                        ret_open, ret_pc, ret_mid, hl_pc, hl_op, hl_px, rvwap_all };
 enum class clock_mod : int { none, wall, exch, o930 };
 
 inline double tc(double s) { return s <= 41400 ? s - 34200 : (s < 46800 ? 7200.0 : s - 46800 + 7200); }
@@ -46,6 +47,13 @@ inline what parse_what(const std::string& w) {
     if (w == "tro") return what::tro;
     if (w == "price0") return what::price0;
     if (w == "price_pc") return what::price_pc;
+    if (w == "ret_open") return what::ret_open;
+    if (w == "ret_pc") return what::ret_pc;
+    if (w == "ret_mid") return what::ret_mid;
+    if (w == "hl_pc") return what::hl_pc;
+    if (w == "hl_op") return what::hl_op;
+    if (w == "hl_px") return what::hl_px;
+    if (w == "rvwap_all") return what::rvwap_all;
     throw std::runtime_error("unknown value kind " + w);
 }
 
@@ -55,6 +63,20 @@ inline clock_mod parse_mod(const std::string& m) {
     if (m == "exch") return clock_mod::exch;
     if (m == "o930") return clock_mod::o930;
     throw std::runtime_error("unknown clock modifier " + m);
+}
+
+// Value kinds shared by both clocks: ratios to the open / previous close / mid, normalised ranges, the all-day VWAP.
+inline double extra_value(const stock& st, what w) {
+    switch (w) {
+    case what::ret_open: return st.op > 0 ? st.snap_px / st.op : qnan;
+    case what::ret_pc: return st.pc > 0 ? st.snap_px / st.pc : qnan;
+    case what::ret_mid: return st.mid > 0 ? st.snap_px / st.mid : qnan;
+    case what::hl_pc: return st.pc > 0 ? (st.hi_f - st.lo_f) / st.pc : qnan;
+    case what::hl_op: return st.op > 0 ? (st.hi_f - st.lo_f) / st.op : qnan;
+    case what::hl_px: return st.snap_px > 0 ? (st.hi_f - st.lo_f) / st.snap_px : qnan;
+    case what::rvwap_all: return st.vol_all > 0 ? st.amt_all / st.vol_all : qnan;
+    default: throw std::runtime_error("unknown value kind");
+    }
 }
 
 inline double snap_value(const stock& st, what w) {
@@ -74,7 +96,7 @@ inline double snap_value(const stock& st, what w) {
     case what::price0: return std::isnan(st.snap_px) ? 0.0 : st.snap_px;
     case what::price_pc: return std::isnan(st.snap_px) ? st.pc : st.snap_px;
     case what::rvwap: return st.vol > 0 ? st.amt / st.vol : qnan;
-    default: throw std::runtime_error("value kind not on the snapshot clock");
+    default: return extra_value(st, w);
     }
 }
 
@@ -89,7 +111,7 @@ inline double trade_value(const stock& st, what w) {
     case what::logp: return plog(st.trade_px);
     case what::logret: return (!std::isnan(st.trade_prev) && st.trade_prev > 0) ? plog(st.trade_px / st.trade_prev) : qnan;
     case what::rvwap: return st.vol > 0 ? st.amt / st.vol : qnan;
-    default: throw std::runtime_error("value kind not on the trade clock");
+    default: return extra_value(st, w);
     }
 }
 
@@ -136,8 +158,15 @@ inline void on_snap(stock& st, const compiled_rules& cr, double t, double s, dou
     }
 }
 
-// An order event: only the all-event averages (clock 4) move, on the state as it stands.
-inline void on_order(stock& st, const compiled_rules& cr, double t, double s) {
+// An order event: the all-event averages (clock 4) move on the state as it stands; the order-flow imbalances count it.
+inline void on_order(stock& st, const compiled_rules& cr, double t, double s, double price, double vol, double side) {
+    if (34200 <= s && s < 53820 && price > 0) {
+        double amt = vol * price, b = side > 0 ? 1.0 : 0.0, sl = side < 0 ? 1.0 : 0.0;
+        st.nb_ord[0] += amt * b;
+        st.nb_ord[1] += amt * sl;
+        st.nb_ordvol[0] += vol * b;
+        st.nb_ordvol[1] += vol * sl;
+    }
     for (std::size_t i = 0; i < st.emas.size(); ++i)
         if (cr.clock[i] == 4) {
             double tt = clock_time(cr.mod[i], t, s);
@@ -145,12 +174,12 @@ inline void on_order(stock& st, const compiled_rules& cr, double t, double s) {
         }
 }
 
-// A cancel record of the transaction stream: the bothc (5) and all (4) averages move, on the state as it stands.
+// A cancel record of the transaction stream: the bothc (5), tradec (6) and all (4) averages move, on the state as it stands.
 inline void on_cancel(stock& st, const compiled_rules& cr, double t, double s) {
     for (std::size_t i = 0; i < st.emas.size(); ++i)
-        if (cr.clock[i] == 4 || cr.clock[i] == 5) {
+        if (cr.clock[i] == 4 || cr.clock[i] == 5 || cr.clock[i] == 6) {
             double tt = clock_time(cr.mod[i], t, s);
-            if (!std::isnan(tt)) st.emas[i].update(tt, snap_value(st, cr.kind[i]));
+            if (!std::isnan(tt)) st.emas[i].update(tt, cr.clock[i] == 6 ? trade_value(st, cr.kind[i]) : snap_value(st, cr.kind[i]));
         }
 }
 
@@ -172,6 +201,16 @@ inline void on_trade(stock& st, const compiled_rules& cr, double t, double s, do
         st.nb_snappx[0] += vol * px * b;
         st.nb_snappx[1] += vol * px * sl;
     }
+    st.vol_all += vol;  // zzqj.v / tpv variants: the whole day, the day without the close auction, the local-clock session
+    st.amt_all += amt;
+    if (34200 <= s && s < 54000) {
+        st.vol_o += vol;
+        st.amt_o += amt;
+    }
+    if (0 <= t && t < session) {
+        st.vol_loc += vol;
+        st.amt_loc += amt;
+    }
     if (s >= 34200) {
         st.vol += vol;
         st.amt += amt;
@@ -187,7 +226,7 @@ inline void on_trade(stock& st, const compiled_rules& cr, double t, double s, do
         if (cr.clock[i] != 0) {
             double tt = clock_time(cr.mod[i], t, s);
             if (!std::isnan(tt))
-                st.emas[i].update(tt, (cr.clock[i] == 1 || cr.clock[i] == 3) ? trade_value(st, cr.kind[i]) : snap_value(st, cr.kind[i]));
+                st.emas[i].update(tt, (cr.clock[i] == 1 || cr.clock[i] == 3 || cr.clock[i] == 6) ? trade_value(st, cr.kind[i]) : snap_value(st, cr.kind[i]));
         }
 }
 

@@ -117,7 +117,7 @@ def compare(ours: dict[int, dict[str, float]], ref: dict[int, dict[str, float]],
         for k, v in ov.items():
             base, _, tag = k.partition("|")  # "<pm key>|<variant>" is scored against the PM key
             r = rv.get(base)
-            if r is None or (tag and k.endswith(".t")):  # a variant's clock says nothing new
+            if r is None:
                 continue
             fam = BIN.sub(r"\1.<n>", base) + (f"|{tag}" if tag else "")
             tol = 0.01 if k.endswith(".t") else max(1e-6, 1e-9 * abs(r))

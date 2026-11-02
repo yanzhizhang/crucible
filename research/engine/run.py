@@ -52,7 +52,7 @@ def run_day(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop: fl
             elif e[0] == "cancel":
                 on_cancel(st, e[1], e[2])
             else:
-                on_order(st, e[1], e[2])
+                on_order(st, *e[1:6])
         out[sid] = st.dump()
     return out
 

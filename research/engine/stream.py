@@ -32,7 +32,8 @@ def load_orders(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop
 
     S, L = B.SOD, B.LSOD
     con.register("want_o", pl.DataFrame({"sid": sids}))
-    out = con.sql(f"""SELECT symbol_id AS sid, {B.tc(L)} AS t_local, spider_ts AS ls, {S} AS s
+    out = con.sql(f"""SELECT symbol_id AS sid, {B.tc(L)} AS t_local, spider_ts AS ls, {S} AS s, price::DOUBLE AS price, volume::DOUBLE AS vol,
+        CASE dir WHEN 1063 THEN 1.0 WHEN 1550 THEN -1.0 ELSE 0.0 END AS side
         FROM raw_order o JOIN want_o w ON w.sid = o.symbol_id WHERE o.date = {date} AND {L} <= {stop} ORDER BY sid, spider_ts""").pl()
     con.unregister("want_o")
     return out
@@ -84,7 +85,8 @@ def streams(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop: fl
         if go is not None:
             ls = go["ls"].to_numpy().astype(float)
             tl, s_ = go["t_local"].to_numpy().astype(float), go["s"].to_numpy().astype(float)
-            ev += [("order", float(tl[i]), float(s_[i]), float(ls[i]), 2) for i in range(go.height)]
+            px, vo, sd = (go[c].to_numpy().astype(float) for c in ("price", "vol", "side"))
+            ev += [("order", float(tl[i]), float(s_[i]), float(px[i]), float(vo[i]), float(sd[i]), float(ls[i]), 2) for i in range(go.height)]
         ev.sort(key=lambda e: (e[-2], e[-1]))  # receive stamp; snapshots, then trades, then orders at the same stamp
         mkt = int((gf if gf is not None else gs)["mkt"][0])
         yield sid, mkt, ev

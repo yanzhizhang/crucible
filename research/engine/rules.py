@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import math
 
-from state import HJ_SAMPLE, XO_GRID, Stock
+from state import HJ_SAMPLE, SESSION, XO_GRID, Stock
 
 EMAS: dict[str, tuple[str, float, str]] = {
     "zzpk.p": ("snap", 300, "price"), "zzab2.r": ("snap", 300, "price"), "zzup.pf": ("snap", 300, "price"),
@@ -26,8 +26,23 @@ EMAS: dict[str, tuple[str, float, str]] = {
     # both = snapshots and trades; bothc = both plus the SZSE cancel records of the transaction stream; bothn = both with each
     # event's own value; all = everything incl. orders (state value). zzup.ps: 1e-6 residual ~1e-7 relative, unexplained --
     # lunch, exchange clock, carry (c/w/wt seeds), price-less snapshots, 09:30 start all tried and all identical.
-    "zzba.p|b300snap": ("both", 300, "snap_px"), "zzba.p|c300snap": ("bothc", 300, "snap_px"),
-    "zzba.r|b300hl": ("both", 300, "hl_trade"), "zzba.r|c300hl": ("bothc", 300, "hl_trade"),
+    # tradec = trades plus cancels, no snapshots. One wide batch per round: clocks x values x half-lives.
+    "zzba.p|b300snap": ("both", 300, "snap_px"), "zzba.p|c300snap": ("bothc", 300, "snap_px"), "zzba.p|tc300snap": ("tradec", 300, "snap_px"),
+    "zzba.p|c300mid": ("bothc", 300, "mid"), "zzba.p|c240snap": ("bothc", 240, "snap_px"), "zzba.p|c360snap": ("bothc", 360, "snap_px"),
+    "zzba.p|c300snapx": ("bothc_exch", 300, "snap_px"), "zzba.p|c300nat": ("bothn", 300, "price"),
+    "zzba.r|b300hl": ("both", 300, "hl_trade"), "zzba.r|c300hl": ("bothc", 300, "hl_trade"), "zzba.r|tc300hl": ("tradec", 300, "hl_trade"),
+    "zzba.r|c300tro": ("bothc", 300, "tro"), "zzba.r|c300hls": ("bothc", 300, "hl"), "zzba.r|c240hl": ("bothc", 240, "hl_trade"),
+    "zzba.r|c360hl": ("bothc", 360, "hl_trade"),
+    # trade-clock keys whose .t fails: do cancels tick the trade clock?
+    "zzqj.r|tc30": ("tradec", 30, "rvwap"), "zzqj.r|t30all": ("trade", 30, "rvwap_all"), "zzqj.r|tc30all": ("tradec", 30, "rvwap_all"),
+    "zzbd.pEmaT|tc100": ("tradec", 100, "logp"), "zzbd.rEmaT|tc200": ("tradec", 200, "logret"),
+    # zzvx: rEma ~ 1 but not exactly -> a ratio; trDEma = a normalised range?
+    "zzvx.rEmaO|po": ("snap", 30, "ret_open"), "zzvx.rEmaD|ppc": ("snap", 30, "ret_pc"), "zzvx.rEmaD|po": ("snap", 30, "ret_open"),
+    "zzvx.rEmaO|ppc": ("snap", 30, "ret_pc"), "zzvx.rEmaO|pm": ("snap", 30, "ret_mid"), "zzvx.rEmaD|pm": ("snap", 30, "ret_mid"),
+    "zzvx.trDEmaD|hlpc": ("snap", 30, "hl_pc"), "zzvx.trDEmaD|hlop": ("snap", 30, "hl_op"), "zzvx.trDEmaD|hlpx": ("snap", 30, "hl_px"),
+    "zzvx.trDEmaD|hlt": ("snap", 30, "hl_trade"), "zzvx.trDEmaO|hlpc": ("snap", 30, "hl_pc"), "zzvx.trDEmaO|hlop": ("snap", 30, "hl_op"),
+    "zzvx.trDEmaO|hlpx": ("snap", 30, "hl_px"), "zzvx.trDEmaO|hlt": ("snap", 30, "hl_trade"),
+    "zzvx.trEmaD|hlt": ("snap", 30, "hl_trade"), "zzvx.trEmaD|tro": ("snap", 30, "tr_open"),
 }
 
 
@@ -84,6 +99,25 @@ def snap_value(st: Stock, what: str) -> float:
         return st.snap_px if st.snap_px == st.snap_px else st.pc
     if what == "rvwap":
         return st.amt / st.vol if st.vol > 0 else math.nan
+    return extra_value(st, what)
+
+
+def extra_value(st: Stock, what: str) -> float:
+    """Value kinds shared by both clocks: ratios to the open / previous close / mid, normalised ranges, the all-day VWAP."""
+    if what == "ret_open":
+        return st.snap_px / st.op if st.op > 0 else math.nan
+    if what == "ret_pc":
+        return st.snap_px / st.pc if st.pc > 0 else math.nan
+    if what == "ret_mid":
+        return st.snap_px / st.mid if st.mid > 0 else math.nan
+    if what == "hl_pc":
+        return (st.hi_f - st.lo_f) / st.pc if st.pc > 0 else math.nan
+    if what == "hl_op":
+        return (st.hi_f - st.lo_f) / st.op if st.op > 0 else math.nan
+    if what == "hl_px":
+        return (st.hi_f - st.lo_f) / st.snap_px if st.snap_px > 0 else math.nan
+    if what == "rvwap_all":
+        return st.amt_all / st.vol_all if st.vol_all > 0 else math.nan
     raise KeyError(what)
 
 
@@ -107,7 +141,7 @@ def trade_value(st: Stock, what: str) -> float:
         return _log(st.trade_px / st.trade_prev) if st.trade_prev == st.trade_prev and st.trade_prev > 0 else math.nan
     if what == "rvwap":
         return st.amt / st.vol if st.vol > 0 else math.nan
-    raise KeyError(what)
+    return extra_value(st, what)
 
 
 def on_snap(st: Stock, t: float, s: float, lsod: float, price: float, b1: float, a1: float, hi: float, lo: float,
@@ -143,8 +177,14 @@ def on_snap(st: Stock, t: float, s: float, lsod: float, price: float, b1: float,
                     g[k] = price
 
 
-def on_order(st: Stock, t: float, s: float) -> None:
-    """Apply an order event received at trading-clock t: only the all-event averages move, on the state as it stands."""
+def on_order(st: Stock, t: float, s: float, price: float = 0.0, vol: float = 0.0, side: float = 0.0) -> None:
+    """Apply an order event received at trading-clock t: the all-event averages move, the order-flow imbalances count it."""
+    if 34200 <= s < 53820 and price > 0:
+        amt = vol * price
+        st.nb_ord[0] += amt * (side > 0)
+        st.nb_ord[1] += amt * (side < 0)
+        st.nb_ordvol[0] += vol * (side > 0)
+        st.nb_ordvol[1] += vol * (side < 0)
     for e, clock, what in st.ema.values():
         base, _, mod = clock.partition("_")
         if base == "all":
@@ -157,10 +197,10 @@ def on_cancel(st: Stock, t: float, s: float) -> None:
     """Apply a cancel record of the transaction stream (SZSE): the bothc / all averages move, on the state as it stands."""
     for e, clock, what in st.ema.values():
         base, _, mod = clock.partition("_")
-        if base in ("bothc", "all"):
+        if base in ("bothc", "all", "tradec"):
             tt = clock_time(mod, t, s)
             if tt == tt:
-                e.update(tt, snap_value(st, what))
+                e.update(tt, trade_value(st, what) if base == "tradec" else snap_value(st, what))
 
 
 def on_trade(st: Stock, t: float, s: float, price: float, vol: float, side: float) -> None:
@@ -181,6 +221,14 @@ def on_trade(st: Stock, t: float, s: float, price: float, vol: float, side: floa
         px = st.snap_px if st.snap_px == st.snap_px else price
         st.nb_snappx[0] += vol * px * b
         st.nb_snappx[1] += vol * px * sl
+    st.vol_all += vol  # zzqj.v / tpv variants: the whole day, the day without the close auction, the local-clock session
+    st.amt_all += amt
+    if 34200 <= s < 54000:
+        st.vol_o += vol
+        st.amt_o += amt
+    if 0 <= t < SESSION:
+        st.vol_loc += vol
+        st.amt_loc += amt
     if s >= 34200:
         st.vol += vol
         st.amt += amt
@@ -194,7 +242,7 @@ def on_trade(st: Stock, t: float, s: float, price: float, vol: float, side: floa
             st.zzgh.feed(t, amt if side > 0 else 0.0, amt if side < 0 else 0.0)
     for e, clock, what in st.ema.values():
         base, _, mod = clock.partition("_")
-        if base != "snap":  # trade / both / bothc / bothn / all
+        if base != "snap":  # trade / tradec / both / bothc / bothn / all
             tt = clock_time(mod, t, s)
             if tt == tt:
-                e.update(tt, trade_value(st, what) if base in ("trade", "bothn") else snap_value(st, what))
+                e.update(tt, trade_value(st, what) if base in ("trade", "tradec", "bothn") else snap_value(st, what))

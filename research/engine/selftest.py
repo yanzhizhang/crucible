@@ -55,9 +55,9 @@ def synth(rng: np.random.Generator, sid: int, n: int) -> np.ndarray:
     vol = rng.integers(1, 50, n) * 100.0
     side = rng.choice([1.0, -1.0, 0.0], n)
     trade = kind == 1
-    out["f"][:, 0] = np.where(snap, b1, np.where(trade, vol, 0.0))
-    out["f"][:, 1] = np.where(snap, a1, np.where(trade, side, 0.0))
-    out["price"] = np.where(kind >= 2, 0.0, px)
+    out["f"][:, 0] = np.where(snap, b1, np.where(kind == 3, 0.0, vol))
+    out["f"][:, 1] = np.where(snap, a1, np.where(kind == 3, 0.0, side))
+    out["price"] = np.where(kind == 3, 0.0, px)
     out["f"][:, 2] = np.where(snap, hi, 0.0)
     out["f"][:, 3] = np.where(snap, lo, 0.0)
     out["f"][:, 4] = np.where(snap, op, 0.0)
@@ -81,7 +81,7 @@ def py_run(ev: np.ndarray, prev: dict[int, dict[str, float]]) -> dict[int, dict[
             elif e["kind"] == 3:
                 on_cancel(st, float(e["t"]), float(e["s"]))
             else:
-                on_order(st, float(e["t"]), float(e["s"]))
+                on_order(st, float(e["t"]), float(e["s"]), float(e["price"]), f[0], f[1])
         out[int(sid)] = st.dump()
     return out
 

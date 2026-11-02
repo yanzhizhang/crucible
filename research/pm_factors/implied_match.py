@@ -29,7 +29,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from basic_match import BASICS
 from rank_candidates import pm_frame
 
-A_GRID = (0.0, 0.5, 0.8, 0.9, 0.93, 0.95, 0.97, 0.98, 0.99, 0.995)
+A_GRID = (0.0, 0.3, 0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.93, 0.95, 0.96, 0.97, 0.98, 0.985, 0.99, 0.995, 1.0)
 MAX_CELLS = 60000  # cells scored per (file, V, day); a random subset is plenty for ranks and medians
 TOL = 1e-3
 
