@@ -66,7 +66,7 @@ std::vector<rule> read_rules(const char* path) {
             throw std::runtime_error("bad rules line: " + line);
         std::string base = clock.substr(0, clock.find('_'));  // "snap" / "trade" / "both" [+ "_wall" / "_exch"]
         r.mod = clock.find('_') == std::string::npos ? "" : clock.substr(clock.find('_') + 1);
-        r.clock = base == "trade" ? 1 : base == "both" ? 2 : 0;
+        r.clock = base == "trade" ? 1 : base == "both" ? 2 : base == "bothn" ? 3 : 0;  // bothn: both events, each its own value
         out.push_back(r);
     }
     return out;
@@ -120,8 +120,10 @@ std::string dump(stock& st, const std::vector<rule>& rules) {
     put(o, "zzvm.c.tpv", st.amt);
     put(o, "zzgh.nb", st.buy + st.sell ? (st.buy - st.sell) / (st.buy + st.sell) : qnan);
     const std::pair<const char*, const double*> nbs[] = {{"zzgh.nb|all", st.nb_all}, {"zzgh.nb|volall", st.nb_vall}, {"zzgh.nb|vol", st.nb_vol},
-                                                         {"zzgh.nb|to1500", st.nb_1500}, {"zzgh.nb|open", st.nb_open}};
+                                                         {"zzgh.nb|to1500", st.nb_1500}, {"zzgh.nb|open", st.nb_open},
+                                                         {"zzgh.nb|tick", st.nb_tick}, {"zzgh.nb|mid", st.nb_mid}, {"zzgh.nb|loc", st.nb_loc}};
     for (const auto& [k, v] : nbs) put(o, k, v[0] + v[1] ? (v[0] - v[1]) / (v[0] + v[1]) : qnan);
+    put(o, "zzgh.nb|den", st.nb_den ? (st.buy - st.sell) / st.nb_den : qnan);
     put(o, "zzmh.hm", st.hm);
     for (int k = 0; k < n_xo; ++k) put(o, "zzxo.r." + std::to_string(k), st.xo[k]);
     for (int k = 0; k < n_ui; ++k) put(o, "zzui.r." + std::to_string(k), st.ui[k]);

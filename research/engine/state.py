@@ -102,6 +102,8 @@ class Stock:
         self.buy = self.sell = 0.0  # continuous-session amounts for zzgh.nb
         # zzgh.nb variants, [buy, sell]: whole day amount / volume, continuous volume, amount to 15:00, amount incl. opening auction
         self.nb_all, self.nb_vall, self.nb_vol, self.nb_1500, self.nb_open = [0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]
+        # more zzgh.nb variants: side by tick rule, side against the snapshot mid, local-clock window, all-trade denominator
+        self.nb_tick, self.nb_mid, self.nb_loc, self.nb_den, self.tick_side = [0.0, 0.0], [0.0, 0.0], [0.0, 0.0], 0.0, 0.0
         self.hm = math.nan  # highest snapshot price in the continuous session (exchange time)
         self.pc = self.op = math.nan  # previous close / open from the snapshots
         self.snap_px = self.snap_prev = math.nan  # last two snapshot prices (zzbd.rEmaS)
@@ -132,8 +134,10 @@ class Stock:
         out["zzqj.v"] = out["zzvm.c.v"] = self.vol
         out["zzqj.tpv"] = out["zzvm.c.tpv"] = self.amt
         out["zzgh.nb"] = (self.buy - self.sell) / (self.buy + self.sell) if self.buy + self.sell else math.nan
-        for tag, (b, s) in (("all", self.nb_all), ("volall", self.nb_vall), ("vol", self.nb_vol), ("to1500", self.nb_1500), ("open", self.nb_open)):
+        for tag, (b, s) in (("all", self.nb_all), ("volall", self.nb_vall), ("vol", self.nb_vol), ("to1500", self.nb_1500), ("open", self.nb_open),
+                            ("tick", self.nb_tick), ("mid", self.nb_mid), ("loc", self.nb_loc)):
             out[f"zzgh.nb|{tag}"] = (b - s) / (b + s) if b + s else math.nan
+        out["zzgh.nb|den"] = (self.buy - self.sell) / self.nb_den if self.nb_den else math.nan
         out["zzmh.hm"] = self.hm
         for fam, g in self.grid.items():
             for k, v in enumerate(g):

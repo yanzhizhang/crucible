@@ -16,8 +16,8 @@ inline double plog(double x) { return x > 0 ? std::log(x) : qnan; }
 inline double pymax(double a, double b) { return b > a ? b : a; }
 inline double pymin(double a, double b) { return b < a ? b : a; }
 
-enum class what : int { price, mid, logp, hl, hl0, hl_valid, tr_open, logret, one, snap_px, hl_snap, rvwap, hl_trade, tro };
-enum class clock_mod : int { none, wall, exch };
+enum class what : int { price, mid, logp, hl, hl0, hl_valid, tr_open, logret, one, snap_px, hl_snap, rvwap, hl_trade, tro, price0, price_pc };
+enum class clock_mod : int { none, wall, exch, o930 };
 
 inline double tc(double s) { return s <= 41400 ? s - 34200 : (s < 46800 ? 7200.0 : s - 46800 + 7200); }
 
@@ -25,6 +25,7 @@ inline double tc(double s) { return s <= 41400 ? s - 34200 : (s < 46800 ? 7200.0
 inline double clock_time(clock_mod m, double t, double s) {
     if (m == clock_mod::wall) return t > 7200 ? t + 5400.0 : t;
     if (m == clock_mod::exch) return tc(s);
+    if (m == clock_mod::o930) return s >= 34200 ? t : qnan;  // NaN = this event does not update
     return t;
 }
 
@@ -43,6 +44,8 @@ inline what parse_what(const std::string& w) {
     if (w == "rvwap") return what::rvwap;
     if (w == "hl_trade") return what::hl_trade;
     if (w == "tro") return what::tro;
+    if (w == "price0") return what::price0;
+    if (w == "price_pc") return what::price_pc;
     throw std::runtime_error("unknown value kind " + w);
 }
 
@@ -50,6 +53,7 @@ inline clock_mod parse_mod(const std::string& m) {
     if (m.empty()) return clock_mod::none;
     if (m == "wall") return clock_mod::wall;
     if (m == "exch") return clock_mod::exch;
+    if (m == "o930") return clock_mod::o930;
     throw std::runtime_error("unknown clock modifier " + m);
 }
 
@@ -67,6 +71,8 @@ inline double snap_value(const stock& st, what w) {
     case what::hl_trade: return st.high - st.low;
     case what::tro: return pymax(st.high, st.op) - pymin(st.low, st.op);
     case what::snap_px: return st.snap_px;
+    case what::price0: return std::isnan(st.snap_px) ? 0.0 : st.snap_px;
+    case what::price_pc: return std::isnan(st.snap_px) ? st.pc : st.snap_px;
     default: throw std::runtime_error("value kind not on the snapshot clock");
     }
 }
@@ -113,7 +119,10 @@ inline void on_snap(stock& st, const compiled_rules& cr, double t, double s, dou
     if (pc > 0) st.pc = pc;
     if (34200 <= s && s < 53820 && price > 0 && !(st.hm >= price)) st.hm = price;
     for (std::size_t i = 0; i < st.emas.size(); ++i)
-        if (cr.clock[i] != 1) st.emas[i].update(clock_time(cr.mod[i], t, s), snap_value(st, cr.kind[i]));
+        if (cr.clock[i] != 1) {
+            double tt = clock_time(cr.mod[i], t, s);
+            if (!std::isnan(tt)) st.emas[i].update(tt, snap_value(st, cr.kind[i]));
+        }
     st.zzfb.feed(t, amount);
     st.jb_px.feed(t, st.snap_px);
     for (int k = 0; k < n_hj; ++k)
@@ -137,6 +146,21 @@ inline void on_trade(stock& st, const compiled_rules& cr, double t, double s, do
     }
     double amt = vol * price;
     double b = side > 0 ? 1.0 : 0.0, sl = side < 0 ? 1.0 : 0.0;
+    double tick = st.tick_side;  // tick rule: up = buy, down = sell, flat = the previous tick's side
+    if (price > 0 && !std::isnan(st.trade_prev)) tick = price > st.trade_prev ? 1.0 : (price < st.trade_prev ? -1.0 : st.tick_side);
+    st.tick_side = tick;
+    double msd = price > st.mid ? 1.0 : (price < st.mid ? -1.0 : 0.0);  // side against the last snapshot mid (NaN mid -> 0)
+    if (34200 <= s && s < 53820) {
+        st.nb_den += amt;
+        st.nb_tick[0] += amt * (tick > 0 ? 1.0 : 0.0);
+        st.nb_tick[1] += amt * (tick < 0 ? 1.0 : 0.0);
+        st.nb_mid[0] += amt * (msd > 0 ? 1.0 : 0.0);
+        st.nb_mid[1] += amt * (msd < 0 ? 1.0 : 0.0);
+    }
+    if (0 <= t && t < session) {
+        st.nb_loc[0] += amt * b;
+        st.nb_loc[1] += amt * sl;
+    }
     st.nb_all[0] += amt * b;
     st.nb_all[1] += amt * sl;
     st.nb_vall[0] += vol * b;
@@ -161,8 +185,11 @@ inline void on_trade(stock& st, const compiled_rules& cr, double t, double s, do
         }
     }
     for (std::size_t i = 0; i < st.emas.size(); ++i)
-        if (cr.clock[i] != 0)
-            st.emas[i].update(clock_time(cr.mod[i], t, s), cr.clock[i] == 1 ? trade_value(st, cr.kind[i]) : snap_value(st, cr.kind[i]));
+        if (cr.clock[i] != 0) {
+            double tt = clock_time(cr.mod[i], t, s);
+            if (!std::isnan(tt))
+                st.emas[i].update(tt, (cr.clock[i] == 1 || cr.clock[i] == 3) ? trade_value(st, cr.kind[i]) : snap_value(st, cr.kind[i]));
+        }
 }
 
 }  // namespace eng
