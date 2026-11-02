@@ -76,15 +76,19 @@ def main() -> None:
                 num = sum(1 for q in seqs for i in range(1, len(q)) if q[i - 1] and q[i])
                 den = sum(1 for q in seqs for i in range(1, len(q)) if q[i - 1])
                 cond = num / den if den else None
-            tr = s.filter(pl.col("trades").is_not_null())
-            no_tr = tr.filter(pl.col("trades") == 0)["same"].mean() if tr.height else None
-            has_tr = tr.filter(pl.col("trades") > 0)["same"].mean() if tr.height else None
+            tr = s.filter(pl.col("trades").is_not_null() & (pl.col("trades") > 0))
+            dec = {}
+            if tr.height >= 1000:  # same share by quintile of our trade count in the bar: a Bernoulli-per-event sampler gives (1-p)^n
+                q = tr.with_columns((pl.col("trades").rank("ordinal") * 5 / tr.height).ceil().clip(1, 5).cast(pl.Int32).alias("q5"))
+                g = q.group_by("q5").agg(pl.col("same").mean(), pl.col("trades").median().alias("n")).sort("q5")
+                dec = {f"same_q{r['q5']}": float(r["same"]) for r in g.iter_rows(named=True)}
+                dec["n_q1"], dec["n_q5"] = float(g["n"][0]), float(g["n"][-1])
             out.append({"file": name, "V": V, "pairs": len(pairs), "same": base, "bar_min": float(by_bar.min()), "bar_max": float(by_bar.max()),
-                        "stock_min": float(by_stock.min()), "stock_max": float(by_stock.max()), "p_same_given_same": cond,
-                        "same_no_trade": no_tr, "same_with_trade": has_tr, "zero_trade_share": float((tr["trades"] == 0).mean()) if tr.height else None})
+                        "stock_min": float(by_stock.min()), "stock_max": float(by_stock.max()), "p_same_given_same": cond, **dec})
     with pl.Config(tbl_rows=300, tbl_cols=-1, tbl_width_chars=200, float_precision=3):
-        print("== cells carried unchanged (pm_d == pm_prev): base share, spread over bars and stocks, persistence, vs our trade count in the bar")
-        print(pl.DataFrame(out))
+        print("== cells carried unchanged (pm_d == pm_prev): base share, spread over bars / stocks, persistence, same share by quintile of our "
+              "trade count in the bar (q1 fewest .. q5 most; n_q1 / n_q5 = median trades)")
+        print(pl.DataFrame(out, infer_schema_length=None))
 
 
 if __name__ == "__main__":
