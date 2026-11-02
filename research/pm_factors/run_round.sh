@@ -3,7 +3,8 @@
 #   A. Stage 4: PM's sampler files of every family on the days we hold ticks for -- export, candidate formulas (size tiers =
 #      PM's own ZZCR samplerR of the previous PM day; reused once built, REUSE=0 rebuilds), each PM file ranked against the
 #      candidate family its COLUMNS match (stage4_route), one summary; the basics table for EVERY overlap day (basics.py) and
-#      every PM column scored against every basic at the same day / the day before / multi-day blends (basic_match.py);
+#      every PM column's implied daily input (pm_d - a pm_prev) scored against every basic, plus a structure search
+#      over transforms of the basics for the columns no single basic explains (implied_match.py);
 #      the size-like columns against PM's own samplerR quantiles (sampler_pm.py);
 #   B. (DCP=1 only) Stage 4f: the six open day-end state keys (dcp_open.py);
 #   C. the engine (research/engine): run + verify against PM's .jz and the vectorized rebuild, the keys not at 1.0 listed.
@@ -92,17 +93,15 @@ for d in $WANT; do
 done
 run research/pm_factors/stage4_summary.py --reports $R4 2>&1 | tee $R4/summary.txt | tail -3
 
-echo "### A2 every PM column against every basic quantity, same day / day before / multi-day blends (basic_match)"
-POLARS_MAX_THREADS=4 run research/pm_factors/basic_match.py --dates $(echo $WANT | tr ' ' ',') --exports $X --workers $((CPUS / 4)) --out $R4/basic_match.csv > $R4/basic_match.txt 2>&1
-grep -E "^[0-9]{8} |^table|Error|error:|nothing joined" $R4/basic_match.txt | tail -8
+echo "### A2 every PM column's implied input (pm_d - a pm_prev) against every basic + structure search (implied_match)"
+OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 POLARS_MAX_THREADS=2 run research/pm_factors/implied_match.py --dates $(echo $WANT | tr ' ' ',') --exports $X --workers $((CPUS / 2)) --out $R4/implied_match.csv > $R4/implied_match.txt 2>&1
+grep -E "^[0-9]{8} |^table|Error|error:|Traceback" $R4/implied_match.txt | tail -6
 echo "### A3 size-like samplerS columns against PM's own samplerR quantiles (sampler_pm)"
 for d in $WANT; do
   run research/pm_factors/sampler_pm.py --date $d --hstats $H --exports $X --out $R4 > $R4/sampler_pm_$d.txt 2>&1 || tail -2 $R4/sampler_pm_$d.txt
 done
 
-echo "### A4 half-life scan of the cross-day EMA behind the profile-like columns (profile_fit)"
-run research/pm_factors/profile_fit.py --dates all --exports $X --out $R4/profile_fit.csv > $R4/profile_fit.txt 2>&1 || tail -3 $R4/profile_fit.txt
-grep -E "^test days|Error|Traceback" $R4/profile_fit.txt | head -3
+# A4 (profile_fit half-life scan / one-step fit) retired: implied_match fits the memory coefficient a directly
 
 if [ "${DCP:-0}" = 1 ]; then
 echo "### B open state keys"
@@ -127,9 +126,7 @@ done
 echo
 echo "########## SUMMARY (photograph from here) ##########"
 tail -2 $R4/inventory.txt
-sed -n '/^== PM column -> basic/,$p' $R4/basic_match.txt | grep -vE "^│ (---|str|f64|u32|i64)|^shape"
-sed -n '/^== one-step fit/,/^== half-life/p' $R4/profile_fit.txt | grep -vE "^│ (---|str|f64|u32|i64|bool)|^shape"
-grep -E "daily:" $R4/basic_match.txt | head -8
+sed -n '/^== implied input/,$p' $R4/implied_match.txt | grep -vE "^│ (---|str|f64|u32|i64)|^shape"
 for d in $WANT; do
   echo "== engine $d: $(tail -1 $RE/run_$d.txt 2>/dev/null | cut -c1-120)"
   [ -f $RE/verify_$d.txt ] && grep -E "^PM |^== engine vs PM|^│ (zz|cdc)|Error|Traceback" $RE/verify_$d.txt | grep -vE "┆ 1.0000 ┆ 1.0000 ┆ 1.0000 ┆ 1.0000" | sed -n '1,/^== engine vs vec/p' | head -40
