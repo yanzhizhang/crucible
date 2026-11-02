@@ -1,4 +1,4 @@
-// The engine binary: events.bin + rules.tsv (+ prev.bin) -> the day-end state as JSON, one thread per stock chunk.
+// The engine binary (C++20): events.bin + rules.tsv (+ prev.bin) -> the day-end state as JSON, one thread per stock chunk.
 //   engine <events.bin> <rules.tsv> <out.json> [--prev prev.bin] [--threads N]
 #include <fcntl.h>
 #include <sys/mman.h>

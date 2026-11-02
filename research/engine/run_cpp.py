@@ -42,7 +42,7 @@ def ensure_binary(cpp: Path = CPP) -> Path:
         subprocess.run(["cmake", "-S", str(cpp), "-B", str(cpp / "build"), "-DCMAKE_BUILD_TYPE=Release"], check=True, stdout=subprocess.DEVNULL)
         subprocess.run(["cmake", "--build", str(cpp / "build"), "-j4"], check=True, stdout=subprocess.DEVNULL)
     else:  # no cmake on the box: the one-TU build with the same flags
-        subprocess.run(["g++", "-std=c++17", "-O2", "-DNDEBUG", "-ffp-contract=off", "-pthread", str(cpp / "main.cpp"), "-o", str(exe)], check=True)
+        subprocess.run(["g++", "-std=c++20", "-O2", "-DNDEBUG", "-ffp-contract=off", "-pthread", str(cpp / "main.cpp"), "-o", str(exe)], check=True)
     return exe
 
 
