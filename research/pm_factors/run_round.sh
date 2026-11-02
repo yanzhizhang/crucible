@@ -12,7 +12,7 @@
 # that PM's hstats tree also has; DAYS=all for every overlap day).
 set -u
 cd /work/crucible
-CPUS=${CPUS:-64}
+CPUS=${CPUS:-256}
 ALL=$(nproc --all); [ $CPUS -gt $ALL ] && CPUS=$ALL
 DAYS=${DAYS:-20260923,20260924,20260929,20260930,20261009}
 REUSE=${REUSE:-1}

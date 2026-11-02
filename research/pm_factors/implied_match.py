@@ -34,8 +34,8 @@ MAX_CELLS = 60000  # cells scored per (file, V, day); a random subset is plenty 
 TOL = 1e-3
 
 
-def rank(x: np.ndarray) -> np.ndarray:
-    """Average ranks of a 1-D array (NaN kept as NaN)."""
+def _rank_np(x: np.ndarray) -> np.ndarray:
+    """Average ranks of a 1-D array (NaN kept as NaN) -- numpy reference of the C++ kernel."""
     out = np.full(x.shape, np.nan)
     ok = np.isfinite(x)
     v = x[ok]
@@ -53,21 +53,21 @@ def rank(x: np.ndarray) -> np.ndarray:
     return out
 
 
-def rank_cols(B: np.ndarray) -> np.ndarray:
+def _rank_cols_np(B: np.ndarray) -> np.ndarray:
     """Ranks of every column of B (each over its own finite cells), computed once per join."""
-    return np.column_stack([rank(B[:, k]) for k in range(B.shape[1])]) if B.shape[1] else B
+    return np.column_stack([_rank_np(B[:, k]) for k in range(B.shape[1])]) if B.shape[1] else B
 
 
-def col_scores(y: np.ndarray, B: np.ndarray, RB: np.ndarray | None = None) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+def _col_scores_np(y: np.ndarray, B: np.ndarray, RB: np.ndarray | None = None) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Per column of B: n, median ratio y / B, exact_scaled share, spearman with y (column ranks RB reused across a)."""
     n_cols = B.shape[1]
     ratio = np.full(n_cols, np.nan)
     exact = np.zeros(n_cols)
     rho = np.full(n_cols, np.nan)
     n = np.zeros(n_cols, dtype=int)
-    ry = rank(y)
+    ry = _rank_np(y)
     if RB is None:
-        RB = rank_cols(B)
+        RB = _rank_cols_np(B)
     for k in range(n_cols):
         b = B[:, k]
         ok = np.isfinite(y) & np.isfinite(b)
@@ -84,6 +84,26 @@ def col_scores(y: np.ndarray, B: np.ndarray, RB: np.ndarray | None = None) -> tu
         if sa > 0 and sb > 0:
             rho[k] = float(np.mean((a_ - a_.mean()) * (b_ - b_.mean())) / (sa * sb))
     return n, ratio, exact, rho
+
+
+# The C++ kernel (cpp/score_kernel.cpp via kernel.py) when it builds, the numpy versions above otherwise.
+try:
+    import kernel as _K
+    _KERNEL = _K.load()
+except Exception:  # noqa: BLE001 -- any import / build trouble means numpy
+    _KERNEL = None
+
+
+def rank(x: np.ndarray) -> np.ndarray:
+    return _K.rank(x) if _KERNEL else _rank_np(x)
+
+
+def rank_cols(B: np.ndarray) -> np.ndarray:
+    return _K.rank_cols(B) if _KERNEL else _rank_cols_np(B)
+
+
+def col_scores(y: np.ndarray, B: np.ndarray, RB: np.ndarray | None = None) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    return _K.col_scores(y, B, RB, TOL) if _KERNEL else _col_scores_np(y, B, RB)
 
 
 def load_basics(basics_dir: Path, day: str, table: str) -> pl.DataFrame | None:
@@ -203,7 +223,7 @@ def match_file(f: Path, d: str, dp: str | None, basics_dir: Path, search: bool, 
                     if j.height > MAX_CELLS:
                         j = j[np.sort(rng.choice(j.height, MAX_CELLS, replace=False))]
                     x, xp = j["x"].to_numpy(), j["xp"].to_numpy().astype(float)
-                    B = j.select(names).to_numpy().astype(float)
+                    B = np.asfortranarray(j.select(names).to_numpy().astype(float))  # column-contiguous: the kernel scans columns
                     RB = rank_cols(B)
                     has_prev = np.isfinite(xp).mean() > 0.5
                     best_exact = 0.0
@@ -240,6 +260,7 @@ def main() -> None:
     ap.add_argument("--out", type=Path, default=Path("data/reports/stage4/implied_match.csv"))
     a = ap.parse_args()
     dates = [x for x in a.dates.split(",") if x]
+    print(f"scoring kernel: {'C++ (cpp/score_kernel.cpp)' if _KERNEL else 'numpy fallback'}", flush=True)
     pm_days = sorted({f.stem.rsplit("_", 1)[1] for f in a.exports.glob("*.parquet")})
     jobs = []
     for d in dates:
