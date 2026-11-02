@@ -143,7 +143,7 @@ def guess(r: dict) -> str:
 
 def identities(t: pl.DataFrame, name: str) -> list[dict]:
     """Relations between columns of one file that hold cell by cell: equal / proportional pairs and three-column formulas."""
-    wide = t.pivot(on="V", index=["code", "minute", "day"], values="x")
+    wide = t.pivot(on="V", index=["code", "minute", "day"], values="x", aggregate_function="first")  # a file may carry several D rows per cell
     vs = [c for c in wide.columns if c not in ("code", "minute", "day")]
     cols = {v: wide[v].to_numpy().astype(float) for v in vs}
     out = []
