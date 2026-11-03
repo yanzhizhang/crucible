@@ -21,6 +21,7 @@ import numpy as np
 import polars as pl
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from basic_match import BASICS
 from rank_candidates import pm_frame
@@ -30,8 +31,14 @@ LEVELS = (0.5,)  # the median: confirmed on ZZTS / ZZXC (ratio 1.000, 25-30% bit
 
 
 def trading_days(hstats: Path, fam: str) -> list[str]:
-    """PM days of a family = trading days."""
-    return sorted(p.name for p in (hstats / fam).glob("2026*") if p.is_dir())
+    """SSE trading days from the CED calendar; PM's own day folders only start where its history starts."""
+    pm = sorted(p.name for p in (hstats / fam).glob("20*") if p.is_dir())
+    try:
+        from ced.calendar import calendar
+        return calendar.trade_days("20200101", max(pm))
+    except Exception as e:  # no CED store: PM days, which caps the windows at PM's own history
+        print(f"CED calendar unavailable ({type(e).__name__}: {e}); trading days = PM folders from {pm[0]}")
+        return pm
 
 
 def quantile_sorted(w: np.ndarray, nf: np.ndarray, q: float) -> np.ndarray:
@@ -82,7 +89,7 @@ def main() -> None:
         tdays = trading_days(a.hstats, fam)
         for d in a.days.split(","):
             f = a.cache / f"{fam}_{d}.parquet"
-            if not f.exists() or d not in tdays:
+            if not f.exists() or d not in tdays or not (a.hstats / fam / d).is_dir():
                 print(f"{fam} {d}: no PM file / not a PM day")
                 continue
             pm, vals, kind = pm_frame(f, None, None, None, None, None)
@@ -91,9 +98,10 @@ def main() -> None:
             i = tdays.index(d)
             hist = tdays[max(0, i - max(WINDOWS)): i + 1]  # trading days up to d, oldest first
             hist = [x for x in hist if x in have]
-            cover = 0  # number of consecutive trading days back from d that basics hold
+            cover, gap = 0, "none"  # consecutive trading days back from d that basics hold, and the first one missing
             for x in reversed(tdays[: i + 1]):
                 if x not in have:
+                    gap = x
                     break
                 cover += 1
             tabs = {}
@@ -123,7 +131,7 @@ def main() -> None:
                             best = int(np.nanargmax(np.nan_to_num(ok3, nan=-1)))
                             rows.append({"file": fam, "V": V, "day": d, "N": N, "incl": incl, "q": q, "basic": names[best], "ratio": ratio[best],
                                          "exact": ex[best], "ok3": ok3[best], "spearman": rho[best]})
-            print(f"{fam} {d}: {kind}, basics cover {cover} trading days", flush=True)
+            print(f"{fam} {d}: {kind}, basics cover {cover} trading days (first missing {gap})", flush=True)
     if not rows:
         print("nothing scored")
         return
