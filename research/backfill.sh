@@ -6,7 +6,7 @@
 #   <ARCH>/YYYYMMDD/v3_<kind>_YYYY_MM_DD_<SH|SZ>.zst        TickRepository archive (2.23), one file per stream / exchange
 #   <ARCH>/YYYYMMDD/v3_<kind>/v3_<kind>_YYYY_MM_DD_HH_MM.zst  live minute dumps, one folder per stream (the layout on 97)
 #   <ARCH>/<FROM>_<TO>/v3_<kind>/YYYY_MM_DD/...              the same dumps grouped by date range (also read)
-# Days with no feitu data come from the DataYes XTP L2 packages <XTP>/YYYYMMDD.zip (decode_tdf_day.py), same raw layout.
+# Days with no feitu data come from the DataYes XTP L2 packages <XTP>/YYYYMMDD.zip (decode_datayes_day.py), same raw layout.
 #   CPUS=16 bash research/backfill.sh 20260901 20261009 2>&1 | tee data/reports/backfill.txt
 #
 # Days already decoded are skipped (FORCE=1 redecodes). Only order / transaction / quotation are decoded.
@@ -43,12 +43,12 @@ done
 XTP=${XTP:-/mnt/TickDataRepo/XTPSharesL2}
 XW=${XW:-96}; [ "$XW" -gt "$CPUS" ] && XW=$CPUS  # worker processes; each holds one symbol's csv, so fewer than CPUS
 xdays=$(ls $XTP 2>/dev/null | grep -oE '^[0-9]{8}' | sort -u | awk -v a=$FROM -v b=$TO '$1 >= a && $1 <= b' \
-        | while read d; do echo " $(echo $days) " | grep -q " $d " || [ -d $RAW/kind=transaction/date=$d -a "${FORCE:-0}" != 1 ] || echo $d; done)
+        | while read d; do echo " $(echo $days) " | grep -q " $d " || echo $d; done)
 if [ -n "$xdays" ]; then
   xl=$(echo $xdays | tr ' ' ',')
-  echo "### XTP L2 (DataYes) for days feitu lacks: $xl"
+  echo "### XTP L2 (DataYes) for days feitu lacks, all packages in one pool (parts already on disk are skipped): $xl"
   t0=$(date +%s)
-  taskset -c 0-$((CPUS - 1)) nice -n 5 python -u research/decode_tdf_day.py --root $XTP --date $xl --out $RAW --workers $XW \
+  taskset -c 0-$((CPUS - 1)) nice -n 5 python -u research/decode_datayes_day.py --root $XTP --date $xl --out $RAW --workers $XW \
     $([ "${FORCE:-0}" = 1 ] && echo --overwrite) > data/reports/backfill_xtp.txt 2>&1 \
     && { echo "xtp: $(echo $xdays | wc -w) days decoded in $(( $(date +%s) - t0 ))s"; done_days="$done_days $xdays"; } \
     || { echo "xtp: decode FAILED"; tail -5 data/reports/backfill_xtp.txt; }
