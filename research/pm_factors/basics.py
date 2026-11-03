@@ -201,7 +201,7 @@ def main() -> None:
 
     def thr_of(d: str) -> Path | None:
         if a.thr_dir:
-            prev = [x for x in pm_days if x < d]
+            prev = [x for x in pm_days if x < d] or pm_days[:1]  # before PM's first day: its first universe (HS300 rebalances twice a year)
             return a.thr_dir / prev[-1] / "samplerR.parquet" if prev else None
         return a.thr_file
 
