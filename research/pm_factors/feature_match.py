@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import itertools
+import re
 import sys
 from pathlib import Path
 
@@ -58,11 +59,22 @@ def atoms(pm: pl.DataFrame, stem: str) -> pl.DataFrame:
     return pl.concat([*out, px]).filter(pl.col("v").is_finite())
 
 
-def candidates(a: pl.DataFrame) -> dict[str, np.ndarray]:
-    """Expressions over one day's atoms (wide by stock): each atom, pairwise ratio / log ratio / difference, relative to price."""
+TRIPLE_MAX = 2000  # (x - y) / z for every ordered x, y and a third z, when a stem has few enough atoms
+_TRI = re.compile(r"^\((.+) - (.+)\) / (.+)$")
+_LOG = re.compile(r"^log\((.+) / (.+)\)$")
+_DIV = re.compile(r"^(.+) / (.+)$")
+_SUB = re.compile(r"^(.+) - (.+)$")
+
+
+def atom_columns(a: pl.DataFrame) -> tuple[np.ndarray, dict[str, np.ndarray]]:
+    """One frame's atoms wide by stock: (sids, name -> values)."""
     w = a.pivot(on="name", index="sid", values="v", aggregate_function="first").sort("sid")
-    names = [c for c in w.columns if c != "sid"]
-    col = {n: w[n].to_numpy().astype(float) for n in names}
+    return w["sid"].to_numpy(), {n: w[n].to_numpy().astype(float) for n in w.columns if n != "sid"}
+
+
+def expressions(col: dict[str, np.ndarray], triples: bool = False) -> dict[str, np.ndarray]:
+    """Each atom, pairwise ratio / log ratio / difference, relative to price; with ``triples`` also (x - y) / z."""
+    names = list(col)
     out = {n: v for n, v in col.items() if n != "px"}
     with np.errstate(divide="ignore", invalid="ignore"):
         for x, y in itertools.permutations(names, 2):
@@ -70,7 +82,29 @@ def candidates(a: pl.DataFrame) -> dict[str, np.ndarray]:
             out[f"log({x} / {y})"] = np.log(col[x] / col[y])
             if x < y:
                 out[f"{x} - {y}"] = col[x] - col[y]
+        n = len(names)
+        if triples and n * (n - 1) * (n - 2) <= TRIPLE_MAX:  # a deviation scaled by a third quantity (a range, a volatility)
+            for x, y in itertools.permutations(names, 2):
+                for z in names:
+                    if z not in (x, y):
+                        out[f"({x} - {y}) / {z}"] = (col[x] - col[y]) / col[z]
     return out
+
+
+def evaluate(expr: str, col: dict[str, np.ndarray]) -> np.ndarray | None:
+    """One expression of ``expressions`` over atom columns; None when an atom is missing."""
+    with np.errstate(divide="ignore", invalid="ignore"):
+        for rx, f in ((_TRI, lambda x, y, z: (x - y) / z), (_LOG, lambda x, y: np.log(x / y)), (_DIV, lambda x, y: x / y),
+                      (_SUB, lambda x, y: x - y)):
+            m = rx.match(expr)
+            if m and all(g in col for g in m.groups()):
+                return f(*(col[g] for g in m.groups()))
+    return col.get(expr)
+
+
+def candidates(a: pl.DataFrame, triples: bool = False) -> dict[str, np.ndarray]:
+    """Expressions over one day's atoms (wide by stock)."""
+    return expressions(atom_columns(a)[1], triples)
 
 
 def pool(pooled: dict[str, list[np.ndarray]]) -> dict[str, np.ndarray]:

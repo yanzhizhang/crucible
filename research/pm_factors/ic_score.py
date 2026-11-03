@@ -21,7 +21,16 @@ model should predict the next 5-minute return better than with that feature miss
    (``--xs``). Those transforms share one CDF whatever they transform, so their bases are shortlisted by
    their own |IC| (``--xs-shortlist``) and never accepted by CDF alone.
 
-The assignment found is written to ``ic_assign.json`` and can be fed back with ``--assign``.
+State comes from the C++ engine's ``--marks`` output (``<engine-dir>/marks_<D>.parquet``: every solved rule at
+every mark) where it exists, over ``feature_intraday.rebuild``; state candidates include (x - y) / z (``--triples``).
+samplerS profile cells at each mark (``--profiles``: the cell at, before and after the mark's minute) and the last
+5-minute bar's amount / volume / buy amount over them join the shared pool as ``ced.<FAM>.<V>@<off>``. A candidate
+with fewer than ``--min-distinct`` values (a dummy) only matches a feature whose fingerprint is a flag / count.
+
+The assignment found is written to ``ic_assign.json`` and can be fed back with ``--assign``. At the end every assigned
+column is removed once (ablation: the paired IC loss and its t) and checked against the training CDF:
+``ic_evidence.parquet`` grades each strong (CDF gap <= 0.02 and t >= 2) / fits (gap <= --accept-cdf) / weak;
+``ic_log.parquet`` keeps the scan log (closest candidates of the features left open).
 
     python research/pm_factors/ic_score.py --dates 20260923,20260929,20261009
 """
@@ -45,6 +54,7 @@ import dcp_build as B  # catalog, state loader
 import dcp_ema as E  # tick loading
 import feature_intraday as FI  # the 5-minute rebuild
 import feature_match as FM  # candidate expressions, fingerprint ranking
+from same_gap import day_frame  # samplerS cells of one family and day (cached parquet)
 
 MARKS = np.arange(300.0, 13801.0, 300.0)  # 09:35 ... 14:50: the last mark still has 5 minutes of continuous session ahead
 HORIZON = 300.0
@@ -171,6 +181,8 @@ def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None, T: np.ndarray = MA
                 out[f"imbn{w}"] = win["nn"] / win["n"]
                 out[f"imba{w}"] = win["na"] / win["a"]
                 out[f"lvol{w}"] = np.log1p(win["v"])
+                if w == 300:  # the last 5-minute bar's flows, raw: the profile ratios divide them by the samplerS medians
+                    out["amt300"], out["vol300"], out["buy300"] = win["a"], win["v"], (win["a"] + win["na"]) / 2
             out["cum_imb"] = upto(T, "nv") / upto(T, "v")
             px = FI.at_marks(t, b["price"], T)
             out["lp_vwap"] = np.log(px / (upto(T, "a") / upto(T, "v")))
@@ -185,12 +197,38 @@ def family(expr: str) -> str:
 
 
 def stem_frames(frames: list[pl.DataFrame], stem: str) -> list[tuple[np.ndarray, dict[str, np.ndarray]]]:
-    """Per mark: (sids, candidates) -- the stem's state expressions."""
-    out = []
-    for fr in frames:
-        a = FM.atoms(fr, stem)
-        sids = np.array(sorted(a["sid"].unique().to_list()))
-        out.append((sids, FM.candidates(a)))
+    """Per mark: (sids, atoms) -- the stem's state quantities; expressions are evaluated on demand (``FM.evaluate``)."""
+    return [FM.atom_columns(FM.atoms(fr, stem)) for fr in frames]
+
+
+def mark_minutes(marks: np.ndarray) -> np.ndarray:
+    """Minute of day (local) of each trading-clock mark."""
+    sec = np.where(marks <= 7200, 34200 + marks, 46800 + marks - 7200)
+    return np.floor(sec / 60).astype(int)
+
+
+def profile_marks(hstats: Path, cache: Path, fams: list[str], d: str, marks: np.ndarray) -> dict[int, dict[str, np.ndarray]]:
+    """Map sid -> ``<FAM>.<V>@<off>`` -> value at each mark: the samplerS cell at the mark's minute (0), the one before / after."""
+    mm = mark_minutes(marks)
+    out: dict[int, dict[str, np.ndarray]] = {}
+    for fam in fams:
+        df = day_frame(hstats, fam, d, cache)
+        if df is None:
+            continue
+        mins = np.array(sorted(df["minute"].unique().to_list()))
+        daily = mins.size == 1
+        k0 = np.zeros(mm.size, int) if daily else np.searchsorted(mins, mm, side="right") - 1  # last cell at or before the minute
+        for V in sorted(df["V"].unique().to_list()):
+            w = df.filter(pl.col("V") == V).pivot(on="minute", index="code", values="x", aggregate_function="first")
+            cols = [str(m) for m in mins]
+            M = w.select([pl.col(c).cast(pl.Float64) if c in w.columns else pl.lit(None, pl.Float64).alias(c) for c in cols]).to_numpy()
+            codes = w["code"].to_numpy()
+            for off in ((0,) if daily else (-1, 0, 1)):
+                k = k0 + off
+                ok = (k >= 0) & (k < mins.size)
+                vals = np.where(ok, M[:, np.clip(k, 0, mins.size - 1)], np.nan)
+                for c, row in zip(codes, vals, strict=True):
+                    out.setdefault(int(c), {})[f"{fam}.{V}@{off}"] = row
     return out
 
 
@@ -364,6 +402,12 @@ def main() -> None:
                     help="a feature with a pick only moves to a candidate whose training-CDF gap is at most this much worse (off by default)")
     ap.add_argument("--xs-shortlist", type=int, default=6,
                     help="z / rank candidates look alike to the CDF: try the gate-passing ones of this many bases with the largest own |IC|")
+    ap.add_argument("--engine-dir", type=Path, default=Path("data/engine"), help="marks_<D>.parquet from run_cpp.py --marks five")
+    ap.add_argument("--profiles", default="ZZWA,ZZAL,ZZQO,ZZXC,ZZTS", help="samplerS families whose cells join the pool ('' = none)")
+    ap.add_argument("--hstats", type=Path, default=Path("/data/prod/hstats/HS300"))
+    ap.add_argument("--pm-cache", type=Path, default=Path("data/pm_export_all"))
+    ap.add_argument("--triples", action=argparse.BooleanOptionalAction, default=True, help="state candidates (x - y) / z")
+    ap.add_argument("--min-distinct", type=int, default=30, help="fewer distinct values = a dummy: only for flag / count features")
     ap.add_argument("--out", type=Path, default=Path("data/reports/stage6"))
     args = ap.parse_args()
     t0 = time.perf_counter()
@@ -374,6 +418,8 @@ def main() -> None:
         names = names[1:]
     col = {n: i for i, n in enumerate(names)}
     fp = pl.read_parquet(args.fingerprint).with_columns(pl.col("feature").str.extract(r"^([^.]+)", 1).alias("stem"))
+    fp_kind = dict(zip(fp["feature"].to_list(), fp["kind"].to_list(), strict=True)) if "kind" in fp.columns else {}
+    pfams = [f for f in args.profiles.split(",") if f]
     cdf = {}
     if args.cdf.exists():
         for g in pl.read_parquet(args.cdf).filter(pl.col("nan_left") == 0).partition_by("feature"):  # NaN rows sit on the right: left share is exact
@@ -405,10 +451,21 @@ def main() -> None:
         slow = {int(g["sid"][0]): g for g in up["slow"].partition_by("sid")}
         dc = CM.daily_candidates(d, sids) if CM is not None else None
         dbase = {r["sid"]: r for r in dc.select("sid", "adv20", "avgvol20", "freeshare").fill_null(np.nan).iter_rows(named=True)} if dc is not None else {}
+        eng: dict[int, dict[str, np.ndarray]] = {}
+        ef = args.engine_dir / f"marks_{d}.parquet"
+        if ef.exists():  # the engine's state at the marks (every solved rule) over the Python rebuild's
+            em = pl.read_parquet(ef).filter(pl.col("mark").is_in(MARKS.tolist())).sort("sid", "mark")
+            keep = [c for c in em.columns if c not in ("sid", "mark") and "|" not in c]
+            for g in em.partition_by("sid"):
+                if g.height == MARKS.size:
+                    eng[int(g["sid"][0])] = {c: g[c].to_numpy() for c in keep}
+        prof = profile_marks(args.hstats, args.pm_cache, pfams, d, MARKS) if pfams else {}
         rows, rets = [], {}
         for sid in sids:
             gf, gs = fast.get(sid), slow.get(sid)
             built = FI.rebuild(gf, gs, MARKS)
+            fs = {k.split(".")[0] for k in built}  # only stems the rebuild keeps: zzvm etc. stay on the shared pool (daily ratios)
+            built.update({k: v for k, v in eng.get(sid, {}).items() if k.split(".")[0] in fs})
             for k, v in built.items():
                 rows.append(pl.DataFrame({"sid": sid, "mark": MARKS, "key": k, "pm": v}))
             if sid in dbase and "zzqj.v" in built:  # intraday over daily: amount / volume since 09:30 over 20-day averages, volume over float
@@ -426,15 +483,24 @@ def main() -> None:
                 with np.errstate(divide="ignore", invalid="ignore"):
                     rets[sid] = np.log(m1 / m0)
                 rows.append(pl.DataFrame({"sid": sid, "mark": MARKS, "key": "px", "pm": FI.at_marks(a["t_local"], a["price"], MARKS)}))
-            for k, v in generic(gf, gs).items():
+            gen = generic(gf, gs)
+            for k, v in gen.items():
                 rows.append(pl.DataFrame({"sid": sid, "mark": MARKS, "key": f"gen.{k}", "pm": v.astype(float)}))
+            for k, v in prof.get(sid, {}).items():
+                rows.append(pl.DataFrame({"sid": sid, "mark": MARKS, "key": f"ced.{k}", "pm": v}))
+                if not k.endswith("@1"):  # the last bar's flow over its profile cell (log): the bar as it ended, before / at the minute
+                    with np.errstate(divide="ignore", invalid="ignore"):
+                        for r in ("amt300", "vol300", "buy300"):
+                            if r in gen:
+                                rows.append(pl.DataFrame({"sid": sid, "mark": MARKS, "key": f"ced.lr.{r}.{k}", "pm": np.log(gen[r] / v)}))
         long = pl.concat(rows).filter(pl.col("pm").is_finite()).with_columns(pl.col("sid").cast(pl.Int64))
         frames = [long.filter(pl.col("mark") == m).drop("mark") for m in MARKS]
         pool.add_block(frames, dc)
         state_stems |= set(long["key"].str.extract(r"^([^.]+)\.", 1).drop_nulls().unique().to_list()) - {"gen", "ced"}
         models = load_models(args.models, d, args.fits.split(","), args.subs.split(","))
         blocks.append((d, models, frames, rets))
-        print(f"{d}: {len(sids)} stocks x {MARKS.size} marks, {len(models)} models ({time.perf_counter() - t0:.0f}s)")
+        print(f"{d}: {len(sids)} stocks x {MARKS.size} marks, {len(models)} models, engine state for {len(eng)}, "
+              f"profiles for {len(prof)} ({time.perf_counter() - t0:.0f}s)")
     if not blocks:
         return
     # the panel: one row per (day, mark, stock with a forward return)
@@ -464,16 +530,23 @@ def main() -> None:
                            for b, (_, _, fr, _) in enumerate(blocks)]
         return cache[stem]
 
+    pooled_cache: dict[str, dict[str, np.ndarray]] = {}
+
     def stem_pool(stem: str) -> dict[str, np.ndarray]:
-        """Pool a stem's candidates over days and marks (the stateless pool: subsampled)."""
+        """Every candidate of a stem over days and marks, as finite samples (atoms pooled, then 30000 rows, then expressions)."""
         if stem not in state_stems:
             return pool.samples()
-        pooled: dict[str, list[np.ndarray]] = {}
-        for per_mark in stem_cache(stem):
-            for _, cand, _ in per_mark:
-                for k, v in cand.items():
-                    pooled.setdefault(k, []).append(v)
-        return FM.pool(pooled)
+        if stem not in pooled_cache:
+            per = [(s, c) for blk in stem_cache(stem) for s, c, _ in blk]
+            names = sorted({k for _, c in per for k in c})
+            cols = {k: np.concatenate([c.get(k, np.full(s.size, np.nan)) for s, c in per]) for k in names}
+            n = next(iter(cols.values())).size if cols else 0
+            if n > 30000:
+                idx = np.sort(np.random.default_rng(0).choice(n, 30000, replace=False))
+                cols = {k: v[idx] for k, v in cols.items()}
+            ex = FM.expressions(cols, args.triples)
+            pooled_cache[stem] = {k: v[np.isfinite(v)] for k, v in ex.items() if np.isfinite(v).sum() >= 50}
+        return pooled_cache[stem]
 
     def column(feature: str, expr: str) -> np.ndarray:
         """One model column filled with expression ``expr`` of the feature's stem."""
@@ -482,8 +555,8 @@ def main() -> None:
         for b in range(len(blocks)):
             for m in range(MARKS.size):
                 if stem in state_stems:
-                    _, cand, ix = stem_cache(stem)[b][m]
-                    x = cand.get(expr)
+                    _, atoms, ix = stem_cache(stem)[b][m]
+                    x = FM.evaluate(expr, atoms)
                 else:
                     x, ix = pool.value(b, m, expr), pidx[b][m]
                 if x is not None:
@@ -518,6 +591,10 @@ def main() -> None:
                 print(f"drop {feat} = {expr}: training-CDF gap {g:.3f} > {args.drop_gap}")
                 X[:, col[feat]] = np.nan
                 del assign[feat]
+            elif fp_kind.get(feat) not in ("flag", "count", "const") and np.unique(v).size < args.min_distinct:
+                print(f"drop {feat} = {expr}: {np.unique(v).size} distinct values on a {fp_kind.get(feat)} feature")
+                X[:, col[feat]] = np.nan
+                del assign[feat]
     base = summary(score(X))
     print(f"\nall-missing except the assignment {assign}: IC {base[0]:.4f} (t {base[1]:.2f}, {base[2]} marks) ({time.perf_counter() - t0:.0f}s)")
     log = []
@@ -532,7 +609,17 @@ def main() -> None:
             cut = args.max_cdf if feat in cdf else args.max_score
             # gate on the fingerprint: right units and range first, IC second -- IC alone rewards any useful signal in any column
             rk = {r["candidate"]: r for r in ranked}
-            in_scale = lambda r: not np.isfinite(r["in_range"]) or r["in_range"] >= args.min_in_range  # noqa: E731
+            dummy_ok = fp_kind.get(feat) in ("flag", "count", "const")
+            n_distinct: dict[str, int] = {}
+
+            def varied(c: str, ok: bool = dummy_ok, pool_: dict = cand_all, nd: dict = n_distinct) -> bool:
+                if ok or c not in pool_:
+                    return True
+                if c not in nd:
+                    nd[c] = int(np.unique(pool_[c][:5000]).size)
+                return nd[c] >= args.min_distinct
+
+            in_scale = lambda r: (not np.isfinite(r["in_range"]) or r["in_range"] >= args.min_in_range) and varied(r["candidate"])  # noqa: E731
             passes = [r["candidate"] for r in ranked if in_scale(r) and r["score"] <= cut]
             short = [c for c in passes if not c.startswith(XS)][: args.shortlist]
             by_base: dict[str, dict[bool, str]] = {}  # z / rank: the CDF cannot tell what is transformed, so bases go by own |IC|
@@ -596,21 +683,33 @@ def main() -> None:
                         "top": "; ".join(f"{e} {ic:.4f} (t {tg:.1f})" for e, ic, tg in tried[:3])})
             print(f"pass {ps} {feat}: kept {assign.get(feat)} IC {best[0]:.4f} t_gain {best[2]:.1f} ({time.perf_counter() - t0:.0f}s)")
     final = summary(score(X))
-    if cdf:  # what the model's own training distribution says about each assigned column
-        rep = []
-        for feat, expr in assign.items():
-            if feat not in cdf:
-                continue
-            allc = stem_pool(feat.split(".")[0])
-            gaps = sorted(((FM.cdf_gap(v, cdf[feat]), k) for k, v in allc.items()), key=lambda t: t[0])
-            cur_gap = FM.cdf_gap(allc[expr], cdf[feat]) if expr in allc else np.nan
-            rep.append({"feature": feat, "kept": expr, "kept_cdf_gap": cur_gap, "cdf_points": cdf[feat][0].size,
-                        "closest_by_cdf": "; ".join(f"{k} {g:.3f}" for g, k in gaps[:5])})
-        with pl.Config(tbl_rows=60, tbl_cols=5, tbl_width_chars=230, fmt_str_lengths=120, float_precision=4):
-            print("\n== assigned columns against the model's training CDF (mean |F(t) - p| over root splits; 0 = same distribution)")
-            print(pl.DataFrame(rep))
+    full_v = np.nan_to_num(score(X), nan=0.0)
+    evid = []
+    for feat, expr in assign.items():  # ablation: the IC lost when the column goes back to missing, and the training-CDF gap
+        if feat not in col:
+            continue
+        j = col[feat]
+        keep_col = X[:, j].copy()
+        X[:, j] = np.nan
+        loss, t_loss, _ = summary(full_v - np.nan_to_num(score(X), nan=0.0))
+        X[:, j] = keep_col
+        v = keep_col[np.isfinite(keep_col)]
+        gap = FM.cdf_gap(v, cdf[feat]) if feat in cdf and v.size else np.nan
+        src = ("state" if feat.split(".")[0] in state_stems else "xs" if expr.startswith(XS)
+               else expr.lstrip("-|").split(".")[0])
+        grade = ("strong" if gap <= 0.02 and t_loss >= 2 else "fits" if gap <= args.accept_cdf else "weak") if np.isfinite(gap) \
+            else ("ic" if t_loss >= 2 else "weak")
+        evid.append({"feature": feat, "formula": expr, "source": src, "cdf_gap": gap, "ic_loss": loss, "t_loss": t_loss, "grade": grade})
     args.out.mkdir(parents=True, exist_ok=True)
     (args.out / "ic_assign.json").write_text(json.dumps(assign, indent=1))
+    if evid:
+        ev = pl.DataFrame(evid).sort("grade", "t_loss", descending=[False, True])
+        ev.write_parquet(args.out / "ic_evidence.parquet")
+        with pl.Config(tbl_rows=80, tbl_cols=7, tbl_width_chars=200, fmt_str_lengths=40, float_precision=4):
+            print("\n== evidence per assigned column: training-CDF gap, IC lost without it (t); strong = gap <= 0.02 and t >= 2")
+            print(ev)
+    if log:
+        pl.DataFrame(log).write_parquet(args.out / "ic_log.parquet")
     with pl.Config(tbl_rows=100, tbl_cols=6, tbl_width_chars=230, fmt_str_lengths=90, float_precision=4):
         if log:
             print("\n== scan: per feature, the expression kept and the three with the largest paired gain (IC, t of the gain over marks)")

@@ -4,7 +4,8 @@ r"""Self-test of the C++ engine against the Python one on synthetic events (no c
 
 Random snapshots and trades (zero prices, missing ranges, auction / lunch / after-close stamps, stamp ties, carry seeds
 from a random previous state) go through ``rules.on_snap / on_trade`` and through ``cpp/build/engine``; every key of the
-day-end state must match exactly (NaN == NaN).
+day-end state must match exactly (NaN == NaN). The ``--marks`` output is checked the same way against the Python state as of
+each 5-minute mark.
 """
 
 from __future__ import annotations
@@ -23,7 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from export import EVENT_DTYPE, write_events, write_prev, write_rules
 from rules import EMAS, on_cancel, on_order, on_snap, on_trade
-from run_cpp import ensure_binary
+from run_cpp import FIVE, ensure_binary, read_marks
 from state import Stock
 
 
@@ -67,12 +68,28 @@ def synth(rng: np.random.Generator, sid: int, n: int) -> np.ndarray:
     return out[order]
 
 
-def py_run(ev: np.ndarray, prev: dict[int, dict[str, float]]) -> dict[int, dict[str, float]]:
-    """The Python engine over the same records."""
+def mark_row(st: Stock, cnt: list[float]) -> dict[str, float]:
+    """Return the state at a mark under the engine's --marks keys (EMA values as sum / wgt)."""
+    out = {f"{p}.sum": (e.s / e.w if e.w != 0 else math.nan) for p, (e, _, _) in st.ema.items()}
+    nb = lambda b, s: (b - s) / (b + s) if b + s else math.nan  # noqa: E731
+    out.update({"zzpk.high": st.high, "zzpk.low": st.low, "zzpk.open": st.open, "zzxu.last": st.last, "zzqj.v": st.vol, "zzqj.tpv": st.amt,
+                "zzgh.nb": nb(st.buy, st.sell), "zzgh.nb|cnt": nb(*st.nb_cnt), "zzgh.nb|ordvol": nb(*st.nb_ordvol), "zzmh.hm": st.hm,
+                "zzgh.nsnap": cnt[0], "zzgh.ntrade": cnt[1], "zzgh.norder": cnt[2], "zzgh.ncancel": cnt[3]})
+    return out
+
+
+def py_run(ev: np.ndarray, prev: dict[int, dict[str, float]], marks: dict | None = None) -> dict[int, dict[str, float]]:
+    """Run the Python engine over the same records; ``marks`` (if given) collects the state at each FIVE mark per sid."""
     out = {}
     for sid in np.unique(ev["sid"]):
         st = Stock(EMAS, prev.get(int(sid)))
+        cnt, j, rows = [0.0] * 4, 0, []
         for e in ev[ev["sid"] == sid]:
+            while j < FIVE.size and FIVE[j] < e["t"]:
+                rows.append(mark_row(st, cnt))
+                j += 1
+            if e["t"] >= 0:
+                cnt[int(e["kind"])] += 1
             f = [float(x) for x in e["f"]]
             if e["kind"] == 0:
                 on_snap(st, float(e["t"]), float(e["s"]), float(e["lsod"]), float(e["price"]), *f)
@@ -82,6 +99,11 @@ def py_run(ev: np.ndarray, prev: dict[int, dict[str, float]]) -> dict[int, dict[
                 on_cancel(st, float(e["t"]), float(e["s"]))
             else:
                 on_order(st, float(e["t"]), float(e["s"]), float(e["price"]), f[0], f[1])
+        while j < FIVE.size:
+            rows.append(mark_row(st, cnt))
+            j += 1
+        if marks is not None:
+            marks[int(sid)] = rows
         out[int(sid)] = st.dump()
     return out
 
@@ -105,9 +127,12 @@ def main() -> None:
         names = write_rules(EMAS, w / "rules.tsv")
         write_prev(prev, names, w / "prev.bin")
         write_events(ev, w / "events.bin")
-        subprocess.run([str(exe), str(w / "events.bin"), str(w / "rules.tsv"), str(w / "state.json"), "--prev", str(w / "prev.bin"), "--threads", "4"], check=True)
+        subprocess.run([str(exe), str(w / "events.bin"), str(w / "rules.tsv"), str(w / "state.json"), "--prev", str(w / "prev.bin"), "--threads", "4",
+                        "--marks", ",".join(repr(float(x)) for x in FIVE), "--marks-out", str(w / "marks.bin")], check=True)
         cpp = {int(s): kv for s, kv in json.loads((w / "state.json").read_text()).items()}
-    py = py_run(ev, prev)
+        cmk = read_marks(w / "marks.bin")
+    pmk: dict[int, list] = {}
+    py = py_run(ev, prev, pmk)
     bad, n = [], 0
     for sid, kv in py.items():
         ckv = cpp[sid]
@@ -120,7 +145,16 @@ def main() -> None:
             c = math.nan if c is None else float(c)
             if not ((math.isnan(v) and math.isnan(c)) or v == c):
                 bad.append((sid, k, v, c))
-    print(f"{len(py)} stocks, {n} values compared, {len(bad)} mismatches")
+    nm = 0
+    for sid, rows in pmk.items():
+        g = cmk.filter(cmk["sid"] == sid).sort("mark")
+        for j, kv in enumerate(rows):
+            for k, v in kv.items():
+                nm += 1
+                c = float(g[k][j])
+                if not ((math.isnan(v) and math.isnan(c)) or v == c):
+                    bad.append((sid, f"mark {FIVE[j]:.0f} {k}", v, c))
+    print(f"{len(py)} stocks, {n} day-end values + {nm} mark values compared, {len(bad)} mismatches")
     for b in bad[:20]:
         print("  ", b)
     sys.exit(1 if bad else 0)

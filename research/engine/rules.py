@@ -18,7 +18,7 @@ EMAS: dict[str, tuple[str, float, str]] = {
     "zzvx.trEmaD": ("snap", 30, "hl"), "zzvx.trEmaO": ("snap", 30, "hl"), "zzvx.trDEmaD": ("snap", 30, "hl"),
     "zzvx.trDEmaO": ("snap", 30, "hl"), "zzvx.rEmaD": ("snap", 30, "one"), "zzvx.rEmaO": ("snap", 30, "one"),
     "zzbd.pEmaS": ("snap", 100, "logp"), "zzeb.p": ("snap", 100, "mid"), "zzbd.rEmaS": ("snap", 200, "logret"),
-    "zzba.p": ("snap", 240, "price"), "zzba.r": ("snap", 300, "tr_open"),
+    "zzba.p": ("both", 300, "snap_px"), "zzba.r": ("both", 300, "hl_trade"),  # decided on 97: 1e-4 exact every day
     "zzbd.pEmaT": ("trade", 100, "logp"), "zzbd.rEmaT": ("trade", 200, "logret"), "zzqj.r": ("trade", 30, "rvwap"),
     # variants: "<pm key>|<tag>" is scored against the PM key next to the rule above (verify strips the tag).
     # clocks: snap / trade / both (updated by every event); "_wall" = no lunch removal (afternoon t + 5400),
@@ -28,9 +28,7 @@ EMAS: dict[str, tuple[str, float, str]] = {
     # lunch, exchange clock, carry (c/w/wt seeds), price-less snapshots, 09:30 start all tried and all identical.
     # zzba: both-event clock (snapshots and trades; cancels / orders tested and excluded), 1e-4 exact on every day. The 1e-6
     # residual (zzba.p 19%, zzba.r 4%) only hits keys both feeds tick, so it is the two feeds' interleaving at PM's receiver
-    # differing from ours -- not recoverable from data. Two last controls: the last trade price, price-less snapshots as 0.
-    "zzba.p|b300snap": ("both", 300, "snap_px"), "zzba.p|b300last": ("both", 300, "last_px"), "zzba.p|b300snap0": ("both", 300, "price0"),
-    "zzba.r|b300hl": ("both", 300, "hl_trade"),
+    # differing from ours -- not recoverable from data. The last trade price and price-less snapshots as 0 were worse.
 }
 
 

@@ -45,78 +45,79 @@
 ## Model feature families (lgb_fn_v1_209: 209 features, 68 families)
 
 "data" = what the state rule, the training CDF or the IC match shows; "name only" = a reading of the letters with no
-data behind it. Gain = share of the model's split gain (202509 worklist), where photographed.
+data behind it. Gain = the family's share of the model's split gain (worklist of 2026-11-03, the 202509 folder; the
+probe also saw an undated folder, being sorted out). Rows by gain.
 
-| family | features | data | reading | confidence |
-| --- | --- | --- | --- | --- |
-| ro | ro.a/b/e, ro2.a/b/c | signed returns, several horizons (ro2.a ~45 s micro-price, ro2.c ~240 s); gain 0.129 | return | low |
-| qf | qf, qf2-qf10 x q.a/b/c1-c4 | unknown; gain 0.059; a window index 2-10 times a cut c1-c4 | | |
-| zl | zl.d/f, zl2.b-i | return against the previous close; gain 0.056 | 涨落 / 涨率 | medium |
-| jx | jx.a, jx2.a, jx3.a/b | -log(price / VWAP) | 均线 | medium |
-| eu | eu, eu2 | level-1 book imbalance, bounded +-1 | | |
-| eg | eg, eg2 | ratio near 1 | | |
-| ef | ef, ef2 | 10-30 s traded-amount imbalance | | |
-| pe | pe.a-e | 30 s traded-amount imbalance (pe.c) | | |
-| ie | ie.c, ie2-ie5.c | 30-60 s volume imbalance (ie3.c) | imbalance | low |
-| fe | fe, fe2 | 600 s trade-count imbalance | | |
-| yg | yg.0.a, yg.1.a, yg2.0.b | level-1 bid / ask imbalance; .0 / .1 look like a book level | | |
-| up | up | price / fast EMA (zzup.pf) | up | low |
-| pk | pk | peak values (high / low / open) | peak | high |
-| vx | vx.a | >= 1, p10 = 1: a range ratio, unsolved | volatility | medium |
-| xu | xu.a/b | price / range EMA state | | |
-| mh | mh | highest snapshot price, distance from it | max high | medium |
-| ba | ba | both-clock EMA of the snapshot price | | |
-| ab | ab, ab2 | price EMA 300 s state | | |
-| cb | cb | spread-like, falls with price | | |
-| fb | fb.b, fb2.a | fb: 20 s cumulative-amount grid; fb2.a = abs full-depth imbalance | 分笔 | low |
-| gh | gh.b, gh2.b | integer count (thresholds ~ trades a day); 15 / 10 s imbalance codes | | |
-| jb | jb.b, jb2.b | 3.04 % drop flag grid | | |
-| hj | hj | quarter-hour mid samples | | |
-| xo | xo | sits at -15.5 | | |
-| vm | vm, vm2 | ratio near 1; volume / turnover state | | |
-| al | al.a-h | samplerS ZZAL (book amount profile); al.d ~ 600 s volume imbalance | ask levels | medium |
-| wa | wa.a-k | samplerS ZZWA (relative-spread scale) | | |
-| ts | ts | samplerS ZZTS (median buy-initiated amount per bar) | | |
-| qo | qo.a-f | samplerS ZZQO | | |
-| xc | xc.a-d | samplerS ZZXC (median amount / volume per bar) | | |
-| yj | yj.c/d, yj2.a/c, yj3.c, yj4.a/c, yj5.a/b/c | | 溢价 ? (name only) | low |
-| hi | hi.b/h, hi2.b/c/e/f/h/i/l | | | |
-| ag | ag.a/c, ag2.a/c/e/f | | | |
-| bt | bt.a/b, bt2.a/h | | | |
-| op | op.a/i/j, op2.b | | open ? (name only) | low |
-| sf | sf.c/d | | | |
-| pp | pp.a/b/e, pp2.d/e | | | |
-| pz | pz.a-d | | 盘整 ? (name only) | low |
-| wj | wj.a-d | | 委价 ? (name only) | low |
-| xt | xt, xt2/3/5/6 | | 形态 ? (name only) | low |
-| sa | sa.a/b, sa2.a/b | | | |
-| uc | uc.c/d/f | | | |
-| lk | lk, lk2, lk3 | | | |
-| ri | ri.f, ri2.a/f | | 日内 ? (name only) | low |
-| el | el.a/b | | | |
-| aa | aa.a/b | | | |
-| av | av, av2 | | average ? (name only) | low |
-| bo | bo.a/c | | | |
-| bs | bs.b, bs2.b | | buy / sell ? (name only) | low |
-| fq | fq.b/e | | | |
-| ho | ho, ho2 | | | |
-| or | or.a, or2.a | | | |
-| dw | dw | | 档位 ? (name only) | low |
-| hk | hk.d | | 回看 ? (name only) | low |
-| ht | ht | | 回调 ? (name only) | low |
-| hx | hx.d | | | |
-| ja | ja | | | |
-| ko | ko | | | |
-| kp | kp | | 开盘 ? (name only) | low |
-| lf | lf | | | |
-| mo | mo | | momentum ? (name only) | low |
-| oe | oe | | | |
-| ow | ow2 | | | |
-| rb | rb | | | |
-| rg | rg | | | |
-| so | so | | | |
-| wf | wf | | | |
-| zs | zs.a | | 涨速 ? (name only) | low |
+| family | gain | features | data | reading | confidence |
+| --- | --- | --- | --- | --- | --- |
+| ro | 0.1289 | ro.a/b/e, ro2.a/b/c | signed returns, several horizons (ro2.a ~45 s micro-price, ro2.c ~240 s); gain 0.129 | return | low |
+| qf | 0.0590 | qf, qf2-qf10 x q.a/b/c1-c4 | unknown; gain 0.059; a window index 2-10 times a cut c1-c4 |  |  |
+| zl | 0.0563 | zl.d/f, zl2.b-i | return against the previous close; gain 0.056 | 涨落 / 涨率 | medium |
+| wa | 0.0535 | wa.a-k | samplerS ZZWA (relative-spread scale) |  |  |
+| gh | 0.0447 | gh.b, gh2.b | integer count (thresholds ~ trades a day); 15 / 10 s imbalance codes |  |  |
+| eu | 0.0393 | eu, eu2 | level-1 book imbalance, bounded +-1 |  |  |
+| pe | 0.0381 | pe.a-e | 30 s traded-amount imbalance (pe.c) |  |  |
+| al | 0.0278 | al.a-h | samplerS ZZAL (book amount profile); al.d ~ 600 s volume imbalance | ask levels | medium |
+| op | 0.0269 | op.a/i/j, op2.b |  | open ? (name only) | low |
+| sf | 0.0233 | sf.c/d | IC picks: sf.c ~ volume / free float (CED), sf.d ~ abs 15-min realized vol |  |  |
+| el | 0.0233 | el.a/b |  |  |  |
+| eg | 0.0213 | eg, eg2 | ratio near 1 |  |  |
+| xu | 0.0210 | xu.a/b | price / range EMA state |  |  |
+| ag | 0.0210 | ag.a/c, ag2.a/c/e/f |  |  |  |
+| bt | 0.0209 | bt.a/b, bt2.a/h |  |  |  |
+| sa | 0.0208 | sa.a/b, sa2.a/b |  |  |  |
+| jx | 0.0186 | jx.a, jx2.a, jx3.a/b | -log(price / VWAP) | 均线 | medium |
+| fb | 0.0170 | fb.b, fb2.a | fb: 20 s cumulative-amount grid; fb2.a = abs full-depth imbalance | 分笔 | low |
+| pp | 0.0168 | pp.a/b/e, pp2.d/e |  |  |  |
+| ef | 0.0167 | ef, ef2 | 10-30 s traded-amount imbalance |  |  |
+| ri | 0.0157 | ri.f, ri2.a/f |  | 日内 ? (name only) | low |
+| yg | 0.0143 | yg.0.a, yg.1.a, yg2.0.b | level-1 bid / ask imbalance; .0 / .1 look like a book level |  |  |
+| ba | 0.0135 | ba | both-clock EMA of the snapshot price |  |  |
+| qo | 0.0135 | qo.a-f | samplerS ZZQO |  |  |
+| ie | 0.0123 | ie.c, ie2-ie5.c | 30-60 s volume imbalance (ie3.c) | imbalance | low |
+| fe | 0.0116 | fe, fe2 | 600 s trade-count imbalance |  |  |
+| ab | 0.0112 | ab, ab2 | price EMA 300 s state |  |  |
+| hi | 0.0112 | hi.b/h, hi2.b/c/e/f/h/i/l |  |  |  |
+| vm | 0.0104 | vm, vm2 | ratio near 1; volume / turnover state |  |  |
+| ho | 0.0097 | ho, ho2 |  |  |  |
+| up | 0.0093 | up | price / fast EMA (zzup.pf) | up | low |
+| pk | 0.0092 | pk | peak values (high / low / open) | peak | high |
+| uc | 0.0085 | uc.c/d/f |  |  |  |
+| rg | 0.0083 | rg |  |  |  |
+| aa | 0.0081 | aa.a/b |  |  |  |
+| mh | 0.0072 | mh | highest snapshot price, distance from it | max high | medium |
+| yj | 0.0071 | yj.c/d, yj2.a/c, yj3.c, yj4.a/c, yj5.a/b/c |  | 溢价 ? (name only) | low |
+| cb | 0.0070 | cb | spread-like, falls with price |  |  |
+| xo | 0.0069 | xo | sits at -15.5 |  |  |
+| bo | 0.0069 | bo.a/c |  |  |  |
+| jb | 0.0067 | jb.b, jb2.b | 3.04 % drop flag grid |  |  |
+| ja | 0.0066 | ja |  |  |  |
+| fq | 0.0064 | fq.b/e |  |  |  |
+| pz | 0.0062 | pz.a-d |  | 盘整 ? (name only) | low |
+| hj | 0.0060 | hj | quarter-hour mid samples |  |  |
+| xc | 0.0053 | xc.a-d | samplerS ZZXC (median amount / volume per bar) |  |  |
+| dw | 0.0053 | dw |  | 档位 ? (name only) | low |
+| wj | 0.0052 | wj.a-d |  | 委价 ? (name only) | low |
+| vx | 0.0049 | vx.a | >= 1, p10 = 1: a range ratio, unsolved | volatility | medium |
+| lk | 0.0048 | lk, lk2, lk3 |  |  |  |
+| zs | 0.0048 | zs.a |  | 涨速 ? (name only) | low |
+| ts | 0.0047 | ts | samplerS ZZTS (median buy-initiated amount per bar) |  |  |
+| xt | 0.0042 | xt, xt2/3/5/6 |  | 形态 ? (name only) | low |
+| bs | 0.0041 | bs.b, bs2.b |  | buy / sell ? (name only) | low |
+| ow | 0.0040 | ow2 |  |  |  |
+| hx | 0.0034 | hx.d |  |  |  |
+| hk | 0.0033 | hk.d |  | 回看 ? (name only) | low |
+| ht | 0.0031 | ht |  | 回调 ? (name only) | low |
+| kp | 0.0020 | kp |  | 开盘 ? (name only) | low |
+| lf | 0.0019 | lf |  |  |  |
+| or | 0.0015 | or.a, or2.a |  |  |  |
+| so | 0.0015 | so |  |  |  |
+| wf | 0.0014 | wf |  |  |  |
+| av | 0.0012 | av, av2 |  | average ? (name only) | low |
+| ko | 0.0012 | ko |  |  |  |
+| mo | 0.0012 | mo |  | momentum ? (name only) | low |
+| rb | 0.0012 | rb |  |  |  |
+| oe | 0.0008 | oe |  |  |  |
 
 ## samplerS / samplerR families (hstats)
 

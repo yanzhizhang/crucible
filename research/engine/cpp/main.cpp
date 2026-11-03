@@ -1,5 +1,6 @@
 // The engine binary (C++20): events.bin + rules.tsv (+ prev.bin) -> the day-end state as JSON, one thread per stock chunk.
-//   engine <events.bin> <rules.tsv> <out.json> [--prev prev.bin] [--threads N]
+//   engine <events.bin> <rules.tsv> <out.json> [--prev prev.bin] [--threads N] [--marks t1,t2,... --marks-out marks.bin]
+// --marks also writes the state as of each trading-clock mark (every event with t <= mark applied) for the model scan.
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -154,18 +155,52 @@ std::string dump(stock& st, const std::vector<rule>& rules) {
     return o;
 }
 
+// Keys of one --marks row: each rule's value (sum / wgt), then the running scalars, then event counts from 09:30.
+std::vector<std::string> mark_keys(const std::vector<rule>& rules) {
+    std::vector<std::string> k;
+    for (const auto& r : rules) k.push_back(r.name + ".sum");
+    for (const char* x : {"zzpk.high", "zzvx.high", "zzxu.high", "zzpk.low", "zzvx.low", "zzxu.low", "zzpk.open", "zzxu.last", "zzxo.last",
+                          "cdc.lp", "zzqj.v", "zzvm.c.v", "zzqj.tpv", "zzvm.c.tpv", "zzgh.nb", "zzgh.nb|vol", "zzgh.nb|cnt", "zzgh.nb|snappx",
+                          "zzgh.nb|ord", "zzgh.nb|ordvol", "zzmh.hm", "zzgh.nsnap", "zzgh.ntrade", "zzgh.norder", "zzgh.ncancel"})
+        k.emplace_back(x);
+    return k;
+}
+
+double ratio(const double* v) { return v[0] + v[1] ? (v[0] - v[1]) / (v[0] + v[1]) : qnan; }
+
+// One --marks row in mark_keys order; cnt = events per kind with t >= 0.
+void mark_values(const stock& st, const double* cnt, double* o) {
+    for (const auto& e : st.emas) *o++ = e.w != 0 ? e.s / e.w : qnan;
+    const double buy_sell[2] = {st.buy, st.sell};
+    for (double x : {st.high, st.high, st.high, st.low, st.low, st.low, st.open, st.last, st.last, st.last, st.vol, st.vol, st.amt, st.amt,
+                     ratio(buy_sell), ratio(st.nb_vol), ratio(st.nb_cnt), ratio(st.nb_snappx), ratio(st.nb_ord), ratio(st.nb_ordvol), st.hm,
+                     cnt[0], cnt[1], cnt[2], cnt[3]})
+        *o++ = x;
+}
+
 }  // namespace
 
 int main(int argc, char** argv) {
     if (argc < 4) {
-        std::fprintf(stderr, "usage: engine <events.bin> <rules.tsv> <out.json> [--prev prev.bin] [--threads N]\n");
+        std::fprintf(stderr, "usage: engine <events.bin> <rules.tsv> <out.json> [--prev prev.bin] [--threads N] [--marks a,b --marks-out f]\n");
         return 2;
     }
     const char* prev_path = nullptr;
+    const char* marks_out = nullptr;
+    std::vector<double> marks;
     int threads = static_cast<int>(std::thread::hardware_concurrency());
     for (int i = 4; i < argc; ++i) {
         if (!std::strcmp(argv[i], "--prev") && i + 1 < argc) prev_path = argv[++i];
         else if (!std::strcmp(argv[i], "--threads") && i + 1 < argc) threads = std::atoi(argv[++i]);
+        else if (!std::strcmp(argv[i], "--marks-out") && i + 1 < argc) marks_out = argv[++i];
+        else if (!std::strcmp(argv[i], "--marks") && i + 1 < argc) {
+            std::istringstream ss(argv[++i]);
+            for (std::string x; std::getline(ss, x, ',');) marks.push_back(std::stod(x));
+        }
+    }
+    if (marks.empty() != (marks_out == nullptr)) {
+        std::fprintf(stderr, "--marks and --marks-out go together\n");
+        return 2;
     }
     auto t0 = std::chrono::steady_clock::now();
     std::vector<rule> rules = read_rules(argv[2]);
@@ -192,6 +227,9 @@ int main(int argc, char** argv) {
         i = j;
     }
     std::vector<std::string> out(ranges.size());
+    const std::vector<std::string> mkeys = mark_keys(rules);
+    const std::size_t nk = mkeys.size(), nm = marks.size();
+    std::vector<std::vector<double>> mout(nm ? ranges.size() : 0);
     std::atomic<std::size_t> next{0};
     auto work = [&] {
         for (std::size_t r; (r = next.fetch_add(1)) < ranges.size();) {
@@ -199,13 +237,23 @@ int main(int argc, char** argv) {
             auto it = prev.find(ev[ranges[r].first].sid);
             if (it != prev.end())
                 for (const auto& p : it->second) st.seed(p.rule, rules[p.rule].seed, p.sum, p.wgt);
+            double cnt[4] = {0, 0, 0, 0};
+            std::size_t j = 0;
+            double* mrow = nullptr;
+            if (nm) {
+                mout[r].assign(nm * nk, qnan);
+                mrow = mout[r].data();
+            }
             for (std::uint64_t i = ranges[r].first; i < ranges[r].second; ++i) {
                 const event& e = ev[i];
+                for (; j < nm && marks[j] < e.t; ++j) mark_values(st, cnt, mrow + j * nk);  // every event at or before the mark is in
+                if (e.t >= 0 && e.kind >= 0 && e.kind < 4) cnt[e.kind] += 1;
                 if (e.kind == 0) on_snap(st, cr, e.t, e.s, e.lsod, e.price, e.f[0], e.f[1], e.f[2], e.f[3], e.f[4], e.f[5], e.f[6]);
                 else if (e.kind == 1) on_trade(st, cr, e.t, e.s, e.price, e.f[0], e.f[1]);
                 else if (e.kind == 3) on_cancel(st, cr, e.t, e.s);
                 else on_order(st, cr, e.t, e.s, e.price, e.f[0], e.f[1]);
             }
+            for (; j < nm; ++j) mark_values(st, cnt, mrow + j * nk);
             out[r] = dump(st, rules);
         }
     };
@@ -221,6 +269,25 @@ int main(int argc, char** argv) {
         f << '"' << ev[ranges[r].first].sid << "\":" << out[r];
     }
     f << "}\n";
+    if (nm) {  // "CRUMK001", n_stocks, n_marks, n_keys, marks, keys (newline-joined, length-prefixed), then per stock: sid (int64) + values
+        std::ofstream g(marks_out, std::ios::binary);
+        std::string keys;
+        for (const auto& k : mkeys) keys += k + '\n';
+        const std::uint64_t ns = ranges.size(), kl = keys.size();
+        const std::uint32_t m32 = static_cast<std::uint32_t>(nm), k32 = static_cast<std::uint32_t>(nk);
+        g.write("CRUMK001", 8);
+        g.write(reinterpret_cast<const char*>(&ns), 8);
+        g.write(reinterpret_cast<const char*>(&m32), 4);
+        g.write(reinterpret_cast<const char*>(&k32), 4);
+        g.write(reinterpret_cast<const char*>(marks.data()), static_cast<std::streamsize>(nm * 8));
+        g.write(reinterpret_cast<const char*>(&kl), 8);
+        g.write(keys.data(), static_cast<std::streamsize>(kl));
+        for (std::size_t r = 0; r < ranges.size(); ++r) {
+            const std::int64_t sid = ev[ranges[r].first].sid;
+            g.write(reinterpret_cast<const char*>(&sid), 8);
+            g.write(reinterpret_cast<const char*>(mout[r].data()), static_cast<std::streamsize>(nm * nk * 8));
+        }
+    }
     double sec = std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
     std::printf("engine: %zu stocks, %llu events, %zu rules, %d threads, %.2fs\n", ranges.size(),
                 static_cast<unsigned long long>(h.n_events), rules.size(), threads, sec);

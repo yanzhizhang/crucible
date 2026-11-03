@@ -33,6 +33,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import re
+import time
 from pathlib import Path
 
 import polars as pl
@@ -153,11 +154,12 @@ def family_of(feature: str) -> str:
 def locate(path: Path, root: Path) -> dict[str, str]:
     """Model set / month / fit / sub-model from the path (whatever parts exist)."""
     rel = path.relative_to(root).parts
-    month = next((p for p in rel if re.fullmatch(r"\d{6}", p)), "")
+    month = next((p for p in rel if re.fullmatch(r"\d{6}", p)), "undated")  # no YYYYMM folder: ordered by mtime downstream
     fit = next((p for p in rel if p.startswith(("livev", "fit")) or "fit" in p), "")
     s = re.search(r"model_(s\d+)", path.name)
+    mtime = time.strftime("%Y%m%d", time.localtime(path.stat().st_mtime))
     return {"set": rel[0] if len(rel) > 1 else "", "month": month, "fit": fit,
-            "sub": s.group(1) if s else path.stem, "file": "/".join(rel)}
+            "sub": s.group(1) if s else path.stem, "file": "/".join(rel), "mtime": mtime}
 
 
 def main() -> None:
