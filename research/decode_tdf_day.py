@@ -21,7 +21,7 @@ Field mapping (tickaudit ``TdfSource.h`` is the TDF reference, ``research/bt/eve
   LocalTime (the receiver's clock) as UTC epoch ns.
 * ids: ``symbol_id`` = int(code), ``market_id`` 3553 SH / 3554 SZ, ``symbol_type`` 1, ``shm_key`` 0.
 * orders SSE: OrderKind A / D / S -> ``update_type`` 1 / 2 / 3, FunctionCode B / S -> ``dir`` 1063 / 1550,
-  ``order_id`` = OrderOriNo (else Order), ``seq_id`` = ``index_id`` = BizIndex (else Order), ``order_type`` 2.
+  ``order_id`` = OrderOriNo (else Order), ``seq_id`` = ``index_id`` = BizIndex (else Order), ``order_type`` 0 (as feitu).
 * orders SZSE: Order -> ``order_id`` = ``seq_id`` = ``index_id`` (ApplSeqNum), OrderKind 1 / 0|2 / U ->
   ``order_type`` 1 market / 2 limit / 3 own-side best, ``update_type`` 1.
 * trades SSE: Index (BizIndex when set) -> ``seq_id`` = ``index_id``, BSFlag B / S / other -> ``dir``,
@@ -186,7 +186,7 @@ def convert_orders(df: pl.DataFrame, code: int, market: int, day: int) -> pl.Dat
         ori = _int("orderorino", df)
         order_id = pl.when(ori != 0).then(ori).otherwise(order)
         update = pl.when(kind == "A").then(1).when(kind == "D").then(2).otherwise(3).cast(pl.Int8)
-        otype = pl.lit(2, pl.Int8)
+        otype = pl.lit(0, pl.Int8)  # feitu leaves SSE order_type at 0
     else:
         order_id = order
         update = pl.lit(1, pl.Int8)
