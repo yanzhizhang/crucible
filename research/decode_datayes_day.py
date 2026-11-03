@@ -21,10 +21,11 @@ biggest parts first; each worker keeps the packages it touches open and reads on
 
     python research/decode_datayes_day.py --date 20261102 --probe                      # headers + mapping only
     python research/decode_datayes_day.py --date 20260914-20261102 --workers 96        # every package in the range
-    python research/decode_datayes_day.py --date all --out /work/crucible_data/xtp_raw   # incremental mirror, e.g. nightly
+    python research/decode_datayes_day.py --date all     # nightly: only days feitu lacks, only ones not yet converted
 
 A day whose manifests already exist for every kind is skipped without opening its package, so ``--date all`` only
 converts new packages; a package still being written (no zip directory yet) is skipped and picked up next run.
+Days feitu already holds in ``--out`` are skipped too (feitu is the primary source; one source per partition).
 """
 
 from __future__ import annotations
@@ -160,6 +161,11 @@ def resolve_dates(root: Path, spec: str) -> list[str]:
     return [d.strip() for d in spec.split(",") if d.strip()]
 
 
+def feitu_day(out: Path, date: str) -> bool:
+    """Tell whether ``out`` already holds this day from feitu (minute-named parts, not part-SH-NNN)."""
+    return any(not re.fullmatch(r"part-(SH|SZ)-\d{3}\.parquet", f.name) for f in out.glob(f"kind=*/date={date}/part-*.parquet"))
+
+
 def plan(root: Path, dates: list[str], out: Path, pattern: re.Pattern[str], kinds: tuple[str, ...], chunk: int,
          overwrite: bool) -> tuple[list[dict[str, Any]], dict[tuple[str, str], list[dict[str, Any]]], list[str]]:
     """Every (day, kind, exchange, symbol chunk) part to write, and the manifest rows of parts already on disk."""
@@ -167,6 +173,8 @@ def plan(root: Path, dates: list[str], out: Path, pattern: re.Pattern[str], kind
     done: dict[tuple[str, str], list[dict[str, Any]]] = {}
     found = []
     for date in dates:
+        if feitu_day(out, date):
+            continue  # feitu has this day
         if not overwrite and all((out / f"kind={k}" / f"date={date}" / "_manifest.parquet").exists() for k in kinds):
             continue  # converted on an earlier run
         pkg = package(root, date)
