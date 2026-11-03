@@ -42,23 +42,81 @@
 | zzvm | volume and turnover | volume ... | low |
 | cdc.lp | last price | last price | high |
 
-## Model feature families (lgb_fn_v1_209)
+## Model feature families (lgb_fn_v1_209: 209 features, 68 families)
 
-| name | what it is (distribution / IC match) | reading | confidence |
-| --- | --- | --- | --- |
-| zzro / zzro2 | signed returns, three horizons a / b / c; largest gain | return ... / rate of change | low |
-| zzeu / zzeu2 | bounded ±1, level-1 book imbalance | | |
-| zzef | 10-30 s traded-amount imbalance | | |
-| zzpe | 30 s traded-amount imbalance | | |
-| zzie3 | 30-60 s volume imbalance | imbalance ... | low |
-| zzyg2 | level-1 bid / ask imbalance | 一挂 yigua ? | low |
-| zzjx3 | -log(price / VWAP) | 均线 junxian | medium |
-| zzzl2 | return against the previous close | 涨落 / 涨率 zhang | medium |
-| zzfe | 600 s trade-count imbalance | | |
-| zzfb2 | abs full-depth book imbalance | 分笔 ? | low |
-| zzeg | ratio near 1 | | |
-| zzel | | | |
-| zzxo | sits at -15.5 | | |
+"data" = what the state rule, the training CDF or the IC match shows; "name only" = a reading of the letters with no
+data behind it. Gain = share of the model's split gain (202509 worklist), where photographed.
+
+| family | features | data | reading | confidence |
+| --- | --- | --- | --- | --- |
+| ro | ro.a/b/e, ro2.a/b/c | signed returns, several horizons (ro2.a ~45 s micro-price, ro2.c ~240 s); gain 0.129 | return | low |
+| qf | qf, qf2-qf10 x q.a/b/c1-c4 | unknown; gain 0.059; a window index 2-10 times a cut c1-c4 | | |
+| zl | zl.d/f, zl2.b-i | return against the previous close; gain 0.056 | 涨落 / 涨率 | medium |
+| jx | jx.a, jx2.a, jx3.a/b | -log(price / VWAP) | 均线 | medium |
+| eu | eu, eu2 | level-1 book imbalance, bounded +-1 | | |
+| eg | eg, eg2 | ratio near 1 | | |
+| ef | ef, ef2 | 10-30 s traded-amount imbalance | | |
+| pe | pe.a-e | 30 s traded-amount imbalance (pe.c) | | |
+| ie | ie.c, ie2-ie5.c | 30-60 s volume imbalance (ie3.c) | imbalance | low |
+| fe | fe, fe2 | 600 s trade-count imbalance | | |
+| yg | yg.0.a, yg.1.a, yg2.0.b | level-1 bid / ask imbalance; .0 / .1 look like a book level | | |
+| up | up | price / fast EMA (zzup.pf) | up | low |
+| pk | pk | peak values (high / low / open) | peak | high |
+| vx | vx.a | >= 1, p10 = 1: a range ratio, unsolved | volatility | medium |
+| xu | xu.a/b | price / range EMA state | | |
+| mh | mh | highest snapshot price, distance from it | max high | medium |
+| ba | ba | both-clock EMA of the snapshot price | | |
+| ab | ab, ab2 | price EMA 300 s state | | |
+| cb | cb | spread-like, falls with price | | |
+| fb | fb.b, fb2.a | fb: 20 s cumulative-amount grid; fb2.a = abs full-depth imbalance | 分笔 | low |
+| gh | gh.b, gh2.b | integer count (thresholds ~ trades a day); 15 / 10 s imbalance codes | | |
+| jb | jb.b, jb2.b | 3.04 % drop flag grid | | |
+| hj | hj | quarter-hour mid samples | | |
+| xo | xo | sits at -15.5 | | |
+| vm | vm, vm2 | ratio near 1; volume / turnover state | | |
+| al | al.a-h | samplerS ZZAL (book amount profile); al.d ~ 600 s volume imbalance | ask levels | medium |
+| wa | wa.a-k | samplerS ZZWA (relative-spread scale) | | |
+| ts | ts | samplerS ZZTS (median buy-initiated amount per bar) | | |
+| qo | qo.a-f | samplerS ZZQO | | |
+| xc | xc.a-d | samplerS ZZXC (median amount / volume per bar) | | |
+| yj | yj.c/d, yj2.a/c, yj3.c, yj4.a/c, yj5.a/b/c | | 溢价 ? (name only) | low |
+| hi | hi.b/h, hi2.b/c/e/f/h/i/l | | | |
+| ag | ag.a/c, ag2.a/c/e/f | | | |
+| bt | bt.a/b, bt2.a/h | | | |
+| op | op.a/i/j, op2.b | | open ? (name only) | low |
+| sf | sf.c/d | | | |
+| pp | pp.a/b/e, pp2.d/e | | | |
+| pz | pz.a-d | | 盘整 ? (name only) | low |
+| wj | wj.a-d | | 委价 ? (name only) | low |
+| xt | xt, xt2/3/5/6 | | 形态 ? (name only) | low |
+| sa | sa.a/b, sa2.a/b | | | |
+| uc | uc.c/d/f | | | |
+| lk | lk, lk2, lk3 | | | |
+| ri | ri.f, ri2.a/f | | 日内 ? (name only) | low |
+| el | el.a/b | | | |
+| aa | aa.a/b | | | |
+| av | av, av2 | | average ? (name only) | low |
+| bo | bo.a/c | | | |
+| bs | bs.b, bs2.b | | buy / sell ? (name only) | low |
+| fq | fq.b/e | | | |
+| ho | ho, ho2 | | | |
+| or | or.a, or2.a | | | |
+| dw | dw | | 档位 ? (name only) | low |
+| hk | hk.d | | 回看 ? (name only) | low |
+| ht | ht | | 回调 ? (name only) | low |
+| hx | hx.d | | | |
+| ja | ja | | | |
+| ko | ko | | | |
+| kp | kp | | 开盘 ? (name only) | low |
+| lf | lf | | | |
+| mo | mo | | momentum ? (name only) | low |
+| oe | oe | | | |
+| ow | ow2 | | | |
+| rb | rb | | | |
+| rg | rg | | | |
+| so | so | | | |
+| wf | wf | | | |
+| zs | zs.a | | 涨速 ? (name only) | low |
 
 ## samplerS / samplerR families (hstats)
 
