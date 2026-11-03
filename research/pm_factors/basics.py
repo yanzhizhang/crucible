@@ -181,7 +181,10 @@ def build_day(d: str, index: str, thr_file: Path | None, memory: str, out: Path,
 
 
 def _job(args: tuple) -> str:
-    return build_day(*args)
+    try:
+        return build_day(*args)
+    except Exception as e:  # one bad day must not stop the others
+        return f"{args[0]}: FAILED {type(e).__name__}: {str(e)[:300]}"
 
 
 def main() -> None:
@@ -206,14 +209,21 @@ def main() -> None:
         return a.thr_file
 
     jobs = [(d, a.index, thr_of(d), a.memory, a.out, a.threads) for d in dates]
+    failed = 0
     if a.workers > 1:
         import multiprocessing as mp
         with mp.get_context("spawn").Pool(a.workers) as pool:
-            for msg in pool.imap_unordered(_job, jobs):
+            msgs = pool.imap_unordered(_job, jobs)
+            for msg in msgs:
+                failed += "FAILED" in msg
                 print(msg, flush=True)
     else:
         for job in jobs:
-            print(build_day(*job), flush=True)
+            msg = _job(job)
+            failed += "FAILED" in msg
+            print(msg, flush=True)
+    if failed:
+        sys.exit(f"{failed} of {len(jobs)} days FAILED")
 
 
 if __name__ == "__main__":

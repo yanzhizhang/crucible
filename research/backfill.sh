@@ -29,7 +29,7 @@ echo "days: $(echo $days | wc -w) ($(echo $days | cut -c1-8) .. $(echo $days | r
 
 done_days=
 for d in $days; do
-  if [ -d $RAW/kind=transaction/date=$d ] && [ "${FORCE:-0}" != 1 ]; then echo "$d: decoded already"; done_days="$done_days $d"; continue; fi
+  if ls $RAW/kind=transaction/date=$d/part-* $RAW/kind=order/date=$d/part-* $RAW/kind=quotation/date=$d/part-* >/dev/null 2>&1 && [ "${FORCE:-0}" != 1 ]; then echo "$d: decoded already"; done_days="$done_days $d"; continue; fi
   root=$(root_of $d)
   t0=$(date +%s)
   run research/decode_feitu_day.py --root $root --date $d --out $RAW --kinds order,transaction,quotation --threads $CPUS --keep-going \
@@ -60,5 +60,5 @@ run research/catalog.py > data/reports/backfill_catalog.txt 2>&1 || tail -3 data
 echo "### basics (universe = PM's ZZCR samplerR of the latest earlier PM day; days without one use the CED index members)"
 list=$(echo $done_days | tr ' ' '\n' | grep . | paste -sd,)
 [ -n "$list" ] && run research/pm_factors/basics.py --dates $list --thr-dir /data/prod/hstats/HS300/ZZCR --workers $((CPUS / 4)) \
-  > data/reports/backfill_basics.txt 2>&1 || tail -3 data/reports/backfill_basics.txt
+  > data/reports/backfill_basics.txt 2>&1 || { grep FAILED data/reports/backfill_basics.txt || tail -3 data/reports/backfill_basics.txt; }
 ls -d /work/crucible_data/store/pm_factors/basics/date=* | wc -l | xargs echo "basics days now:"
