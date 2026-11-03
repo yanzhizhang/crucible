@@ -7,6 +7,18 @@ Input layout (one zip or csv per symbol, sub-folder and day; ``0`` = snapshots, 
     <root>/600000.SH/2/20261026.zip     LocalTime,WindCode,Code,ActionDay,Time,Order,OrderKind,FunctionCode,Price,Volume,...
     <root>/600000.SH/3/20261026.zip     LocalTime,WindCode,Code,ActionDay,Time,Index,FunctionCode,OrderKind,BSFlag,Price,...
 
+or the DataYes (通联) landing package it was converted from, read directly (``--layout datayes``, auto-detected)::
+
+    <root>/20261026.zip  holding  20261026/<sub>/600000.SH[.csv]     /mnt/TickDataRepo/XTPSharesL2 on 97, ~11 GB a day
+    <root>/20261026/<sub>/600000.SH[.csv]                            the same unzipped
+
+  DataYes headers (sht-demo ``prototype/tdf/datayes_row.hpp``) are renamed onto the TDF ones first, then the same
+  converters run: LocalTime ``YYYY-mm-dd HH:MM:SS.fffffffff``, Time ``hh:mm:ss.mmm``; orders / trades
+  ``BizIndex, Channel, Type, BuyOrderNO, SellOrderNO, Price, Qty, TickBSFlag`` (orders: Type -> OrderKind, TickBSFlag ->
+  FunctionCode, BizIndex -> Order, the non-zero order number -> OrderOriNo; trades: Type -> FunctionCode, TickBSFlag ->
+  BSFlag, BizIndex -> Index, Buy/SellOrderNO -> BidOrder/AskOrder); snapshots ``TradeNumber, High/LowLimitPrice,
+  Ask/BidVolumeN``.
+
 Output: exactly the columns, dtypes and column order of ``decode_feitu_day.py`` (``crucible_kernels.feitu``), so
 ``catalog.py``'s ``raw_order / raw_transaction / raw_quotation`` views and everything built on them read these days
 unchanged::
@@ -110,8 +122,21 @@ QUOTE_MAP = {
 QUOTE_LEVEL_MAP = {"bid_px": "bidprice{}", "bid_vol": "bidvol{}", "ask_px": "askprice{}", "ask_vol": "askvol{}"}
 
 
-def _read_csv(path: Path) -> pl.DataFrame:
-    """One TDF file (zip holding one csv, or a bare csv) as strings, header names lower-cased."""
+_ZIPS: dict[str, zipfile.ZipFile] = {}  # day packages kept open per process: each part reads hundreds of entries
+
+
+def _read_csv(path: Path | str) -> pl.DataFrame:
+    """One TDF file (zip holding one csv, or a bare csv) or one ``<day.zip>!<entry>`` as strings, header lower-cased."""
+    if "!" in str(path):
+        pkg, entry = str(path).split("!", 1)
+        if pkg not in _ZIPS:
+            _ZIPS[pkg] = zipfile.ZipFile(pkg)
+        data = _ZIPS[pkg].read(entry)
+        if not data.strip():
+            return pl.DataFrame()
+        df = pl.read_csv(io.BytesIO(data), infer_schema_length=0, truncate_ragged_lines=True)
+        return df.rename({c: c.strip().lower() for c in df.columns})
+    path = Path(path)
     if path.suffix == ".zip":
         with zipfile.ZipFile(path) as z:
             names = [n for n in z.namelist() if not n.endswith("/")]
@@ -155,7 +180,9 @@ def _clocks(df: pl.DataFrame, day: int) -> list[pl.Expr]:
     exch = (action + hms + ms).str.to_datetime("%Y%m%d%H%M%S%3f", time_unit="ns", strict=False)
     exch_ns = exch.cast(pl.Int64) - CST_NS
     if "localtime" in df.columns:
-        loc = pl.col("localtime").str.strip_chars().str.to_datetime("%Y%m%d-%H:%M:%S%.f", time_unit="ns", strict=False)
+        lt = pl.col("localtime").str.strip_chars()
+        loc = pl.coalesce(lt.str.to_datetime("%Y%m%d-%H:%M:%S%.f", time_unit="ns", strict=False),
+                          lt.str.to_datetime("%Y-%m-%d %H:%M:%S%.f", time_unit="ns", strict=False))  # TDF / DataYes
         loc_ns = loc.cast(pl.Int64) - CST_NS
     else:
         loc_ns = exch_ns
@@ -204,7 +231,7 @@ def convert_trades(df: pl.DataFrame, code: int, market: int, day: int) -> pl.Dat
         ttype = pl.lit(1, pl.Int8)
         side = _side(bs)
     else:
-        cancel = func.is_in(["C", "4"])
+        cancel = func.is_in(["C", "4"]) | (~func.is_in(["F", "0"]) & (_flt("price", df) == 0))  # a fill never has price 0
         ttype = pl.when(cancel).then(2).otherwise(1).cast(pl.Int8)
         side = (pl.when(cancel).then(pl.when(bid != 0).then(BUY).otherwise(SELL))
                 .otherwise(pl.when(bid > ask).then(BUY).otherwise(SELL)).cast(pl.Int16))
@@ -273,6 +300,34 @@ def convert_quotes(df: pl.DataFrame, code: int, market: int, day: int) -> pl.Dat
 
 CONVERT = {"order": convert_orders, "transaction": convert_trades, "quotation": convert_quotes}
 
+#: DataYes header (lower-cased) -> TDF header, per kind; orders also get Order / OrderOriNo built in ``from_datayes``.
+DATAYES_RENAME = {
+    "order": {"type": "orderkind", "tickbsflag": "functioncode", "qty": "volume"},
+    "transaction": {"type": "functioncode", "tickbsflag": "bsflag", "bizindex": "index", "buyorderno": "bidorder",
+                    "sellorderno": "askorder", "qty": "volume"},
+    "quotation": {"tradenumber": "numtrades", "highlimitprice": "highlimited", "lowlimitprice": "lowlimited",
+                  **{f"{s}volume{i}": f"{s}vol{i}" for s in ("ask", "bid") for i in range(1, LEVELS + 1)}},
+}
+
+
+def from_datayes(df: pl.DataFrame, kind: str) -> pl.DataFrame:
+    """Rename a DataYes file onto TDF headers and rewrite Time ``hh:mm:ss.mmm`` as the TDF integer HHMMSSmmm."""
+    df = df.rename({k: v for k, v in DATAYES_RENAME[kind].items() if k in df.columns})
+    extra = []
+    if "time" in df.columns:
+        raw = pl.col("time").str.strip_chars()
+        t = raw.str.to_time("%H:%M:%S%.f", strict=False)
+        hms = (t.dt.hour().cast(pl.Int64) * 10_000_000 + t.dt.minute().cast(pl.Int64) * 100_000
+               + t.dt.second().cast(pl.Int64) * 1000 + t.dt.millisecond().cast(pl.Int64)).fill_null(0).cast(pl.String)
+        extra.append(pl.when(raw.str.contains(":")).then(hms).otherwise(raw).alias("time"))  # already HHMMSSmmm
+    if kind == "order" and "bizindex" in df.columns:
+        extra.append(pl.col("bizindex").alias("order"))
+        if "buyorderno" in df.columns and "sellorderno" in df.columns:
+            b = pl.col("buyorderno").str.strip_chars()
+            extra.append(pl.when(b.cast(pl.Float64, strict=False).fill_null(0) != 0).then(b)
+                         .otherwise(pl.col("sellorderno")).alias("orderorino"))
+    return df.with_columns(extra) if extra else df
+
 
 def _to_table(df: pl.DataFrame, kind: str) -> pa.Table:
     """Cast to the feitu schema, in its column order."""
@@ -281,25 +336,68 @@ def _to_table(df: pl.DataFrame, kind: str) -> pa.Table:
     return t.cast(schema)
 
 
-def _one(kind: str, path: Path, code: int, market: int, day: int) -> pl.DataFrame | None:
+def _one(kind: str, path: Path | str, code: int, market: int, day: int, datayes: bool = False) -> pl.DataFrame | None:
     df = _read_csv(path)
     if df.is_empty():
         return None
+    if datayes:
+        df = from_datayes(df, kind)
     out = CONVERT[kind](df, code, market, day)
     return out.filter(pl.col("time") > 0)
 
 
-def symbols(root: Path, pattern: re.Pattern[str]) -> list[tuple[str, int, int]]:
-    """(dir name, code, market) of every symbol folder matching ``pattern``."""
+_ENTRY = re.compile(r"(?:^|/)(\d)/(\d{6}\.(?:SH|SZ))(?:\.csv)?$")  # <sub>/<WindCode>[.csv] inside a DataYes day
+#: date -> (symbol, sub) -> (``<day.zip>!<entry>`` or file path, bytes); filled by ``datayes_index``.
+_DATAYES: dict[str, dict[tuple[str, str], tuple[str, int]]] = {}
+
+
+def is_datayes(root: Path, date: str) -> bool:
+    """Tell whether ``root`` holds this day as a DataYes package (``<date>.zip`` or ``<date>/<sub>/``)."""
+    return (root / f"{date}.zip").is_file() or ((root / date).is_dir() and any(p.name.isdigit() for p in (root / date).iterdir()))
+
+
+def datayes_index(root: Path, date: str) -> dict[tuple[str, str], tuple[str, int]]:
+    """Every ``<sub>/<WindCode>`` of a DataYes day, from the zip's directory (nothing decompressed) or the folder."""
+    if date not in _DATAYES:
+        idx: dict[tuple[str, str], tuple[str, int]] = {}
+        pkg = root / f"{date}.zip"
+        if pkg.is_file():
+            with zipfile.ZipFile(pkg) as z:
+                for info in z.infolist():
+                    m = _ENTRY.search(info.filename)
+                    if m:
+                        idx[(m[2], m[1])] = (f"{pkg}!{info.filename}", info.compress_size)
+        else:
+            for f in (root / date).glob("*/*"):
+                m = _ENTRY.search(f"{f.parent.name}/{f.name}")
+                if m and f.is_file():
+                    idx[(m[2], m[1])] = (str(f), f.stat().st_size)
+        _DATAYES[date] = idx
+    return _DATAYES[date]
+
+
+def symbols(root: Path, pattern: re.Pattern[str], dates: list[str] | None = None) -> list[tuple[str, int, int]]:
+    """(dir name, code, market) of every symbol folder matching ``pattern`` (DataYes: every symbol of those days)."""
+    names = {s for d in dates or [] if is_datayes(root, d) for s, _ in datayes_index(root, d)}
+    if not names:
+        names = {p.name for p in root.iterdir() if p.is_dir()}
     out = []
-    for p in sorted(root.iterdir()):
-        if p.is_dir() and pattern.match(p.name):
-            code, ex = p.name.split(".")
-            out.append((p.name, int(code), SSE if ex == "SH" else SZSE))
+    for n in sorted(names):
+        if pattern.match(n):
+            code, ex = n.split(".")
+            out.append((n, int(code), SSE if ex == "SH" else SZSE))
     return out
 
 
-def _file(root: Path, sym: str, sub: str, date: str) -> Path | None:
+def _size(date: str, sym: str, sub: str, ref: str) -> int:
+    """Compressed bytes of one source (orders the parts biggest first)."""
+    return _DATAYES[date][(sym, sub)][1] if date in _DATAYES else Path(ref).stat().st_size
+
+
+def _file(root: Path, sym: str, sub: str, date: str) -> Path | str | None:
+    if date in _DATAYES:
+        hit = _DATAYES[date].get((sym, sub))
+        return hit[0] if hit else None
     for ext in (".zip", ".csv"):
         f = root / sym / sub / f"{date}{ext}"
         if f.is_file():
@@ -310,7 +408,9 @@ def _file(root: Path, sym: str, sub: str, date: str) -> Path | None:
 def probe(root: Path, date: str, syms: list[tuple[str, int, int]]) -> None:
     """Print the header, two rows and the snapshot mapping of one SH and one SZ file per kind, then stop."""
     for market in (SSE, SZSE):
-        pick = next((s for s in syms if s[2] == market), None)
+        liquid = {"600000.SH", "000001.SZ"}
+        pick = next((s for s in syms if s[0] in liquid and s[2] == market), None) or \
+            next((s for s in syms if s[2] == market), None)
         if pick is None:
             print(f"no symbol of market {market}")
             continue
@@ -322,6 +422,8 @@ def probe(root: Path, date: str, syms: list[tuple[str, int, int]]) -> None:
             df = _read_csv(f)
             print(f"rows {df.height}; columns: {df.columns}")
             print(df.head(2))
+            if date in _DATAYES:
+                df = from_datayes(df, kind)
             if kind == "quotation":
                 m, unused = quote_mapping(df.columns)
                 print("mapped:", m)
@@ -359,7 +461,7 @@ def _write_part(task: dict[str, Any]) -> dict[str, Any]:
         buf, n_buf = [], 0
 
     for _, code, path in task["part"]:
-        df = _one(kind, Path(path), code, market, day)
+        df = _one(kind, path, code, market, day, task["datayes"])
         if df is None or df.is_empty():
             continue
         row["rows"] += df.height
@@ -407,16 +509,17 @@ def convert_days(root: Path, dates: list[str], out: Path, syms: list[tuple[str, 
                     part = todo[ci:ci + chunk]
                     dst = dst_dir / f"part-{tag}-{ci // chunk:03d}.parquet"
                     row: dict[str, Any] = {"file": f"{tag}:{part[0][0]}..{part[-1][0]}", "minute": tag,
-                                           "bytes": sum(Path(f).stat().st_size for _, _, f in part),
+                                           "bytes": sum(_size(date, s, sub, f) for s, _, f in part),
                                            "rows": 0, "n_truncated_books": 0, "exchange_ts_min": None, "exchange_ts_max": None,
                                            "arrival_ts_min": None, "arrival_ts_max": None, "skipped": False,
-                                           "source": "xtp_tdf", "n_symbols": len(part), "seconds": 0.0}
+                                           "source": "datayes" if date in _DATAYES else "xtp_tdf",
+                                           "n_symbols": len(part), "seconds": 0.0}
                     if dst.exists() and not overwrite:
                         row["rows"], row["skipped"] = pq.read_metadata(dst).num_rows, True
                         done[(date, kind)].append(row)
                         continue
                     tasks.append({"kind": kind, "market": market, "day": int(date), "date": date, "dst": str(dst),
-                                  "part": part, "row": row})
+                                  "part": part, "row": row, "datayes": date in _DATAYES})
     tasks.sort(key=lambda t: -t["row"]["bytes"])
     print(f"{len(tasks)} parts to write over {len(dates)} day(s) with {workers} workers "
           f"({sum(len(v) for v in done.values())} already on disk, skipped)")
@@ -484,7 +587,8 @@ def quality(out: Path, date: str, kinds: tuple[str, ...]) -> None:
 def main() -> None:
     """CLI entry point."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--root", type=Path, required=True, help="directory holding the <symbol>.<SH|SZ>/<sub>/<date>.zip tree")
+    ap.add_argument("--root", type=Path, required=True,
+                    help="the <symbol>.<SH|SZ>/<sub>/<date>.zip tree, or DataYes <date>.zip packages (detected per day)")
     ap.add_argument("--date", required=True, help="trading day YYYYMMDD, or several comma-separated (one pool for all)")
     ap.add_argument("--out", type=Path, default=Path("/work/crucible_data/feitu_raw"))
     ap.add_argument("--kinds", default="quotation,order,transaction")
@@ -501,8 +605,10 @@ def main() -> None:
         for d in dates:
             quality(args.out, d, kinds)
         return
-    syms = symbols(args.root, re.compile(args.symbols))
-    print(f"{len(syms)} symbols under {args.root} match {args.symbols!r}")
+    syms = symbols(args.root, re.compile(args.symbols), dates)
+    dy = [d for d in dates if d in _DATAYES]
+    print(f"{len(syms)} symbols under {args.root} match {args.symbols!r}"
+          + (f"; DataYes packages: {', '.join(f'{d} ({len(_DATAYES[d])} entries)' for d in dy)}" if dy else ""))
     if args.probe:
         probe(args.root, dates[0], syms)
         return

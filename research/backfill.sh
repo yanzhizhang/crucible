@@ -6,6 +6,7 @@
 #   <ARCH>/YYYYMMDD/v3_<kind>_YYYY_MM_DD_<SH|SZ>.zst        TickRepository archive (2.23), one file per stream / exchange
 #   <ARCH>/YYYYMMDD/v3_<kind>/v3_<kind>_YYYY_MM_DD_HH_MM.zst  live minute dumps, one folder per stream (the layout on 97)
 #   <ARCH>/<FROM>_<TO>/v3_<kind>/YYYY_MM_DD/...              the same dumps grouped by date range (also read)
+# Days with no feitu data come from the DataYes XTP L2 packages <XTP>/YYYYMMDD.zip (decode_tdf_day.py), same raw layout.
 #   CPUS=16 bash research/backfill.sh 20260901 20261009 2>&1 | tee data/reports/backfill.txt
 #
 # Days already decoded are skipped (FORCE=1 redecodes). Only order / transaction / quotation are decoded.
@@ -21,7 +22,7 @@ df -h $(dirname $RAW) | tail -1
 # days of either layout: YYYYMMDD folders, or YYYY_MM_DD folders under <range>/v3_transaction
 days=$( { ls $ARCH 2>/dev/null | grep -E '^[0-9]{8}$'; ls $ARCH/*_*/v3_transaction 2>/dev/null | grep -E '^[0-9]{4}_[0-9]{2}_[0-9]{2}$' | tr -d _; } \
         | sort -u | awk -v a=$FROM -v b=$TO '$1 >= a && $1 <= b')
-[ -n "$days" ] || { echo "no archive days in $ARCH between $FROM and $TO"; exit 1; }
+[ -n "$days" ] || echo "no feitu days in $ARCH between $FROM and $TO"
 # the decoder's --root for a day: its archive folder, else the range folder holding v3_transaction/YYYY_MM_DD
 root_of() { [ -d $ARCH/$1 ] && { echo $ARCH/$1; return; }; ls -d $ARCH/*_*/v3_transaction/${1:0:4}_${1:4:2}_${1:6:2} 2>/dev/null | head -1 | xargs -r dirname | xargs -r dirname; }
 echo "days: $(echo $days | wc -w) ($(echo $days | cut -c1-8) .. $(echo $days | rev | cut -c1-8 | rev))"
@@ -36,6 +37,22 @@ for d in $days; do
     && { echo "$d: decoded in $(( $(date +%s) - t0 ))s ($([ $root = $ARCH/$d ] && echo archive || echo minute dumps)), $(du -sh $RAW/kind=*/date=$d 2>/dev/null | awk '{s=s" "$1} END {print s}')"; done_days="$done_days $d"; } \
     || { echo "$d: decode FAILED"; tail -3 data/reports/backfill_decode_$d.txt; }
 done
+
+
+# days feitu lacks but the DataYes XTP L2 packages have (<XTP>/YYYYMMDD.zip): one pool for all of them, same raw layout
+XTP=${XTP:-/mnt/TickDataRepo/XTPSharesL2}
+XW=${XW:-96}; [ "$XW" -gt "$CPUS" ] && XW=$CPUS  # worker processes; each holds one symbol's csv, so fewer than CPUS
+xdays=$(ls $XTP 2>/dev/null | grep -oE '^[0-9]{8}' | sort -u | awk -v a=$FROM -v b=$TO '$1 >= a && $1 <= b' \
+        | while read d; do echo " $(echo $days) " | grep -q " $d " || [ -d $RAW/kind=transaction/date=$d -a "${FORCE:-0}" != 1 ] || echo $d; done)
+if [ -n "$xdays" ]; then
+  xl=$(echo $xdays | tr ' ' ',')
+  echo "### XTP L2 (DataYes) for days feitu lacks: $xl"
+  t0=$(date +%s)
+  taskset -c 0-$((CPUS - 1)) nice -n 5 python -u research/decode_tdf_day.py --root $XTP --date $xl --out $RAW --workers $XW \
+    $([ "${FORCE:-0}" = 1 ] && echo --overwrite) > data/reports/backfill_xtp.txt 2>&1 \
+    && { echo "xtp: $(echo $xdays | wc -w) days decoded in $(( $(date +%s) - t0 ))s"; done_days="$done_days $xdays"; } \
+    || { echo "xtp: decode FAILED"; tail -5 data/reports/backfill_xtp.txt; }
+fi
 
 echo "### catalog"
 run research/catalog.py > data/reports/backfill_catalog.txt 2>&1 || tail -3 data/reports/backfill_catalog.txt
