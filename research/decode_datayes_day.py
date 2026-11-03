@@ -21,7 +21,10 @@ biggest parts first; each worker keeps the packages it touches open and reads on
 
     python research/decode_datayes_day.py --date 20261102 --probe                      # headers + mapping only
     python research/decode_datayes_day.py --date 20260914-20261102 --workers 96        # every package in the range
-    python research/decode_datayes_day.py --date all --out /work/crucible_data/feitu_raw
+    python research/decode_datayes_day.py --date all --out /work/crucible_data/xtp_raw   # incremental mirror, e.g. nightly
+
+A day whose manifests already exist for every kind is skipped without opening its package, so ``--date all`` only
+converts new packages; a package still being written (no zip directory yet) is skipped and picked up next run.
 """
 
 from __future__ import annotations
@@ -164,11 +167,17 @@ def plan(root: Path, dates: list[str], out: Path, pattern: re.Pattern[str], kind
     done: dict[tuple[str, str], list[dict[str, Any]]] = {}
     found = []
     for date in dates:
+        if not overwrite and all((out / f"kind={k}" / f"date={date}" / "_manifest.parquet").exists() for k in kinds):
+            continue  # converted on an earlier run
         pkg = package(root, date)
         if pkg is None:
             print(f"{date}: no package under {root}")
             continue
-        idx = index(pkg)
+        try:
+            idx = index(pkg)
+        except zipfile.BadZipFile as e:  # still being copied in: no central directory yet
+            print(f"{date}: {pkg.name} not readable yet ({e}), skipped")
+            continue
         print(f"{date}: {pkg.name}, {len(idx)} entries, {sum(b for _, b in idx.values()) / 1e9:.1f} GB compressed")
         found.append(date)
         prefix = f"{pkg}!" if pkg.is_file() else ""
@@ -272,6 +281,9 @@ def main() -> None:
         probe(args.root, dates[0], pattern)
         return
     tasks, done, found = plan(args.root, dates, args.out, pattern, kinds, args.chunk, args.overwrite)
+    print(f"{len(found)} of {len(dates)} day(s) to convert: {', '.join(found) or '-'} (the rest are already on disk)")
+    if not found:
+        return
     run_parts(tasks, done, args.out, found, kinds, args.workers, _write_part)  # manifests + quality per day too
 
 
