@@ -5,7 +5,7 @@
 #   2. the passive (maker) T0 backtest on those predictions (maker_t0).
 #   CPUS=16 bash research/strategy/run_strategy.sh 2>&1 | tee data/reports/strategy_round1.txt
 set -u
-CPUS=${CPUS:-16}
+CPUS=${CPUS:-256}
 ALL=$(nproc --all); [ "$CPUS" -gt "$ALL" ] && CPUS=$ALL
 export POLARS_MAX_THREADS=$CPUS OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4 MKL_NUM_THREADS=4
 run() { taskset -c 0-$((CPUS - 1)) nice -n 5 python -u "$@"; }

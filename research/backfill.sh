@@ -4,14 +4,14 @@
 #
 # ARCH (default /data/feitu) may hold either layout, per day:
 #   <ARCH>/YYYYMMDD/v3_<kind>_YYYY_MM_DD_<SH|SZ>.zst        TickRepository archive (2.23), one file per stream / exchange
-#   <ARCH>/<FROM>_<TO>/v3_<kind>/YYYY_MM_DD/v3_<kind>_..._HH_MM.zst   live minute dumps of a date range (e.g.
-#                                                                    20260901_20261009), one folder per stream and day
+#   <ARCH>/YYYYMMDD/v3_<kind>/v3_<kind>_YYYY_MM_DD_HH_MM.zst  live minute dumps, one folder per stream (the layout on 97)
+#   <ARCH>/<FROM>_<TO>/v3_<kind>/YYYY_MM_DD/...              the same dumps grouped by date range (also read)
 #   CPUS=16 bash research/backfill.sh 20260901 20261009 2>&1 | tee data/reports/backfill.txt
 #
 # Days already decoded are skipped (FORCE=1 redecodes). Only order / transaction / quotation are decoded.
 set -u
 FROM=${1:?first day YYYYMMDD}; TO=${2:?last day YYYYMMDD}
-CPUS=${CPUS:-16}
+CPUS=${CPUS:-256}
 ALL=$(nproc --all); [ "$CPUS" -gt "$ALL" ] && CPUS=$ALL
 ARCH=${ARCH:-/data/feitu}
 RAW=${RAW:-/work/crucible_data/feitu_raw}

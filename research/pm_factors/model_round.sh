@@ -5,7 +5,7 @@
 #   CPUS=16 DAYS="20261020 20261021 20261022 20261023 20261026 20261027" bash research/pm_factors/model_round.sh 2>&1 | tee data/reports/model_round2.txt
 # MAXF = features scanned by model gain (default 60); FRESH=1 starts from the built-in assignment instead of the last one.
 set -u
-CPUS=${CPUS:-16}
+CPUS=${CPUS:-256}
 ALL=$(nproc --all); [ "$CPUS" -gt "$ALL" ] && CPUS=$ALL
 export POLARS_MAX_THREADS=$CPUS OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4 MKL_NUM_THREADS=4
 run() { taskset -c 0-$((CPUS - 1)) nice -n 5 python -u "$@"; }
