@@ -96,6 +96,11 @@ def main() -> None:
                     SELECT b.market_id, b.update_type, {PHASE.format(t="b.time")} phase, count(*) n, count(DISTINCT b.symbol_id) symbols
                     FROM {f} b ANTI JOIN {x} a USING (symbol_id, seq_id)
                     WHERE b.symbol_id IN (SELECT DISTINCT symbol_id FROM {x}) GROUP BY ALL ORDER BY n DESC LIMIT 15""").pl())
+                print("-- order_type / update_type values per exchange and source")
+                print(con.sql(f"""
+                    SELECT market_id, 'xtp' src, order_type, update_type, count(*) n FROM {x} GROUP BY ALL
+                    UNION ALL SELECT market_id, 'feitu', order_type, update_type, count(*) FROM {f} GROUP BY ALL
+                    ORDER BY 1, 3, 4, 2""").pl())
                 print("-- orders matched by (symbol_id, seq_id): field agreement")
                 print(con.sql(f"""
                     SELECT a.market_id, count(*) n_matched, avg(CASE WHEN a.order_id = b.order_id THEN 1 ELSE 0 END) same_order_id,
@@ -128,7 +133,10 @@ def main() -> None:
                            avg(CASE WHEN a.total_buy_no = b.total_buy_no AND a.total_sell_no = b.total_sell_no THEN 1 ELSE 0 END) same_buy_sell_no,
                            avg(CASE WHEN a.buy_cancel_no = b.buy_cancel_no AND a.sell_cancel_no = b.sell_cancel_no THEN 1 ELSE 0 END) same_cancel_no,
                            avg(CASE WHEN a.buy_cancel_volume = b.buy_cancel_volume THEN 1 ELSE 0 END) same_cancel_vol,
-                           avg(CASE WHEN a.high_limited = b.high_limited AND a.pre_close = b.pre_close THEN 1 ELSE 0 END) same_limit_preclose,
+                           avg(CASE WHEN round(a.high_limited * 100) = round(b.high_limited * 100)
+                                     AND round(a.low_limited * 100) = round(b.low_limited * 100) THEN 1 ELSE 0 END) same_limits_cent,
+                           avg(CASE WHEN round(a.pre_close * 100) = round(b.pre_close * 100) THEN 1 ELSE 0 END) same_preclose_cent,
+                           avg(CASE WHEN b.high_limited = 0 THEN 1 ELSE 0 END) feitu_limit0, avg(CASE WHEN a.high_limited = 0 THEN 1 ELSE 0 END) xtp_limit0,
                            median(b.bid_vol[1] * 1.0 / a.bid_vol[1]) FILTER (WHERE a.bid_vol[1] > 0) bv1_ratio_f_x,
                            avg(CASE WHEN a.bid_vol[1] = b.bid_vol[2] THEN 1 ELSE 0 END) FILTER (WHERE a.bid_vol[1] > 0) x_bv1_eq_f_bv2
                     FROM {x} a JOIN {f} b USING (symbol_id, time) GROUP BY 1 ORDER BY 1""").pl())
