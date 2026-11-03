@@ -110,6 +110,8 @@ QUOTE_MAP = {
     "weighted_avg_ask_price": ("weightedavgaskprice", "wavgaskprice"),
     "high_limited": ("highlimited", "highlimit", "upperlimit"), "low_limited": ("lowlimited", "lowlimit", "lowerlimit"),
     "iopv": ("iopv",), "total_buy_no": ("totalbidno", "bidnum"), "total_sell_no": ("totalaskno", "asknum"),
+    "buy_cancel_no": ("cancelbuycount",), "buy_cancel_volume": ("cancelbuyqty",), "buy_cancel_amount": ("cancelbuymoney",),
+    "sell_cancel_no": ("cancelsellcount",), "sell_cancel_volume": ("cancelsellqty",), "sell_cancel_amount": ("cancelsellmoney",),
 }
 QUOTE_LEVEL_MAP = {"bid_px": "bidprice{}", "bid_vol": "bidvol{}", "ask_px": "askprice{}", "ask_vol": "askvol{}"}
 

@@ -64,7 +64,10 @@ RENAME = {
     "order": {"type": "orderkind", "tickbsflag": "functioncode", "qty": "volume"},
     "transaction": {"type": "functioncode", "tickbsflag": "bsflag", "bizindex": "index", "buyorderno": "bidorder",
                     "sellorderno": "askorder", "qty": "volume"},
+    # totalbuynum / totalsellnum = XTP total_buy_count / total_sell_count (SSE whole-book order counts, feitu totalBuyNo);
+    # bidnum / asknum are XTP num_bid_orders / num_ask_orders, not that -- compare_xtp_feitu.py checks it
     "quotation": {"tradenumber": "numtrades", "highlimitprice": "highlimited", "lowlimitprice": "lowlimited",
+                  "totalbuynum": "totalbidno", "totalsellnum": "totalaskno",
                   **{f"{s}volume{i}": f"{s}vol{i}" for s in ("ask", "bid") for i in range(1, LEVELS + 1)}},
 }
 
@@ -193,6 +196,20 @@ def plan(root: Path, dates: list[str], out: Path, pattern: re.Pattern[str], kind
     return tasks, done, found
 
 
+def show_codes(df: pl.DataFrame) -> None:
+    """One line per code column (value counts) and per id column pair (share equal), for a raw order / trade file."""
+    for c in ("type", "oritype(type)", "tickbsflag"):
+        if c in df.columns:
+            vc = df[c].value_counts(sort=True).head(8)
+            print(f"  {c}: " + "  ".join(f"{v!r}={n}" for v, n in vc.iter_rows()))
+    pairs = [("bizindex", "seq"), ("bizindex", "orderno"), ("seq", "orderno"), ("type", "oritype(type)")]
+    eq = [f"{a}=={b} {(df[a] == df[b]).mean():.3f}" for a, b in pairs if a in df.columns and b in df.columns]
+    nz = [f"{c}!=0 {(df[c].cast(pl.Float64, strict=False).fill_null(0) != 0).mean():.3f}"
+          for c in ("buyorderno", "sellorderno", "orderno", "seq") if c in df.columns]
+    print("  " + "  ".join(eq + nz))
+    print("  time " + " .. ".join(df["time"].sort().gather([0, df.height - 1]).to_list()) if "time" in df.columns else "")
+
+
 def probe(root: Path, date: str, pattern: re.Pattern[str]) -> None:
     """Print the header, two raw rows and three converted rows of one liquid SH and SZ name per kind; write nothing."""
     pkg = package(root, date)
@@ -215,6 +232,8 @@ def probe(root: Path, date: str, pattern: re.Pattern[str]) -> None:
             df = read(prefix + hit[0])
             print(f"rows {df.height}; columns: {df.columns}")
             print(df.head(2))
+            if kind != "quotation":
+                show_codes(df)
             df = from_datayes(df, kind)
             if kind == "quotation":
                 m, unused = quote_mapping(df.columns)

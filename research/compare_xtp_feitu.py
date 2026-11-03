@@ -81,12 +81,37 @@ def main() -> None:
                            max(abs(a.price - b.price)) max_px_diff
                     FROM {x} a JOIN {f} b USING (symbol_id, seq_id)
                     WHERE a.trade_type = 1 AND b.trade_type = 1 GROUP BY 1 ORDER BY 1""").pl())
+                print("-- trades and SZSE cancels matched by (symbol_id, seq_id): side / order ids / type agreement, and cancel counts")
+                print(con.sql(f"""
+                    SELECT a.market_id, count(*) n_matched,
+                           avg(CASE WHEN a.dir = b.dir THEN 1 ELSE 0 END) same_dir, avg(CASE WHEN a.buy_seq_id = b.buy_seq_id THEN 1 ELSE 0 END) same_buy_id,
+                           avg(CASE WHEN a.sell_seq_id = b.sell_seq_id THEN 1 ELSE 0 END) same_sell_id, avg(CASE WHEN a.trade_type = b.trade_type THEN 1 ELSE 0 END) same_type,
+                           avg(CASE WHEN a.channel_id = b.channel_id THEN 1 ELSE 0 END) same_channel,
+                           sum(CASE WHEN a.trade_type = 2 THEN 1 ELSE 0 END) xtp_cancels,
+                           sum(CASE WHEN b.trade_type = 2 THEN 1 ELSE 0 END) feitu_cancels
+                    FROM {x} a JOIN {f} b USING (symbol_id, seq_id) GROUP BY 1 ORDER BY 1""").pl())
             if kind == "order":
                 print("-- feitu orders with no xtp (symbol_id, seq_id): per exchange, update_type and session phase")
                 print(con.sql(f"""
                     SELECT b.market_id, b.update_type, {PHASE.format(t="b.time")} phase, count(*) n, count(DISTINCT b.symbol_id) symbols
                     FROM {f} b ANTI JOIN {x} a USING (symbol_id, seq_id)
                     WHERE b.symbol_id IN (SELECT DISTINCT symbol_id FROM {x}) GROUP BY ALL ORDER BY n DESC LIMIT 15""").pl())
+                print("-- orders matched by (symbol_id, seq_id): field agreement")
+                print(con.sql(f"""
+                    SELECT a.market_id, count(*) n_matched, avg(CASE WHEN a.order_id = b.order_id THEN 1 ELSE 0 END) same_order_id,
+                           avg(CASE WHEN a.dir = b.dir THEN 1 ELSE 0 END) same_dir, avg(CASE WHEN round(a.price * 100) = round(b.price * 100) THEN 1 ELSE 0 END) same_px_cent,
+                           avg(CASE WHEN a.volume = b.volume THEN 1 ELSE 0 END) same_vol, avg(CASE WHEN a.update_type = b.update_type THEN 1 ELSE 0 END) same_update,
+                           avg(CASE WHEN a.order_type = b.order_type THEN 1 ELSE 0 END) same_order_type, avg(CASE WHEN a.channel_id = b.channel_id THEN 1 ELSE 0 END) same_channel
+                    FROM {x} a JOIN {f} b USING (symbol_id, seq_id) GROUP BY 1 ORDER BY 1""").pl())
+                print("-- five matched orders per exchange whose order_id / type differs (a_ = xtp, b_ = feitu)")
+                print(con.sql(f"""
+                    SELECT * FROM (
+                      SELECT a.market_id, a.symbol_id, a.seq_id, a.order_id a_oid, b.order_id b_oid, a.update_type a_upd,
+                             b.update_type b_upd, a.order_type a_ot, b.order_type b_ot, a.dir a_dir, b.dir b_dir,
+                             row_number() OVER (PARTITION BY a.market_id) k
+                      FROM {x} a JOIN {f} b USING (symbol_id, seq_id)
+                      WHERE a.order_id <> b.order_id OR a.update_type <> b.update_type OR a.order_type <> b.order_type)
+                    WHERE k <= 5""").pl())
             if kind == "quotation":
                 print("-- snapshots matched by (symbol_id, time): clock offset and field agreement")
                 print(con.sql(f"""
@@ -100,6 +125,10 @@ def main() -> None:
                                      AND round(a.ask_px[1] * 100) = round(b.ask_px[1] * 100) THEN 1 ELSE 0 END) same_top_cent,
                            avg(CASE WHEN round(a.price * 100) = round(b.price * 100) THEN 1 ELSE 0 END) same_last_cent,
                            avg(CASE WHEN a.total_no = b.total_no THEN 1 ELSE 0 END) same_num_trades,
+                           avg(CASE WHEN a.total_buy_no = b.total_buy_no AND a.total_sell_no = b.total_sell_no THEN 1 ELSE 0 END) same_buy_sell_no,
+                           avg(CASE WHEN a.buy_cancel_no = b.buy_cancel_no AND a.sell_cancel_no = b.sell_cancel_no THEN 1 ELSE 0 END) same_cancel_no,
+                           avg(CASE WHEN a.buy_cancel_volume = b.buy_cancel_volume THEN 1 ELSE 0 END) same_cancel_vol,
+                           avg(CASE WHEN a.high_limited = b.high_limited AND a.pre_close = b.pre_close THEN 1 ELSE 0 END) same_limit_preclose,
                            median(b.bid_vol[1] * 1.0 / a.bid_vol[1]) FILTER (WHERE a.bid_vol[1] > 0) bv1_ratio_f_x,
                            avg(CASE WHEN a.bid_vol[1] = b.bid_vol[2] THEN 1 ELSE 0 END) FILTER (WHERE a.bid_vol[1] > 0) x_bv1_eq_f_bv2
                     FROM {x} a JOIN {f} b USING (symbol_id, time) GROUP BY 1 ORDER BY 1""").pl())
