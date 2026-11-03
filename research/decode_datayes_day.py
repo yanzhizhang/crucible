@@ -78,6 +78,7 @@ RENAME = {
 
 def from_datayes(df: pl.DataFrame, kind: str) -> pl.DataFrame:
     """Rename a DataYes frame onto TDF headers and rewrite its two clocks in the TDF formats."""
+    df = df.rename(plain_names(df.columns))
     codes = [pl.col(c).str.replace(r"\(.*\)$", "").str.strip_chars() for c in ("type", "tickbsflag") if c in df.columns]
     df = df.with_columns(codes) if codes else df  # SZSE writes the side as "B(1)" / "S(2)"
     df = df.rename({k: v for k, v in RENAME[kind].items() if k in df.columns})
@@ -139,10 +140,33 @@ def read(source: str) -> pl.DataFrame:
     return parse_csv(_OPEN[pkg].read(entry))
 
 
+def plain_names(columns: list[str]) -> dict[str, str]:
+    """Drop the alias DataYesSharesL2 appends to a header (``code(securityid)`` -> ``code``) unless that name is taken."""
+    out, taken = {}, set(columns)
+    for c in columns:
+        base = re.sub(r"\(.*\)$", "", c)
+        if base != c and base not in taken:
+            out[c] = base
+            taken.add(base)
+    return out
+
+
 def load(kind: str, source: str, code: int, market: int, day: int) -> pl.DataFrame | None:
     """One DataYes entry -> feitu columns."""
     df = read(source)
-    return None if df.is_empty() else convert(from_datayes(df, kind), kind, code, market, day)
+    if df.is_empty():
+        return None
+    df = from_datayes(df, kind)
+    if kind == "transaction" and market == SSE and "functioncode" in df.columns:
+        # DataYesSharesL2 has a few SSE trades typed Z (meaning unknown): kept, but as trade_type 0 so no fill reader counts them
+        z = pl.col("functioncode") == "Z"
+        parts = [convert(df.filter(~z), kind, code, market, day),
+                 convert(df.filter(z), kind, code, market, day)]
+        if parts[1] is not None:
+            parts[1] = parts[1].with_columns(pl.lit(0, pl.Int8).alias("trade_type"))
+        parts = [x for x in parts if x is not None]
+        return pl.concat(parts).sort("seq_id") if parts else None
+    return convert(df, kind, code, market, day)
 
 
 def _write_part(task: dict[str, Any]) -> dict[str, Any]:
@@ -205,7 +229,7 @@ def plan(root: Path, dates: list[str], out: Path, pattern: re.Pattern[str], kind
                     rows = todo[ci:ci + chunk]
                     part = [(sym, code, ref) for sym, code, ref, _ in rows]
                     dst = dst_dir / f"part-{tag}-{ci // chunk:03d}.parquet"
-                    row = part_row(tag, part, sum(b for *_, b in rows), "datayes")
+                    row = part_row(tag, part, sum(b for *_, b in rows), f"datayes:{root.name}")
                     if dst.exists() and not overwrite:
                         row["rows"], row["skipped"] = pq.read_metadata(dst).num_rows, True
                         done[(date, kind)].append(row)
