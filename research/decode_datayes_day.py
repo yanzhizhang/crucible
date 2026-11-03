@@ -74,6 +74,8 @@ RENAME = {
 
 def from_datayes(df: pl.DataFrame, kind: str) -> pl.DataFrame:
     """Rename a DataYes frame onto TDF headers and rewrite its two clocks in the TDF formats."""
+    codes = [pl.col(c).str.replace(r"\(.*\)$", "").str.strip_chars() for c in ("type", "tickbsflag") if c in df.columns]
+    df = df.with_columns(codes) if codes else df  # SZSE writes the side as "B(1)" / "S(2)"
     df = df.rename({k: v for k, v in RENAME[kind].items() if k in df.columns})
     extra = []
     if "time" in df.columns:
@@ -207,6 +209,11 @@ def show_codes(df: pl.DataFrame) -> None:
     nz = [f"{c}!=0 {(df[c].cast(pl.Float64, strict=False).fill_null(0) != 0).mean():.3f}"
           for c in ("buyorderno", "sellorderno", "orderno", "seq") if c in df.columns]
     print("  " + "  ".join(eq + nz))
+    ids = [c for c in ("time", "bizindex", "seq", "orderno", "buyorderno", "sellorderno", "type", "tickbsflag", "price", "qty")
+           if c in df.columns]
+    mid = df.height // 2
+    with pl.Config(tbl_cols=12, tbl_width_chars=160, tbl_hide_dataframe_shape=True, tbl_hide_column_data_types=True):
+        print("\n".join("  " + line for line in str(df.select(ids).slice(mid, 4)).splitlines()))
     print("  time " + " .. ".join(df["time"].sort().gather([0, df.height - 1]).to_list()) if "time" in df.columns else "")
 
 
