@@ -41,14 +41,12 @@ from window_probe import hit
 OUT = DATA / "store" / "pm_factors" / "bar_variants2"
 NS_SEC, NS_MIN, NS_DAY, NS_LOCAL = 1_000_000_000, 60_000_000_000, 86_400_000_000_000, 8 * 3600 * 1_000_000_000
 # open: 1 = auction + 09:30:00.000 prints kept, 0 = auction dropped, 2 = both dropped
-VARIANTS = [dict(zip(("lab", "dir", "open", "close"), v)) for v in product("c", ("bs",), (1, 0, 2), (1, 0))] +     [{"lab": "c", "dir": "all", "open": o, "close": 1} for o in (0, 2)]
+VARIANTS = [dict(zip(("lab", "dir", "open", "close"), v)) for v in product("c", ("bs",), (1, 0, 2), (1, 0))] +     [{"lab": "c", "dir": "all", "open": o, "close": 1} for o in (1, 0, 2)]
 CURRENT = "c bs 1 1"  # what basics.py builds
 SH = "symbol_id >= 600000"
-SHIFTS = {"sh+150": f"CASE WHEN {SH} THEN time + 150000000 ELSE time END", "all_sp": "spider_ts",  # sp = the feed's receive time
-          "sh_sp": f"CASE WHEN {SH} THEN spider_ts ELSE time END",
-          **{f"sh_sp{k:+d}": f"CASE WHEN {SH} THEN spider_ts + {k * 1_000_000} ELSE time END" for k in (-40, -35, -30, -25, -20, -15, -10, -5)},
-          **{f"all_sp{k:+d}": f"spider_ts + {k * 1_000_000}" for k in (-40, -20)}}
-SHIFT_BASES = [{"lab": "c", "dir": "bs", "open": 0, "close": 1}]  # the shifted times are tried on these variants
+SHIFTS = {f"sh_sp{k:+d}": f"CASE WHEN {SH} THEN spider_ts + {k * 1_000_000} ELSE time END" for k in (-25,)}  # sp = the feed's receive time
+SHIFT_BASES = [{"lab": "c", "dir": d, "open": o, "close": 1} for d, o in (("bs", 0), ("bs", 1), ("all", 1))]
+BARS = [*range(575, 691, 5), *range(785, 901, 5)]  # the 48 five-minute bar ends  # the shifted times are tried on these variants
 PRICES = ("high_all", "low_all", "high_bs", "low_bs", "high_xc", "low_xc", "high_cont", "low_cont", "close_cont_sp", "snap_last_cont_sp", "open_all", "open_cont",
           "close_all", "close_cont", "close_bs", "vwap_all", "snap_open", "snap_high", "snap_low", "snap_last", "snap_last_cont", "snap_preclose",
           "snap_cut1", "snap_cut2", "snap_cut3", "snap_cut5", "snap_pre1500", "close_cont_seq", "close_cont_sp_seq")
@@ -172,6 +170,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--combos", default="ZZXC:q:vol,ZZXC:n:amt,ZZTS:q:b_amt", help="bar family:V:basic,... (basic: vol / amt / b_amt)")
     ap.add_argument("--daily", default="ZZDS:h,ZZDS:l,ZZDS:c,ZZDS:o", help="daily family:V,... scored against every price candidate")
+    ap.add_argument("--cum", default="ZZMS:n:amt,ZZMS:q:vol", help="bar family:V:basic,... scored as running totals since the open")
     ap.add_argument("--days", required=True, help="PM days to score")
     ap.add_argument("--n", type=int, default=22)
     ap.add_argument("--hstats", type=Path, default=Path("/data/prod/hstats/HS300"))
@@ -182,6 +181,8 @@ def main() -> None:
     N, days = a.n, a.days.split(",")
     jobs = [(fam, V, col) for fam, V, col in (c.split(":") for c in a.combos.split(",") if c)]
     jobs += [(fam, V, None) for fam, V in (c.split(":") for c in a.daily.split(",") if c)]
+    cums = [(fam, V, col) for fam, V, col in (c.split(":") for c in a.cum.split(",") if c)]
+    jobs += [(fam, V, col) for fam, V, col in cums if (fam, V, col) not in jobs]
     tdays = trading_days(a.hstats, jobs[0][0])
     cells = {}
     for fam, V, col in jobs:
@@ -202,8 +203,8 @@ def main() -> None:
     bars, prices = {}, {}
     for x in need:
         dst = a.out / f"date={x}"
-        parts = [cached(dst / "base.parquet", lambda x=x: variants(raw_day(con, x), VARIANTS)), cached(dst / "snap.parquet", lambda x=x: snap_day(con, x))]
-        parts += [cached(dst / f"{k}.parquet", lambda e=e, k=k, x=x: variants(raw_day(con, x, e), SHIFT_BASES, f" {k}")) for k, e in SHIFTS.items()]
+        parts = [cached(dst / "base_v2.parquet", lambda x=x: variants(raw_day(con, x), VARIANTS)), cached(dst / "snap.parquet", lambda x=x: snap_day(con, x))]
+        parts += [cached(dst / f"{k}_v2.parquet", lambda e=e, k=k, x=x: variants(raw_day(con, x, e), SHIFT_BASES, f" {k}")) for k, e in SHIFTS.items()]
         bars[x] = pl.concat(parts, how="vertical_relaxed")
         prices[x] = cached(dst / "prices.parquet", lambda x=x: price_day(con, x))
         print(f"\r{x} cached", end="", flush=True)
@@ -245,6 +246,47 @@ def main() -> None:
         sc = t.group_by("code").agg(pl.col("hit").mean(), (pl.col("y") / pl.col("x")).median().alias("r")).sort("hit")
         print(f"  best {rows[0][0]}: {sc.filter(pl.col('hit') == 0).height} stocks never exact of {sc.height} (PM / ours): "
               + " ".join(f"{c:06d} {r:.4f}" for c, _, r in sc.filter(pl.col("hit") == 0).head(8).iter_rows()))
+    dense = {}
+
+    def day_cum(x: str, v: str, col: str, codes: pl.DataFrame) -> pl.DataFrame:  # every (code, bar) of day x: the bar value and its running total
+        if (x, v, col) not in dense:
+            g = codes.join(pl.DataFrame({"minute": BARS}, schema={"minute": pl.Int64}), how="cross")
+            t = g.join(bars[x].filter(pl.col("variant") == v).select("code", "minute", col), on=["code", "minute"], how="left").sort("code", "minute")
+            dense[x, v, col] = t.select("code", "minute", pl.col(col).fill_null(0.0).alias("val")).with_columns(pl.col("val").cum_sum().over("code").alias("cum"))
+        return dense[x, v, col]
+
+    for fam, V, col in cums:
+        if (fam, V) not in cells:
+            continue
+        cc = cells[fam, V]
+        codes_f = pl.concat([c.select("code") for c in cc.values()]).unique()
+        rows = []
+        for v in names:
+            if col == "b_amt" and v == "snap":
+                continue
+            parts = {"medcum": [], "cummed": []}
+            for d, c in cc.items():
+                win = tdays[tdays.index(d) - N + 1: tdays.index(d) + 1]
+                agg = (pl.concat([day_cum(x, v, col, codes_f) for x in win]).group_by("code", "minute")
+                       .agg(pl.col("val").median().alias("mv"), pl.col("cum").median().alias("medcum")).sort("code", "minute")
+                       .with_columns(pl.col("mv").cum_sum().over("code").alias("cummed")))
+                j = c.join(agg, on=["code", "minute"], how="left")
+                for red in parts:
+                    h, _ = hit(j["y"].to_numpy(), j[red].to_numpy().astype(float))
+                    if h.size:
+                        parts[red].append(c.with_columns(pl.Series("x", j[red].to_numpy()), pl.Series("hit", h)))
+            for red, ps in parts.items():
+                if ps:
+                    t = pl.concat(ps).filter(pl.col("hit").is_not_nan()).with_columns((pl.col("code") >= 600000).alias("sh"))
+                    rows.append((f"{v} {red}", t["hit"].mean(), *by_exch(t), t))
+        rows.sort(key=lambda r: -r[1])
+        print(f"== {fam} {V} ~ running {col} since the open: medcum = median_{N} of the day's running total, cummed = running total of median_{N} bars")
+        print("  " + "\n  ".join(f"{n:<22} all {x:.3f}  SH {s:.3f}  SZ {z:.3f}" for n, x, s, z, _ in rows[:8]))
+        if rows:
+            t = rows[0][4]
+            r = t.select((pl.col("y") / pl.col("x")).median()).item()
+            b = t.group_by("minute").agg(pl.col("hit").mean()).sort("hit")
+            print(f"  best {rows[0][0]}: PM / ours {r:.4f}; worst bars " + " ".join(f"{m // 60:02d}{m % 60:02d} {h:.2f}" for m, h in b.head(5).iter_rows()))
 
 
 if __name__ == "__main__":
