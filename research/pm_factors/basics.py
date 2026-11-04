@@ -32,9 +32,15 @@ import polars as pl
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from candidates import (
+    AM_CLOSE,
+    AM_OPEN,
     BUY,
     CATALOG,
+    CONT_END,
     DATA,
+    NS_DAY,
+    NS_LOCAL,
+    NS_MIN,
     SELL,
     SSE,
     SZSE,
@@ -45,6 +51,8 @@ from candidates import (
 )
 
 OUT = DATA / "store" / "pm_factors" / "basics"
+OUT_PM = DATA / "store" / "pm_factors" / "basics_pm"
+SSE_LAG_NS = 25_000_000  # PM's SSE clock = our receive time - 25 ms (bar_variants.py: SSE exact 0.57 -> 0.97)
 FLOW = ("vol", "amt", "n", "ord", "pas", "b_vol", "s_vol", "b_amt", "s_amt", "b_n", "s_n", "b_ord", "s_ord",
         "ordb_n", "orda_n", "ordb_vol", "orda_vol", "ordb_amt", "orda_amt", "cxb_n", "cxa_n", "cxb_vol", "cxa_vol")
 PAIRS = {"vol": ("b_vol", "s_vol"), "amt": ("b_amt", "s_amt"), "n": ("b_n", "s_n"), "ord": ("b_ord", "s_ord"),
@@ -55,17 +63,38 @@ PAIRS = {"vol": ("b_vol", "s_vol"), "amt": ("b_amt", "s_amt"), "n": ("b_n", "s_n
          "mv1": ("m_bv1", "m_av1"), "mv5": ("m_bv5", "m_av5"), "mtot": ("m_btot", "m_atot"), "totamt": ("btot_amt", "atot_amt")}
 
 
-def minute_table(con: duckdb.DuckDBPyConnection, date: str) -> pl.DataFrame:
-    """Build the wide 1-minute table for one day (universe registered as ``uni``)."""
+def minute_table(con: duckdb.DuckDBPyConnection, date: str, pm: bool = False) -> pl.DataFrame:
+    """Build the wide 1-minute table for one day (universe registered as ``uni``).
+
+    ``pm``: PM's convention (``bar_variants.py``) -- SSE ticks timed by receive time minus ``SSE_LAG_NS``, the opening
+    auction left out of the trade flows, high / low / last over every fill up to 14:57 (opening auction in, closing out).
+    """
     d, b, s = int(date), BUY, SELL
+
+    def t(a: str) -> str:  # the clock a tick is bucketed by
+        return f"(CASE WHEN {a}.market_id = {SSE} THEN {a}.spider_ts - {SSE_LAG_NS} ELSE {a}.time END)" if pm else f"{a}.time"
+
+    def mins(a: str) -> str:  # fractional local minute of day on that clock
+        return f"((({t(a)} + {NS_LOCAL}) % {NS_DAY}) / {NS_MIN}::DOUBLE)"
+
+    def lab(a: str) -> str:  # bar label; on the receive clock an 11:29:59.9 fill lands just past 11:30 and stays in the morning
+        return f"(CASE WHEN {mins(a)} > {AM_CLOSE} AND {mins(a)} < {AM_CLOSE + 10} THEN {AM_CLOSE} ELSE {_label(t(a))} END)" if pm else _label(t(a))
+
+    m = mins("r")
+    flow = f"r.dir IN ({b}, {s})" + (f" AND {m} >= {AM_OPEN}" if pm else "")
     con.execute(f"""
-        CREATE OR REPLACE TEMP TABLE tb AS
+        CREATE OR REPLACE TEMP TABLE tp AS
         SELECT r.symbol_id, r.market_id, r.dir, r.volume::DOUBLE AS volume, r.price, r.volume * r.price AS amt,
-               {_label('r.time')} AS minute, r.time,
+               {lab('r')} AS minute, {t('r')} AS time, r.time AS xtime, r.seq_id, {m} AS m,
+               (((r.time + {NS_LOCAL}) % {NS_DAY}) / {NS_MIN}::DOUBLE) AS mx, {flow} AS flow,
                CASE r.dir WHEN {b} THEN r.buy_seq_id ELSE r.sell_seq_id END AS agg_id,
                CASE r.dir WHEN {b} THEN r.sell_seq_id ELSE r.buy_seq_id END AS pas_id
         FROM raw_transaction r JOIN uni u USING (symbol_id, market_id)
-        WHERE r.date = {d} AND r.trade_type = 1 AND r.dir IN ({b}, {s})""")
+        WHERE r.date = {d} AND r.trade_type = 1{"" if pm else f" AND r.dir IN ({b}, {s})"}""")
+    con.execute("CREATE OR REPLACE TEMP TABLE tb AS SELECT * FROM tp WHERE flow")
+    px = con.sql(f"""
+        SELECT symbol_id, minute, max(price) AS high, min(price) AS low, last(price ORDER BY xtime, seq_id) AS last
+        FROM tp WHERE {f"mx <= {CONT_END}" if pm else "flow"} GROUP BY ALL""").pl()  # prices stay on exchange time (ZZDS h / l / c exact)
     con.execute("""
         CREATE OR REPLACE TEMP TABLE ob AS
         SELECT symbol_id, dir, agg_id, sum(volume) AS osize, min(minute) AS minute FROM tb GROUP BY ALL""")
@@ -76,8 +105,8 @@ def minute_table(con: duckdb.DuckDBPyConnection, date: str) -> pl.DataFrame:
                sum(amt) FILTER (dir = {b}) AS b_amt, sum(amt) FILTER (dir = {s}) AS s_amt,
                count(*) FILTER (dir = {b}) AS b_n, count(*) FILTER (dir = {s}) AS s_n,
                count(DISTINCT agg_id) FILTER (dir = {b}) AS b_ord, count(DISTINCT agg_id) FILTER (dir = {s}) AS s_ord,
-               sum(amt) / sum(volume) AS vwap, max(price) AS high, min(price) AS low, arg_max(price, time) AS last
-        FROM tb GROUP BY ALL""").pl()
+               sum(amt) / sum(volume) AS vwap
+        FROM tb GROUP BY ALL""").pl().join(px, on=["symbol_id", "minute"], how="full", coalesce=True)
     oq = con.sql(f"""
         SELECT symbol_id, minute,
                quantile_cont(osize, 0.5) FILTER (dir = {b}) AS b_q50, quantile_cont(osize, 0.9) FILTER (dir = {b}) AS b_q90,
@@ -85,13 +114,13 @@ def minute_table(con: duckdb.DuckDBPyConnection, date: str) -> pl.DataFrame:
         FROM ob GROUP BY ALL""").pl()
     ev = con.sql(f"""
         WITH e AS (
-          SELECT o.symbol_id, {_label('o.time')} AS minute, 0 AS k, o.dir, o.volume::DOUBLE AS volume, o.volume * o.price AS amt
+          SELECT o.symbol_id, {lab('o')} AS minute, 0 AS k, o.dir, o.volume::DOUBLE AS volume, o.volume * o.price AS amt
           FROM raw_order o JOIN uni u USING (symbol_id, market_id) WHERE o.date = {d} AND o.update_type = 1 AND o.dir IN ({b}, {s})
           UNION ALL
-          SELECT o.symbol_id, {_label('o.time')}, 1, o.dir, o.volume::DOUBLE, o.volume * o.price
+          SELECT o.symbol_id, {lab('o')}, 1, o.dir, o.volume::DOUBLE, o.volume * o.price
           FROM raw_order o JOIN uni u USING (symbol_id, market_id) WHERE o.date = {d} AND o.market_id = {SSE} AND o.update_type = 2
           UNION ALL
-          SELECT r.symbol_id, {_label('r.time')}, 1, CASE WHEN r.buy_seq_id > 0 THEN {b} ELSE {s} END, r.volume::DOUBLE, r.volume * r.price
+          SELECT r.symbol_id, {lab('r')}, 1, CASE WHEN r.buy_seq_id > 0 THEN {b} ELSE {s} END, r.volume::DOUBLE, r.volume * r.price
           FROM raw_transaction r JOIN uni u USING (symbol_id, market_id) WHERE r.date = {d} AND r.market_id = {SZSE} AND r.trade_type = 2)
         SELECT symbol_id, minute,
                count(*) FILTER (k = 0 AND dir = {b}) AS ordb_n, count(*) FILTER (k = 0 AND dir = {s}) AS orda_n,
@@ -159,7 +188,7 @@ def aggregate(m1: pl.DataFrame, step: int | None) -> pl.DataFrame:
     return out.with_columns(pl.when(pl.col("minute") > 900).then(900).otherwise(pl.col("minute")).alias("minute")) if step else out
 
 
-def build_day(d: str, index: str, thr_file: Path | None, memory: str, out: Path, threads: int) -> str:
+def build_day(d: str, index: str, thr_file: Path | None, memory: str, out: Path, threads: int, pm: bool = False) -> str:
     """Build one day's basics tables (its own catalog connection, so days can run in parallel)."""
     con = duckdb.connect(str(CATALOG), read_only=True)
     con.execute(f"SET memory_limit='{memory}'")
@@ -170,7 +199,7 @@ def build_day(d: str, index: str, thr_file: Path | None, memory: str, out: Path,
         uni = thr.select(pl.col("sid").cast(pl.Int32).alias("symbol_id"),
                          pl.when(pl.col("sid") >= 600000).then(3553).otherwise(3554).cast(pl.Int16).alias("market_id"))
     con.register("uni", uni if uni is not None else universe(index))
-    m1 = minute_table(con, d)
+    m1 = minute_table(con, d, pm)
     dst = out / f"date={d}"
     dst.mkdir(parents=True, exist_ok=True)
     m1.write_parquet(dst / "m1.parquet")
@@ -197,7 +226,8 @@ def main() -> None:
     ap.add_argument("--memory", default="8GB", help="per worker")
     ap.add_argument("--workers", type=int, default=1, help="days built in parallel")
     ap.add_argument("--threads", type=int, default=4, help="DuckDB threads per worker")
-    ap.add_argument("--out", type=Path, default=OUT)
+    ap.add_argument("--convention", choices=("feitu", "pm"), default="feitu", help="pm: PM's clock / auction / price rules, default --out basics_pm")
+    ap.add_argument("--out", type=Path)
     a = ap.parse_args()
     dates = [d for d in a.dates.split(",") if d]
     pm_days = sorted(p.name for p in a.thr_dir.iterdir() if p.name.isdigit()) if a.thr_dir else []
@@ -208,7 +238,9 @@ def main() -> None:
             return a.thr_dir / prev[-1] / "samplerR.parquet" if prev else None
         return a.thr_file
 
-    jobs = [(d, a.index, thr_of(d), a.memory, a.out, a.threads) for d in dates]
+    pm = a.convention == "pm"
+    out = a.out or (OUT_PM if pm else OUT)
+    jobs = [(d, a.index, thr_of(d), a.memory, out, a.threads, pm) for d in dates]
     failed = 0
     if a.workers > 1:
         import multiprocessing as mp
