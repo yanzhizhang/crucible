@@ -107,7 +107,12 @@ def main() -> None:
             tabs = {}
             for x in hist:
                 t = pl.read_parquet(a.basics / f"date={x}" / f"{table}.parquet").rename({"symbol_id": "code"})
-                tabs[x] = t.with_columns(pl.col("code").cast(pl.Int64), pl.col("minute").cast(pl.Int64))
+                t = t.with_columns(pl.col("code").cast(pl.Int64), pl.col("minute").cast(pl.Int64))
+                dup = t.filter(t.select(keys).is_duplicated())
+                if dup.height:  # a repeated (code, minute) would multiply the PM cells in the join
+                    print(f"basics {x} {table}: {dup.height} rows share a key, first kept; e.g. "
+                          + " ".join(f"{c}@{m}" for c, m in dup.select("code", "minute").unique().head(4).iter_rows()), flush=True)
+                tabs[x] = t.unique(keys, keep="first", maintain_order=True)
             names = [c for c in tabs[d].columns if c not in ("code", "minute")]
             for V in sorted(pm["V"].unique().to_list()):
                 cells = pm.filter(pl.col("V") == V).select(*keys, pl.col(vals[0]).alias("y")).filter(pl.col("y").is_finite())
