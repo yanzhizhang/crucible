@@ -27,7 +27,7 @@ from basic_match import BASICS
 from rank_candidates import pm_frame
 
 WINDOWS = (5, 10, 15, 18, 19, 20, 21, 22, 23, 24, 25, 26, 28, 30, 32, 35, 40, 45, 50, 60)
-LEVELS = (0.5,)  # the median: confirmed on ZZTS / ZZXC (ratio 1.000, 25-30% bit-exact at N = 20, rising with N)
+LEVELS = (0.5,)  # the median: ZZTS / ZZXC peak at N = 22, d included (70-80% bit-exact)
 
 
 def trading_days(hstats: Path, fam: str) -> list[str]:
