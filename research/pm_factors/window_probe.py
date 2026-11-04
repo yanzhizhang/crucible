@@ -80,7 +80,7 @@ def main() -> None:
             table = "d1" if kind == "daily" else "m5"
             keys = ["code"] if table == "d1" else ["code", "minute"]
             cells = pm.filter(pl.col("V") == V).select(*keys, pl.col(vals[0]).alias("y")).filter(pl.col("y").is_finite())
-            cells = cells.with_columns(pl.col("code").cast(pl.Int64), pl.col("minute").cast(pl.Int64))
+            cells = cells.with_columns(pl.col(k).cast(pl.Int64) for k in keys)
             i = tdays.index(d)
             span = tdays[i - N - (0 if not a.excl else 1): i + 1]  # N + 1 (or N + 2) trading days, oldest first
             if any(x not in have for x in span):
