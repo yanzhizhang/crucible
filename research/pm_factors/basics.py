@@ -10,7 +10,7 @@ column "which basic is it, up to a unit?" before anyone guesses a formula. Per 1
 * new orders (``ordb_`` / ``orda_``: bid / ask side): count, volume, amount, mean size; cancels (``cxb_`` / ``cxa_``):
   count, volume (SSE from the order stream, SZSE from the cancel transactions);
 * snapshots: last of the bar -- ``bv1 av1 bv5 av5 bv10 av10 btot atot bno ano bp1 ap1 mid spread`` and the
-  bar means ``m_bv1 m_av1 m_bv5 m_av5 m_btot m_atot``; ``*_amt`` = volume x price for the totals, ``*_wamt`` = total x the feed's weighted average price;
+  bar means ``m_bv1 m_av1 m_bv5 m_av5 m_btot m_atot``; ``*_amt`` = volume x price for the totals, ``*_wamt`` = total x the feed's weighted average price (``*_wamt_sp`` the same snapshot picked on the trade clock, ``m_*_wamt`` its bar mean); ``ord*_vol_l`` limit orders only;
 * running totals since the open: ``cum_vol cum_amt cum_n cum_bvol cum_svol``;
 * for every bid / ask or buy / sell pair: ``<x>_sum``, ``<x>_mean``, ``<x>_imb``.
 
@@ -55,14 +55,15 @@ OUT = DATA / "store" / "pm_factors" / "basics"
 OUT_PM = DATA / "store" / "pm_factors" / "basics_pm"
 SSE_LAG_NS = 25_000_000  # PM's SSE clock = our receive time - 25 ms (bar_variants.py: SSE exact 0.57 -> 0.97)
 FLOW = ("vol", "amt", "n", "ord", "pas", "b_vol", "s_vol", "b_amt", "s_amt", "b_n", "s_n", "b_ord", "s_ord",
-        "ordb_n", "orda_n", "ordb_vol", "orda_vol", "ordb_amt", "orda_amt", "cxb_n", "cxa_n", "cxb_vol", "cxa_vol")
+        "ordb_n", "orda_n", "ordb_vol", "orda_vol", "ordb_amt", "orda_amt", "cxb_n", "cxa_n", "cxb_vol", "cxa_vol", "ordb_vol_l", "orda_vol_l")
 PAIRS = {"vol": ("b_vol", "s_vol"), "amt": ("b_amt", "s_amt"), "n": ("b_n", "s_n"), "ord": ("b_ord", "s_ord"),
          "osz": ("b_osz", "s_osz"), "tsz": ("b_tsz", "s_tsz"), "q50": ("b_q50", "s_q50"), "q90": ("b_q90", "s_q90"),
          "ordn": ("ordb_n", "orda_n"), "ordvol": ("ordb_vol", "orda_vol"), "ordamt": ("ordb_amt", "orda_amt"),
          "ordmsz": ("ordb_msz", "orda_msz"), "cxn": ("cxb_n", "cxa_n"), "cxvol": ("cxb_vol", "cxa_vol"),
          "v1": ("bv1", "av1"), "v5": ("bv5", "av5"), "v10": ("bv10", "av10"), "tot": ("btot", "atot"), "no": ("bno", "ano"),
          "mv1": ("m_bv1", "m_av1"), "mv5": ("m_bv5", "m_av5"), "mtot": ("m_btot", "m_atot"), "totamt": ("btot_amt", "atot_amt"),
-         "totwamt": ("btot_wamt", "atot_wamt")}
+         "totwamt": ("btot_wamt", "atot_wamt"), "totwamtsp": ("btot_wamt_sp", "atot_wamt_sp"), "mtotwamt": ("m_btot_wamt", "m_atot_wamt"),
+         "ordvoll": ("ordb_vol_l", "orda_vol_l")}
 
 
 def minute_table(con: duckdb.DuckDBPyConnection, date: str, pm: bool = False) -> pl.DataFrame:
@@ -116,20 +117,22 @@ def minute_table(con: duckdb.DuckDBPyConnection, date: str, pm: bool = False) ->
         FROM ob GROUP BY ALL""").pl()
     ev = con.sql(f"""
         WITH e AS (
-          SELECT o.symbol_id, {lab('o')} AS minute, 0 AS k, o.dir, o.volume::DOUBLE AS volume, o.volume * o.price AS amt
+          SELECT o.symbol_id, {lab('o')} AS minute, 0 AS k, o.dir, o.volume::DOUBLE AS volume, o.volume * o.price AS amt,
+                 (o.market_id = {SSE} OR o.order_type = 2) AS lim
           FROM raw_order o JOIN uni u USING (symbol_id, market_id) WHERE o.date = {d} AND o.update_type = 1 AND o.dir IN ({b}, {s})
           UNION ALL
-          SELECT o.symbol_id, {lab('o')}, 1, o.dir, o.volume::DOUBLE, o.volume * o.price
+          SELECT o.symbol_id, {lab('o')}, 1, o.dir, o.volume::DOUBLE, o.volume * o.price, false
           FROM raw_order o JOIN uni u USING (symbol_id, market_id) WHERE o.date = {d} AND o.market_id = {SSE} AND o.update_type = 2
           UNION ALL
-          SELECT r.symbol_id, {lab('r')}, 1, CASE WHEN r.buy_seq_id > 0 THEN {b} ELSE {s} END, r.volume::DOUBLE, r.volume * r.price
+          SELECT r.symbol_id, {lab('r')}, 1, CASE WHEN r.buy_seq_id > 0 THEN {b} ELSE {s} END, r.volume::DOUBLE, r.volume * r.price, false
           FROM raw_transaction r JOIN uni u USING (symbol_id, market_id) WHERE r.date = {d} AND r.market_id = {SZSE} AND r.trade_type = 2)
         SELECT symbol_id, minute,
                count(*) FILTER (k = 0 AND dir = {b}) AS ordb_n, count(*) FILTER (k = 0 AND dir = {s}) AS orda_n,
                sum(volume) FILTER (k = 0 AND dir = {b}) AS ordb_vol, sum(volume) FILTER (k = 0 AND dir = {s}) AS orda_vol,
                sum(amt) FILTER (k = 0 AND dir = {b}) AS ordb_amt, sum(amt) FILTER (k = 0 AND dir = {s}) AS orda_amt,
                count(*) FILTER (k = 1 AND dir = {b}) AS cxb_n, count(*) FILTER (k = 1 AND dir = {s}) AS cxa_n,
-               sum(volume) FILTER (k = 1 AND dir = {b}) AS cxb_vol, sum(volume) FILTER (k = 1 AND dir = {s}) AS cxa_vol
+               sum(volume) FILTER (k = 1 AND dir = {b}) AS cxb_vol, sum(volume) FILTER (k = 1 AND dir = {s}) AS cxa_vol,
+               sum(volume) FILTER (k = 0 AND lim AND dir = {b}) AS ordb_vol_l, sum(volume) FILTER (k = 0 AND lim AND dir = {s}) AS orda_vol_l
         FROM e GROUP BY ALL""").pl()
     sn = con.sql(f"""
         WITH q AS (
@@ -147,8 +150,15 @@ def minute_table(con: duckdb.DuckDBPyConnection, date: str, pm: bool = False) ->
                arg_max(btot_wamt, time) AS btot_wamt, arg_max(atot_wamt, time) AS atot_wamt,
                arg_max(bno, time) AS bno, arg_max(ano, time) AS ano, arg_max(bp1, time) AS bp1, arg_max(ap1, time) AS ap1,
                avg(bv1) AS m_bv1, avg(av1) AS m_av1, avg(bv5) AS m_bv5, avg(av5) AS m_av5, avg(btot) AS m_btot, avg(atot) AS m_atot,
-               count(*) AS n_snap
+               avg(btot_wamt) AS m_btot_wamt, avg(atot_wamt) AS m_atot_wamt, count(*) AS n_snap
         FROM q GROUP BY ALL""").pl()
+    sp = con.sql(f"""
+        SELECT q.symbol_id, {lab('q')} AS minute,
+               arg_max(q.total_bid_volume * q.weighted_avg_bid_price, {t('q')}) AS btot_wamt_sp,
+               arg_max(q.total_ask_volume * q.weighted_avg_ask_price, {t('q')}) AS atot_wamt_sp
+        FROM raw_quotation q JOIN uni u USING (symbol_id, market_id) WHERE q.date = {d} AND {_continuous(t('q'))}
+        GROUP BY ALL""").pl()  # the same snapshot on the trade clock (SSE receive time)
+    sn = sn.join(sp, on=["symbol_id", "minute"], how="full", coalesce=True)
     w = tr.join(oq, on=["symbol_id", "minute"], how="full", coalesce=True).join(ev, on=["symbol_id", "minute"], how="full", coalesce=True)
     w = w.join(sn, on=["symbol_id", "minute"], how="full", coalesce=True).sort("symbol_id", "minute")
     w = w.with_columns(pl.col(c).cast(pl.Float64) for c in w.columns if c not in ("symbol_id", "minute"))
@@ -173,7 +183,7 @@ def minute_table(con: duckdb.DuckDBPyConnection, date: str, pm: bool = False) ->
 def aggregate(m1: pl.DataFrame, step: int | None) -> pl.DataFrame:
     """5-minute bars (step 5; the bar ending at t holds minutes t-4..t) or the day (None): flows summed, states last, means averaged."""
     key = (((pl.col("minute") - 571) // step) * step + 575) if step else pl.lit(-1)
-    state = {"last", "bv1", "av1", "bv5", "av5", "bv10", "av10", "btot", "atot", "bno", "ano", "bp1", "ap1", "mid", "spread", "btot_amt", "atot_amt", "btot_wamt", "atot_wamt"}
+    state = {"last", "bv1", "av1", "bv5", "av5", "bv10", "av10", "btot", "atot", "bno", "ano", "bp1", "ap1", "mid", "spread", "btot_amt", "atot_amt", "btot_wamt", "atot_wamt", "btot_wamt_sp", "atot_wamt_sp"}
     flow_pairs = {p for p, (x, _) in PAIRS.items() if x in FLOW}
     agg = []
     for c in [c for c in m1.columns if c not in ("symbol_id", "minute")]:
