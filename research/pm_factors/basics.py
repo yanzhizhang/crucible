@@ -193,7 +193,9 @@ def build_day(d: str, index: str, thr_file: Path | None, memory: str, out: Path,
     """Build one day's basics tables (its own catalog connection, so days can run in parallel)."""
     con = duckdb.connect(str(CATALOG), read_only=True)
     con.execute(f"SET memory_limit='{memory}'")
-    con.execute(f"SET temp_directory='{DATA / 'tmp' / f'basics_{os.getpid()}'}'")  # parallel workers must not share DuckDB spill files
+    tmp = DATA / "tmp" / f"basics_{os.getpid()}"  # parallel workers must not share DuckDB spill files
+    tmp.mkdir(parents=True, exist_ok=True)
+    con.execute(f"SET temp_directory='{tmp}'")
     con.execute(f"SET threads={threads}")
     uni = ced_universe(index, d)
     if uni is None and thr_file:
