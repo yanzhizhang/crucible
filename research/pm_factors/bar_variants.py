@@ -44,9 +44,10 @@ VARIANTS = [dict(zip(("lab", "dir", "open", "close"), v)) for v in product("cf",
 CURRENT = "c bs 1 1"  # what basics.py builds
 SH = "symbol_id >= 600000"
 SHIFTS = {"sh_s": f"CASE WHEN {SH} THEN time - time % {NS_SEC} ELSE time END",
-          **{f"sh{k:+d}": f"CASE WHEN {SH} THEN time + {k * 1_000_000} ELSE time END" for k in (-1000, -500, -200, 200, 500, 1000)}}
+          **{f"sh{k:+d}": f"CASE WHEN {SH} THEN time + {k * 1_000_000} ELSE time END" for k in (-1000, -500, -200, 50, 100, 150, 200, 250, 300, 400, 500, 1000)},
+          "sh_sp": f"CASE WHEN {SH} THEN spider_ts ELSE time END", "all_sp": "spider_ts"}  # sp = the feed's receive time
 SHIFT_BASE = {"lab": "c", "dir": "bs", "open": 0, "close": 1}  # the shifted times are tried on this variant
-PRICES = ("high_all", "low_all", "high_bs", "low_bs", "open_all", "open_cont", "close_all", "close_cont", "close_bs", "vwap_all",
+PRICES = ("high_all", "low_all", "high_bs", "low_bs", "high_xc", "low_xc", "high_cont", "low_cont", "close_cont_sp", "snap_last_cont_sp", "open_all", "open_cont", "close_all", "close_cont", "close_bs", "vwap_all",
           "snap_open", "snap_high", "snap_low", "snap_last", "snap_last_cont", "snap_preclose")
 
 
@@ -106,19 +107,23 @@ def snap_day(con: duckdb.DuckDBPyConnection, d: str) -> pl.DataFrame:
 def price_day(con: duckdb.DuckDBPyConnection, d: str) -> pl.DataFrame:
     """Daily price candidates per code from the fills and the snapshots."""
     tr = con.sql(f"""
-        WITH r AS (SELECT symbol_id::BIGINT AS code, dir IN ({BUY}, {SELL}) AS sided, price, volume::DOUBLE AS vol, time, {minute('time')} AS m
+        WITH r AS (SELECT symbol_id::BIGINT AS code, dir IN ({BUY}, {SELL}) AS sided, price, volume::DOUBLE AS vol, time, {minute('time')} AS m,
+                          {minute('spider_ts')} AS ms
                    FROM raw_transaction WHERE date = {int(d)} AND trade_type = 1 AND price > 0 AND symbol_id IN (SELECT code FROM codes))
         SELECT code, max(price) AS high_all, min(price) AS low_all, max(price) FILTER (sided) AS high_bs, min(price) FILTER (sided) AS low_bs,
                arg_min(price, time) AS open_all, arg_min(price, time) FILTER (m >= 570) AS open_cont, arg_max(price, time) AS close_all,
                arg_max(price, time) FILTER (m <= 897) AS close_cont, arg_max(price, time) FILTER (sided) AS close_bs,
-               sum(price * vol) / sum(vol) AS vwap_all
+               sum(price * vol) / sum(vol) AS vwap_all, max(price) FILTER (m <= 897) AS high_xc, min(price) FILTER (m <= 897) AS low_xc,
+               max(price) FILTER (m >= 570 AND m <= 897) AS high_cont, min(price) FILTER (m >= 570 AND m <= 897) AS low_cont,
+               arg_max(price, time) FILTER (ms <= 897) AS close_cont_sp
         FROM r GROUP BY code""").pl()
     sn = con.sql(f"""
-        WITH q AS (SELECT symbol_id::BIGINT AS code, time, {minute('time')} AS m, open, high, low, price, pre_close
+        WITH q AS (SELECT symbol_id::BIGINT AS code, time, {minute('time')} AS m, {minute('spider_ts')} AS ms, open, high, low, price, pre_close
                    FROM raw_quotation WHERE date = {int(d)} AND symbol_id IN (SELECT code FROM codes))
         SELECT code, arg_max(open, time) FILTER (open > 0) AS snap_open, arg_max(high, time) FILTER (high > 0) AS snap_high,
                arg_max(low, time) FILTER (low > 0) AS snap_low, arg_max(price, time) FILTER (price > 0) AS snap_last,
-               arg_max(price, time) FILTER (price > 0 AND m <= 897) AS snap_last_cont, arg_max(pre_close, time) FILTER (pre_close > 0) AS snap_preclose
+               arg_max(price, time) FILTER (price > 0 AND m <= 897) AS snap_last_cont,
+               arg_max(price, time) FILTER (price > 0 AND ms <= 897) AS snap_last_cont_sp, arg_max(pre_close, time) FILTER (pre_close > 0) AS snap_preclose
         FROM q GROUP BY code""").pl()
     return tr.join(sn, on="code", how="full", coalesce=True).with_columns(pl.col(c).cast(pl.Float64) for c in PRICES)
 
@@ -139,9 +144,10 @@ def score(cells: dict, tdays: list[str], N: int, value: Callable[[str, pl.DataFr
         stack = np.stack([value(x, c) for x in win])
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", RuntimeWarning)
-            h, _ = hit(c["y"].to_numpy(), np.nanmedian(stack, axis=0))
+            x = np.nanmedian(stack, axis=0)
+            h, _ = hit(c["y"].to_numpy(), x)
         if h.size:
-            parts.append(c.drop("y").with_columns(pl.Series("hit", h)))
+            parts.append(c.with_columns(pl.Series("x", x), pl.Series("hit", h)))
     if not parts:
         return None, np.nan
     t = pl.concat(parts).filter(pl.col("hit").is_not_nan()).with_columns((pl.col("code") >= 600000).alias("sh"))
@@ -191,7 +197,7 @@ def main() -> None:
         parts = [cached(dst / "base.parquet", lambda x=x: variants(raw_day(con, x), VARIANTS)), cached(dst / "snap.parquet", lambda x=x: snap_day(con, x))]
         parts += [cached(dst / f"{k}.parquet", lambda e=e, k=k, x=x: variants(raw_day(con, x, e), [SHIFT_BASE], f" {k}")) for k, e in SHIFTS.items()]
         bars[x] = pl.concat(parts, how="vertical_relaxed")
-        prices[x] = cached(dst / "prices.parquet", lambda x=x: price_day(con, x))
+        prices[x] = cached(dst / "prices2.parquet", lambda x=x: price_day(con, x))
         print(f"\r{x} cached", end="", flush=True)
     print(f"\r{len(need)} trading days {need[0]}..{need[-1]}", flush=True)
     names = bars[need[-1]]["variant"].unique(maintain_order=True).to_list()
@@ -220,7 +226,7 @@ def main() -> None:
             print(f"{fam} {V}: nothing scored")
             continue
         rows.sort(key=lambda r: -r[1])
-        top = rows[:6] + [r for r in rows[6:] if r[0] in (CURRENT, "snap") or " sh" in r[0]]
+        top = rows[:8] + [r for r in rows[8:] if r[0] in (CURRENT, "c bs 0 1 sh_sp", "c bs 0 1 all_sp")]
         print(f"== {title}")
         print("  " + "\n  ".join(f"{n:<16} all {x:.3f}  SH {s:.3f}  SZ {z:.3f}" for n, x, s, z in top))
         t = tabs[rows[0][0]]
@@ -228,9 +234,9 @@ def main() -> None:
             b = t.group_by("minute").agg(pl.col("hit").filter(pl.col("sh")).mean().alias("SH"), pl.col("hit").filter(~pl.col("sh")).mean().alias("SZ"))
             worst = b.sort(pl.min_horizontal("SH", "SZ")).head(5)
             print(f"  best {rows[0][0]}: worst bars " + " ".join(f"{m // 60:02d}{m % 60:02d} SH {s:.2f} SZ {z:.2f}" for m, s, z in worst.iter_rows()))
-        sc = t.group_by("code").agg(pl.col("hit").mean()).sort("hit")
-        print(f"  best {rows[0][0]}: {sc.filter(pl.col('hit') == 0).height} stocks never exact of {sc.height}: "
-              + " ".join(f"{c:06d}" for c in sc.filter(pl.col("hit") == 0)["code"].head(8)))
+        sc = t.group_by("code").agg(pl.col("hit").mean(), (pl.col("y") / pl.col("x")).median().alias("r")).sort("hit")
+        print(f"  best {rows[0][0]}: {sc.filter(pl.col('hit') == 0).height} stocks never exact of {sc.height} (PM / ours): "
+              + " ".join(f"{c:06d} {r:.4f}" for c, _, r in sc.filter(pl.col("hit") == 0).head(8).iter_rows()))
 
 
 if __name__ == "__main__":
