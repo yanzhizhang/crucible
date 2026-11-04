@@ -46,8 +46,9 @@ CURRENT = "c bs 1 1"  # what basics.py builds
 SH = "symbol_id >= 600000"
 SHIFTS = {"sh+150": f"CASE WHEN {SH} THEN time + 150000000 ELSE time END", "all_sp": "spider_ts",  # sp = the feed's receive time
           "sh_sp": f"CASE WHEN {SH} THEN spider_ts ELSE time END",
-          **{f"sh_sp{k:+d}": f"CASE WHEN {SH} THEN spider_ts + {k * 1_000_000} ELSE time END" for k in (-100, -50, -20, 20, 50, 100)}}
-SHIFT_BASES = [{"lab": "c", "dir": "bs", "open": o, "close": 1} for o in (0, 2)]  # the shifted times are tried on these variants
+          **{f"sh_sp{k:+d}": f"CASE WHEN {SH} THEN spider_ts + {k * 1_000_000} ELSE time END" for k in (-40, -35, -30, -25, -20, -15, -10, -5)},
+          **{f"all_sp{k:+d}": f"spider_ts + {k * 1_000_000}" for k in (-40, -20)}}
+SHIFT_BASES = [{"lab": "c", "dir": "bs", "open": 0, "close": 1}]  # the shifted times are tried on these variants
 PRICES = ("high_all", "low_all", "high_bs", "low_bs", "high_xc", "low_xc", "high_cont", "low_cont", "close_cont_sp", "snap_last_cont_sp", "open_all", "open_cont",
           "close_all", "close_cont", "close_bs", "vwap_all", "snap_open", "snap_high", "snap_low", "snap_last", "snap_last_cont", "snap_preclose",
           "snap_cut1", "snap_cut2", "snap_cut3", "snap_cut5", "snap_pre1500", "close_cont_seq", "close_cont_sp_seq")
@@ -233,7 +234,7 @@ def main() -> None:
             print(f"{fam} {V}: nothing scored")
             continue
         rows.sort(key=lambda r: -r[1])
-        top = rows[:8] + [r for r in rows[8:] if r[0] in (CURRENT, "c bs 0 1", "c bs 0 1 sh_sp", "close_cont", "snap_last_cont")]
+        top = rows[:8] + [r for r in rows[8:] if r[0] in (CURRENT, "c bs 0 1", "c bs 0 1 sh_sp", "c bs 0 1 all_sp-20", "close_cont")]
         print(f"== {title}")
         print("  " + "\n  ".join(f"{n:<16} all {x:.3f}  SH {s:.3f}  SZ {z:.3f}" for n, x, s, z in top))
         t = tabs[rows[0][0]]
