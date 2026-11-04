@@ -9,7 +9,8 @@ volume and amount per side::
     btot_x atot_x bamt_x aamt_x   book after the last event with exchange time <= bar end
     btot_a atot_a bamt_a aamt_a   the same on the trade clock (SSE: receive time - 25 ms, running max)
 
-The 15:00 bar reads the book at 14:57:00 (continuous session end), like the snapshot columns. Written as
+The 15:00 bar reads the book at 14:57:00 (continuous session end), like the snapshot columns. ``bamt_xm30`` /
+``aamt_xp3`` ... = the exchange-clock read shifted by ``OFFSETS_S`` seconds (never past 14:57:00). Written as
 ``<basics>/date=D/book.parquet`` (symbol_id, minute, ...); ``window_probe.py`` reads it as ``book.<col>``.
 
     python research/pm_factors/book_totals.py --dates 20261020,20261021 --workers 8
@@ -39,6 +40,7 @@ NS_MIN, NS_DAY, NS_LOCAL = 60_000_000_000, 86_400_000_000_000, 8 * 3600 * 1_000_
 SSE_LAG_NS = 25_000_000
 BARS = np.array([*range(575, 691, 5), *range(785, 901, 5)], np.int64)
 CONT_END = 897
+OFFSETS_S = (-300, -60, -30, -9, -6, -3, 3, 6, 9, 30, 60)  # exchange-clock shifts of the bar-end read
 
 
 @njit(cache=True, nogil=True)
@@ -124,9 +126,19 @@ def build_day(d: str, out: Path) -> str:
                 E.VENUE_SSE if sse else E.VENUE_SZSE)
         tx = totals_at(*args, rx)
         ta = totals_at(*args, ra)
-        rows.append(pl.DataFrame({"symbol_id": np.full(BARS.size, li["symbol_id"], np.int64), "minute": BARS,
-                                  "btot_x": tx[:, 0], "atot_x": tx[:, 1], "bamt_x": tx[:, 2], "aamt_x": tx[:, 3],
-                                  "btot_a": ta[:, 0], "atot_a": ta[:, 1], "bamt_a": ta[:, 2], "aamt_a": ta[:, 3]}))
+        cols = {"symbol_id": np.full(BARS.size, li["symbol_id"], np.int64), "minute": BARS,
+                "btot_x": tx[:, 0], "atot_x": tx[:, 1], "bamt_x": tx[:, 2], "aamt_x": tx[:, 3],
+                "btot_a": ta[:, 0], "atot_a": ta[:, 1], "bamt_a": ta[:, 2], "aamt_a": ta[:, 3]}
+        sh = np.minimum(cut[None, :] + np.array(OFFSETS_S, np.int64)[:, None] * 1_000_000_000, cut[-1]).ravel()
+        order = np.argsort(sh, kind="stable")
+        ro = np.searchsorted(np.maximum.accumulate(a["xts"]), sh[order], side="right") - 1
+        to = np.empty((sh.size, 4))
+        to[order] = totals_at(*args, ro)
+        to = to.reshape(len(OFFSETS_S), BARS.size, 4)
+        for j, o in enumerate(OFFSETS_S):  # aamt_xm30 = 30 s before the bar end, aamt_xp3 = 3 s after
+            tag = f"x{'m' if o < 0 else 'p'}{abs(o)}"
+            cols |= {f"bamt_{tag}": to[j, :, 2], f"aamt_{tag}": to[j, :, 3]}
+        rows.append(pl.DataFrame(cols))
     if not rows:
         return f"{d}: nothing replayed"
     pl.concat(rows).write_parquet(out / f"date={d}" / "book.parquet")
