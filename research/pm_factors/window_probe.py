@@ -83,10 +83,11 @@ def main() -> None:
             cells = cells.with_columns(pl.col(k).cast(pl.Int64) for k in keys)
             i = tdays.index(d)
             span = tdays[i - N - (0 if not a.excl else 1): i + 1]  # N + 1 (or N + 2) trading days, oldest first
-            if any(x not in have for x in span):
-                print(f"{combo} {d}: basics miss {[x for x in span if x not in have]}")
-                continue
             src, c = col.split(".", 1) if "." in col else (table, col)  # "book.aamt_x" reads date=D/book.parquet
+            miss = [x for x in span if not (a.basics / f"date={x}" / f"{src}.parquet").exists()]
+            if miss:
+                print(f"{combo} {d}: no {src}.parquet for {len(miss)} days {miss[0]}..{miss[-1]}")
+                continue
             vals_by = {x: basic(x, src, keys, cells, c) for x in span}
             win = span[1:] if not a.excl else span[1:-1]
             y = cells["y"].to_numpy()
@@ -100,7 +101,7 @@ def main() -> None:
             for x in win:  # leave x out, take one more day from the front
                 w = [z for z in span if z != x][-N:] if not a.excl else [z for z in span[:-1] if z != x][-N:]
                 drops.setdefault(x, []).append(np.nanmean(hit(y, median(np.stack([vals_by[z] for z in w])))[0]))
-            for e in [z for z in have if z not in tdays and win[0] < z < d]:  # a basics day the calendar skips
+            for e in [z for z in have if z not in tdays and win[0] < z < d and (a.basics / f"date={z}" / f"{src}.parquet").exists()]:  # a basics day the calendar skips
                 if e not in vals_by:
                     vals_by[e] = basic(e, src, keys, cells, c)
                 w = sorted([*win, e])[-N:]
