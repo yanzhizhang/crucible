@@ -38,17 +38,19 @@ from sampler_r import BUY, CATALOG, DATA, SELL
 from window_match import trading_days
 from window_probe import hit
 
-OUT = DATA / "store" / "pm_factors" / "bar_variants"
+OUT = DATA / "store" / "pm_factors" / "bar_variants2"
 NS_SEC, NS_MIN, NS_DAY, NS_LOCAL = 1_000_000_000, 60_000_000_000, 86_400_000_000_000, 8 * 3600 * 1_000_000_000
-VARIANTS = [dict(zip(("lab", "dir", "open", "close"), v)) for v in product("cf", ("bs", "all"), (1, 0), (1, 0))]
+# open: 1 = auction + 09:30:00.000 prints kept, 0 = auction dropped, 2 = both dropped
+VARIANTS = [dict(zip(("lab", "dir", "open", "close"), v)) for v in product("c", ("bs",), (1, 0, 2), (1, 0))] +     [{"lab": "c", "dir": "all", "open": o, "close": 1} for o in (0, 2)]
 CURRENT = "c bs 1 1"  # what basics.py builds
 SH = "symbol_id >= 600000"
-SHIFTS = {"sh_s": f"CASE WHEN {SH} THEN time - time % {NS_SEC} ELSE time END",
-          **{f"sh{k:+d}": f"CASE WHEN {SH} THEN time + {k * 1_000_000} ELSE time END" for k in (-1000, -500, -200, 50, 100, 150, 200, 250, 300, 400, 500, 1000)},
-          "sh_sp": f"CASE WHEN {SH} THEN spider_ts ELSE time END", "all_sp": "spider_ts"}  # sp = the feed's receive time
-SHIFT_BASE = {"lab": "c", "dir": "bs", "open": 0, "close": 1}  # the shifted times are tried on this variant
-PRICES = ("high_all", "low_all", "high_bs", "low_bs", "high_xc", "low_xc", "high_cont", "low_cont", "close_cont_sp", "snap_last_cont_sp", "open_all", "open_cont", "close_all", "close_cont", "close_bs", "vwap_all",
-          "snap_open", "snap_high", "snap_low", "snap_last", "snap_last_cont", "snap_preclose")
+SHIFTS = {"sh+150": f"CASE WHEN {SH} THEN time + 150000000 ELSE time END", "all_sp": "spider_ts",  # sp = the feed's receive time
+          "sh_sp": f"CASE WHEN {SH} THEN spider_ts ELSE time END",
+          **{f"sh_sp{k:+d}": f"CASE WHEN {SH} THEN spider_ts + {k * 1_000_000} ELSE time END" for k in (-100, -50, -20, 20, 50, 100)}}
+SHIFT_BASES = [{"lab": "c", "dir": "bs", "open": o, "close": 1} for o in (0, 2)]  # the shifted times are tried on these variants
+PRICES = ("high_all", "low_all", "high_bs", "low_bs", "high_xc", "low_xc", "high_cont", "low_cont", "close_cont_sp", "snap_last_cont_sp", "open_all", "open_cont",
+          "close_all", "close_cont", "close_bs", "vwap_all", "snap_open", "snap_high", "snap_low", "snap_last", "snap_last_cont", "snap_preclose",
+          "snap_cut1", "snap_cut2", "snap_cut3", "snap_cut5", "snap_pre1500", "close_cont_seq", "close_cont_sp_seq")
 
 
 def vname(v: dict) -> str:
@@ -74,7 +76,7 @@ def raw_day(con: duckdb.DuckDBPyConnection, d: str, t: str = "time") -> pl.DataF
           SELECT symbol_id::BIGINT AS code, dir, volume::DOUBLE AS vol, volume * price AS amt, {minute(t)} AS m
           FROM raw_transaction WHERE date = {int(d)} AND trade_type = 1 AND symbol_id IN (SELECT code FROM codes)),
         b AS (SELECT *, CAST(ceil(m) AS INTEGER) AS mc, CAST(floor(m) AS INTEGER) + 1 AS mf FROM r)
-        SELECT code, CASE WHEN m < 570 THEN 'open' WHEN m > 897 THEN 'close' ELSE 'cont' END AS phase,
+        SELECT code, CASE WHEN m < 570 THEN 'open' WHEN m = 570 THEN 'o930' WHEN m > 897 THEN 'close' ELSE 'cont' END AS phase,
                dir IN ({BUY}, {SELL}) AS sided, dir = {BUY} AS buy, {bar('mc')} AS bar_c, {bar('mf')} AS bar_f,
                sum(vol) AS vol, sum(amt) AS amt
         FROM b GROUP BY ALL""").pl()
@@ -84,7 +86,8 @@ def variants(raw: pl.DataFrame, vs: list[dict], tag: str = "") -> pl.DataFrame:
     """Long table (code, minute, variant, vol, amt, b_amt) for the given variants."""
     out = []
     for v in vs:
-        keep = (pl.col("phase") == "cont") | ((pl.col("phase") == "open") & bool(v["open"])) | ((pl.col("phase") == "close") & bool(v["close"]))
+        keep = ((pl.col("phase") == "cont") | ((pl.col("phase") == "open") & (v["open"] == 1)) | ((pl.col("phase") == "o930") & (v["open"] < 2))
+                | ((pl.col("phase") == "close") & bool(v["close"])))
         flows = [pl.col("vol").filter(pl.col("sided")).sum(), pl.col("amt").filter(pl.col("sided")).sum()] if v["dir"] == "bs" else [pl.col("vol").sum(), pl.col("amt").sum()]
         out.append(raw.filter(keep).group_by("code", pl.col(f"bar_{v['lab']}").alias("minute")).agg(
             *flows, pl.col("amt").filter(pl.col("buy")).sum().alias("b_amt"))
@@ -107,15 +110,17 @@ def snap_day(con: duckdb.DuckDBPyConnection, d: str) -> pl.DataFrame:
 def price_day(con: duckdb.DuckDBPyConnection, d: str) -> pl.DataFrame:
     """Daily price candidates per code from the fills and the snapshots."""
     tr = con.sql(f"""
-        WITH r AS (SELECT symbol_id::BIGINT AS code, dir IN ({BUY}, {SELL}) AS sided, price, volume::DOUBLE AS vol, time, {minute('time')} AS m,
-                          {minute('spider_ts')} AS ms
+        WITH r AS (SELECT symbol_id::BIGINT AS code, dir IN ({BUY}, {SELL}) AS sided, price, volume::DOUBLE AS vol, time, seq_id, {minute('time')} AS m,
+                          {minute('spider_ts')} AS ms, spider_ts
                    FROM raw_transaction WHERE date = {int(d)} AND trade_type = 1 AND price > 0 AND symbol_id IN (SELECT code FROM codes))
         SELECT code, max(price) AS high_all, min(price) AS low_all, max(price) FILTER (sided) AS high_bs, min(price) FILTER (sided) AS low_bs,
                arg_min(price, time) AS open_all, arg_min(price, time) FILTER (m >= 570) AS open_cont, arg_max(price, time) AS close_all,
                arg_max(price, time) FILTER (m <= 897) AS close_cont, arg_max(price, time) FILTER (sided) AS close_bs,
                sum(price * vol) / sum(vol) AS vwap_all, max(price) FILTER (m <= 897) AS high_xc, min(price) FILTER (m <= 897) AS low_xc,
                max(price) FILTER (m >= 570 AND m <= 897) AS high_cont, min(price) FILTER (m >= 570 AND m <= 897) AS low_cont,
-               arg_max(price, time) FILTER (ms <= 897) AS close_cont_sp
+               arg_max(price, time) FILTER (ms <= 897) AS close_cont_sp,
+               last(price ORDER BY time, seq_id) FILTER (m <= 897) AS close_cont_seq,
+               last(price ORDER BY spider_ts, seq_id) FILTER (ms <= 897) AS close_cont_sp_seq
         FROM r GROUP BY code""").pl()
     sn = con.sql(f"""
         WITH q AS (SELECT symbol_id::BIGINT AS code, time, {minute('time')} AS m, {minute('spider_ts')} AS ms, open, high, low, price, pre_close
@@ -123,7 +128,9 @@ def price_day(con: duckdb.DuckDBPyConnection, d: str) -> pl.DataFrame:
         SELECT code, arg_max(open, time) FILTER (open > 0) AS snap_open, arg_max(high, time) FILTER (high > 0) AS snap_high,
                arg_max(low, time) FILTER (low > 0) AS snap_low, arg_max(price, time) FILTER (price > 0) AS snap_last,
                arg_max(price, time) FILTER (price > 0 AND m <= 897) AS snap_last_cont,
-               arg_max(price, time) FILTER (price > 0 AND ms <= 897) AS snap_last_cont_sp, arg_max(pre_close, time) FILTER (pre_close > 0) AS snap_preclose
+               arg_max(price, time) FILTER (price > 0 AND ms <= 897) AS snap_last_cont_sp,
+               {", ".join(f"arg_max(price, time) FILTER (price > 0 AND m <= {897 + k / 60}) AS snap_cut{k}" for k in (1, 2, 3, 5))},
+               arg_max(price, time) FILTER (price > 0 AND m < 900) AS snap_pre1500, arg_max(pre_close, time) FILTER (pre_close > 0) AS snap_preclose
         FROM q GROUP BY code""").pl()
     return tr.join(sn, on="code", how="full", coalesce=True).with_columns(pl.col(c).cast(pl.Float64) for c in PRICES)
 
@@ -195,9 +202,9 @@ def main() -> None:
     for x in need:
         dst = a.out / f"date={x}"
         parts = [cached(dst / "base.parquet", lambda x=x: variants(raw_day(con, x), VARIANTS)), cached(dst / "snap.parquet", lambda x=x: snap_day(con, x))]
-        parts += [cached(dst / f"{k}.parquet", lambda e=e, k=k, x=x: variants(raw_day(con, x, e), [SHIFT_BASE], f" {k}")) for k, e in SHIFTS.items()]
+        parts += [cached(dst / f"{k}.parquet", lambda e=e, k=k, x=x: variants(raw_day(con, x, e), SHIFT_BASES, f" {k}")) for k, e in SHIFTS.items()]
         bars[x] = pl.concat(parts, how="vertical_relaxed")
-        prices[x] = cached(dst / "prices2.parquet", lambda x=x: price_day(con, x))
+        prices[x] = cached(dst / "prices.parquet", lambda x=x: price_day(con, x))
         print(f"\r{x} cached", end="", flush=True)
     print(f"\r{len(need)} trading days {need[0]}..{need[-1]}", flush=True)
     names = bars[need[-1]]["variant"].unique(maintain_order=True).to_list()
@@ -226,7 +233,7 @@ def main() -> None:
             print(f"{fam} {V}: nothing scored")
             continue
         rows.sort(key=lambda r: -r[1])
-        top = rows[:8] + [r for r in rows[8:] if r[0] in (CURRENT, "c bs 0 1 sh_sp", "c bs 0 1 all_sp")]
+        top = rows[:8] + [r for r in rows[8:] if r[0] in (CURRENT, "c bs 0 1", "c bs 0 1 sh_sp", "close_cont", "snap_last_cont")]
         print(f"== {title}")
         print("  " + "\n  ".join(f"{n:<16} all {x:.3f}  SH {s:.3f}  SZ {z:.3f}" for n, x, s, z in top))
         t = tabs[rows[0][0]]
