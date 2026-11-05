@@ -20,6 +20,7 @@ before the bar end, ``*_q0`` / ``*_q1`` = at the exchange time of the stock's la
 from __future__ import annotations
 
 import argparse
+import multiprocessing as mp
 import sys
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
@@ -30,8 +31,10 @@ import polars as pl
 from numba import njit, types
 from numba.typed import Dict
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+import threads  # noqa: E402
 from bt import engine as E  # noqa: E402
 from bt.events import RAW  # noqa: E402
 from bt.events import load as load_events  # noqa: E402
@@ -163,10 +166,12 @@ def main() -> None:
     ap.add_argument("--dates", required=True)
     ap.add_argument("--out", type=Path, default=BASICS_PM, help="basics directory (date=D/m5.parquet gives the universe)")
     ap.add_argument("--workers", type=int, default=8)
+    ap.add_argument("--threads", type=int, default=2, help="polars / numba threads per worker")
     a = ap.parse_args()
     t0 = time.time()
     days = a.dates.split(",")
-    with ProcessPoolExecutor(max_workers=min(a.workers, len(days))) as ex:
+    threads.cap(a.threads)  # spawned workers inherit it; a forked polars pool can deadlock, so spawn
+    with ProcessPoolExecutor(max_workers=min(a.workers, len(days)), mp_context=mp.get_context("spawn")) as ex:
         futs = {ex.submit(build_day, d, a.out): d for d in days}
         for f in as_completed(futs):
             try:

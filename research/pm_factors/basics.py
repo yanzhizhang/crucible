@@ -38,6 +38,7 @@ import polars as pl
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import threads  # noqa: E402
 from candidates import (
     AM_CLOSE,
     AM_OPEN,
@@ -322,7 +323,7 @@ def main() -> None:
     ap.add_argument("--thr-dir", type=Path, help="PM's ZZCR folder: each date takes the samplerR of the latest earlier PM day")
     ap.add_argument("--memory", default="8GB", help="per worker")
     ap.add_argument("--workers", type=int, default=1, help="days built in parallel")
-    ap.add_argument("--threads", type=int, default=4, help="DuckDB threads per worker")
+    ap.add_argument("--threads", type=int, default=4, help="DuckDB (and every other library pool) threads per worker")
     ap.add_argument("--convention", choices=("feitu", "pm"), default="feitu", help="pm: PM's clock / auction / price rules, default --out basics_pm")
     ap.add_argument("--out", type=Path)
     ap.add_argument("--only", choices=("orders",), default="", help="orders: patch just the order / cancel columns into existing tables")
@@ -336,6 +337,8 @@ def main() -> None:
             return a.thr_dir / prev[-1] / "samplerR.parquet" if prev else None
         return a.thr_file
 
+    if a.workers > 1:
+        threads.cap(a.threads)  # the workers' polars / BLAS pools would otherwise each take the whole machine
     pm = a.convention == "pm"
     out = a.out or (OUT_PM if pm else OUT)
     jobs = [(d, a.index, thr_of(d), a.memory, out, a.threads, pm, a.only) for d in dates]
