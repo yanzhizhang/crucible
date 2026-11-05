@@ -10,7 +10,8 @@ volume and amount per side::
     btot_a atot_a bamt_a aamt_a   the same on the trade clock (SSE: receive time - 25 ms, running max)
 
 The 15:00 bar reads the book at 14:57:00 (continuous session end), like the snapshot columns. ``bamt_xm30`` /
-``aamt_xp3`` ... = the exchange-clock read shifted by ``OFFSETS_S`` seconds (never past 14:57:00). Written as
+``aamt_xp3`` ... = the exchange-clock read shifted by ``OFFSETS_S`` seconds (never past 14:57:00), ``*_xs`` = strictly
+before the bar end, ``*_q0`` / ``*_q1`` = at the exchange time of the stock's last snapshot at / strictly before it. Written as
 ``<basics>/date=D/book.parquet`` (symbol_id, minute, ...); ``window_probe.py`` reads it as ``book.<col>``.
 
     python research/pm_factors/book_totals.py --dates 20261020,20261021 --workers 8
@@ -32,6 +33,7 @@ from numba.typed import Dict
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from bt import engine as E  # noqa: E402
+from bt.events import RAW  # noqa: E402
 from bt.events import load as load_events  # noqa: E402
 
 BASICS_PM = Path("/work/crucible_data/store/pm_factors/basics_pm")
@@ -40,7 +42,7 @@ NS_MIN, NS_DAY, NS_LOCAL = 60_000_000_000, 86_400_000_000_000, 8 * 3600 * 1_000_
 SSE_LAG_NS = 25_000_000
 BARS = np.array([*range(575, 691, 5), *range(785, 901, 5)], np.int64)
 CONT_END = 897
-OFFSETS_S = (-300, -60, -30, -9, -6, -3, 3, 6, 9, 30, 60)  # exchange-clock shifts of the bar-end read
+OFFSETS_S = (-60, -30, -9, -6, -5, -4, -3, -2, -1, 3, 9)  # exchange-clock shifts of the bar-end read
 
 
 @njit(cache=True, nogil=True)
@@ -109,6 +111,10 @@ def build_day(d: str, out: Path) -> str:
                        schema={"symbol_id": pl.Int32, "market_id": pl.Int16})
     ev, lim = load_events(d, uni)
     parts = ev.partition_by("symbol_id", "market_id", as_dict=True)
+    qt = (pl.scan_parquet(RAW / "kind=quotation" / f"date={d}" / "part-*.parquet")
+          .join(uni.lazy(), on=["symbol_id", "market_id"], how="semi").select("symbol_id", "market_id", "time")
+          .collect(engine="streaming").sort("time"))
+    qparts = qt.partition_by("symbol_id", "market_id", as_dict=True)  # snapshot instants per stock
     rows = []
     for li in lim.iter_rows(named=True):
         e = parts.get((li["symbol_id"], li["market_id"]))
@@ -129,14 +135,20 @@ def build_day(d: str, out: Path) -> str:
         cols = {"symbol_id": np.full(BARS.size, li["symbol_id"], np.int64), "minute": BARS,
                 "btot_x": tx[:, 0], "atot_x": tx[:, 1], "bamt_x": tx[:, 2], "aamt_x": tx[:, 3],
                 "btot_a": ta[:, 0], "atot_a": ta[:, 1], "bamt_a": ta[:, 2], "aamt_a": ta[:, 3]}
-        sh = np.minimum(cut[None, :] + np.array(OFFSETS_S, np.int64)[:, None] * 1_000_000_000, cut[-1]).ravel()
+        reads = {f"x{'m' if o < 0 else 'p'}{abs(o)}": np.minimum(cut + o * 1_000_000_000, cut[-1]) for o in OFFSETS_S}
+        reads["xs"] = cut - 1  # events strictly before the bar end
+        q = qparts.get((li["symbol_id"], li["market_id"]))
+        qts = q["time"].to_numpy().astype(np.int64) if q is not None else np.zeros(0, np.int64)
+        for tag, side in (("q0", "right"), ("q1", "left")):  # last snapshot at / strictly before the bar end (none: the bar end)
+            k = np.searchsorted(qts, cut, side=side) - 1
+            reads[tag] = np.where(k >= 0, qts[np.maximum(k, 0)], cut) if qts.size else cut
+        sh = np.concatenate(list(reads.values()))
         order = np.argsort(sh, kind="stable")
         ro = np.searchsorted(np.maximum.accumulate(a["xts"]), sh[order], side="right") - 1
         to = np.empty((sh.size, 4))
         to[order] = totals_at(*args, ro)
-        to = to.reshape(len(OFFSETS_S), BARS.size, 4)
-        for j, o in enumerate(OFFSETS_S):  # aamt_xm30 = 30 s before the bar end, aamt_xp3 = 3 s after
-            tag = f"x{'m' if o < 0 else 'p'}{abs(o)}"
+        to = to.reshape(len(reads), BARS.size, 4)
+        for j, tag in enumerate(reads):  # aamt_xm3 = 3 s before the bar end, aamt_q1 = at the last snapshot before it
             cols |= {f"bamt_{tag}": to[j, :, 2], f"aamt_{tag}": to[j, :, 3]}
         rows.append(pl.DataFrame(cols))
     if not rows:

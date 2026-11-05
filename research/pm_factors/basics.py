@@ -11,7 +11,8 @@ column "which basic is it, up to a unit?" before anyone guesses a formula. Per 1
   count, volume (SSE from the order stream, SZSE from the cancel transactions);
 * snapshots: last of the bar -- ``bv1 av1 bv5 av5 bv10 av10 btot atot bno ano bp1 ap1 mid spread`` and the
   bar means ``m_bv1 m_av1 m_bv5 m_av5 m_btot m_atot``; ``*_amt`` = volume x price for the totals, ``*_wamt`` = total x the feed's weighted average price (``*_wamt_sp`` the same snapshot picked on the trade clock, ``m_*_wamt`` its bar mean); ``ord*_vol_l`` limit orders only; ``ord*_vol_r`` SZSE net of the order's own continuous fills as aggressor (what rests, the SSE
-  feed's convention), ``ord*_vol_n`` SZSE orders with no such fill;
+  feed's convention), ``ord*_vol_n`` orders with no such fill (SSE: no fill as the BS-flag side), ``ord*_vol_x`` SZSE as ``_r`` and SSE without the orders that
+  were themselves the aggressor;
 * running totals since the open: ``cum_vol cum_amt cum_n cum_bvol cum_svol``;
 * for every bid / ask or buy / sell pair: ``<x>_sum``, ``<x>_mean``, ``<x>_imb``.
 
@@ -61,7 +62,7 @@ OUT_PM = DATA / "store" / "pm_factors" / "basics_pm"
 SSE_LAG_NS = 25_000_000  # PM's SSE clock = our receive time - 25 ms (bar_variants.py: SSE exact 0.57 -> 0.97)
 FLOW = ("vol", "amt", "n", "ord", "pas", "b_vol", "s_vol", "b_amt", "s_amt", "b_n", "s_n", "b_ord", "s_ord",
         "ordb_n", "orda_n", "ordb_vol", "orda_vol", "ordb_amt", "orda_amt", "cxb_n", "cxa_n", "cxb_vol", "cxa_vol", "ordb_vol_l", "orda_vol_l",
-        "ordb_vol_r", "orda_vol_r", "ordb_vol_n", "orda_vol_n")
+        "ordb_vol_r", "orda_vol_r", "ordb_vol_n", "orda_vol_n", "ordb_vol_x", "orda_vol_x")
 PAIRS = {"vol": ("b_vol", "s_vol"), "amt": ("b_amt", "s_amt"), "n": ("b_n", "s_n"), "ord": ("b_ord", "s_ord"),
          "osz": ("b_osz", "s_osz"), "tsz": ("b_tsz", "s_tsz"), "q50": ("b_q50", "s_q50"), "q90": ("b_q90", "s_q90"),
          "ordn": ("ordb_n", "orda_n"), "ordvol": ("ordb_vol", "orda_vol"), "ordamt": ("ordb_amt", "orda_amt"),
@@ -69,7 +70,7 @@ PAIRS = {"vol": ("b_vol", "s_vol"), "amt": ("b_amt", "s_amt"), "n": ("b_n", "s_n
          "v1": ("bv1", "av1"), "v5": ("bv5", "av5"), "v10": ("bv10", "av10"), "tot": ("btot", "atot"), "no": ("bno", "ano"),
          "mv1": ("m_bv1", "m_av1"), "mv5": ("m_bv5", "m_av5"), "mtot": ("m_btot", "m_atot"), "totamt": ("btot_amt", "atot_amt"),
          "totwamt": ("btot_wamt", "atot_wamt"), "totwamtsp": ("btot_wamt_sp", "atot_wamt_sp"), "mtotwamt": ("m_btot_wamt", "m_atot_wamt"),
-         "ordvoll": ("ordb_vol_l", "orda_vol_l"), "ordvolr": ("ordb_vol_r", "orda_vol_r"), "ordvoln": ("ordb_vol_n", "orda_vol_n")}
+         "ordvoll": ("ordb_vol_l", "orda_vol_l"), "ordvolr": ("ordb_vol_r", "orda_vol_r"), "ordvoln": ("ordb_vol_n", "orda_vol_n"), "ordvolx": ("ordb_vol_x", "orda_vol_x")}
 
 
 def _clocks(pm: bool):
@@ -92,23 +93,31 @@ def order_flows(con: duckdb.DuckDBPyConnection, date: str, pm: bool = False) -> 
     d, b, s = int(date), BUY, SELL
     _, _, lab = _clocks(pm)
     return con.sql(f"""
-        WITH ag AS (  -- SZSE continuous fills per aggressor (the later, larger sequence number)
-          SELECT r.symbol_id, r.market_id, greatest(r.buy_seq_id, r.sell_seq_id) AS aid, sum(r.volume)::DOUBLE AS fv
+        WITH ag AS (  -- continuous fills per aggressor order: SZSE the later (larger) sequence number, SSE the BS flag's side (order_id)
+          SELECT r.symbol_id, r.market_id,
+                 CASE WHEN r.market_id = {SZSE} THEN greatest(r.buy_seq_id, r.sell_seq_id) WHEN r.dir = {b} THEN r.buy_seq_id ELSE r.sell_seq_id END AS aid,
+                 sum(r.volume)::DOUBLE AS fv
           FROM raw_transaction r JOIN uni u USING (symbol_id, market_id)
-          WHERE r.date = {d} AND r.market_id = {SZSE} AND r.trade_type = 1 AND (((r.time + {NS_LOCAL}) % {NS_DAY}) / {NS_MIN}::DOUBLE) >= {AM_OPEN}
+          WHERE r.date = {d} AND r.trade_type = 1 AND (r.market_id = {SZSE} OR r.dir IN ({b}, {s}))
+            AND (((r.time + {NS_LOCAL}) % {NS_DAY}) / {NS_MIN}::DOUBLE) >= {AM_OPEN}
           GROUP BY ALL),
+        oo AS (
+          SELECT o.*, CASE WHEN o.market_id = {SSE} THEN o.order_id ELSE o.seq_id END AS okey  -- the key trades quote
+          FROM raw_order o JOIN uni u USING (symbol_id, market_id)
+          WHERE o.date = {d} AND o.update_type = 1 AND o.dir IN ({b}, {s})),
         e AS (
           SELECT o.symbol_id, {lab('o')} AS minute, 0 AS k, o.dir, o.volume::DOUBLE AS volume, o.volume * o.price AS amt,
                  (o.market_id = {SSE} OR o.order_type = 2) AS lim,
-                 greatest(o.volume - coalesce(ag.fv, 0), 0)::DOUBLE AS rvol, ag.fv IS NULL AS nomkt
-          FROM raw_order o JOIN uni u USING (symbol_id, market_id)
-          LEFT JOIN ag ON ag.symbol_id = o.symbol_id AND ag.market_id = o.market_id AND ag.aid = o.seq_id  -- equalities only: a one-sided term turns this into a nested-loop join
-          WHERE o.date = {d} AND o.update_type = 1 AND o.dir IN ({b}, {s})
+                 CASE WHEN o.market_id = {SZSE} THEN greatest(o.volume - coalesce(ag.fv, 0), 0) ELSE o.volume END::DOUBLE AS rvol,
+                 ag.fv IS NULL AS nomkt,
+                 CASE WHEN o.market_id = {SZSE} THEN greatest(o.volume - coalesce(ag.fv, 0), 0) WHEN ag.fv IS NULL THEN o.volume ELSE 0 END::DOUBLE AS xvol
+          FROM oo o
+          LEFT JOIN ag ON ag.symbol_id = o.symbol_id AND ag.market_id = o.market_id AND ag.aid = o.okey  -- equalities only: a one-sided term turns this into a nested-loop join
           UNION ALL
-          SELECT o.symbol_id, {lab('o')}, 1, o.dir, o.volume::DOUBLE, o.volume * o.price, false, NULL::DOUBLE, false
+          SELECT o.symbol_id, {lab('o')}, 1, o.dir, o.volume::DOUBLE, o.volume * o.price, false, NULL::DOUBLE, false, NULL::DOUBLE
           FROM raw_order o JOIN uni u USING (symbol_id, market_id) WHERE o.date = {d} AND o.market_id = {SSE} AND o.update_type = 2
           UNION ALL
-          SELECT r.symbol_id, {lab('r')}, 1, CASE WHEN r.buy_seq_id > 0 THEN {b} ELSE {s} END, r.volume::DOUBLE, r.volume * r.price, false, NULL::DOUBLE, false
+          SELECT r.symbol_id, {lab('r')}, 1, CASE WHEN r.buy_seq_id > 0 THEN {b} ELSE {s} END, r.volume::DOUBLE, r.volume * r.price, false, NULL::DOUBLE, false, NULL::DOUBLE
           FROM raw_transaction r JOIN uni u USING (symbol_id, market_id) WHERE r.date = {d} AND r.market_id = {SZSE} AND r.trade_type = 2)
         SELECT symbol_id, minute,
                count(*) FILTER (k = 0 AND dir = {b}) AS ordb_n, count(*) FILTER (k = 0 AND dir = {s}) AS orda_n,
@@ -118,7 +127,8 @@ def order_flows(con: duckdb.DuckDBPyConnection, date: str, pm: bool = False) -> 
                sum(volume) FILTER (k = 1 AND dir = {b}) AS cxb_vol, sum(volume) FILTER (k = 1 AND dir = {s}) AS cxa_vol,
                sum(volume) FILTER (k = 0 AND lim AND dir = {b}) AS ordb_vol_l, sum(volume) FILTER (k = 0 AND lim AND dir = {s}) AS orda_vol_l,
                sum(rvol) FILTER (k = 0 AND dir = {b}) AS ordb_vol_r, sum(rvol) FILTER (k = 0 AND dir = {s}) AS orda_vol_r,
-               sum(volume) FILTER (k = 0 AND nomkt AND dir = {b}) AS ordb_vol_n, sum(volume) FILTER (k = 0 AND nomkt AND dir = {s}) AS orda_vol_n
+               sum(volume) FILTER (k = 0 AND nomkt AND dir = {b}) AS ordb_vol_n, sum(volume) FILTER (k = 0 AND nomkt AND dir = {s}) AS orda_vol_n,
+               sum(xvol) FILTER (k = 0 AND dir = {b}) AS ordb_vol_x, sum(xvol) FILTER (k = 0 AND dir = {s}) AS orda_vol_x
         FROM e GROUP BY ALL""").pl()
 
 

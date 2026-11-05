@@ -28,12 +28,15 @@ from window_match import trading_days
 COMBOS = "ZZTS:q:b_amt,ZZXC:n:amt,ZZXC:q:vol,ZZMS:n:cum_amt,ZZMS:q:cum_vol,ZZDS:h:high,ZZDS:l:low,ZZDS:c:mid,ZZDS:c:last"
 
 
+UNIT = False  # --unit: score at ratio 1 instead of the median ratio
+
+
 def hit(y: np.ndarray, x: np.ndarray, tol: float = 1e-6) -> tuple[np.ndarray, float]:
-    """Per-cell exact flag after scaling x by the median ratio (cells with no value are dropped)."""
+    """Per-cell exact flag after scaling x by the median ratio, or by 1 with ``--unit`` (cells with no value are dropped)."""
     m = np.isfinite(y) & np.isfinite(x) & (x != 0)
     if m.sum() < 20:
         return np.zeros(0, bool), np.nan
-    r = np.median(y[m] / x[m])
+    r = 1.0 if UNIT else np.median(y[m] / x[m])
     out = np.full(y.shape, np.nan)
     out[m] = np.abs(y[m] - r * x[m]) <= tol * np.abs(y[m]) + 1e-12
     return out, r
@@ -49,7 +52,10 @@ def main() -> None:
     ap.add_argument("--hstats", type=Path, default=Path("/data/prod/hstats/HS300"))
     ap.add_argument("--cache", type=Path, default=Path("data/pm_export_all"))
     ap.add_argument("--basics", type=Path, default=BASICS)
+    ap.add_argument("--unit", action="store_true", help="exact = equal at ratio 1 (a basic already in PM's unit)")
     a = ap.parse_args()
+    global UNIT
+    UNIT = a.unit
     have = sorted(p.name.split("=")[1] for p in a.basics.glob("date=*"))
     tabs: dict[tuple[str, str], pl.DataFrame] = {}
 
@@ -119,6 +125,10 @@ def main() -> None:
         print("  exch  " + " ".join(f"{m} {h:.3f}" for m, h, *_ in mk.iter_rows()))
         print("  PM/ours-1 p10/p50/p90  " + " ".join(f"{m} {q1:+.4f}/{q5:+.4f}/{q9:+.4f}" for m, _, q1, q5, q9 in mk.iter_rows()))
         if "minute" in allh.columns and allh["minute"].n_unique() > 1:
+            rb = allh.filter(pl.col("rel").is_finite()).group_by(pl.when(pl.col("code") >= 600000).then(pl.lit("SH")).otherwise(pl.lit("SZ")).alias("m"), "minute").agg(
+                pl.col("rel").median().alias("r")).with_columns(pl.col("r").abs().alias("a")).sort("m", "a", descending=[False, True])
+            print("  off bars (p50 PM/ours-1) " + " | ".join(m + " " + " ".join(f"{mi // 60:02d}{mi % 60:02d} {r:+.4f}" for _, mi, r, _ in g.head(5).iter_rows())
+                                                          for (m,), g in rb.group_by("m", maintain_order=True)))
             bm = allh.group_by("minute").agg(pl.col("hit").mean()).sort("hit")
             print("  worst bars " + " ".join(f"{m // 60:02d}{m % 60:02d} {h:.2f}" for m, h in bm.head(6).iter_rows())
                   + " | best " + " ".join(f"{m // 60:02d}{m % 60:02d} {h:.2f}" for m, h in bm.tail(3).iter_rows()))
