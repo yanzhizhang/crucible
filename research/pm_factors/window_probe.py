@@ -68,9 +68,16 @@ def main() -> None:
             t = pl.read_parquet(a.basics / f"date={x}" / f"{table}.parquet").rename({"symbol_id": "code"})
             tabs[x, table] = t.with_columns(pl.col("code").cast(pl.Int64), pl.col("minute").cast(pl.Int64))
         t = tabs[x, table]
-        if col not in t.columns:
+        if col in t.columns:
+            v = pl.col(col)
+        elif any(ch in col for ch in "+-*/()"):  # an expression over the table's columns, e.g. "ordvolrc_sum - (ordvolrc_sum - ordvolc_sum) * 2 / 5"
+            v = pl.sql_expr(col)
+        else:
             return np.full(cells.height, np.nan)
-        return cells.select(keys).join(t.select(*keys, col), on=keys, how="left")[col].cast(pl.Float64).to_numpy()
+        try:
+            return cells.select(keys).join(t.select(*keys, v.cast(pl.Float64).alias("_v")), on=keys, how="left")["_v"].to_numpy()
+        except pl.exceptions.ColumnNotFoundError:
+            return np.full(cells.height, np.nan)
 
     def median(stack: np.ndarray) -> np.ndarray:
         with warnings.catch_warnings():
@@ -94,7 +101,7 @@ def main() -> None:
             i = tdays.index(d)
             span = tdays[i - N - (0 if not a.excl else 1): i + 1]  # N + 1 (or N + 2) trading days, oldest first
             cm = col.startswith("cm:")  # cumulative over the day's bars of per-bar medians (the volume-profile convention)
-            src, c = (table, col[3:]) if cm else col.split(".", 1) if "." in col else (table, col)  # "book.aamt_x" reads date=D/book.parquet
+            src, c = (table, col[3:]) if cm else col.split(".", 1) if col.startswith("book.") else (table, col)  # "book.aamt_x" reads date=D/book.parquet
             miss = [x for x in span if not (a.basics / f"date={x}" / f"{src}.parquet").exists()]
             if miss:
                 print(f"{combo} {d}: no {src}.parquet for {len(miss)} days {miss[0]}..{miss[-1]}")
