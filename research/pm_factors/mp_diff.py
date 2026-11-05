@@ -95,7 +95,14 @@ def main() -> None:
 
     # trades
     tc = ["symbol_id", "market_id", "trade_type", "buy_seq_id", "sell_seq_id", "volume", "price", "time", "spider_ts"]
-    tm, tf = mp["transaction"].select(tc).collect(), ft["transaction"].select(tc).collect()
+    tm, tf = mp["transaction"].select(tc).collect(), ft["transaction"].select(*tc, "dir").collect()
+    # .mp trades carry no BS flag: how often does "the larger order number is the aggressor" disagree with feitu's flag (SSE, continuous)?
+    sx = tf.filter((pl.col("market_id") == SSE) & (pl.col("trade_type") == 1)).with_columns(
+        (((pl.col("time") + NS_LOCAL) % NS_DAY) / NS_MIN).alias("mx")).filter((pl.col("mx") >= 570) & (pl.col("mx") < 897))
+    sx = sx.with_columns(pl.when(pl.col("buy_seq_id") > pl.col("sell_seq_id")).then(BUY).otherwise(1550).alias("big"))
+    fl = sx.filter(pl.col("dir").is_in([BUY, 1550]))
+    print(f"SH continuous trades {sx.height:,}: BS flag N {fm(~pl.Series(sx['dir'].is_in([BUY, 1550])))}; "
+          f"flag = larger order no {fm(fl['dir'] == fl['big'])} (by volume {(fl.filter(pl.col('dir') == pl.col('big'))['volume'].sum() / max(fl['volume'].sum(), 1)):.4f})")
     for mk in (SSE, SZSE):
         x, y = tm.filter(pl.col("market_id") == mk), tf.filter(pl.col("market_id") == mk)
         j = x.join(y, on=["symbol_id", "trade_type", "buy_seq_id", "sell_seq_id"], how="full", coalesce=True, suffix="_f")
@@ -108,7 +115,8 @@ def main() -> None:
     sm, sf = mp["quotation"].select(sc).collect(), ft["quotation"].select(sc).collect()
     for mk in (SSE, SZSE):
         x, y = sm.filter(pl.col("market_id") == mk), sf.filter(pl.col("market_id") == mk)
-        both = x.join(y, on=["symbol_id", "time"], how="inner", suffix="_f")
+        both = x.with_columns((pl.col("time") + 500_000) // 1_000_000).join(  # .mp times are float seconds: match to the ms
+            y.with_columns((pl.col("time") + 500_000) // 1_000_000), on=["symbol_id", "time"], how="inner", suffix="_f")
         print(f"{'SH' if mk == SSE else 'SZ'} snaps: mp {x.height:,} feitu {y.height:,} same exch time {both.height:,}; cum vol eq {fm(both['total_volume'] == both['total_volume_f'])} "
               f"cum amt eq {fm((both['total_amount'] - both['total_amount_f']).abs() < 1e-6)}; mp local - feitu spider (ms) {q((both['spider_ts'] - both['spider_ts_f']).cast(pl.Float64) / 1e6)}")
 
