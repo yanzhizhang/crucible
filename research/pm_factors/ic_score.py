@@ -58,6 +58,17 @@ from same_gap import day_frame  # samplerS cells of one family and day (cached p
 
 MARKS = np.arange(300.0, 13801.0, 300.0)  # 09:35 ... 14:50: the last mark still has 5 minutes of continuous session ahead
 HORIZON = 300.0
+
+
+def mark_grid(spec: str) -> np.ndarray:
+    """'five' = the 5-minute marks; 'rand:N[:seed]' = N random trading-clock seconds in (0, 13800) (the same list in
+    ``run_cpp.py``): PM scores at every snapshot, so mid-bar times sample its training distribution; else a comma list."""
+    if spec == "five":
+        return np.arange(300.0, 13801.0, 300.0)
+    if spec.startswith("rand:"):
+        n, *seed = (int(x) for x in spec[5:].split(":"))
+        return np.sort(np.random.default_rng(seed[0] if seed else 0).choice(np.arange(1, 13800), n, replace=False)).astype(float)
+    return np.array([float(x) for x in spec.split(",")])
 KNOWN = {"zzup": "px / zzup.pf"}  # starting assignment: the fingerprint's one clean match
 
 
@@ -402,7 +413,8 @@ def main() -> None:
                     help="a feature with a pick only moves to a candidate whose training-CDF gap is at most this much worse (off by default)")
     ap.add_argument("--xs-shortlist", type=int, default=6,
                     help="z / rank candidates look alike to the CDF: try the gate-passing ones of this many bases with the largest own |IC|")
-    ap.add_argument("--engine-dir", type=Path, default=Path("data/engine"), help="marks_<D>.parquet from run_cpp.py --marks five")
+    ap.add_argument("--engine-dir", type=Path, default=Path("data/engine"), help="marks_<D>.parquet from run_cpp.py --marks <the same grid>")
+    ap.add_argument("--marks", default="five", help="five | rand:N[:seed] | a,b,...: the times scored (run_cpp.py --marks must match)")
     ap.add_argument("--profiles", default="ZZWA,ZZAL,ZZQO,ZZXC,ZZTS", help="samplerS families whose cells join the pool ('' = none)")
     ap.add_argument("--hstats", type=Path, default=Path("/data/prod/hstats/HS300"))
     ap.add_argument("--pm-cache", type=Path, default=Path("data/pm_export_all"))
@@ -410,6 +422,8 @@ def main() -> None:
     ap.add_argument("--min-distinct", type=int, default=30, help="fewer distinct values = a dummy: only for flag / count features")
     ap.add_argument("--out", type=Path, default=Path("data/reports/stage6"))
     args = ap.parse_args()
+    global MARKS
+    MARKS = mark_grid(args.marks)
     t0 = time.perf_counter()
     args.out.mkdir(parents=True, exist_ok=True)
     lines = [ln.strip() for ln in args.feature_csv.read_text(errors="replace").splitlines() if ln.strip()]
@@ -483,7 +497,7 @@ def main() -> None:
                 with np.errstate(divide="ignore", invalid="ignore"):
                     rets[sid] = np.log(m1 / m0)
                 rows.append(pl.DataFrame({"sid": sid, "mark": MARKS, "key": "px", "pm": FI.at_marks(a["t_local"], a["price"], MARKS)}))
-            gen = generic(gf, gs)
+            gen = generic(gf, gs, MARKS)
             for k, v in gen.items():
                 rows.append(pl.DataFrame({"sid": sid, "mark": MARKS, "key": f"gen.{k}", "pm": v.astype(float)}))
             for k, v in prof.get(sid, {}).items():

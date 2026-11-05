@@ -4,6 +4,7 @@
 # ablation evidence per assigned column), then the worklist. Foreground, CPUS-limited.
 #   CPUS=16 DAYS="20261020 20261021 20261022 20261023 20261026 20261027" bash research/pm_factors/model_round.sh 2>&1 | tee data/reports/model_round2.txt
 # MAXF = features scanned by model gain (default 60); FRESH=1 starts from the built-in assignment instead of the last one.
+# MARKS = times scored: five (default) or rand:N -- PM scores every snapshot, so random mid-bar times match its training data.
 set -u
 CPUS=${CPUS:-256}
 ALL=$(nproc --all); [ "$CPUS" -gt "$ALL" ] && CPUS=$ALL
@@ -23,13 +24,13 @@ grep -E "^[0-9]+ models, months|WARNING|Error" $S5/probe.txt | head -3
 echo "### M2 engine state at the 5-minute marks (C++)"
 for d in $DAYS; do
   [ -f $DCP/$d.jz ] || { echo "  $d: no state file"; continue; }
-  run research/engine/run_cpp.py --date $d --universe pm:$DCP/$d.jz --threads $((CPUS / 2)) --marks five --out data/engine \
+  run research/engine/run_cpp.py --date $d --universe pm:$DCP/$d.jz --threads $((CPUS / 2)) --marks ${MARKS:-five} --out data/engine \
     > $RE/marks_$d.txt 2>&1 && grep -E "state at" $RE/marks_$d.txt | sed 's/^/  /' || { echo "  $d: engine FAILED"; tail -3 $RE/marks_$d.txt; }
 done
 
 echo "### M3 ic_score on the newest days"
 START=""; [ -f $S6/ic_assign.json ] && [ "${FRESH:-0}" != 1 ] && { cp $S6/ic_assign.json $S6/ic_assign_prev.json; START="--assign $S6/ic_assign_prev.json"; }
-run research/pm_factors/ic_score.py --dates $(echo $DAYS | tr ' ' ',') --models $MODELS/tk5m $START --max-features ${MAXF:-60} --out $S6 \
+run research/pm_factors/ic_score.py --dates $(echo $DAYS | tr ' ' ',') --models $MODELS/tk5m --marks ${MARKS:-five} $START --max-features ${MAXF:-60} --out $S6 \
   > $S6/ic.txt 2>&1 || tail -5 $S6/ic.txt
 grep -E "^20[0-9]{6}: |^drop |accept |IC: start|Error|Traceback" $S6/ic.txt | tail -16
 

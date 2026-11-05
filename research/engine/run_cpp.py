@@ -36,6 +36,16 @@ CPP = Path(__file__).resolve().parent / "cpp"
 FIVE = np.arange(300.0, 14101.0, 300.0)  # trading-clock seconds 09:35 ... 14:55, as feature_intraday.MARKS
 
 
+def mark_grid(spec: str) -> np.ndarray:
+    """'five', 'rand:N[:seed]' (N random trading-clock seconds in (0, 13800), the same list as ic_score.mark_grid) or a comma list."""
+    if spec == "five":
+        return FIVE
+    if spec.startswith("rand:"):
+        n, *seed = (int(x) for x in spec[5:].split(":"))
+        return np.sort(np.random.default_rng(seed[0] if seed else 0).choice(np.arange(1, 13800), n, replace=False)).astype(float)
+    return np.array([float(x) for x in spec.split(",")])
+
+
 def read_marks(path: Path) -> pl.DataFrame:
     """marks.bin -> one row per (sid, mark): sid, mark, then every key (rules as <name>.sum / <name>.wgt = 1)."""
     b = path.read_bytes()
@@ -85,7 +95,7 @@ def main() -> None:
     ap.add_argument("--out", type=Path, default=Path("data/engine"))
     ap.add_argument("--work", type=Path, default=Path("data/engine/work"), help="where events.bin / rules.tsv / prev.bin go")
     ap.add_argument("--keep", action="store_true", help="keep the work files (default: delete events.bin after the run)")
-    ap.add_argument("--marks", help="'five' (09:35 ... 14:55) or trading-clock seconds a,b,...: also the state at each mark")
+    ap.add_argument("--marks", help="'five' (09:35 ... 14:55), 'rand:N[:seed]' or trading-clock seconds a,b,...: also the state at each mark")
     a = ap.parse_args()
     t0 = time.perf_counter()
     exe = ensure_binary()
@@ -111,7 +121,7 @@ def main() -> None:
     print(f"{a.date}: {len(ev)} events, {len(sids)} stocks wanted, {len(names)} rules, {n_prev} carry seeds exported ({t1 - t0:.0f}s)", flush=True)
     cmd = [str(exe), str(work / "events.bin"), str(work / "rules.tsv"), str(work / "state.json"), "--prev", str(work / "prev.bin"),
            "--threads", str(a.threads)]
-    marks = FIVE if a.marks == "five" else np.array([float(x) for x in a.marks.split(",")]) if a.marks else None
+    marks = mark_grid(a.marks) if a.marks else None
     if marks is not None:
         cmd += ["--marks", ",".join(repr(float(x)) for x in marks), "--marks-out", str(work / "marks.bin")]
     subprocess.run(cmd, check=True)
