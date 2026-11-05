@@ -11,7 +11,8 @@ volume and amount per side::
 
 The 15:00 bar reads the book at 14:57:00 (continuous session end), like the snapshot columns. ``bamt_xm30`` /
 ``aamt_xp3`` ... = the exchange-clock read shifted by ``OFFSETS_S`` seconds (never past 14:57:00), ``*_xs`` = strictly
-before the bar end, ``*_q0`` / ``*_q1`` = at the exchange time of the stock's last snapshot at / strictly before it. Written as
+before the bar end, ``*_q0`` / ``*_q1`` = at the exchange time of the stock's last snapshot at / strictly before it,
+``*_q1s`` = strictly before that snapshot's time (q* also carry ``btot_`` / ``atot_`` volumes). Written as
 ``<basics>/date=D/book.parquet`` (symbol_id, minute, ...); ``window_probe.py`` reads it as ``book.<col>``.
 
     python research/pm_factors/book_totals.py --dates 20261020,20261021 --workers 8
@@ -145,6 +146,7 @@ def build_day(d: str, out: Path) -> str:
         for tag, side in (("q0", "right"), ("q1", "left")):  # last snapshot at / strictly before the bar end (none: the bar end)
             k = np.searchsorted(qts, cut, side=side) - 1
             reads[tag] = np.where(k >= 0, qts[np.maximum(k, 0)], cut) if qts.size else cut
+        reads["q1s"] = reads["q1"] - 1  # events strictly before that snapshot's exchange time
         sh = np.concatenate(list(reads.values()))
         order = np.argsort(sh, kind="stable")
         ro = np.searchsorted(np.maximum.accumulate(a["xts"]), sh[order], side="right") - 1
@@ -153,6 +155,8 @@ def build_day(d: str, out: Path) -> str:
         to = to.reshape(len(reads), BARS.size, 4)
         for j, tag in enumerate(reads):  # aamt_xm3 = 3 s before the bar end, aamt_q1 = at the last snapshot before it
             cols |= {f"bamt_{tag}": to[j, :, 2], f"aamt_{tag}": to[j, :, 3]}
+            if tag.startswith("q"):  # volumes too, to check the replay against the feed's own totals (book_check.py)
+                cols |= {f"btot_{tag}": to[j, :, 0], f"atot_{tag}": to[j, :, 1]}
         rows.append(pl.DataFrame(cols))
     if not rows:
         return f"{d}: nothing replayed"

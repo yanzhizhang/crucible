@@ -12,9 +12,12 @@ column "which basic is it, up to a unit?" before anyone guesses a formula. Per 1
 * snapshots: last of the bar -- ``bv1 av1 bv5 av5 bv10 av10 btot atot bno ano bp1 ap1 mid spread`` and the
   bar means ``m_bv1 m_av1 m_bv5 m_av5 m_btot m_atot``; ``*_amt`` = volume x price for the totals, ``*_wamt`` = total x the feed's weighted average price (``*_wamt_sp`` the same snapshot picked on the trade clock, ``m_*_wamt`` its bar mean); ``ord*_vol_l`` limit orders only; ``ord*_vol_r`` SZSE net of the order's own continuous fills as aggressor (what rests, the SSE
   feed's convention), ``ord*_vol_n`` orders with no such fill (SSE: no fill as the BS-flag side), ``ord*_vol_x`` net of the order's own aggressive fills on both
-  exchanges, ``ord*_vol_c`` / ``_k`` the same without orders placed before 09:30 / 09:25; ``*_wamt_pre`` the last snapshot
-  strictly before the bar end;
-* running totals since the open: ``cum_vol cum_amt cum_n cum_bvol cum_svol``;
+  exchanges, ``ord*_vol_c`` / ``_k`` the same without orders placed before 09:30 / 09:25; ``ord*_vol_rc`` the ``_r``
+  convention from 09:30, ``_dc`` / ``_ic`` / ``_jc`` that again without SSE repeats of an order id / SSE orders cancelled
+  within 1 ms / 1 s; ``*_wamt_pre`` / ``cvol_pre`` / ``camt_pre`` the last snapshot strictly before the bar end;
+* running totals since the open: ``cum_vol cum_amt cum_n cum_bvol cum_svol``; ``cum_vol_oa`` / ``cum_amt_oa`` plus the
+  opening auction's fills (``oa_vol`` / ``oa_amt``, booked at 09:31); ``cvol_snap`` / ``camt_snap`` the feed's own day totals
+  at the last snapshot of the bar;
 * for every bid / ask or buy / sell pair: ``<x>_sum``, ``<x>_mean``, ``<x>_imb``.
 
 The same table aggregated to 5-minute bars (``m5``) and the day (``d1``): flows summed, states taken last, means
@@ -22,7 +25,7 @@ averaged. Output: ``store/pm_factors/basics/date=<D>/{m1,m5,d1}.parquet`` (``sym
 
     python research/pm_factors/basics.py --dates 20261009 --thr-file /data/prod/hstats/HS300/ZZCR/20261008/samplerR.parquet
 
-``--only orders,pre`` recomputes just those columns (order / cancel flows, the strictly-before snapshot) and patches them in;
+``--only orders,pre,cum`` recomputes just those columns (order / cancel flows, the strictly-before snapshot, day totals) and patches them in;
 each finished day prints seconds per stage.
 """
 
@@ -65,7 +68,8 @@ SSE_LAG_NS = 25_000_000  # PM's SSE clock = our receive time - 25 ms (bar_varian
 FLOW = ("vol", "amt", "n", "ord", "pas", "b_vol", "s_vol", "b_amt", "s_amt", "b_n", "s_n", "b_ord", "s_ord",
         "ordb_n", "orda_n", "ordb_vol", "orda_vol", "ordb_amt", "orda_amt", "cxb_n", "cxa_n", "cxb_vol", "cxa_vol", "ordb_vol_l", "orda_vol_l",
         "ordb_vol_r", "orda_vol_r", "ordb_vol_n", "orda_vol_n", "ordb_vol_x", "orda_vol_x",
-        "ordb_vol_c", "orda_vol_c", "ordb_vol_k", "orda_vol_k")
+        "ordb_vol_c", "orda_vol_c", "ordb_vol_k", "orda_vol_k", "ordb_vol_rc", "orda_vol_rc", "ordb_vol_dc", "orda_vol_dc",
+        "ordb_vol_ic", "orda_vol_ic", "ordb_vol_jc", "orda_vol_jc", "oa_vol", "oa_amt")
 PAIRS = {"vol": ("b_vol", "s_vol"), "amt": ("b_amt", "s_amt"), "n": ("b_n", "s_n"), "ord": ("b_ord", "s_ord"),
          "osz": ("b_osz", "s_osz"), "tsz": ("b_tsz", "s_tsz"), "q50": ("b_q50", "s_q50"), "q90": ("b_q90", "s_q90"),
          "ordn": ("ordb_n", "orda_n"), "ordvol": ("ordb_vol", "orda_vol"), "ordamt": ("ordb_amt", "orda_amt"),
@@ -74,7 +78,9 @@ PAIRS = {"vol": ("b_vol", "s_vol"), "amt": ("b_amt", "s_amt"), "n": ("b_n", "s_n
          "mv1": ("m_bv1", "m_av1"), "mv5": ("m_bv5", "m_av5"), "mtot": ("m_btot", "m_atot"), "totamt": ("btot_amt", "atot_amt"),
          "totwamt": ("btot_wamt", "atot_wamt"), "totwamtsp": ("btot_wamt_sp", "atot_wamt_sp"), "mtotwamt": ("m_btot_wamt", "m_atot_wamt"),
          "ordvoll": ("ordb_vol_l", "orda_vol_l"), "ordvolr": ("ordb_vol_r", "orda_vol_r"), "ordvoln": ("ordb_vol_n", "orda_vol_n"), "ordvolx": ("ordb_vol_x", "orda_vol_x"),
-         "ordvolc": ("ordb_vol_c", "orda_vol_c"), "ordvolk": ("ordb_vol_k", "orda_vol_k"), "totwamtpre": ("btot_wamt_pre", "atot_wamt_pre")}
+         "ordvolc": ("ordb_vol_c", "orda_vol_c"), "ordvolk": ("ordb_vol_k", "orda_vol_k"), "totwamtpre": ("btot_wamt_pre", "atot_wamt_pre"),
+         "ordvolrc": ("ordb_vol_rc", "orda_vol_rc"), "ordvoldc": ("ordb_vol_dc", "orda_vol_dc"), "ordvolic": ("ordb_vol_ic", "orda_vol_ic"),
+         "ordvoljc": ("ordb_vol_jc", "orda_vol_jc")}
 
 
 def _clocks(pm: bool):
@@ -105,8 +111,15 @@ def order_flows(con: duckdb.DuckDBPyConnection, date: str, pm: bool = False) -> 
           WHERE r.date = {d} AND r.trade_type = 1 AND (r.market_id = {SZSE} OR r.dir IN ({b}, {s}))
             AND (((r.time + {NS_LOCAL}) % {NS_DAY}) / {NS_MIN}::DOUBLE) >= {AM_OPEN}
           GROUP BY ALL),
+        cx AS (  -- SSE: first cancel time per order
+          SELECT c.symbol_id, c.market_id, c.order_id AS aid, min(c.time) AS ctime
+          FROM raw_order c JOIN uni u USING (symbol_id, market_id)
+          WHERE c.date = {d} AND c.market_id = {SSE} AND c.update_type = 2
+          GROUP BY ALL),
         oo AS (
-          SELECT o.*, CASE WHEN o.market_id = {SSE} THEN o.order_id ELSE o.seq_id END AS okey  -- the key trades quote
+          SELECT o.*, CASE WHEN o.market_id = {SSE} THEN o.order_id ELSE o.seq_id END AS okey,  -- the key trades quote
+                 row_number() OVER (PARTITION BY o.symbol_id, o.market_id, CASE WHEN o.market_id = {SSE} THEN o.order_id ELSE o.seq_id END
+                                    ORDER BY o.time, o.seq_id) AS rn
           FROM raw_order o JOIN uni u USING (symbol_id, market_id)
           WHERE o.date = {d} AND o.update_type = 1 AND o.dir IN ({b}, {s})),
         e AS (
@@ -114,14 +127,16 @@ def order_flows(con: duckdb.DuckDBPyConnection, date: str, pm: bool = False) -> 
                  (o.market_id = {SSE} OR o.order_type = 2) AS lim,
                  CASE WHEN o.market_id = {SZSE} THEN greatest(o.volume - coalesce(ag.fv, 0), 0) ELSE o.volume END::DOUBLE AS rvol,
                  ag.fv IS NULL AS nomkt,
-                 greatest(o.volume - coalesce(ag.fv, 0), 0)::DOUBLE AS xvol, {mins('o')} AS om
+                 greatest(o.volume - coalesce(ag.fv, 0), 0)::DOUBLE AS xvol, {mins('o')} AS om,
+                 o.rn = 1 AS first, coalesce(cx.ctime - o.time <= 1000000, false) AS ioc, coalesce(cx.ctime - o.time <= 1000000000, false) AS fast
           FROM oo o
           LEFT JOIN ag ON ag.symbol_id = o.symbol_id AND ag.market_id = o.market_id AND ag.aid = o.okey  -- equalities only: a one-sided term turns this into a nested-loop join
+          LEFT JOIN cx ON cx.symbol_id = o.symbol_id AND cx.market_id = o.market_id AND cx.aid = o.okey
           UNION ALL
-          SELECT o.symbol_id, {lab('o')}, 1, o.dir, o.volume::DOUBLE, o.volume * o.price, false, NULL::DOUBLE, false, NULL::DOUBLE, NULL::DOUBLE
+          SELECT o.symbol_id, {lab('o')}, 1, o.dir, o.volume::DOUBLE, o.volume * o.price, false, NULL::DOUBLE, false, NULL::DOUBLE, NULL::DOUBLE, false, false, false
           FROM raw_order o JOIN uni u USING (symbol_id, market_id) WHERE o.date = {d} AND o.market_id = {SSE} AND o.update_type = 2
           UNION ALL
-          SELECT r.symbol_id, {lab('r')}, 1, CASE WHEN r.buy_seq_id > 0 THEN {b} ELSE {s} END, r.volume::DOUBLE, r.volume * r.price, false, NULL::DOUBLE, false, NULL::DOUBLE, NULL::DOUBLE
+          SELECT r.symbol_id, {lab('r')}, 1, CASE WHEN r.buy_seq_id > 0 THEN {b} ELSE {s} END, r.volume::DOUBLE, r.volume * r.price, false, NULL::DOUBLE, false, NULL::DOUBLE, NULL::DOUBLE, false, false, false
           FROM raw_transaction r JOIN uni u USING (symbol_id, market_id) WHERE r.date = {d} AND r.market_id = {SZSE} AND r.trade_type = 2)
         SELECT symbol_id, minute,
                count(*) FILTER (k = 0 AND dir = {b}) AS ordb_n, count(*) FILTER (k = 0 AND dir = {s}) AS orda_n,
@@ -134,7 +149,11 @@ def order_flows(con: duckdb.DuckDBPyConnection, date: str, pm: bool = False) -> 
                sum(volume) FILTER (k = 0 AND nomkt AND dir = {b}) AS ordb_vol_n, sum(volume) FILTER (k = 0 AND nomkt AND dir = {s}) AS orda_vol_n,
                sum(xvol) FILTER (k = 0 AND dir = {b}) AS ordb_vol_x, sum(xvol) FILTER (k = 0 AND dir = {s}) AS orda_vol_x,
                sum(xvol) FILTER (k = 0 AND om >= {AM_OPEN} AND dir = {b}) AS ordb_vol_c, sum(xvol) FILTER (k = 0 AND om >= {AM_OPEN} AND dir = {s}) AS orda_vol_c,
-               sum(xvol) FILTER (k = 0 AND om >= {AM_OPEN - 5} AND dir = {b}) AS ordb_vol_k, sum(xvol) FILTER (k = 0 AND om >= {AM_OPEN - 5} AND dir = {s}) AS orda_vol_k
+               sum(xvol) FILTER (k = 0 AND om >= {AM_OPEN - 5} AND dir = {b}) AS ordb_vol_k, sum(xvol) FILTER (k = 0 AND om >= {AM_OPEN - 5} AND dir = {s}) AS orda_vol_k,
+               sum(rvol) FILTER (k = 0 AND om >= {AM_OPEN} AND dir = {b}) AS ordb_vol_rc, sum(rvol) FILTER (k = 0 AND om >= {AM_OPEN} AND dir = {s}) AS orda_vol_rc,
+               sum(rvol) FILTER (k = 0 AND om >= {AM_OPEN} AND first AND dir = {b}) AS ordb_vol_dc, sum(rvol) FILTER (k = 0 AND om >= {AM_OPEN} AND first AND dir = {s}) AS orda_vol_dc,
+               sum(rvol) FILTER (k = 0 AND om >= {AM_OPEN} AND NOT ioc AND dir = {b}) AS ordb_vol_ic, sum(rvol) FILTER (k = 0 AND om >= {AM_OPEN} AND NOT ioc AND dir = {s}) AS orda_vol_ic,
+               sum(rvol) FILTER (k = 0 AND om >= {AM_OPEN} AND NOT fast AND dir = {b}) AS ordb_vol_jc, sum(rvol) FILTER (k = 0 AND om >= {AM_OPEN} AND NOT fast AND dir = {s}) AS orda_vol_jc
         FROM e GROUP BY ALL""").pl()
 
 
@@ -145,9 +164,27 @@ def snapshots_pre(con: duckdb.DuckDBPyConnection, date: str) -> pl.DataFrame:
         SELECT q.symbol_id, {_label(sh)} AS minute,
                arg_max(q.total_bid_volume::DOUBLE, q.time) AS btot_pre, arg_max(q.total_ask_volume::DOUBLE, q.time) AS atot_pre,
                arg_max(q.total_bid_volume * q.weighted_avg_bid_price, q.time) AS btot_wamt_pre,
-               arg_max(q.total_ask_volume * q.weighted_avg_ask_price, q.time) AS atot_wamt_pre
+               arg_max(q.total_ask_volume * q.weighted_avg_ask_price, q.time) AS atot_wamt_pre,
+               arg_max(q.total_volume::DOUBLE, q.time) AS cvol_pre, arg_max(q.total_amount, q.time) AS camt_pre
         FROM raw_quotation q JOIN uni u USING (symbol_id, market_id) WHERE q.date = {int(date)} AND {_continuous(sh)}
         GROUP BY ALL""").pl()
+
+
+def snap_cum(con: duckdb.DuckDBPyConnection, date: str, pm: bool = False) -> pl.DataFrame:
+    """Day-cumulative volume / amount of the last snapshot at the bar end, and the opening auction's fills (at 09:31)."""
+    d = int(date)
+    _, mins, _ = _clocks(pm)
+    sn = con.sql(f"""
+        SELECT q.symbol_id, {_label('q.time')} AS minute,
+               arg_max(q.total_volume::DOUBLE, q.time) AS cvol_snap, arg_max(q.total_amount, q.time) AS camt_snap
+        FROM raw_quotation q JOIN uni u USING (symbol_id, market_id) WHERE q.date = {d} AND {_continuous('q.time')}
+        GROUP BY ALL""").pl()
+    oa = con.sql(f"""
+        SELECT r.symbol_id, {AM_OPEN + 1} AS minute, sum(r.volume)::DOUBLE AS oa_vol, sum(r.volume * r.price) AS oa_amt
+        FROM raw_transaction r JOIN uni u USING (symbol_id, market_id)
+        WHERE r.date = {d} AND r.trade_type = 1 AND {mins('r')} < {AM_OPEN}
+        GROUP BY ALL""").pl()  # exactly the fills the pm trade flows leave out before the open
+    return sn.join(oa, on=["symbol_id", "minute"], how="full", coalesce=True)
 
 
 def minute_table(con: duckdb.DuckDBPyConnection, date: str, pm: bool = False, clock: dict | None = None) -> pl.DataFrame:
@@ -221,6 +258,7 @@ def minute_table(con: duckdb.DuckDBPyConnection, date: str, pm: bool = False, cl
         FROM raw_quotation q JOIN uni u USING (symbol_id, market_id) WHERE q.date = {d} AND {_continuous(t('q'))}
         GROUP BY ALL""").pl()  # the same snapshot on the trade clock (SSE receive time)
     sn = sn.join(sp, on=["symbol_id", "minute"], how="full", coalesce=True).join(snapshots_pre(con, date), on=["symbol_id", "minute"], how="full", coalesce=True)
+    sn = sn.join(snap_cum(con, date, pm), on=["symbol_id", "minute"], how="full", coalesce=True)
     w = tr.join(oq, on=["symbol_id", "minute"], how="full", coalesce=True).join(ev, on=["symbol_id", "minute"], how="full", coalesce=True)
     w = w.join(sn, on=["symbol_id", "minute"], how="full", coalesce=True).sort("symbol_id", "minute")
     clock["snapshots"] = time.perf_counter() - t0; t0 = time.perf_counter()
@@ -250,7 +288,7 @@ def derive(w: pl.DataFrame) -> pl.DataFrame:
         (f("btot") * f("bp1")).alias("btot_amt"), (f("atot") * f("ap1")).alias("atot_amt"),
         *[f(c).cum_sum().over("symbol_id").alias(f"cum_{n}") for c, n in (("vol", "vol"), ("amt", "amt"), ("n", "n"), ("b_vol", "bvol"), ("s_vol", "svol"))],
     )
-    exprs = []
+    exprs = [(f(f"cum_{n}") + f(f"oa_{n}").sum().over("symbol_id")).alias(f"cum_{n}_oa") for n in ("vol", "amt") if f"oa_{n}" in w.columns]
     for name, (x, y) in PAIRS.items():
         if x in w.columns and y in w.columns:
             exprs += [(f(x) + f(y)).alias(f"{name}_sum"), ((f(x) + f(y)) / 2).alias(f"{name}_mean"),
@@ -269,7 +307,7 @@ def patch(old: pl.DataFrame, new: pl.DataFrame) -> pl.DataFrame:
 def aggregate(m1: pl.DataFrame, step: int | None) -> pl.DataFrame:
     """5-minute bars (step 5; the bar ending at t holds minutes t-4..t) or the day (None): flows summed, states last, means averaged."""
     key = (((pl.col("minute") - 571) // step) * step + 575) if step else pl.lit(-1)
-    state = {"last", "bv1", "av1", "bv5", "av5", "bv10", "av10", "btot", "atot", "bno", "ano", "bp1", "ap1", "mid", "spread", "btot_amt", "atot_amt", "btot_wamt", "atot_wamt", "btot_wamt_sp", "atot_wamt_sp", "btot_pre", "atot_pre", "btot_wamt_pre", "atot_wamt_pre"}
+    state = {"last", "bv1", "av1", "bv5", "av5", "bv10", "av10", "btot", "atot", "bno", "ano", "bp1", "ap1", "mid", "spread", "btot_amt", "atot_amt", "btot_wamt", "atot_wamt", "btot_wamt_sp", "atot_wamt_sp", "btot_pre", "atot_pre", "btot_wamt_pre", "atot_wamt_pre", "cvol_pre", "camt_pre", "cvol_snap", "camt_snap"}
     flow_pairs = {p for p, (x, _) in PAIRS.items() if x in FLOW}
     agg = []
     for c in [c for c in m1.columns if c not in ("symbol_id", "minute")]:
@@ -311,7 +349,7 @@ def build_day(d: str, index: str, thr_file: Path | None, memory: str, out: Path,
         uni = old.select(pl.col("symbol_id").cast(pl.Int32).unique()).with_columns(  # patch exactly the stocks already there
             pl.when(pl.col("symbol_id") >= 600000).then(SSE).otherwise(SZSE).cast(pl.Int16).alias("market_id"))
         con.register("uni", uni)
-        parts = {"orders": lambda: order_flows(con, d, pm), "pre": lambda: snapshots_pre(con, d)}
+        parts = {"orders": lambda: order_flows(con, d, pm), "pre": lambda: snapshots_pre(con, d), "cum": lambda: snap_cum(con, d, pm)}
         new = None
         for part in only.split(","):
             t0 = time.perf_counter()
@@ -350,7 +388,7 @@ def main() -> None:
     ap.add_argument("--threads", type=int, default=4, help="DuckDB (and every other library pool) threads per worker")
     ap.add_argument("--convention", choices=("feitu", "pm"), default="feitu", help="pm: PM's clock / auction / price rules, default --out basics_pm")
     ap.add_argument("--out", type=Path)
-    ap.add_argument("--only", default="", help="comma list of orders / pre: patch just those columns into existing tables")
+    ap.add_argument("--only", default="", help="comma list of orders / pre / cum: patch just those columns into existing tables")
     a = ap.parse_args()
     dates = [d for d in a.dates.split(",") if d]
     pm_days = sorted(p.name for p in a.thr_dir.iterdir() if p.name.isdigit()) if a.thr_dir else []
@@ -364,9 +402,9 @@ def main() -> None:
     if a.workers > 1:
         threads.cap(a.threads)  # the workers' polars / BLAS pools would otherwise each take the whole machine
     pm = a.convention == "pm"
-    bad = set(filter(None, a.only.split(","))) - {"orders", "pre"}
+    bad = set(filter(None, a.only.split(","))) - {"orders", "pre", "cum"}
     if bad:
-        sys.exit(f"--only: unknown part(s) {sorted(bad)}, choose from orders, pre")
+        sys.exit(f"--only: unknown part(s) {sorted(bad)}, choose from orders, pre, cum")
     out = a.out or (OUT_PM if pm else OUT)
     jobs = [(d, a.index, thr_of(d), a.memory, out, a.threads, pm, a.only) for d in dates]
     failed = 0
