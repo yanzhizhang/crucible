@@ -54,9 +54,11 @@ from candidates import (
     NS_DAY,
     NS_LOCAL,
     NS_MIN,
+    PM_OPEN,
     SELL,
     SSE,
     SZSE,
+    _CEIL,
     _continuous,
     _label,
     ced_universe,
@@ -191,7 +193,17 @@ def snap_cum(con: duckdb.DuckDBPyConnection, date: str, pm: bool = False) -> pl.
         FROM raw_transaction r JOIN uni u USING (symbol_id, market_id)
         WHERE r.date = {d} AND r.trade_type = 1 AND (((r.time + {NS_LOCAL}) % {NS_DAY}) / {NS_MIN}::DOUBLE) >= {CONT_END} AND NOT {flow}
         GROUP BY ALL""").pl()  # closing-auction fills the flows leave out (exchange time from 14:57)
-    return sn.join(oa, on=["symbol_id", "minute"], how="full", coalesce=True).join(ca, on=["symbol_id", "minute"], how="full", coalesce=True)
+    out = sn.join(oa, on=["symbol_id", "minute"], how="full", coalesce=True).join(ca, on=["symbol_id", "minute"], how="full", coalesce=True)
+    for tag, col in (("x13", "q.time"), ("rx", "q.spider_ts")):  # PM's bar rules: label inclusive, 11:30 reads up to 13:00:00, stop at 14:57:00
+        c = _CEIL.format(t=col)
+        lab_ = f"CASE WHEN {c} <= {AM_OPEN} THEN {AM_OPEN + 1} WHEN {c} > {AM_CLOSE} AND {c} <= {PM_OPEN} THEN {AM_CLOSE} ELSE {c} END"
+        x = con.sql(f"""
+            SELECT q.symbol_id, {lab_} AS minute,
+                   arg_max(q.total_volume::DOUBLE, {col}) AS cvol_{tag}, arg_max(q.total_amount, {col}) AS camt_{tag}
+            FROM raw_quotation q JOIN uni u USING (symbol_id, market_id) WHERE q.date = {d} AND {c} <= {CONT_END}
+            GROUP BY ALL""").pl()  # x13 by exchange time (PM's 1min_src), rx by receive time (PM's zzfb profile)
+        out = out.join(x, on=["symbol_id", "minute"], how="full", coalesce=True)
+    return out
 
 
 def minute_table(con: duckdb.DuckDBPyConnection, date: str, pm: bool = False, clock: dict | None = None) -> pl.DataFrame:
@@ -316,7 +328,7 @@ def patch(old: pl.DataFrame, new: pl.DataFrame) -> pl.DataFrame:
 def aggregate(m1: pl.DataFrame, step: int | None) -> pl.DataFrame:
     """5-minute bars (step 5; the bar ending at t holds minutes t-4..t) or the day (None): flows summed, states last, means averaged."""
     key = (((pl.col("minute") - 571) // step) * step + 575) if step else pl.lit(-1)
-    state = {"last", "bv1", "av1", "bv5", "av5", "bv10", "av10", "btot", "atot", "bno", "ano", "bp1", "ap1", "mid", "spread", "btot_amt", "atot_amt", "btot_wamt", "atot_wamt", "btot_wamt_sp", "atot_wamt_sp", "btot_pre", "atot_pre", "btot_wamt_pre", "atot_wamt_pre", "cvol_pre", "camt_pre", "cvol_snap", "camt_snap"}
+    state = {"last", "bv1", "av1", "bv5", "av5", "bv10", "av10", "btot", "atot", "bno", "ano", "bp1", "ap1", "mid", "spread", "btot_amt", "atot_amt", "btot_wamt", "atot_wamt", "btot_wamt_sp", "atot_wamt_sp", "btot_pre", "atot_pre", "btot_wamt_pre", "atot_wamt_pre", "cvol_pre", "camt_pre", "cvol_snap", "camt_snap", "cvol_x13", "camt_x13", "cvol_rx", "camt_rx"}
     flow_pairs = {p for p, (x, _) in PAIRS.items() if x in FLOW}
     agg = []
     for c in [c for c in m1.columns if c not in ("symbol_id", "minute")]:
