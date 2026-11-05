@@ -48,6 +48,7 @@ from candidates import (
     AM_OPEN,
     BUY,
     CATALOG,
+    CLOSE,
     CONT_END,
     DATA,
     NS_DAY,
@@ -69,7 +70,7 @@ FLOW = ("vol", "amt", "n", "ord", "pas", "b_vol", "s_vol", "b_amt", "s_amt", "b_
         "ordb_n", "orda_n", "ordb_vol", "orda_vol", "ordb_amt", "orda_amt", "cxb_n", "cxa_n", "cxb_vol", "cxa_vol", "ordb_vol_l", "orda_vol_l",
         "ordb_vol_r", "orda_vol_r", "ordb_vol_n", "orda_vol_n", "ordb_vol_x", "orda_vol_x",
         "ordb_vol_c", "orda_vol_c", "ordb_vol_k", "orda_vol_k", "ordb_vol_rc", "orda_vol_rc", "ordb_vol_dc", "orda_vol_dc",
-        "ordb_vol_ic", "orda_vol_ic", "ordb_vol_jc", "orda_vol_jc", "oa_vol", "oa_amt")
+        "ordb_vol_ic", "orda_vol_ic", "ordb_vol_jc", "orda_vol_jc", "oa_vol", "oa_amt", "ca_vol", "ca_amt")
 PAIRS = {"vol": ("b_vol", "s_vol"), "amt": ("b_amt", "s_amt"), "n": ("b_n", "s_n"), "ord": ("b_ord", "s_ord"),
          "osz": ("b_osz", "s_osz"), "tsz": ("b_tsz", "s_tsz"), "q50": ("b_q50", "s_q50"), "q90": ("b_q90", "s_q90"),
          "ordn": ("ordb_n", "orda_n"), "ordvol": ("ordb_vol", "orda_vol"), "ordamt": ("ordb_amt", "orda_amt"),
@@ -184,7 +185,13 @@ def snap_cum(con: duckdb.DuckDBPyConnection, date: str, pm: bool = False) -> pl.
         FROM raw_transaction r JOIN uni u USING (symbol_id, market_id)
         WHERE r.date = {d} AND r.trade_type = 1 AND {mins('r')} < {AM_OPEN}
         GROUP BY ALL""").pl()  # exactly the fills the pm trade flows leave out before the open
-    return sn.join(oa, on=["symbol_id", "minute"], how="full", coalesce=True)
+    flow = f"(r.dir IN ({BUY}, {SELL}) AND {mins('r')} >= {AM_OPEN})" if pm else f"r.dir IN ({BUY}, {SELL})"
+    ca = con.sql(f"""
+        SELECT r.symbol_id, {CLOSE} AS minute, sum(r.volume)::DOUBLE AS ca_vol, sum(r.volume * r.price) AS ca_amt
+        FROM raw_transaction r JOIN uni u USING (symbol_id, market_id)
+        WHERE r.date = {d} AND r.trade_type = 1 AND (((r.time + {NS_LOCAL}) % {NS_DAY}) / {NS_MIN}::DOUBLE) >= {CONT_END} AND NOT {flow}
+        GROUP BY ALL""").pl()  # closing-auction fills the flows leave out (exchange time from 14:57)
+    return sn.join(oa, on=["symbol_id", "minute"], how="full", coalesce=True).join(ca, on=["symbol_id", "minute"], how="full", coalesce=True)
 
 
 def minute_table(con: duckdb.DuckDBPyConnection, date: str, pm: bool = False, clock: dict | None = None) -> pl.DataFrame:
@@ -289,6 +296,8 @@ def derive(w: pl.DataFrame) -> pl.DataFrame:
         *[f(c).cum_sum().over("symbol_id").alias(f"cum_{n}") for c, n in (("vol", "vol"), ("amt", "amt"), ("n", "n"), ("b_vol", "bvol"), ("s_vol", "svol"))],
     )
     exprs = [(f(f"cum_{n}") + f(f"oa_{n}").sum().over("symbol_id")).alias(f"cum_{n}_oa") for n in ("vol", "amt") if f"oa_{n}" in w.columns]
+    exprs += [(f(f"cum_{n}") + f(f"oa_{n}").sum().over("symbol_id") + f(f"ca_{n}").cum_sum().over("symbol_id")).alias(f"cum_{n}_oac")
+              for n in ("vol", "amt") if f"oa_{n}" in w.columns and f"ca_{n}" in w.columns]
     for name, (x, y) in PAIRS.items():
         if x in w.columns and y in w.columns:
             exprs += [(f(x) + f(y)).alias(f"{name}_sum"), ((f(x) + f(y)) / 2).alias(f"{name}_mean"),

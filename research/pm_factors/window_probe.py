@@ -6,6 +6,9 @@ and bar, then tries the window with one day left out (a day PM did not have, or 
 exact share when dropped) and with each non-trading basics day (e.g. a Saturday folder) added.
 
     python research/pm_factors/window_probe.py --days 20261020,20261021,20261022,20261023,20261026,20261027
+
+A basic written ``cm:vol+oa_vol|ca_vol`` is the running sum over the day's bars of per-bar medians (median of the
+summed columns per ``|`` term, terms added) instead of the median of a running total.
 """
 
 from __future__ import annotations
@@ -29,6 +32,7 @@ COMBOS = "ZZTS:q:b_amt,ZZXC:n:amt,ZZXC:q:vol,ZZMS:n:cum_amt,ZZMS:q:cum_vol,ZZDS:
 
 
 UNIT = False  # --unit: score at ratio 1 instead of the median ratio
+BARS = [*range(575, 691, 5), *range(785, 901, 5)]  # 5-minute bar labels
 
 
 def hit(y: np.ndarray, x: np.ndarray, tol: float = 1e-6) -> tuple[np.ndarray, float]:
@@ -75,7 +79,7 @@ def main() -> None:
 
     N = a.n
     for combo in a.combos.split(","):
-        fam, V, col = combo.split(":")
+        fam, V, col = combo.split(":", 2)
         tdays = trading_days(a.hstats, fam)
         base, by_day, parts, drops, adds = [], {}, [], {}, {}
         for d in a.days.split(","):
@@ -89,15 +93,34 @@ def main() -> None:
             cells = cells.with_columns(pl.col(k).cast(pl.Int64) for k in keys)
             i = tdays.index(d)
             span = tdays[i - N - (0 if not a.excl else 1): i + 1]  # N + 1 (or N + 2) trading days, oldest first
-            src, c = col.split(".", 1) if "." in col else (table, col)  # "book.aamt_x" reads date=D/book.parquet
+            cm = col.startswith("cm:")  # cumulative over the day's bars of per-bar medians (the volume-profile convention)
+            src, c = (table, col[3:]) if cm else col.split(".", 1) if "." in col else (table, col)  # "book.aamt_x" reads date=D/book.parquet
             miss = [x for x in span if not (a.basics / f"date={x}" / f"{src}.parquet").exists()]
             if miss:
                 print(f"{combo} {d}: no {src}.parquet for {len(miss)} days {miss[0]}..{miss[-1]}")
                 continue
-            vals_by = {x: basic(x, src, keys, cells, c) for x in span}
-            win = span[1:] if not a.excl else span[1:-1]
             y = cells["y"].to_numpy()
-            med = median(np.stack([vals_by[x] for x in win]))
+            if cm:  # "cm:vol+oa_vol|ca_vol": terms split by | take separate medians, columns joined by + are summed first
+                grid = cells.select("code").unique().join(pl.DataFrame({"minute": BARS}), how="cross")
+                terms = [t.split("+") for t in c.split("|")]
+
+                def term_day(x: str, cols: list[str]) -> np.ndarray:
+                    s = np.stack([basic(x, src, keys, grid, z) for z in cols])
+                    return np.where(np.isnan(s).all(axis=0), np.nan, np.nansum(s, axis=0))
+
+                vals_by = {x: [term_day(x, t) for t in terms] for x in span}
+
+                def value(w: list[str]) -> np.ndarray:
+                    tot = sum(np.nan_to_num(median(np.stack([vals_by[x][k] for x in w]))) for k in range(len(terms)))
+                    g = grid.with_columns(pl.Series("v", tot)).sort("code", "minute").with_columns(pl.col("v").cum_sum().over("code"))
+                    return cells.select(keys).join(g, on=keys, how="left")["v"].to_numpy()
+            else:
+                vals_by = {x: basic(x, src, keys, cells, c) for x in span}
+
+                def value(w: list[str]) -> np.ndarray:
+                    return median(np.stack([vals_by[x] for x in w]))
+            win = span[1:] if not a.excl else span[1:-1]
+            med = value(win)
             h, r = hit(y, med)
             if h.size == 0:
                 continue
@@ -106,8 +129,8 @@ def main() -> None:
             parts.append(cells.select("code", *(["minute"] if "minute" in keys else [])).with_columns(pl.Series("hit", h), pl.Series("rel", y / med - 1.0)))
             for x in win:  # leave x out, take one more day from the front
                 w = [z for z in span if z != x][-N:] if not a.excl else [z for z in span[:-1] if z != x][-N:]
-                drops.setdefault(x, []).append(np.nanmean(hit(y, median(np.stack([vals_by[z] for z in w])))[0]))
-            for e in [z for z in have if z not in tdays and win[0] < z < d and (a.basics / f"date={z}" / f"{src}.parquet").exists()]:  # a basics day the calendar skips
+                drops.setdefault(x, []).append(np.nanmean(hit(y, value(w))[0]))
+            for e in [z for z in have if not cm and z not in tdays and win[0] < z < d and (a.basics / f"date={z}" / f"{src}.parquet").exists()]:  # a basics day the calendar skips
                 if e not in vals_by:
                     vals_by[e] = basic(e, src, keys, cells, c)
                 w = sorted([*win, e])[-N:]
