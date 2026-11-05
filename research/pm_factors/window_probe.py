@@ -133,7 +133,18 @@ def main() -> None:
                 continue
             by_day[d] = (np.nanmean(h), r)
             base.append(h)
-            parts.append(cells.select("code", *(["minute"] if "minute" in keys else [])).with_columns(pl.Series("hit", h), pl.Series("rel", y / med - 1.0)))
+            pos = k = eq = np.full(y.shape, np.nan)
+            if not cm:  # where PM sits among our window's day values
+                st = np.stack([vals_by[x] for x in win])
+                ok = np.isfinite(st).all(axis=0) & np.isfinite(y)
+                s = np.sort(st, axis=0)
+                lo, hi = s[(len(win) - 1) // 2], s[len(win) // 2]
+                with np.errstate(divide="ignore", invalid="ignore"):
+                    pos = np.where(ok & (hi > lo), (y - lo) / (hi - lo), np.nan)  # 0 = lower middle value, 1 = upper
+                    eq = np.where(ok, (np.abs(st - y) <= 1e-6 * np.abs(y) + 1e-12).any(axis=0), np.nan)  # PM equals one of our day values
+                k = np.where(ok, (st < y - 1e-6 * np.abs(y)).sum(axis=0), np.nan)  # our days strictly below PM
+            parts.append(cells.select("code", *(["minute"] if "minute" in keys else [])).with_columns(
+                pl.Series("hit", h), pl.Series("rel", y / med - 1.0), pl.Series("pos", pos), pl.Series("k", k), pl.Series("eq", eq)))
             for x in win:  # leave x out, take one more day from the front
                 w = [z for z in span if z != x][-N:] if not a.excl else [z for z in span[:-1] if z != x][-N:]
                 drops.setdefault(x, []).append(np.nanmean(hit(y, value(w))[0]))
@@ -154,6 +165,16 @@ def main() -> None:
         print("  day   " + " ".join(f"{d[4:]} {e:.3f}" for d, (e, _) in by_day.items()))
         print("  exch  " + " ".join(f"{m} {h:.3f}" for m, h, *_ in mk.iter_rows()))
         print("  PM/ours-1 p10/p50/p90  " + " ".join(f"{m} {q1:+.4f}/{q5:+.4f}/{q9:+.4f}" for m, _, q1, q5, q9 in mk.iter_rows()))
+        rk = allh.filter(pl.col("k").is_not_nan()).group_by(pl.when(pl.col("code") >= 600000).then(pl.lit("SH")).otherwise(pl.lit("SZ")).alias("m")).agg(
+            pl.col("pos").filter(pl.col("pos").is_not_nan()).is_between(0, 1).mean().alias("inmid"),
+            *[pl.col("pos").filter(pl.col("pos").is_not_nan()).quantile(q).alias(f"p{int(q * 100)}") for q in (0.1, 0.5, 0.9)],
+            *[pl.col("k").quantile(q).alias(f"k{int(q * 100)}") for q in (0.1, 0.5, 0.9)], pl.col("eq").mean().alias("eq")).sort("m")
+        if rk.height:  # pos: 0 / 1 = our lower / upper middle day value; k: how many of our days lie below PM
+            def g(v: float | None, spec: str) -> str:
+                return "-" if v is None else format(v, spec)
+            print("  rank   " + " | ".join(f"{m} between middles {g(im, '.3f')} pos {g(a1, '+.2f')}/{g(a5, '+.2f')}/{g(a9, '+.2f')} "
+                                         f"days below {g(b1, '.0f')}/{g(b5, '.0f')}/{g(b9, '.0f')} = a day value {g(e, '.3f')}"
+                                         for m, im, a1, a5, a9, b1, b5, b9, e in rk.iter_rows()))
         if "minute" in allh.columns and allh["minute"].n_unique() > 1:
             rb = allh.filter(pl.col("rel").is_finite()).group_by(pl.when(pl.col("code") >= 600000).then(pl.lit("SH")).otherwise(pl.lit("SZ")).alias("m"), "minute").agg(
                 pl.col("rel").median().alias("r")).with_columns(pl.col("r").abs().alias("a")).sort("m", "a", descending=[False, True])
