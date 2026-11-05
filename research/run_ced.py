@@ -19,7 +19,7 @@ rebuild ("hist convert") -- then check-div. Checks are never cut.
 Environment: ``CRUCIBLE_WIND_URL`` / ``CRUCIBLE_JY_URL`` / ``CRUCIBLE_ZY_URL`` or
 ``CRUCIBLE_SHTCOMMON`` (database URLs, see ``research/ced/db.py``), ``CRUCIBLE_DATA`` (default
 ``/work/crucible_data``), ``CRUCIBLE_BARRA_REPO`` (default ``/mnt/BarraDataRepo/BarraCNE6``).
-Log: stderr and ``$CRUCIBLE_DATA/logs/ced.log``.
+Log: stderr and ``$CRUCIBLE_DATA/logs/ced/ced_YYYYMMDD.log`` (one file per day the run starts on; runs append).
 """
 
 from __future__ import annotations
@@ -70,7 +70,8 @@ ALL_HIST = ("daily-sod", "daily-eod", "index-eod", "index-universe", "st", "wind
 
 
 def setup_logging() -> Path:
-    path = store.DATA / "logs" / "ced.log"
+    """stderr plus one log file per calendar day of the run start: ``$CRUCIBLE_DATA/logs/ced/ced_YYYYMMDD.log``."""
+    path = store.DATA / "logs" / "ced" / f"ced_{datetime.now().strftime('%Y%m%d')}.log"
     path.parent.mkdir(parents=True, exist_ok=True)
     fmt = logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
     root = logging.getLogger()
