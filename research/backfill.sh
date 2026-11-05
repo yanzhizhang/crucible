@@ -9,13 +9,15 @@
 # Days with no feitu data come from the DataYes XTP L2 packages <XTP>/YYYYMMDD.zip (decode_datayes_day.py), same raw layout.
 #   CPUS=16 bash research/backfill.sh 20260901 20261009 2>&1 | tee data/reports/backfill.txt
 #
-# Days already decoded are skipped (FORCE=1 redecodes). Only order / transaction / quotation are decoded.
+# Days already decoded are skipped (FORCE=1 redecodes). KINDS (default order,transaction,quotation) picks the streams:
+#   KINDS=index CPUS=32 bash research/backfill.sh 20261020 20261027   # index snapshots only, no basics rebuild
 set -u
 FROM=${1:?first day YYYYMMDD}; TO=${2:?last day YYYYMMDD}
 CPUS=${CPUS:-256}
 ALL=$(nproc --all); [ "$CPUS" -gt "$ALL" ] && CPUS=$ALL
 ARCH=${ARCH:-/data/feitu}
 RAW=${RAW:-/work/crucible_data/feitu_raw}
+KINDS=${KINDS:-order,transaction,quotation}
 run() { taskset -c 0-$((CPUS - 1)) nice -n 5 python -u "$@"; }
 
 df -h $(dirname $RAW) | tail -1
@@ -29,10 +31,10 @@ echo "days: $(echo $days | wc -w) ($(echo $days | cut -c1-8) .. $(echo $days | r
 
 done_days=
 for d in $days; do
-  if ls $RAW/kind=transaction/date=$d/part-* $RAW/kind=order/date=$d/part-* $RAW/kind=quotation/date=$d/part-* >/dev/null 2>&1 && [ "${FORCE:-0}" != 1 ]; then echo "$d: decoded already"; done_days="$done_days $d"; continue; fi
+  if ls $(for k in ${KINDS//,/ }; do echo $RAW/kind=$k/date=$d/part-*; done) >/dev/null 2>&1 && [ "${FORCE:-0}" != 1 ]; then echo "$d: decoded already"; done_days="$done_days $d"; continue; fi
   root=$(root_of $d)
   t0=$(date +%s)
-  run research/decode_feitu_day.py --root $root --date $d --out $RAW --kinds order,transaction,quotation --threads $CPUS --keep-going \
+  run research/decode_feitu_day.py --root $root --date $d --out $RAW --kinds $KINDS --threads $CPUS --keep-going \
     $([ "${FORCE:-0}" = 1 ] && echo --overwrite) > data/reports/backfill_decode_$d.txt 2>&1 \
     && { echo "$d: decoded in $(( $(date +%s) - t0 ))s ($([ $root = $ARCH/$d ] && echo archive || echo minute dumps)), $(du -sh $RAW/kind=*/date=$d 2>/dev/null | awk '{s=s" "$1} END {print s}')"; done_days="$done_days $d"; } \
     || { echo "$d: decode FAILED"; tail -3 data/reports/backfill_decode_$d.txt; }
@@ -44,7 +46,7 @@ XTP=${XTP:-/mnt/TickDataRepo/XTPSharesL2}
 XW=${XW:-96}; [ "$XW" -gt "$CPUS" ] && XW=$CPUS  # worker processes; each holds one symbol's csv, so fewer than CPUS
 xdays=$(ls $XTP 2>/dev/null | grep -oE '^[0-9]{8}' | sort -u | awk -v a=$FROM -v b=$TO '$1 >= a && $1 <= b' \
         | while read d; do echo " $(echo $days) " | grep -q " $d " || echo $d; done)
-if [ -n "$xdays" ]; then
+if [ -n "$xdays" ] && [ "$KINDS" = order,transaction,quotation ]; then
   xl=$(echo $xdays | tr ' ' ',')
   echo "### XTP L2 (DataYes) for days feitu lacks, all packages in one pool (parts already on disk are skipped): $xl"
   t0=$(date +%s)
@@ -59,6 +61,7 @@ run research/catalog.py > data/reports/backfill_catalog.txt 2>&1 || tail -3 data
 
 echo "### basics (universe = PM's ZZCR samplerR of the latest earlier PM day; days without one use the CED index members)"
 list=$(echo $done_days | tr ' ' '\n' | grep . | paste -sd,)
-[ -n "$list" ] && run research/pm_factors/basics.py --dates $list --thr-dir /data/prod/hstats/HS300/ZZCR --workers $((CPUS / 4)) \
+[ "$KINDS" = order,transaction,quotation ] || { echo "KINDS=$KINDS: basics skipped"; list=""; }
+[ -z "$list" ] || run research/pm_factors/basics.py --dates $list --thr-dir /data/prod/hstats/HS300/ZZCR --workers $((CPUS / 4)) \
   > data/reports/backfill_basics.txt 2>&1 || { grep FAILED data/reports/backfill_basics.txt || tail -3 data/reports/backfill_basics.txt; }
 ls -d /work/crucible_data/store/pm_factors/basics/date=* | wc -l | xargs echo "basics days now:"

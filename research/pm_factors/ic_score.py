@@ -202,6 +202,47 @@ def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None, T: np.ndarray = MA
     return out
 
 
+INDEXES = {"hs300": (300, 3553), "zz500": (905, 3553), "zz1000": (852, 3553), "sh": (1, 3553), "sz": (399001, 3554)}
+
+
+def index_series(con: duckdb.DuckDBPyConnection, date: int, stop: float) -> dict[str, tuple[np.ndarray, np.ndarray, float]]:
+    """Index snapshots received by the stop: name -> (trading-clock local time, log level, log previous close); {} without raw_index."""
+    want = " OR ".join(f"(symbol_id = {c} AND market_id = {m})" for c, m in INDEXES.values())
+    try:
+        df = con.sql(f"""SELECT symbol_id, market_id, {B.tc(B.LSOD)} AS t_local, last_price::DOUBLE AS lp, pre_close_price::DOUBLE AS pc
+            FROM raw_index WHERE date = {date} AND ({want}) AND {B.LSOD} <= {stop} AND last_price > 0 ORDER BY spider_ts""").pl()
+    except duckdb.Error:
+        return {}
+    out = {}
+    for name, (c, m) in INDEXES.items():
+        g = df.filter((pl.col("symbol_id") == c) & (pl.col("market_id") == m))
+        pc = g.filter(pl.col("pc") > 0)["pc"]
+        if g.height > 2 and pc.len():
+            out[name] = (g["t_local"].to_numpy().astype(float), np.log(g["lp"].to_numpy()), float(np.log(pc[0])))
+    return out
+
+
+def index_relative(gen: dict[str, np.ndarray], ix: dict, sid: int, T: np.ndarray) -> dict[str, np.ndarray]:
+    """Index returns and the stock's excess over them: ir<h>_<ix> / xr<h>_<ix> (mid return minus index), ipc_ / xpc_ (vs previous close);
+    'own' = the stock's exchange composite."""
+    out: dict[str, np.ndarray] = {}
+    names = {**{n: n for n in ix if n not in ("sh", "sz")}, "own": "sh" if sid >= 600000 else "sz"}
+    for tag, n in names.items():
+        if n not in ix:
+            continue
+        ti, li, lpc = ix[n]
+        i0 = FI.at_marks(ti, li, T)
+        out[f"ipc_{tag}"] = i0 - lpc
+        if "lp_pc" in gen:
+            out[f"xpc_{tag}"] = gen["lp_pc"] - (i0 - lpc)
+        for h in (30, 60, 300, 900):
+            ir = i0 - FI.at_marks(ti, li, T - h)
+            out[f"ir{h}_{tag}"] = ir
+            if f"ret{h}" in gen:
+                out[f"xr{h}_{tag}"] = gen[f"ret{h}"] - ir
+    return out
+
+
 def family(expr: str) -> str:
     """Drop an expression's horizon / window digits and price flavour: -gen.ret30 and -gen.mret45 share one family."""
     return re.sub(r"\d+", "#", re.sub(r"gen\.[mp]?ret", "gen.ret", expr))
@@ -461,6 +502,8 @@ def main() -> None:
         stop = (tz + 34200 if tz <= 7200 else tz - 7200 + 46800) + 0.005
         sids = sorted(pm["sid"].unique().to_list())
         up = E.load(con, int(d), sids, stop)
+        ix = index_series(con, int(d), stop)
+        print(f"{d}: index snapshots for {sorted(ix) or 'none (decode with KINDS=index research/backfill.sh)'}")
         fast = {int(g["sid"][0]): g for g in up["fast"].partition_by("sid")}
         slow = {int(g["sid"][0]): g for g in up["slow"].partition_by("sid")}
         dc = CM.daily_candidates(d, sids) if CM is not None else None
@@ -498,6 +541,7 @@ def main() -> None:
                     rets[sid] = np.log(m1 / m0)
                 rows.append(pl.DataFrame({"sid": sid, "mark": MARKS, "key": "px", "pm": FI.at_marks(a["t_local"], a["price"], MARKS)}))
             gen = generic(gf, gs, MARKS)
+            gen.update(index_relative(gen, ix, sid, MARKS))
             for k, v in gen.items():
                 rows.append(pl.DataFrame({"sid": sid, "mark": MARKS, "key": f"gen.{k}", "pm": v.astype(float)}))
             for k, v in prof.get(sid, {}).items():
