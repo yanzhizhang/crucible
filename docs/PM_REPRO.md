@@ -230,6 +230,39 @@ Data facts found on the way:
   (unexplained; SSE snapshots publish the totals directly, so that candidate matters only on
   SZSE).
 
+## Stage 4c -- samplerS rolling medians (ZZQO, ZZAL, ZZMS, ZZDS ...), 2026-11
+
+Each samplerS cell is the **median over the last 22 trading days, day D included,** of a per-(stock, 5-minute bar)
+daily value. N is even, so the median is the mean of the two middle day values: `window_probe.py`'s rank line puts PM
+at position 0.50 between our 11th and 12th values for 95-97 % of ZZQO (SZSE) and ZZAL cells. Other windows (20, 21, 23, D
+excluded) widen ZZMS's error from +-0.5 % to +-3-5 %. Bars are right-closed and labelled by their end (09:35 .. 11:30,
+13:05 .. 15:00). SSE ticks are timed by spider_ts - 25 ms, SZSE ticks by exchange time, and the opening auction is
+left out of the trade flows. Columns live in `basics.py` (`--convention pm`); `window_probe.py` scores them.
+
+| column | best definition | vs PM |
+| --- | --- | --- |
+| ZZDS h / l / c | every fill up to 14:57 exchange time; c = last fill by (time, seq_id) | exact |
+| ZZQO q | new-order volume from 09:30 (`ordvolrc_sum`): SZSE net of the order's own aggressive fills, SSE as published (the SSE feed already publishes the remainder) | SZ p50 -0.0002, exact 0.37; SH p50 -0.7 %, one-sided |
+| ZZAL an / bn | resting amount (price x volume summed over our replayed book) at the last snapshot strictly before the bar end (`book.aamt_q1`) | SZ +-0.06 %, exact 0.22; SH exact 0.07 |
+| ZZMS q / n | day-cumulative volume / amount, opening auction included (`cum_vol_oa`, `cvol_x13`) | p50 0, +-0.5 %, exact 0 |
+
+What is settled and what is not:
+
+* **PM's `.mp` is the feitu stream itself** (`mp_diff.py`, 20260430): every SSE add / delete and SZSE order is the same,
+  and PM's local stamp equals feitu's spider_ts within float rounding. On SSE, "the larger order number is the
+  aggressor" equals the BS flag 100 %. PM had 140 fewer SSE trades (0.0002 % of volume) and 9 % more SSE snapshots
+  (2 % SZSE). Remaining gaps are PM's processing rules, not its data (beyond those snapshots).
+* ZZQO SH: PM's day values sit between "as published" (PM below our lower middle value on many cells) and "net of
+  all own fills" (above our upper middle value). A fixed fraction (0.4 centres p50) only spreads the error to +-1 %,
+  so whatever PM removes is not proportional to the order's own fills. Open.
+* ZZMS: PM lies between our two middle day values for 85-89 % of cells, but anywhere from 0.2 to 0.9 across the gap,
+  and never equals one of our day values. So the statistic is right, but PM's daily value differs from ours by a
+  roughly symmetric +-0.5 %. Neither the cut (snapshot at / before the bar end, by exchange or receive time, PM's 1min_src
+  13:00 / 14:57 rules) nor the auctions change that, and a running sum of per-bar medians is about 10 % off. Treated as
+  reproduced to +-0.5 %.
+* ZZAL SH: our replay equals the feed's own resting totals at that snapshot for only 40-47 % of cells (`book_check.py`,
+  within 0.1 % for 80-89 %), and PM sees snapshots feitu does not store. Open.
+
 ## Stage 4b -- PM's day-end factor state (`/data/prod/h/HS300/p1_intrading_dcp/<D>.jz`)
 
 53 days (2023-01-16 .. 2023-02-28, 2026-04-29, 2026-09-01 .. 2026-10-13), plus `sod/` copies (sod/D =
