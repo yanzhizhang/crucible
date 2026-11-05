@@ -93,7 +93,7 @@ def order_flows(con: duckdb.DuckDBPyConnection, date: str, pm: bool = False) -> 
     _, _, lab = _clocks(pm)
     return con.sql(f"""
         WITH ag AS (  -- SZSE continuous fills per aggressor (the later, larger sequence number)
-          SELECT r.symbol_id, greatest(r.buy_seq_id, r.sell_seq_id) AS aid, sum(r.volume)::DOUBLE AS fv
+          SELECT r.symbol_id, r.market_id, greatest(r.buy_seq_id, r.sell_seq_id) AS aid, sum(r.volume)::DOUBLE AS fv
           FROM raw_transaction r JOIN uni u USING (symbol_id, market_id)
           WHERE r.date = {d} AND r.market_id = {SZSE} AND r.trade_type = 1 AND (((r.time + {NS_LOCAL}) % {NS_DAY}) / {NS_MIN}::DOUBLE) >= {AM_OPEN}
           GROUP BY ALL),
@@ -102,7 +102,7 @@ def order_flows(con: duckdb.DuckDBPyConnection, date: str, pm: bool = False) -> 
                  (o.market_id = {SSE} OR o.order_type = 2) AS lim,
                  greatest(o.volume - coalesce(ag.fv, 0), 0)::DOUBLE AS rvol, ag.fv IS NULL AS nomkt
           FROM raw_order o JOIN uni u USING (symbol_id, market_id)
-          LEFT JOIN ag ON ag.symbol_id = o.symbol_id AND o.market_id = {SZSE} AND ag.aid = o.seq_id
+          LEFT JOIN ag ON ag.symbol_id = o.symbol_id AND ag.market_id = o.market_id AND ag.aid = o.seq_id  -- equalities only: a one-sided term turns this into a nested-loop join
           WHERE o.date = {d} AND o.update_type = 1 AND o.dir IN ({b}, {s})
           UNION ALL
           SELECT o.symbol_id, {lab('o')}, 1, o.dir, o.volume::DOUBLE, o.volume * o.price, false, NULL::DOUBLE, false
