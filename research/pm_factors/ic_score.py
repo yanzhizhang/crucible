@@ -147,6 +147,26 @@ def predict(models: list, X: np.ndarray) -> np.ndarray:
     return np.mean([m.predict(X) for m in models], axis=0)
 
 
+def win_reduce(fn: np.ufunc, v: np.ndarray, s: np.ndarray, e: np.ndarray) -> np.ndarray:
+    """fn (np.fmax / np.fmin) over v[s:e] for each window, NaN when empty (one reduceat call)."""
+    if v.size == 0:
+        return np.full(s.shape, np.nan)
+    ext = np.append(v, np.nan)  # e may equal len(v)
+    idx = np.empty(2 * s.size, np.int64)
+    idx[0::2], idx[1::2] = np.minimum(s, v.size), np.minimum(np.maximum(e, s), v.size)
+    r = fn.reduceat(ext, idx)[0::2]
+    return np.where(e > s, r, np.nan)
+
+
+def win_mean(v: np.ndarray, s: np.ndarray, e: np.ndarray) -> np.ndarray:
+    """Mean of the finite v[s:e] for each window, NaN when none."""
+    ok = np.isfinite(v)
+    cs, cn = np.concatenate([[0.0], np.cumsum(np.where(ok, v, 0.0))]), np.concatenate([[0], np.cumsum(ok)])
+    n = cn[e] - cn[s]
+    with np.errstate(divide="ignore", invalid="ignore"):
+        return np.where(n > 0, (cs[e] - cs[s]) / n, np.nan)
+
+
 def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None, T: np.ndarray = MARKS) -> dict[str, np.ndarray]:
     """Tick quantities at each time of T (default: the 5-minute marks) for stateless families: returns, imbalances, volatility, book."""
     out: dict[str, np.ndarray] = {}
@@ -178,6 +198,21 @@ def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None, T: np.ndarray = MA
             out[f"rv{h}"] = np.sqrt(np.where(i1 >= 0, c2[np.clip(i1, 0, None)], np.nan) - np.where(i0 >= 0, c2[np.clip(i0, 0, None)], 0.0))
         for k in ("spread", "imb1", "timb", "lp_open", "lp_pc"):
             out[k] = FI.at_marks(a["t_local"], a[k], T)
+        # windowed snapshot shapes the fingerprints point at: mean / max / min over (T - w, T] of the snapshots received
+        sp, tick1 = a["spread"][ok], (a["spread_abs"][ok] <= 0.0101).astype(float)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            for w in (30, 60, 120, 300, 600, 900, 1800):
+                s0, e0 = np.searchsorted(t, T - w, side="right"), np.searchsorted(t, T, side="right")
+                hi_w, lo_w = win_reduce(np.fmax, lm, s0, e0), win_reduce(np.fmin, lm, s0, e0)
+                out[f"ldh{w}"], out[f"ldl{w}"] = hi_w - lm0, lo_w - lm0  # distance to the window's high / low (log)
+                out[f"rng{w}"] = hi_w - lo_w
+                out[f"lpma{w}"] = lm0 - win_mean(lm, s0, e0)  # log mid over its window average
+                out[f"spm{w}"] = win_mean(sp, s0, e0)  # mean relative spread
+                out[f"tick1_{w}"] = win_mean(tick1, s0, e0)  # share of snapshots with a one-tick spread
+            rv = out.get("rv900")
+            if rv is not None:
+                for h in (30, 60, 300):  # returns in units of the 15-minute realised volatility, clipped like PM's +-10 features
+                    out[f"zr{h}"] = np.clip(out[f"ret{h}"] / (rv * np.sqrt(h / 900)), -10, 10)
     if gs is not None and gs.height > 2:
         b = E.arrays(gs, "slow")
         t = b["t_local"]
@@ -192,6 +227,10 @@ def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None, T: np.ndarray = MA
                 out[f"imbn{w}"] = win["nn"] / win["n"]
                 out[f"imba{w}"] = win["na"] / win["a"]
                 out[f"lvol{w}"] = np.log1p(win["v"])
+                out[f"lamt{w}"] = np.log1p(win["a"])
+                out[f"nam{w}"], out[f"nn{w}"] = win["na"], win["nn"]  # raw net amount (CNY) / net trade count
+                out[f"tsz{w}"] = win["v"] / win["n"]  # mean trade size (shares)
+                out[f"vfrac{w}"] = np.log(win["v"] / upto(T, "v"))  # window volume against the day's so far
                 if w == 300:  # the last 5-minute bar's flows, raw: the profile ratios divide them by the samplerS medians
                     out["amt300"], out["vol300"], out["buy300"] = win["a"], win["v"], (win["a"] + win["na"]) / 2
             out["cum_imb"] = upto(T, "nv") / upto(T, "v")
