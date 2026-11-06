@@ -45,6 +45,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from decode_tdf_day import (
     CONVERT,
+    INDEXES,
     LEVELS,
     QUOTE_MAP,
     SSE,
@@ -74,6 +75,7 @@ RENAME = {
                   "totalbuynum": "totalbidno", "totalsellnum": "totalaskno",
                   **{f"{s}volume{i}": f"{s}vol{i}" for s in ("ask", "bid") for i in range(1, LEVELS + 1)}},
 }
+RENAME["index"] = RENAME["quotation"]  # index snapshots (sub 1) carry the snapshot header
 
 
 def from_datayes(df: pl.DataFrame, kind: str) -> pl.DataFrame:
@@ -221,7 +223,7 @@ def plan(root: Path, dates: list[str], out: Path, pattern: re.Pattern[str], kind
             done[(date, kind)] = []
             for market, tag in ((SSE, "SH"), (SZSE, "SZ")):
                 todo = sorted((sym, int(sym[:6]), prefix + ref, b) for (sym, s), (ref, b) in idx.items()
-                              if s == sub and sym.endswith(tag) and pattern.match(sym))
+                              if s == sub and sym.endswith(tag) and (INDEXES if kind == "index" else pattern).match(sym))
                 if not todo:
                     print(f"[{kind}] no {tag} entries in {pkg.name}")
                     continue

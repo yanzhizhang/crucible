@@ -46,11 +46,12 @@ XTP=${XTP:-/mnt/TickDataRepo/XTPSharesL2}
 XW=${XW:-96}; [ "$XW" -gt "$CPUS" ] && XW=$CPUS  # worker processes; each holds one symbol's csv, so fewer than CPUS
 xdays=$(ls $XTP 2>/dev/null | grep -oE '^[0-9]{8}' | sort -u | awk -v a=$FROM -v b=$TO '$1 >= a && $1 <= b' \
         | while read d; do echo " $(echo $days) " | grep -q " $d " || echo $d; done)
-if [ -n "$xdays" ] && [ "$KINDS" = order,transaction,quotation ]; then
+XK=$([ "$KINDS" = order,transaction,quotation ] && echo quotation,order,transaction || echo $KINDS)  # the DataYes packages hold every stream, index too
+if [ -n "$xdays" ] && { [ "$KINDS" = order,transaction,quotation ] || [ "$KINDS" = index ]; }; then
   xl=$(echo $xdays | tr ' ' ',')
   echo "### XTP L2 (DataYes) for days feitu lacks, all packages in one pool (parts already on disk are skipped): $xl"
   t0=$(date +%s)
-  taskset -c 0-$((CPUS - 1)) nice -n 5 python -u research/decode_datayes_day.py --root $XTP --date $xl --out $RAW --workers $XW \
+  taskset -c 0-$((CPUS - 1)) nice -n 5 python -u research/decode_datayes_day.py --root $XTP --date $xl --out $RAW --workers $XW --kinds $XK \
     $([ "${FORCE:-0}" = 1 ] && echo --overwrite) > data/reports/backfill_xtp.txt 2>&1 \
     && { echo "xtp: $(echo $xdays | wc -w) days decoded in $(( $(date +%s) - t0 ))s"; done_days="$done_days $xdays"; } \
     || { echo "xtp: decode FAILED"; tail -5 data/reports/backfill_xtp.txt; }

@@ -66,7 +66,8 @@ LEVELS = 10
 SSE, SZSE = 3553, 3554
 BUY, SELL = 1063, 1550
 STOCKS = re.compile(r"^(6[08]\d{4}\.SH|(00|30)\d{4}\.SZ)$")  # A-share stocks; 000xxx.SH are indices
-SUBS = {"0": "quotation", "2": "order", "3": "transaction"}
+SUBS = {"0": "quotation", "1": "index", "2": "order", "3": "transaction"}
+INDEXES = re.compile(r"^((000001|000016|000300|000852|000905)\.SH|(399001|399006|399300)\.SZ)$")  # the indices kind=index keeps
 CST_NS = 8 * 3600 * 10**9
 
 #: feitu column order and dtype per kind (``kernels/src/bindings.cpp``); level columns are FixedSizeList[LEVELS].
@@ -97,7 +98,12 @@ QUOTE_SCHEMA = [("shm_key", pa.int32()), ("nano_ts", pa.int64()), ("symbol_id", 
                 ("sell_level_queue_no01", pa.int32()), ("iopv", pa.float64()), ("match_last_px", pa.float64()),
                 ("auction_volume_trade", pa.int64()), ("auction_value_trade", pa.float64()),
                 ("spider_ts", pa.int64()), ("server_ts", pa.int64())]
-SCHEMAS = {"order": ORDER_SCHEMA, "transaction": TRADE_SCHEMA, "quotation": QUOTE_SCHEMA}
+INDEX_SCHEMA = [("shm_key", pa.int32()), ("nano_ts", pa.int64()), ("symbol_id", pa.int32()), ("market_id", pa.int16()),
+                ("time", pa.int64()), ("last_price", pa.float64()), ("open_price", pa.float64()), ("high_price", pa.float64()),
+                ("low_price", pa.float64()), ("close_price", pa.float64()), ("pre_close_price", pa.float64()),
+                ("total_volume", pa.int64()), ("total_amount", pa.float64()), ("server_ts", pa.int64()), ("spider_ts", pa.int64()),
+                ("symbol_str", pa.string())]
+SCHEMAS = {"order": ORDER_SCHEMA, "transaction": TRADE_SCHEMA, "quotation": QUOTE_SCHEMA, "index": INDEX_SCHEMA}
 
 #: feitu snapshot field -> candidate TDF header names (lower-case, first present wins).
 QUOTE_MAP = {
@@ -280,7 +286,21 @@ def convert_quotes(df: pl.DataFrame, code: int, market: int, day: int) -> pl.Dat
     return df.select(cols).with_columns(pl.col("spider_ts").alias("nano_ts"), pl.col("spider_ts").alias("server_ts"))
 
 
-CONVERT = {"order": convert_orders, "transaction": convert_trades, "quotation": convert_quotes}
+def convert_index(df: pl.DataFrame, code: int, market: int, day: int) -> pl.DataFrame:
+    """Sub-folder 1 (index snapshots, the snapshot header) -> feitu ``index`` columns."""
+    m, _ = quote_mapping(df.columns)
+    f = lambda k: _flt(m[k], df) if k in m else pl.lit(0.0)  # noqa: E731 -- mapped float column or 0
+    return df.select(
+        pl.lit(0, pl.Int32).alias("shm_key"), pl.lit(0, pl.Int64).alias("nano_ts"),
+        pl.lit(code, pl.Int32).alias("symbol_id"), pl.lit(market, pl.Int16).alias("market_id"), *_clocks(df, day),
+        f("price").alias("last_price"), f("open").alias("open_price"), f("high").alias("high_price"), f("low").alias("low_price"),
+        _flt("closeprice", df).alias("close_price"), f("pre_close").alias("pre_close_price"),
+        (_int(m["total_volume"], df) if "total_volume" in m else pl.lit(0, pl.Int64)).alias("total_volume"),
+        f("total_amount").alias("total_amount"), pl.lit(f"{code:06d}").alias("symbol_str"),
+    ).with_columns(pl.col("spider_ts").alias("nano_ts"), pl.col("spider_ts").alias("server_ts"))
+
+
+CONVERT = {"order": convert_orders, "transaction": convert_trades, "quotation": convert_quotes, "index": convert_index}
 
 
 def _to_table(df: pl.DataFrame, kind: str) -> pa.Table:
@@ -477,7 +497,7 @@ def quality(out: Path, date: str, kinds: tuple[str, ...]) -> None:
     """
     lf = []
     for kind in kinds:
-        if kind == "quotation":
+        if kind in ("quotation", "index"):
             continue
         d = out / f"kind={kind}" / f"date={date}"
         if list(d.glob("part-*.parquet")):
