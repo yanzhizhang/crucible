@@ -338,11 +338,12 @@ def profile_marks(hstats: Path, cache: Path, fams: list[str], d: str, marks: np.
 
 
 XS = ("z:", "rank:", "crank:")  # cross-sectional transforms within a mark: each has the same CDF whatever it transforms
+DM = ("dm:", "dmi:")  # minus the mark's cross-sectional mean / its Barra industry's mean: units kept (peer-relative, ZZQF)
 
 
 def parse(expr: str) -> tuple[str, bool, bool, float, str]:
     """``crank:-gen.ret30`` / ``|gen.timb|*1e4`` -> (transform, negate, abs, scale, base): the names ``Pool`` makes."""
-    pre = next((p for p in XS if expr.startswith(p)), "")
+    pre = next((p for p in XS + DM if expr.startswith(p)), "")
     e = expr[len(pre):]
     scale = 1e4 if e.endswith("*1e4") else 1.0
     e = e.removesuffix("*1e4")
@@ -368,6 +369,20 @@ def xs(pre: str, v: np.ndarray) -> np.ndarray:
     return out - 0.5 if pre == "crank:" else out
 
 
+def demean(v: np.ndarray, g: np.ndarray) -> np.ndarray:
+    """v minus its group's mean over finite values (groups of fewer than 3, and group -1, give NaN)."""
+    f = np.isfinite(v) & (g >= 0)
+    out = np.full(v.size, np.nan)
+    if not f.any():
+        return out
+    k = g[f]
+    n = np.bincount(k)
+    mean = np.bincount(k, weights=v[f]) / np.maximum(n, 1)
+    ok = n[k] >= 3
+    out[np.flatnonzero(f)[ok]] = v[f][ok] - mean[k][ok]
+    return out
+
+
 class Pool:
     """The candidates of features whose stem keeps no state, at every (day, mark).
 
@@ -383,6 +398,7 @@ class Pool:
         self.base: list[list[dict[str, np.ndarray]]] = []
         self.daily: list[tuple[np.ndarray, dict[str, np.ndarray]]] = []  # per block: CED sids, CED columns
         self.didx: list[list[np.ndarray]] = []  # per block, per mark: each stock's row in the CED columns, -1 = none
+        self.ind: list[np.ndarray] = []  # per block: each CED row's Barra industry (argmax of the 0 / 1 exposures), -1 = none
         self._samples: dict[str, np.ndarray] | None = None
 
     def add_block(self, frames: list[pl.DataFrame], dc: pl.DataFrame | None) -> None:
@@ -402,6 +418,13 @@ class Pool:
         self.sids.append(sids)
         self.base.append(base)
         self.daily.append((dsid, dcol))
+        dummies = [v for k, v in dcol.items() if k.startswith("ced.exp.") and np.isin(v[np.isfinite(v)], (0.0, 1.0)).all()
+                   and 0 < np.nanmean(v) < 0.5]  # industry dummies (the country factor is 1 everywhere)
+        if len(dummies) >= 5:
+            st = np.nan_to_num(np.stack(dummies))
+            self.ind.append(np.where(st.max(axis=0) == 1, st.argmax(axis=0), -1))
+        else:
+            self.ind.append(np.full(dsid.size, -1))
         self.didx.append(didx)
         self._samples = None
 
@@ -417,6 +440,8 @@ class Pool:
             out += [c, f"-{c}", f"|{c}|", f"{c}*1e4", f"|{c}|*1e4"] if c.startswith("gen.") else [c, f"-{c}"]
             if self.xs_on:
                 out += [f"{p}{s}{c}" for p in XS for s in ("", "-")]
+            if c.startswith("gen."):
+                out += [f"{p}{s}{c}" for p in DM for s in ("", "-")]
         return out
 
     def raw(self, b: int, m: int, base: str) -> np.ndarray | None:
@@ -436,7 +461,12 @@ class Pool:
         if v is None:
             return None
         v = np.abs(v) if ab else v
-        return xs(pre, (-v if neg else v) * scale)
+        v = (-v if neg else v) * scale
+        if pre in DM:
+            i = self.didx[b][m]
+            g = np.where(i >= 0, self.ind[b][np.clip(i, 0, None)], -1) if pre == "dmi:" and self.ind[b].size else np.zeros(v.size, int)
+            return demean(v, g if pre == "dmi:" else np.zeros(v.size, int))
+        return xs(pre, v)
 
     def samples(self, n: int = 20000, every: int = 3) -> dict[str, np.ndarray]:
         """Each candidate's finite values over every third mark of every day, subsampled to n: enough for a CDF to ~0.005."""
