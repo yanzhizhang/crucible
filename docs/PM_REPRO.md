@@ -242,6 +242,8 @@ left out of the trade flows. Columns live in `basics.py` (`--convention pm`); `w
 | column | best definition | vs PM |
 | --- | --- | --- |
 | ZZDS h / l / c | every fill up to 14:57 exchange time; c = last fill by (time, seq_id) | exact |
+| ZZXC q / n | the bar's continuous-session trade volume / amount (`vol`, `amt`) | exact 0.97 over 16 PM days (both exchanges) |
+| ZZTS q | the bar's buy-initiated amount by the BS flag (`b_amt`) | exact 0.965 |
 | ZZQO q | new-order volume from 09:30 (`ordvolrc_sum`): SZSE net of the order's own aggressive fills, SSE as published (the SSE feed already publishes the remainder) | SZ p50 -0.0002, exact 0.37; SH p50 -0.7 %, one-sided |
 | ZZAL an / bn | resting amount (price x volume summed over our replayed book) at the last snapshot strictly before the bar end (`book.aamt_q1`) | SZ +-0.06 %, exact 0.22; SH exact 0.07 |
 | ZZMS q / n | day-cumulative volume / amount, opening auction included (`cum_vol_oa`, `cvol_x13`) | p50 0, +-0.5 %, exact 0 |
@@ -260,6 +262,8 @@ What is settled and what is not:
   roughly symmetric +-0.5 %. Neither the cut (snapshot at / before the bar end, by exchange or receive time, PM's 1min_src
   13:00 / 14:57 rules) nor the auctions change that, and a running sum of per-bar medians is about 10 % off. Treated as
   reproduced to +-0.5 %.
+* Flows from snapshot differences (PM's 1min_src way, `snap_*`) score 0.05-0.08 on ZZXC / ZZTS against 0.97 for the
+  trade flows: samplerS flows come from the trade stream, not the snapshots.
 * ZZAL SH: our replay equals the feed's own resting totals at that snapshot for only 40-47 % of cells (`book_check.py`,
   within 0.1 % for 80-89 %), and PM sees snapshots feitu does not store. Open.
 
