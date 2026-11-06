@@ -136,7 +136,13 @@ def load_models(root: Path, date: str, fits: list[str], subs: list[str]) -> list
     files = [root / months[-1] / "lgb" / f / f"model_{s}.txt" for f in fits for s in subs]
     files = [f for f in files if f.exists()]
     try:
-        import lightgbm as lgb  # optional: much faster than the tree walker
+        from tree_kernel import FlatModel  # compiled walker; also sums just the trees on one feature
+
+        return [FlatModel.from_file(f) for f in files]
+    except ImportError:
+        pass
+    try:
+        import lightgbm as lgb  # optional: much faster than the numpy tree walker
         return [lgb.Booster(model_file=str(f)) for f in files]
     except ImportError:
         return [TreeModel(f) for f in files]
@@ -145,6 +151,14 @@ def load_models(root: Path, date: str, fits: list[str], subs: list[str]) -> list
 def predict(models: list, X: np.ndarray) -> np.ndarray:
     """Mean prediction of the models."""
     return np.mean([m.predict(X) for m in models], axis=0)
+
+
+def predict_rows(models: list, X: np.ndarray, rows: np.ndarray, feat: int | None = None) -> np.ndarray:
+    """Mean raw score on X[rows]; with ``feat`` only the trees that split on that column (FlatModel only)."""
+    if not hasattr(models[0], "trees_of"):
+        return predict(models, X[rows])
+    none = np.zeros(0, np.int64)
+    return np.mean([m.predict(X, rows, None if feat is None else m.trees_of.get(feat, none)) for m in models], axis=0)
 
 
 def win_reduce(fn: np.ufunc, v: np.ndarray, s: np.ndarray, e: np.ndarray) -> np.ndarray:
@@ -441,14 +455,18 @@ class Pool:
 
 def ic_vec(pred: np.ndarray, ret: np.ndarray, groups: np.ndarray) -> np.ndarray:
     """Cross-sectional Spearman IC per group (mark), NaN where it cannot be computed."""
+    order = np.argsort(groups, kind="stable")  # one sort, then contiguous slices (rows keep their order inside a group)
+    g, p, r = groups[order], pred[order], ret[order]
+    cuts = np.flatnonzero(np.diff(g)) + 1
     out = []
-    for g in np.unique(groups):
-        m = (groups == g) & np.isfinite(pred) & np.isfinite(ret)
-        if m.sum() < 20 or np.std(pred[m]) == 0:
+    for s, e in zip(np.concatenate([[0], cuts]), np.concatenate([cuts, [g.size]]), strict=True):
+        ps, rs = p[s:e], r[s:e]
+        m = np.isfinite(ps) & np.isfinite(rs)
+        if m.sum() < 20 or np.std(ps[m]) == 0:
             out.append(np.nan)
             continue
-        r1 = np.argsort(np.argsort(pred[m])).astype(float)
-        r2 = np.argsort(np.argsort(ret[m])).astype(float)
+        r1 = np.argsort(np.argsort(ps[m])).astype(float)
+        r2 = np.argsort(np.argsort(rs[m])).astype(float)
         out.append(np.corrcoef(r1, r2)[0, 1])
     return np.array(out)
 
@@ -556,20 +574,26 @@ def main() -> None:
                 if g.height == MARKS.size:
                     eng[int(g["sid"][0])] = {c: g[c].to_numpy() for c in keep}
         prof = profile_marks(args.hstats, args.pm_cache, pfams, d, MARKS) if pfams else {}
-        rows, rets = [], {}
+        rets: dict[int, np.ndarray] = {}
+        b_sid, b_key, b_val = [], [], []  # one long frame built once per day (not one small frame per key)
+
+        def add(sid: int, key: str, v: np.ndarray, bs=b_sid, bk=b_key, bv=b_val) -> None:
+            bs.append(sid)
+            bk.append(key)
+            bv.append(np.broadcast_to(np.asarray(v, float), (MARKS.size,)))  # a scalar fills every mark, as the old frame did
         for sid in sids:
             gf, gs = fast.get(sid), slow.get(sid)
             built = FI.rebuild(gf, gs, MARKS)
             fs = {k.split(".")[0] for k in built}  # only stems the rebuild keeps: zzvm etc. stay on the shared pool (daily ratios)
             built.update({k: v for k, v in eng.get(sid, {}).items() if k.split(".")[0] in fs})
             for k, v in built.items():
-                rows.append(pl.DataFrame({"sid": sid, "mark": MARKS, "key": k, "pm": v}))
+                add(sid, k, v)
             if sid in dbase and "zzqj.v" in built:  # intraday over daily: amount / volume since 09:30 over 20-day averages, volume over float
                 bs = dbase[sid]
                 with np.errstate(divide="ignore", invalid="ignore"):
                     for k, v in (("amt_adv20", built["zzqj.tpv"] / bs["adv20"]), ("vol_avg20", built["zzqj.v"] / bs["avgvol20"]),
                                  ("vol_float", built["zzqj.v"] / bs["freeshare"])):
-                        rows.append(pl.DataFrame({"sid": sid, "mark": MARKS, "key": f"ced.{k}", "pm": np.asarray(v, float)}))
+                        add(sid, f"ced.{k}", np.asarray(v, float))
             if gf is not None and gf.height > 2:
                 a = E.arrays(gf, "fast")
                 mid = a["mid"]
@@ -578,20 +602,25 @@ def main() -> None:
                 m1 = FI.at_marks(a["t_local"][ok], mid[ok], MARKS + HORIZON)
                 with np.errstate(divide="ignore", invalid="ignore"):
                     rets[sid] = np.log(m1 / m0)
-                rows.append(pl.DataFrame({"sid": sid, "mark": MARKS, "key": "px", "pm": FI.at_marks(a["t_local"], a["price"], MARKS)}))
+                add(sid, "px", FI.at_marks(a["t_local"], a["price"], MARKS))
             gen = generic(gf, gs, MARKS)
             gen.update(index_relative(gen, ix, sid, MARKS))
             for k, v in gen.items():
-                rows.append(pl.DataFrame({"sid": sid, "mark": MARKS, "key": f"gen.{k}", "pm": v.astype(float)}))
+                add(sid, f"gen.{k}", v.astype(float))
             for k, v in prof.get(sid, {}).items():
-                rows.append(pl.DataFrame({"sid": sid, "mark": MARKS, "key": f"ced.{k}", "pm": v}))
+                add(sid, f"ced.{k}", v)
                 if not k.endswith("@1"):  # the last bar's flow over its profile cell (log): the bar as it ended, before / at the minute
                     with np.errstate(divide="ignore", invalid="ignore"):
                         for r in ("amt300", "vol300", "buy300"):
                             if r in gen:
-                                rows.append(pl.DataFrame({"sid": sid, "mark": MARKS, "key": f"ced.lr.{r}.{k}", "pm": np.log(gen[r] / v)}))
-        long = pl.concat(rows).filter(pl.col("pm").is_finite()).with_columns(pl.col("sid").cast(pl.Int64))
-        frames = [long.filter(pl.col("mark") == m).drop("mark") for m in MARKS]
+                                add(sid, f"ced.lr.{r}.{k}", np.log(gen[r] / v))
+        nm = MARKS.size
+        long = pl.DataFrame({"sid": np.repeat(np.array(b_sid, np.int64), nm), "mark": np.tile(MARKS, len(b_sid)),
+                             "key": np.repeat(np.array(b_key, dtype=object), nm), "pm": np.concatenate(b_val) if b_val else np.zeros(0)},
+                            schema={"sid": pl.Int64, "mark": pl.Float64, "key": pl.String, "pm": pl.Float64}).filter(pl.col("pm").is_finite())
+        by_mark = long.partition_by("mark", as_dict=True, include_key=False)  # one pass instead of a filter per mark
+        empty = long.drop("mark").clear()
+        frames = [by_mark.get((m,), empty) for m in MARKS]
         pool.add_block(frames, dc)
         state_stems |= set(long["key"].str.extract(r"^([^.]+)\.", 1).drop_nulls().unique().to_list()) - {"gen", "ced"}
         models = load_models(args.models, d, args.fits.split(","), args.subs.split(","))
@@ -669,12 +698,34 @@ def main() -> None:
             base_ic[base] = summary(ic_vec(column("", base), ret, grp))[0]
         return base_ic[base]
 
-    def score(Xm: np.ndarray) -> np.ndarray:
+    brows = [np.flatnonzero(blk == b).astype(np.int64) for b in range(len(blocks))]
+    flat = all(hasattr(ms[0], "trees_of") for _, ms, _, _ in blocks)
+
+    def panel(Xm: np.ndarray) -> np.ndarray:
+        """Every panel row's prediction (each day with its own models)."""
         pred = np.empty(sid_a.size)
         for b, (_, models, _, _) in enumerate(blocks):
-            m = blk == b
-            pred[m] = predict(models, Xm[m])
-        return ic_vec(pred, ret, grp)
+            pred[brows[b]] = predict_rows(models, Xm, brows[b])
+        return pred
+
+    def score(Xm: np.ndarray) -> np.ndarray:
+        return ic_vec(panel(Xm), ret, grp)
+
+    class Swap:
+        """Column j's candidates without re-running the whole model: the prediction minus the trees on j, plus them anew."""
+
+        def __init__(self, j: int, pred: np.ndarray | None = None) -> None:
+            self.j, self.pred = j, panel(X) if pred is None else pred
+            self.old = [predict_rows(ms, X, brows[b], j) for b, (_, ms, _, _) in enumerate(blocks)] if flat else None
+
+        def score(self, colv: np.ndarray) -> np.ndarray:
+            X[:, self.j] = colv
+            if not flat:
+                return score(X)
+            pred = self.pred.copy()
+            for b, (_, ms, _, _) in enumerate(blocks):
+                pred[brows[b]] += predict_rows(ms, X, brows[b], self.j) - self.old[b]
+            return ic_vec(pred, ret, grp)
 
     assign = dict(KNOWN)
     if args.assign and args.assign.exists():
@@ -740,12 +791,12 @@ def main() -> None:
                 short = [c for c in short if rk[c]["score"] <= rk[cur]["score"] + args.max_worsen]
             j = col[feat]
             keep_col = X[:, j].copy()
-            cur_v = np.nan_to_num(score(X), nan=0.0)  # a constant prediction (everything missing) ranks nothing: IC 0
+            sw = Swap(j)
+            cur_v = np.nan_to_num(ic_vec(sw.pred, ret, grp), nan=0.0)  # a constant prediction (everything missing) ranks nothing: IC 0
             best = (summary(cur_v)[0], cur, 0.0)
             tried = []
             for expr in short:
-                X[:, j] = column(feat, expr)
-                v = np.nan_to_num(score(X), nan=0.0)
+                v = np.nan_to_num(sw.score(column(feat, expr)), nan=0.0)
                 dv = v - cur_v  # paired over marks: the same marks, the same other columns
                 _, t_gain, _ = summary(dv)
                 tried.append((expr, summary(v)[0], t_gain))
@@ -761,8 +812,7 @@ def main() -> None:
                 opts = [(e, ic, tg) for e, ic, tg in tried if e in pair]
                 for e in pair:
                     if e not in {o[0] for o in opts} and e in cand_all:
-                        X[:, j] = column(feat, e)
-                        v = np.nan_to_num(score(X), nan=0.0)
+                        v = np.nan_to_num(sw.score(column(feat, e)), nan=0.0)
                         opts.append((e, summary(v)[0], summary(v - cur_v)[1]))
                 opts = [o for o in opts if np.isfinite(o[1])]
                 if opts:
@@ -779,16 +829,16 @@ def main() -> None:
             log.append({"pass": ps, "feature": feat, "kept": assign.get(feat), "ic_after": best[0], "t_gain": best[2],
                         "top": "; ".join(f"{e} {ic:.4f} (t {tg:.1f})" for e, ic, tg in tried[:3])})
             print(f"pass {ps} {feat}: kept {assign.get(feat)} IC {best[0]:.4f} t_gain {best[2]:.1f} ({time.perf_counter() - t0:.0f}s)")
-    final = summary(score(X))
-    full_v = np.nan_to_num(score(X), nan=0.0)
+    full_pred = panel(X)
+    final = summary(ic_vec(full_pred, ret, grp))
+    full_v = np.nan_to_num(ic_vec(full_pred, ret, grp), nan=0.0)
     evid = []
     for feat, expr in assign.items():  # ablation: the IC lost when the column goes back to missing, and the training-CDF gap
         if feat not in col:
             continue
         j = col[feat]
         keep_col = X[:, j].copy()
-        X[:, j] = np.nan
-        loss, t_loss, _ = summary(full_v - np.nan_to_num(score(X), nan=0.0))
+        loss, t_loss, _ = summary(full_v - np.nan_to_num(Swap(j, full_pred).score(np.full(sid_a.size, np.nan)), nan=0.0))
         X[:, j] = keep_col
         v = keep_col[np.isfinite(keep_col)]
         gap = FM.cdf_gap(v, cdf[feat]) if feat in cdf and v.size else np.nan
