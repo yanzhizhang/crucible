@@ -96,6 +96,11 @@ def daily_candidates(d: str, sids: list[int]) -> pl.DataFrame | None:
     a20 = last20.group_by("sid").agg(pl.col("lr").std().alias("vol20"), pl.col("lr").sum().alias("ret20"), pl.col("tot").mean().alias("adv20"),
                                      pl.col("vol").mean().alias("avgvol20"), ((pl.col("high") - pl.col("low")) / pl.col("preclose")).mean().alias("range20"))
     a5 = last5.group_by("sid").agg(pl.col("lr").sum().alias("ret5"))
+    for n in (2, 3, 4, 6, 7, 8, 9, 10):  # ZZQF's qf2..qf10: n-day return / volatility / mean range (training floor ~ -0.26)
+        an = hist.filter(pl.col("date") >= eod_days[-n]).group_by("sid").agg(
+            pl.col("lr").sum().alias(f"ret{n}"), pl.col("lr").std().alias(f"vol{n}"),
+            ((pl.col("high") - pl.col("low")) / pl.col("preclose")).mean().alias(f"range{n}"))
+        a5 = a5.join(an, on="sid", how="left")
     out = agg.join(a20, on="sid", how="left").join(a5, on="sid", how="left").join(
         sod.select("sid", "freeshare", "totshare", "maxp_allowed"), on="sid", how="left")
     out = out.with_columns((pl.col("close") * pl.col("totshare")).log().alias("lmcap"), (pl.col("close") * pl.col("freeshare")).log().alias("lfcap"),
