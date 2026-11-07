@@ -21,6 +21,46 @@ from pathlib import Path
 import polars as pl
 
 
+def brief(a: argparse.Namespace) -> None:
+    """The round in one screen (the full tables stay in ic.txt / the non-brief run)."""
+    imp = pl.read_parquet(a.stage5 / "importance.parquet")
+    if "set" in imp.columns and a.set in imp["set"].unique().to_list():
+        imp = imp.filter(pl.col("set") == a.set)
+    mfile = a.stage5 / "models.parquet"
+    if mfile.exists() and "mtime" in (m := pl.read_parquet(mfile)).columns:
+        month = m.sort("mtime")["month"][-1]
+    else:
+        month = sorted(imp["month"].unique().to_list())[-1]
+    last = imp.filter(pl.col("month") == month).group_by("feature", "family").agg(pl.col("gain_share").mean())
+    gain = dict(last.select("feature", "gain_share").iter_rows())
+    assign = json.loads(a.assign.read_text()) if a.assign.exists() else {}
+    pfile = a.assign.parent / "ic_assign_prev.json"
+    prev = json.loads(pfile.read_text()) if pfile.exists() else {}
+    efile = a.assign.parent / "ic_evidence.parquet"
+    ev = pl.read_parquet(efile) if efile.exists() else pl.DataFrame(schema={"feature": pl.String, "grade": pl.String})
+    grade = dict(ev.select("feature", "grade").iter_rows())
+    g = lambda fs: sum(gain.get(f, 0.0) for f in fs)  # noqa: E731 -- gain share of a feature set
+    by = {k: [f for f in assign if grade.get(f) == k] for k in ("strong", "fits", "ic", "weak")}
+    print(f"model {month}: {len(gain)} features; with a formula {len(assign)} (gain {g(assign):.3f}): "
+          + ", ".join(f"{k} {len(v)} ({g(v):.3f})" for k, v in by.items()))
+    print("strong: " + "; ".join(f"{f}={assign[f]}" for f in sorted(by["strong"], key=lambda f: -gain.get(f, 0))))
+    new = [f for f in assign if f not in prev]
+    chg = [f for f in assign if f in prev and prev[f] != assign[f]]
+    gone = [f for f in prev if f not in assign]
+    print(f"vs last round: new {len(new)}, changed {len(chg)}, dropped {len(gone)}")
+    for f in sorted(new + chg, key=lambda f: -gain.get(f, 0))[:12]:
+        print(f"  {f} ({grade.get(f, '-')}): {prev.get(f, '-')} -> {assign[f]}")
+    if gone:
+        print("  dropped: " + ", ".join(gone))
+    strong = set(by["strong"])
+    fam = (last.with_columns(pl.col("feature").is_in(list(strong)).alias("solid"), pl.col("feature").is_in(list(assign)).alias("has"))
+           .group_by("family").agg(pl.len().alias("n"), pl.col("has").sum().alias("f"), pl.col("solid").sum().alias("s"),
+                                   pl.col("gain_share").filter(~pl.col("solid")).sum().alias("open"))
+           .sort("open", descending=True).head(12))
+    print("open families (gain without a strong formula; features / with formula / strong): "
+          + ", ".join(f"{r['family']} {r['open']:.3f} ({r['n']}/{r['f']}/{r['s']})" for r in fam.iter_rows(named=True)))
+
+
 def main() -> None:
     """CLI entry point."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
@@ -28,7 +68,11 @@ def main() -> None:
     ap.add_argument("--assign", type=Path, default=Path("data/reports/stage6/ic_assign.json"))
     ap.add_argument("--set", default="tk5m", help="model set (first path part under models/)")
     ap.add_argument("--top", type=int, default=25, help="open features listed")
+    ap.add_argument("--brief", action="store_true", help="one screen: counts, coverage, strong formulas, changes, open families")
     a = ap.parse_args()
+    if a.brief:
+        brief(a)
+        return
     imp = pl.read_parquet(a.stage5 / "importance.parquet")
     if "set" in imp.columns:
         imp = imp.filter(pl.col("set") == a.set) if a.set in imp["set"].unique().to_list() else imp

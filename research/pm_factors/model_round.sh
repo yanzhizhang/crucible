@@ -6,6 +6,7 @@
 # MAXF = features scanned by model gain (default 60); FRESH=1 starts from the built-in assignment instead of the last one.
 # MARKS = times scored: five (default) or rand:N -- PM scores every snapshot, so random mid-bar times match its training data.
 # TARGET = pm_signals.py output dir: score against PM's live predictions (from our chrono logs) instead of the forward return.
+# FULL=1 prints every table in the SUMMARY (default: one screen).
 # ICARGS = extra ic_score.py arguments (e.g. "--passes 2 --max-cdf 0.08 --min-in-range 0.8").
 set -u
 CPUS=${CPUS:-256}
@@ -38,7 +39,11 @@ grep -E "^20[0-9]{6}: |^drop |accept |IC: start|Error|Traceback" $S6/ic.txt | ta
 
 echo
 echo "########## SUMMARY (photograph from here) ##########"
-echo "model folders (newest file date, folder):"
-find $MODELS -name 'model_s1.txt' -printf '%TY%Tm%Td %h\n' 2>/dev/null | sort | awk '{print "  " $0}' | tail -8
-sed -n '/^== evidence per assigned column/,/^└/p' $S6/ic.txt | grep -vE "^│ (---|str|f64|u32|i64|bool)|^shape"
-run research/pm_factors/model_status.py --stage5 $S5 --assign $S6/ic_assign.json | grep -vE "^│ (---|str|f64|u32|i64|bool)|^shape"
+grep -E "^dropped \(|^frozen|^IC: start|Traceback|Error" $S6/ic.txt | cut -c1-200
+if [ "${FULL:-0}" = 1 ]; then  # every table: evidence per column, worklist, open features
+  sed -n '/^== evidence per assigned column/,/^└/p' $S6/ic.txt | grep -vE "^│ (---|str|f64|u32|i64|bool)|^shape"
+  run research/pm_factors/model_status.py --stage5 $S5 --assign $S6/ic_assign.json | grep -vE "^│ (---|str|f64|u32|i64|bool)|^shape"
+else
+  run research/pm_factors/model_status.py --stage5 $S5 --assign $S6/ic_assign.json --brief
+  echo "(full tables: FULL=1, or python research/pm_factors/model_status.py)"
+fi
