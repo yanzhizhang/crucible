@@ -213,7 +213,7 @@ CATEGORIES = [  # (category, regex on the feature name), first match wins
     ("market", r"^gen\.(ir|xr|ipc|xpc)\d*_?"),
     ("returns", r"^gen\.([mp]?ret\d+|lpma\d+|lp_open|lp_pc|lp_vwap|stoch|zr\d+)$"),
     ("book", r"^gen\.(imb1|imb5|timb|spread|spm\d+|tick1_\d+)$"),
-    ("tradeflow", r"^gen\.(imb[vna]\d+|cum_imb|lvol\d+|lamt\d+|nam\d+|nn\d+|tsz\d+|vfrac\d+)$"),
+    ("tradeflow", r"^gen\.(s?imb[vna]\d+|s?cum_imb|s?lvol\d+|s?lamt\d+|nam\d+|nn\d+|tsz\d+|vfrac\d+)$"),
     ("volrange", r"^gen\.(rv\d+|rng\d+|ldh\d+|ldl\d+)$"),
     ("orderflow", r"^flow\."),
     ("state", r"^st\."),

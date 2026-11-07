@@ -212,6 +212,23 @@ def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None, T: np.ndarray = MA
             out[f"rv{h}"] = np.sqrt(np.where(i1 >= 0, c2[np.clip(i1, 0, None)], np.nan) - np.where(i0 >= 0, c2[np.clip(i0, 0, None)], 0.0))
         for k in ("spread", "imb1", "timb", "lp_open", "lp_pc"):
             out[k] = FI.at_marks(a["t_local"], a[k], T)
+        # flows from snapshots alone (a chrono plugin only sees lv2: no trade stream, no BS flag): volume / amount growth
+        # between snapshots, signed by the interval's average price against the previous mid (tick rule on a tie)
+        dv, da = a["dvol"][ok], a["damt"][ok]
+        pmid = np.concatenate([[np.nan], np.exp(lm)[:-1]])
+        with np.errstate(divide="ignore", invalid="ignore"):
+            vw = np.where(dv > 0, da / dv, np.nan)
+            sd = np.sign(vw - pmid)
+            sd = np.where(np.isfinite(sd) & (sd != 0), sd, np.sign(np.diff(lpx, prepend=np.nan)))
+            sd = np.where(dv > 0, np.nan_to_num(sd), 0.0)
+            sc = {k: np.concatenate([[0.0], np.cumsum(v)]) for k, v in
+                  (("v", dv), ("sv", dv * sd), ("a", da), ("sa", da * sd), ("n", (dv > 0).astype(float)), ("sn", sd))}
+            sup = lambda x, k: sc[k][np.searchsorted(t, x, side="right")]  # noqa: E731 -- running total at times x
+            for w in (10, 15, 20, 30, 45, 60, 90, 120, 180, 300, 600, 900):
+                win = {k: sup(T, k) - sup(T - w, k) for k in sc}
+                out[f"simbv{w}"], out[f"simba{w}"], out[f"simbn{w}"] = win["sv"] / win["v"], win["sa"] / win["a"], win["sn"] / win["n"]
+                out[f"slvol{w}"], out[f"slamt{w}"] = np.log1p(win["v"]), np.log1p(win["a"])
+            out["scum_imb"] = sup(T, "sv") / sup(T, "v")
         # windowed snapshot shapes the fingerprints point at: mean / max / min over (T - w, T] of the snapshots received
         sp, tick1 = a["spread"][ok], (a["spread_abs"][ok] <= 0.0101).astype(float)
         with np.errstate(divide="ignore", invalid="ignore"):
