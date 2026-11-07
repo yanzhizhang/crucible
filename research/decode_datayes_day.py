@@ -187,9 +187,10 @@ def resolve_dates(root: Path, spec: str) -> list[str]:
     return [d.strip() for d in spec.split(",") if d.strip()]
 
 
-def feitu_day(out: Path, date: str) -> bool:
-    """Tell whether ``out`` already holds this day from feitu (minute-named parts, not part-SH-NNN)."""
-    return any(not re.fullmatch(r"part-(SH|SZ)-\d{3}\.parquet", f.name) for f in out.glob(f"kind=*/date={date}/part-*.parquet"))
+def feitu_day(out: Path, date: str, kinds: tuple[str, ...] = ("quotation", "order", "transaction", "index")) -> bool:
+    """Tell whether ``out`` already holds this day's ``kinds`` from feitu (minute-named parts, not part-SH-NNN)."""
+    return any(not re.fullmatch(r"part-(SH|SZ)-\d{3}\.parquet", f.name)
+               for k in kinds for f in out.glob(f"kind={k}/date={date}/part-*.parquet"))
 
 
 def plan(root: Path, dates: list[str], out: Path, pattern: re.Pattern[str], kinds: tuple[str, ...], chunk: int,
@@ -199,9 +200,11 @@ def plan(root: Path, dates: list[str], out: Path, pattern: re.Pattern[str], kind
     done: dict[tuple[str, str], list[dict[str, Any]]] = {}
     found = []
     for date in dates:
-        if feitu_day(out, date):
+        if feitu_day(out, date, kinds):
+            print(f"{date}: skipped, feitu parts already in {out} for {kinds}")
             continue  # feitu has this day
         if not overwrite and all((out / f"kind={k}" / f"date={date}" / "_manifest.parquet").exists() for k in kinds):
+            print(f"{date}: skipped, already converted (--overwrite to redo)")
             continue  # converted on an earlier run
         pkg = package(root, date)
         if pkg is None:
