@@ -939,6 +939,15 @@ def main() -> None:
     feats = [f for f in fp.sort("gain_share", descending=True)["feature"].to_list() if f in col][: args.max_features]
     frozen: set[str] = set()
     ef0 = args.out / "ic_evidence.parquet"
+    if ef0.exists():  # a formula whose removal raised the IC last time (t_loss <= -2) hurts: back to missing, rescanned
+        ev0 = pl.read_parquet(ef0)
+        bad = [f for f, e, t in ev0.select("feature", "formula", "t_loss").iter_rows()
+               if t is not None and t <= -args.min_t and assign.get(f) == e and f in col]
+        for f in bad:
+            X[:, col[f]] = np.nan
+            del assign[f]
+        if bad:
+            print(f"dropped (IC rose without them last round): {bad}")
     if args.freeze_strong and ef0.exists():  # a formula graded strong last time and still assigned is settled: not scanned again
         ev0 = pl.read_parquet(ef0)
         frozen = {f for f, e, g in ev0.select("feature", "formula", "grade").iter_rows() if g == "strong" and assign.get(f) == e}
