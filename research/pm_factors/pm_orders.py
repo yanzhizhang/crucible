@@ -194,17 +194,31 @@ def po_report(decs: pl.DataFrame, trk: pl.DataFrame, po: pl.DataFrame) -> None:
                     left_on="po_ts", right_on="dec_ts", by="sid", strategy="backward")
     ok = j.filter(pl.col("dec_ts").is_not_null())
     lag = ((ok["po_ts"] - ok["dec_ts"]) / 1e6).to_numpy()
-    print(f"-- 7 {po.height:,} Po lines (fields f2 f3 f4: " + ", ".join(f"{c} {sorted(Counter(po[c].to_list()).items())[:6]}" for c in ("f2", "f3", "f4"))
-          + f"); tied to a decision {ok.height / po.height:.3f}, decision -> Po (ms) p10/p50/p90 {q(lag)}")
-    if ok.height:
-        ex, fa = ok["executp"].to_numpy(), ok["fa"].to_numpy()
-        for c in ("f3", "f4"):
-            v = ok[c].to_numpy()
-            for val in sorted(set(v.tolist()))[:4]:
-                m = v == val
-                print(f"   {c}={val}: n {m.sum():,}, executp > 0 {np.mean(ex[m] > 0):.3f}, < 0 {np.mean(ex[m] < 0):.3f}, fa > 0 {np.mean(fa[m] > 0):.3f}")
-        print(f"   qty / |executp| p10/p50/p90 {q(ok['qty'].to_numpy() / np.abs(ex))}; qty p10/p50/p90 {q(ok['qty'].to_numpy())}; "
-              f"|fa| / hs {q(np.abs(fa) / ok['hs'].to_numpy())}; fa / lthr {q(fa / ok['lthr'].to_numpy())}")
+    seq = po.sort("po_ts")
+    print(f"-- 7 {po.height:,} Po lines; side tag (the 2 letters after the time): {dict(Counter(po['stamp'].to_list()))}; "
+          f"f3 runs 1..{seq['f3'].max()} (exOid, +1 per order: {np.mean(np.diff(seq['f3'].to_numpy()) == 1):.3f}), "
+          f"f4 = 100 x f3 + 1 {np.mean(po['f4'].to_numpy() == 100 * po['f3'].to_numpy() + 1):.3f}; tied to a decision {ok.height / po.height:.3f}, "
+          f"decision -> Po (ms) p10/p50/p90 {q(lag)}")
+    with np.errstate(divide="ignore", invalid="ignore"):
+        for tag in sorted(set(ok["stamp"].to_list())):
+            o = ok.filter(pl.col("stamp") == tag)
+            ex, fa = o["executp"].to_numpy(), o["fa"].to_numpy()
+            print(f"   {tag}: n {o.height:,}; fa > 0 {np.mean(fa > 0):.3f}; executp > 0 {np.mean(ex > 0):.3f}, < 0 {np.mean(ex < 0):.3f}, = 0 {np.mean(ex == 0):.3f}; "
+                  f"fa < lthr {np.mean(fa < o['lthr'].to_numpy()):.3f}, fa > -lthr {np.mean(fa > -o['lthr'].to_numpy()):.3f}; |fa| / hs p10/p50/p90 {q(np.abs(fa) / o['hs'].to_numpy())}; "
+                  f"qty p10/p50/p90 {q(o['qty'].to_numpy())}, qty / |executp| {q(o['qty'].to_numpy() / np.abs(ex))}; pos {q(o['pos'].to_numpy())}; asq {q(o['asq'].to_numpy())}")
+    if trk.height and "idx" in trk.columns:  # rejected orders: which side and do those stocks hold anything at boot (trk BHOLD / POS)
+        ords = trk.filter(pl.col("kind") == "ORD").select("idx", "symbol", "side")
+        rj = trk.filter(pl.col("kind") == "REJ").select("idx").join(ords, on="idx", how="left")
+        hold = {}
+        for k, col in (("BHOLD", "sellable_qty"), ("POS", "qty")):
+            if col in trk.columns:
+                for sym, v in trk.filter(pl.col("kind") == k).select("symbol", col).iter_rows():
+                    if sym is not None and v not in (None, ""):
+                        hold[str(sym)[:6]] = hold.get(str(sym)[:6], 0.0) + float(v)
+        if rj.height:
+            syms = rj["symbol"].cast(pl.String).str.slice(0, 6).to_list()
+            print(f"   REJ: sides {dict(Counter(rj['side'].to_list()))}; on stocks holding nothing at boot {np.mean([hold.get(x, 0.0) <= 0 for x in syms]):.3f} "
+                  f"({len(set(syms))} stocks, {sum(1 for x in set(syms) if hold.get(x, 0.0) <= 0)} of them with no holding); stocks with a boot holding: {sum(1 for v in hold.values() if v > 0)}")
     dn = d.with_columns(pl.col("executp").abs().alias("ax"))
     if "executp" in dn.columns:
         hit = dn.join_asof(p.select("sid", pl.col("po_ts").alias("po")), left_on="src_epoch", right_on="po", by="sid", strategy="forward",
