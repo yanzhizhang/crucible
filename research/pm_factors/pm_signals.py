@@ -16,7 +16,7 @@ reaches PM late (224's test feed runs ~30 s behind) still names the snapshot eac
 
 ``ic_score.py --target <out>`` then scores candidates against these predictions instead of the forward return.
 
-    rsync -av zhangyanzhi@10.12.1.224:workspace/chrono_runtime/chrono_logs/ /work/crucible_data/chrono_logs/
+    rsync -av zhangyanzhi@10.12.1.224:/tmp/zyq/sht-logs/ /work/crucible_data/chrono_logs/   # chrono + PM's program, tee'd
     python research/pm_factors/pm_signals.py --logs /work/crucible_data/chrono_logs --dates 20261105,20261106
 """
 
@@ -67,7 +67,9 @@ def trading_clock(ns: np.ndarray) -> np.ndarray:
 
 def read_signals(log_dir: Path, day: str) -> pl.DataFrame:
     """Every ``trk SIG`` line of the day's chrono logs, one row each."""
-    files = sorted(glob.glob(os.path.join(str(log_dir), f"*_{day}_*.log")))
+    dash = f"{day[:4]}-{day[4:6]}-{day[6:]}"  # 224's tee'd logs (chrono + PM's factor program): 2026-11-06_09-25-52-757.log
+    files = sorted(set(glob.glob(os.path.join(str(log_dir), f"*_{day}_*.log")))
+                   | set(glob.glob(os.path.join(str(log_dir), f"{dash}_*.log"))))
     rows = []
     for f in files:
         with open(f, encoding="utf-8", errors="replace") as fh:
@@ -155,7 +157,7 @@ def main() -> None:
         t0 = time.perf_counter()
         sig = read_signals(a.logs, d)
         if sig.is_empty():
-            print(f"{d}: no trk SIG lines in {a.logs}/*_{d}_*.log")
+            print(f"{d}: no trk SIG lines in {a.logs} (*_{d}_*.log or {d[:4]}-{d[4:6]}-{d[6:]}_*.log)")
             continue
         sig = sig.with_columns(pl.Series("t", trading_clock(sig["md_ts"].to_numpy())))
         keep = [c for c in ("date", "sid", "symbol", "md_ts", "md_recv_ts", "recv_ts", "t", "prediction", "confidence", "px", "vol", "name")
