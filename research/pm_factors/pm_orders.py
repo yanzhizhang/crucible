@@ -43,7 +43,7 @@ GLUE = re.compile(r"(?=\[(?:INFO|WARN|WARNING|ERROR|DEBUG)\] \[/)|(?=\[20\d\d-\d
 
 def parse_day(files: list[str]) -> tuple[pl.DataFrame, pl.DataFrame, pl.DataFrame, pl.DataFrame, dict]:
     """(snapshots, decisions, chrono trk rows, signals, census) of one day's logs."""
-    snaps, decs, trk, sigs = [], [], [], []
+    snaps, decs, trk, sigs, pos_ = [], [], [], [], []
     census: dict[tuple[str, str], list] = {}
     for f in files:
         last: dict[str, float] = {}
@@ -80,13 +80,20 @@ def parse_day(files: list[str]) -> tuple[pl.DataFrame, pl.DataFrame, pl.DataFram
                     pending = {"src_epoch": round(last["srcEpoch"] * 1e9) if "srcEpoch" in last else None, **kv}
                     pending["sid"] = int(kv.get("sid", last.get("sid", -1)))
                     decs.append(pending)
+                elif where.endswith("es.cpp:401") and "nowTs:" in rest:  # Po = the strategy places an order
+                    f_ = rest.split("nowTs:", 1)[1].split(",")
+                    try:
+                        pos_.append({"po_ts": round(float(f_[1]) * 1e9), "f2": int(float(f_[2])), "f3": int(float(f_[3])), "f4": int(float(f_[4])),
+                                     "sid": int(float(f_[5])), "px": float(f_[6]), "qty": float(f_[7].split()[0]), "stamp": f_[0][-2:]})
+                    except (IndexError, ValueError):
+                        pass
                 elif where.endswith("alg.cpp:252") and pending is not None:
                     mn = re.search(r"nullptr\s*:\s*(\d+)", rest)  # tee can glue the next line onto this one
                     pending["nullptr"] = float(mn.group(1)) if mn else None
                     pending = None
     def frame(rows: list[dict]) -> pl.DataFrame:
         return pl.DataFrame(rows, infer_schema_length=None) if rows else pl.DataFrame()
-    return frame(snaps), frame(decs), frame(trk), frame(sigs), census
+    return frame(snaps), frame(decs), frame(trk), frame(sigs), census, frame(pos_)
 
 
 def num(df: pl.DataFrame, cols: list[str]) -> pl.DataFrame:
@@ -173,6 +180,43 @@ def report(day: str, snaps: pl.DataFrame, decs: pl.DataFrame, trk: pl.DataFrame,
                     print(f"   {k}: {n:,}")
 
 
+def po_report(decs: pl.DataFrame, trk: pl.DataFrame, po: pl.DataFrame) -> None:
+    """The strategy's own order lines (es.cpp:401 Po), each tied to the stock's latest decision before it; chrono's REJ."""
+    if trk.height and "reason" in trk.columns:
+        rj = trk.filter(pl.col("kind") == "REJ")
+        if rj.height:
+            print("-- 6 chrono REJ reasons: " + "; ".join(f"{r} {n:,}" for r, n in rj.group_by(pl.col("reason").str.slice(0, 60)).len().sort("len", descending=True).head(6).iter_rows()))
+    if po.is_empty() or decs.is_empty():
+        return
+    d = decs.filter(pl.col("src_epoch").is_not_null()).with_columns(pl.col("src_epoch").cast(pl.Int64), pl.col("sid").cast(pl.Int64)).sort("src_epoch")
+    p = po.with_columns(pl.col("sid").cast(pl.Int64)).sort("po_ts")
+    j = p.join_asof(d.select("sid", pl.col("src_epoch").alias("dec_ts"), "fa", "executp", "pos", "asq", "lthr", "hs", "winsdQty"),
+                    left_on="po_ts", right_on="dec_ts", by="sid", strategy="backward")
+    ok = j.filter(pl.col("dec_ts").is_not_null())
+    lag = ((ok["po_ts"] - ok["dec_ts"]) / 1e6).to_numpy()
+    print(f"-- 7 {po.height:,} Po lines (fields f2 f3 f4: " + ", ".join(f"{c} {sorted(Counter(po[c].to_list()).items())[:6]}" for c in ("f2", "f3", "f4"))
+          + f"); tied to a decision {ok.height / po.height:.3f}, decision -> Po (ms) p10/p50/p90 {q(lag)}")
+    if ok.height:
+        ex, fa = ok["executp"].to_numpy(), ok["fa"].to_numpy()
+        for c in ("f3", "f4"):
+            v = ok[c].to_numpy()
+            for val in sorted(set(v.tolist()))[:4]:
+                m = v == val
+                print(f"   {c}={val}: n {m.sum():,}, executp > 0 {np.mean(ex[m] > 0):.3f}, < 0 {np.mean(ex[m] < 0):.3f}, fa > 0 {np.mean(fa[m] > 0):.3f}")
+        print(f"   qty / |executp| p10/p50/p90 {q(ok['qty'].to_numpy() / np.abs(ex))}; qty p10/p50/p90 {q(ok['qty'].to_numpy())}; "
+              f"|fa| / hs {q(np.abs(fa) / ok['hs'].to_numpy())}; fa / lthr {q(fa / ok['lthr'].to_numpy())}")
+    dn = d.with_columns(pl.col("executp").abs().alias("ax"))
+    if "executp" in dn.columns:
+        hit = dn.join_asof(p.select("sid", pl.col("po_ts").alias("po")), left_on="src_epoch", right_on="po", by="sid", strategy="forward",
+                           tolerance=200_000_000).with_columns(pl.col("po").is_not_null().alias("placed"))
+        tab = hit.with_columns(pl.col("ax").cut([0, 99, 199, 999, 9999]).alias("bin")).group_by("bin").agg(
+            pl.len().alias("n"), pl.col("placed").mean().alias("p")).sort("bin")
+        print("   decisions followed by a Po within 200 ms, by |executp|: " + " | ".join(f"{b} {pp:.3f} ({n:,})" for b, n, pp in tab.iter_rows()))
+        fa, lt, ex = hit["fa"].to_numpy(), hit["lthr"].to_numpy(), hit["executp"].to_numpy()
+        for name, m in (("fa < lthr", fa < lt), ("lthr <= fa <= -lthr", (fa >= lt) & (fa <= -lt)), ("fa > -lthr", fa > -lt)):
+            print(f"   {name:20s}: n {m.sum():,}, executp < 0 {np.mean(ex[m] < 0):.3f}, = 0 {np.mean(ex[m] == 0):.3f}, > 0 {np.mean(ex[m] > 0):.3f}, Po {hit['placed'].to_numpy()[m].mean():.3f}")
+
+
 def main() -> None:
     """CLI entry point."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
@@ -185,13 +229,14 @@ def main() -> None:
         if not files:
             print(f"{d}: no logs")
             continue
-        snaps, decs, trk, sigs, census = parse_day(files)
+        snaps, decs, trk, sigs, census, po = parse_day(files)
         out = a.out / f"date={d}"
         out.mkdir(parents=True, exist_ok=True)
-        for name, df in (("snaps", snaps), ("decisions", decs), ("trk", trk)):
+        for name, df in (("snaps", snaps), ("decisions", decs), ("trk", trk), ("po", po)):
             if df.height:
                 df.write_parquet(out / f"{name}.parquet")
         report(d, snaps, decs, trk, sigs, census, out)
+        po_report(decs, trk, po)
 
 
 if __name__ == "__main__":
