@@ -313,6 +313,30 @@ def index_relative(gen: dict[str, np.ndarray], ix: dict, sid: int, T: np.ndarray
     return out
 
 
+def pm_daily(root: Path, d: str, sids: list[int]) -> pl.DataFrame | None:
+    """PM's own morning inputs for day d (/tmp/s/stsfile, the latest file before d, as qlive/trd.cpp loads them):
+    stats/sod msr / mb / vr, index weights (SH50 HS300 A500 ZZ500 ZZ1000 ZZ2000) and the exchange dummies."""
+    import xarray as xr
+
+    def latest(sub: str, prefix: str = "") -> Path | None:
+        fs = sorted(p for p in (root / sub).glob(f"{prefix}2*.xr") if p.stem.removeprefix(prefix) < d)
+        return fs[-1] if fs else None
+
+    out = pl.DataFrame({"sid": sids}, schema={"sid": pl.Int64})
+    found = False
+    for sub, prefix, tag in (("stats/sod", "", "pm"), ("index", "index-", "pmw"), ("ex", "ex-", "pmx")):
+        f = latest(sub, prefix)
+        if f is None:
+            continue
+        with xr.open_dataset(f) as ds:
+            x = ds["x"].squeeze(drop=True)
+            cols = {f"{tag}.{v}": x.sel(V=v).values.astype(float) for v in ds["V"].values}
+            t = pl.DataFrame({"sid": np.array([int(v) for v in ds["S"].values], np.int64), **cols})
+        out = out.join(t, on="sid", how="left")
+        found = True
+    return out if found else None
+
+
 def family(expr: str) -> str:
     """Drop an expression's horizon / window digits and price flavour: -gen.ret30 and -gen.mret45 share one family."""
     return re.sub(r"\d+", "#", re.sub(r"gen\.[mp]?ret", "gen.ret", expr))
@@ -562,6 +586,8 @@ def main() -> None:
     ap.add_argument("--marks", default="five", help="five | rand:N[:seed] | a,b,...: the times scored (run_cpp.py --marks must match)")
     ap.add_argument("--target", type=Path, help="pm_signals.py output: score against PM's own live prediction (the latest signal of each "
                                                 "stock at the mark) instead of the forward return; days without a file are skipped")
+    ap.add_argument("--pm-stsfile", type=Path, default=Path("/work/crucible_data/pm_stsfile"),
+                    help="PM's morning inputs (rsync of 2.23:/data/share/s): msr / mb / vr, index weights, exchange dummies")
     ap.add_argument("--target-stale", type=float, default=10.0, help="--target: a signal older than this many seconds at the mark is no value")
     ap.add_argument("--profiles", default="ZZWA,ZZAL,ZZQO,ZZXC,ZZTS", help="samplerS families whose cells join the pool ('' = none)")
     ap.add_argument("--hstats", type=Path, default=Path("/data/prod/hstats/HS300"))
@@ -623,6 +649,13 @@ def main() -> None:
         slow = {int(g["sid"][0]): g for g in up["slow"].partition_by("sid")}
         dc = CM.daily_candidates(d, sids) if CM is not None else None
         dbase = {r["sid"]: r for r in dc.select("sid", "adv20", "avgvol20", "freeshare").fill_null(np.nan).iter_rows(named=True)} if dc is not None else {}
+        pmd = pm_daily(args.pm_stsfile, d, sids) if args.pm_stsfile.exists() else None
+        pmsm = {}
+        if pmd is not None:  # PM's daily inputs join the CED table as ced.pm.* / ced.pmw.* / ced.pmx.*
+            dc = pmd if dc is None else dc.join(pmd.with_columns(pl.col("sid").cast(dc.schema["sid"])), on="sid", how="left")
+            if "pm.msr" in pmd.columns:
+                pmsm = {r[0]: (r[1], r[2]) for r in pmd.select("sid", "pm.msr", "pm.mb").iter_rows()}
+            print(f"{d}: PM daily inputs {[c for c in pmd.columns if c != 'sid']}")
         eng: dict[int, dict[str, np.ndarray]] = {}
         ef = args.engine_dir / f"marks_{d}.parquet"
         if ef.exists():  # the engine's state at the marks (every solved rule) over the Python rebuild's
@@ -667,6 +700,17 @@ def main() -> None:
                 add(sid, "px", FI.at_marks(a["t_local"], a["price"], MARKS))
             gen = generic(gf, gs, MARKS)
             gen.update(index_relative(gen, ix, sid, MARKS))
+            if sid in pmsm and gf is not None and gf.height > 2:  # spread and depth over PM's own daily normalisers
+                msr, mb = pmsm[sid]
+                af = E.arrays(gf, "fast")
+                dep = FI.at_marks(af["t_local"], (gf["bv1"].to_numpy().astype(float) + gf["av1"].to_numpy().astype(float)) / 2, MARKS)
+                with np.errstate(divide="ignore", invalid="ignore"):
+                    add(sid, "ced.r.sp_msr", gen["spread"] / (2 * msr))
+                    for w in (60, 300, 900):
+                        if f"spm{w}" in gen:
+                            add(sid, f"ced.r.spm{w}_msr", gen[f"spm{w}"] / (2 * msr))
+                    add(sid, "ced.r.ldep_mb", np.log(dep / mb))
+                    add(sid, "ced.r.dep_mb", dep / mb)
             for k, v in gen.items():
                 add(sid, f"gen.{k}", v.astype(float))
             for k, v in prof.get(sid, {}).items():
