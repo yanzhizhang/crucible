@@ -300,6 +300,9 @@ def fit(a: argparse.Namespace) -> None:
     print(f"{len(days)} panel days, {sum(n_rows.values()):,} rows; training sample {len(ds_date):,} rows ({frac:.3f}); "
           f"{len(feats)} features; universe {a.uni}")
     params, rounds = pm_params(a.models, a.threads)
+    if a.rounds:
+        rounds = a.rounds
+        print(f"rounds capped at {rounds} (--rounds)")
     test_days = days[a.min_train:]
     meta, gains = [], {lab: np.zeros(len(feats)) for lab in ys}
     models_last = {}
@@ -371,6 +374,7 @@ def main() -> None:
     f.add_argument("--refit", type=int, default=5, help="days scored per model (expanding window)")
     f.add_argument("--max-rows", type=int, default=4_000_000, help="training sample over all days (random, fixed)")
     f.add_argument("--threads", type=int, default=16)
+    f.add_argument("--rounds", type=int, default=600, help="trees per model (0 = PM's own count, 3000 at lr 0.03: slow)")
     f.add_argument("--ablate", action="store_true", help="last fold: IC lost without each category")
     a = ap.parse_args()
     if a.cmd == "fit":
