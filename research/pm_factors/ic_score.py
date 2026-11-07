@@ -543,6 +543,9 @@ def main() -> None:
                     help="z / rank candidates look alike to the CDF: try the gate-passing ones of this many bases with the largest own |IC|")
     ap.add_argument("--engine-dir", type=Path, default=Path("data/engine"), help="marks_<D>.parquet from run_cpp.py --marks <the same grid>")
     ap.add_argument("--marks", default="five", help="five | rand:N[:seed] | a,b,...: the times scored (run_cpp.py --marks must match)")
+    ap.add_argument("--target", type=Path, help="pm_signals.py output: score against PM's own live prediction (the latest signal of each "
+                                                "stock at the mark) instead of the forward return; days without a file are skipped")
+    ap.add_argument("--target-stale", type=float, default=10.0, help="--target: a signal older than this many seconds at the mark is no value")
     ap.add_argument("--profiles", default="ZZWA,ZZAL,ZZQO,ZZXC,ZZTS", help="samplerS families whose cells join the pool ('' = none)")
     ap.add_argument("--hstats", type=Path, default=Path("/data/prod/hstats/HS300"))
     ap.add_argument("--pm-cache", type=Path, default=Path("data/pm_export_all"))
@@ -584,6 +587,14 @@ def main() -> None:
         if not f.exists():
             print(f"skip {d}: no state file")
             continue
+        tgt: dict[int, tuple[np.ndarray, np.ndarray]] = {}
+        if args.target:
+            tf = args.target / f"date={d}.parquet"
+            if not tf.exists():
+                print(f"skip {d}: no PM signals {tf}")
+                continue
+            for g in pl.read_parquet(tf, columns=["sid", "t", "prediction"]).sort("sid", "t").partition_by("sid"):
+                tgt[int(g["sid"][0])] = (g["t"].to_numpy().astype(float), g["prediction"].to_numpy().astype(float))
         pm = B.load_state(f)
         tz = pm.filter(pl.col("key") == "zzba.p.t")["pm"].max()
         stop = (tz + 34200 if tz <= 7200 else tz - 7200 + 46800) + 0.005
@@ -632,6 +643,10 @@ def main() -> None:
                 m1 = FI.at_marks(a["t_local"][ok], mid[ok], MARKS + HORIZON)
                 with np.errstate(divide="ignore", invalid="ignore"):
                     rets[sid] = np.log(m1 / m0)
+            if args.target:  # PM's prediction made on the stock's latest snapshot at or before the mark (exchange clock)
+                ts, pv = tgt.get(sid, (np.zeros(0), np.zeros(0)))
+                last_t = FI.at_marks(ts, ts, MARKS)
+                rets[sid] = np.where(MARKS - last_t <= args.target_stale, FI.at_marks(ts, pv, MARKS), np.nan)
                 add(sid, "px", FI.at_marks(a["t_local"], a["price"], MARKS))
             gen = generic(gf, gs, MARKS)
             gen.update(index_relative(gen, ix, sid, MARKS))
