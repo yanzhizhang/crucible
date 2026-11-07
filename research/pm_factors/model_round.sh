@@ -6,6 +6,7 @@
 # MAXF = features scanned by model gain (default 60); FRESH=1 starts from the built-in assignment instead of the last one.
 # MARKS = times scored: five (default) or rand:N -- PM scores every snapshot, so random mid-bar times match its training data.
 # TARGET = pm_signals.py output dir: score against PM's live predictions (from our chrono logs) instead of the forward return.
+# ICARGS = extra ic_score.py arguments (e.g. "--passes 2 --max-cdf 0.08 --min-in-range 0.8").
 set -u
 CPUS=${CPUS:-256}
 ALL=$(nproc --all); [ "$CPUS" -gt "$ALL" ] && CPUS=$ALL
@@ -31,7 +32,7 @@ done
 
 echo "### M3 ic_score on the newest days"
 START=""; [ -f $S6/ic_assign.json ] && [ "${FRESH:-0}" != 1 ] && { cp $S6/ic_assign.json $S6/ic_assign_prev.json; START="--assign $S6/ic_assign_prev.json"; }
-run research/pm_factors/ic_score.py --dates $(echo $DAYS | tr ' ' ',') --models $MODELS/tk5m --marks ${MARKS:-five} ${TARGET:+--target $TARGET} $START --max-features ${MAXF:-60} --out $S6 \
+run research/pm_factors/ic_score.py --dates $(echo $DAYS | tr ' ' ',') --models $MODELS/tk5m --marks ${MARKS:-five} ${TARGET:+--target $TARGET} $START --max-features ${MAXF:-60} ${ICARGS:-} --out $S6 \
   > $S6/ic.txt 2>&1 || tail -5 $S6/ic.txt
 grep -E "^20[0-9]{6}: |^drop |accept |IC: start|Error|Traceback" $S6/ic.txt | tail -16
 
