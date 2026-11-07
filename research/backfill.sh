@@ -9,7 +9,7 @@
 # Days with no feitu data come from the DataYes XTP L2 packages <XTP>/YYYYMMDD.zip (decode_datayes_day.py), same raw layout.
 #   CPUS=16 bash research/backfill.sh 20260901 20261009 2>&1 | tee data/reports/backfill.txt
 #
-# Days already decoded are skipped (FORCE=1 redecodes). KINDS (default order,transaction,quotation) picks the streams:
+# Every day is decoded again and overwritten (FORCE=0 skips days already on disk). KINDS (default order,transaction,quotation) picks the streams:
 #   KINDS=index CPUS=32 bash research/backfill.sh 20261020 20261027   # index snapshots only, no basics rebuild
 set -u
 FROM=${1:?first day YYYYMMDD}; TO=${2:?last day YYYYMMDD}
@@ -17,6 +17,7 @@ CPUS=${CPUS:-256}
 ALL=$(nproc --all); [ "$CPUS" -gt "$ALL" ] && CPUS=$ALL
 ARCH=${ARCH:-/data/feitu}
 RAW=${RAW:-/work/crucible_data/feitu_raw}
+FORCE=${FORCE:-1}
 KINDS=${KINDS:-order,transaction,quotation}
 run() { taskset -c 0-$((CPUS - 1)) nice -n 5 python -u "$@"; }
 
@@ -31,11 +32,11 @@ echo "days: $(echo $days | wc -w) ($(echo $days | cut -c1-8) .. $(echo $days | r
 
 done_days=
 for d in $days; do
-  if ls $(for k in ${KINDS//,/ }; do echo $RAW/kind=$k/date=$d/part-*; done) >/dev/null 2>&1 && [ "${FORCE:-0}" != 1 ]; then echo "$d: decoded already"; done_days="$done_days $d"; continue; fi
+  if ls $(for k in ${KINDS//,/ }; do echo $RAW/kind=$k/date=$d/part-*; done) >/dev/null 2>&1 && [ "$FORCE" = 0 ]; then echo "$d: decoded already (FORCE=0)"; done_days="$done_days $d"; continue; fi
   root=$(root_of $d)
   t0=$(date +%s)
   run research/decode_feitu_day.py --root $root --date $d --out $RAW --kinds $KINDS --threads $CPUS --keep-going \
-    $([ "${FORCE:-0}" = 1 ] && echo --overwrite) > data/reports/backfill_decode_$d.txt 2>&1 \
+    $([ "$FORCE" = 0 ] && echo --no-overwrite) > data/reports/backfill_decode_$d.txt 2>&1 \
     && { echo "$d: decoded in $(( $(date +%s) - t0 ))s ($([ $root = $ARCH/$d ] && echo archive || echo minute dumps)), $(du -sh $RAW/kind=*/date=$d 2>/dev/null | awk '{s=s" "$1} END {print s}')"; done_days="$done_days $d"; } \
     || { echo "$d: decode FAILED"; tail -3 data/reports/backfill_decode_$d.txt; }
 done
@@ -52,7 +53,7 @@ if [ -n "$xdays" ] && { [ "$KINDS" = order,transaction,quotation ] || [ "$KINDS"
   echo "### XTP L2 (DataYes) for days feitu lacks, all packages in one pool (parts already on disk are skipped): $xl"
   t0=$(date +%s)
   taskset -c 0-$((CPUS - 1)) nice -n 5 python -u research/decode_datayes_day.py --root $XTP --date $xl --out $RAW --workers $XW --kinds $XK \
-    $([ "${FORCE:-0}" = 1 ] && echo --overwrite) > data/reports/backfill_xtp.txt 2>&1 \
+    $([ "$FORCE" = 0 ] && echo --no-overwrite) > data/reports/backfill_xtp.txt 2>&1 \
     && { echo "xtp: $(echo $xdays | wc -w) days decoded in $(( $(date +%s) - t0 ))s"; done_days="$done_days $xdays"; } \
     || { echo "xtp: decode FAILED"; tail -5 data/reports/backfill_xtp.txt; }
 fi

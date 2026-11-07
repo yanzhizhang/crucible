@@ -183,6 +183,9 @@ def decode_day(
             continue
         dst_dir = out / f"kind={kind}" / f"date={date}"
         dst_dir.mkdir(parents=True, exist_ok=True)
+        foreign = sorted(f.name for f in dst_dir.glob("part-*.parquet") if re.fullmatch(r"part-(SH|SZ)-\d{3}\.parquet", f.name))
+        if foreign:  # another source's parts would be counted twice next to ours
+            raise SystemExit(f"{dst_dir} holds parts of another source ({foreign[:3]}...): move that partition away first")
         with ResourceMonitor(
             f"W1.decode.{kind}", params={"date": date, "threads": threads, "files": len(files)}
         ) as mon:
@@ -210,7 +213,8 @@ def main() -> None:
     ap.add_argument("--out", type=Path, default=Path("/work/crucible_data/feitu_raw"))
     ap.add_argument("--kinds", default=",".join(KINDS))
     ap.add_argument("--threads", type=int, default=12)
-    ap.add_argument("--overwrite", action="store_true")
+    ap.add_argument("--overwrite", action=argparse.BooleanOptionalAction, default=True,
+                    help="rewrite existing parts (default); --no-overwrite keeps them")
     ap.add_argument("--keep-going", action="store_true", help="a file that fails to decode is listed in the manifest's error column")
     ap.add_argument(
         "--mem-frac",

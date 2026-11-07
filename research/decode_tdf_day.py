@@ -542,7 +542,8 @@ def main() -> None:
     ap.add_argument("--symbols", default=STOCKS.pattern, help="regex on the symbol folder name")
     ap.add_argument("--workers", type=int, default=min(os.cpu_count() or 8, 96), help="worker processes = cores used")
     ap.add_argument("--chunk", type=int, default=250, help="symbols per Parquet part")
-    ap.add_argument("--overwrite", action="store_true")
+    ap.add_argument("--overwrite", action=argparse.BooleanOptionalAction, default=True,
+                    help="rewrite existing parts (default); --no-overwrite keeps them")
     ap.add_argument("--probe", action="store_true", help="print headers, mapping and three converted rows; write nothing")
     ap.add_argument("--quality-only", action="store_true", help="recompute the coverage table from existing parts")
     args = ap.parse_args()

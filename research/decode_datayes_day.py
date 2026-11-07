@@ -204,7 +204,7 @@ def plan(root: Path, dates: list[str], out: Path, pattern: re.Pattern[str], kind
             print(f"{date}: skipped, feitu parts already in {out} for {kinds}")
             continue  # feitu has this day
         if not overwrite and all((out / f"kind={k}" / f"date={date}" / "_manifest.parquet").exists() for k in kinds):
-            print(f"{date}: skipped, already converted (--overwrite to redo)")
+            print(f"{date}: skipped, already converted (--no-overwrite)")
             continue  # converted on an earlier run
         pkg = package(root, date)
         if pkg is None:
@@ -306,7 +306,8 @@ def main() -> None:
     ap.add_argument("--symbols", default=STOCKS.pattern, help="regex on the WindCode")
     ap.add_argument("--workers", type=int, default=min(os.cpu_count() or 8, 96), help="worker processes = cores used")
     ap.add_argument("--chunk", type=int, default=250, help="symbols per Parquet part")
-    ap.add_argument("--overwrite", action="store_true")
+    ap.add_argument("--overwrite", action=argparse.BooleanOptionalAction, default=True,
+                    help="rewrite existing parts (default); --no-overwrite keeps them")
     ap.add_argument("--probe", action="store_true", help="print headers, mapping and three converted rows; write nothing")
     args = ap.parse_args()
     kinds = tuple(k.strip() for k in args.kinds.split(",") if k.strip())

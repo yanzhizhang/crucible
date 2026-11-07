@@ -365,7 +365,7 @@ def main() -> None:
     b.add_argument("--hstats", type=Path, default=Path("/data/prod/hstats/HS300"))
     b.add_argument("--pm-cache", type=Path, default=Path("data/pm_export_all"))
     b.add_argument("--out", type=Path, default=Path("data/reports/stage9"))
-    b.add_argument("--overwrite", action="store_true")
+    b.add_argument("--overwrite", action=argparse.BooleanOptionalAction, default=True, help="rebuild existing day panels (default)")
     f = sub.add_parser("fit", help="walk-forward LightGBM with PM's parameters")
     f.add_argument("--out", type=Path, default=Path("data/reports/stage9"))
     f.add_argument("--models", type=Path, default=Path("/data/prod/models/tk5m"))
