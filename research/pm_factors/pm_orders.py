@@ -44,6 +44,7 @@ GLUE = re.compile(r"(?=\[(?:INFO|WARN|WARNING|ERROR|DEBUG)\] \[/)|(?=\[20\d\d-\d
 def parse_day(files: list[str]) -> tuple[pl.DataFrame, pl.DataFrame, pl.DataFrame, pl.DataFrame, dict]:
     """(snapshots, decisions, chrono trk rows, signals, census) of one day's logs."""
     snaps, decs, trk, sigs, pos_ = [], [], [], [], []
+    posm: list[dict] = []  # OnPosM (es.cpp:29x / 31x) and the plugin's position view (catchRun.cpp:180)
     census: dict[tuple[str, str], list] = {}
     for f in files:
         last: dict[str, float] = {}
@@ -80,6 +81,8 @@ def parse_day(files: list[str]) -> tuple[pl.DataFrame, pl.DataFrame, pl.DataFram
                     pending = {"src_epoch": round(last["srcEpoch"] * 1e9) if "srcEpoch" in last else None, **kv}
                     pending["sid"] = int(kv.get("sid", last.get("sid", -1)))
                     decs.append(pending)
+                elif "OnPosM" in rest or where.endswith("catchRun.cpp:180"):
+                    posm.append({"where": where, **{k.removeprefix("p.").replace("()", "").replace(".", "_"): float(v) for k, v in re.findall(r"([\w.()]+)\s*[:=]\s*(-?\d+(?:\.\d+)?)", rest)}})
                 elif where.endswith("es.cpp:401") and "nowTs:" in rest:  # Po = the strategy places an order
                     f_ = rest.split("nowTs:", 1)[1].split(",")
                     try:
@@ -93,7 +96,12 @@ def parse_day(files: list[str]) -> tuple[pl.DataFrame, pl.DataFrame, pl.DataFram
                     pending = None
     def frame(rows: list[dict]) -> pl.DataFrame:
         return pl.DataFrame(rows, infer_schema_length=None) if rows else pl.DataFrame()
+    global POSM
+    POSM = frame(posm)
     return frame(snaps), frame(decs), frame(trk), frame(sigs), census, frame(pos_)
+
+
+POSM = pl.DataFrame()
 
 
 def num(df: pl.DataFrame, cols: list[str]) -> pl.DataFrame:
@@ -227,6 +235,20 @@ def po_report(decs: pl.DataFrame, trk: pl.DataFrame, po: pl.DataFrame) -> None:
             pl.len().alias("n"), pl.col("placed").mean().alias("p")).sort("bin")
         print("   decisions followed by a Po within 200 ms, by |executp|: " + " | ".join(f"{b} {pp:.3f} ({n:,})" for b, n, pp in tab.iter_rows()))
         fa, lt, ex = hit["fa"].to_numpy(), hit["lthr"].to_numpy(), hit["executp"].to_numpy()
+        sel = hit.filter(pl.col("fa") < pl.col("lthr"))
+        if sel.height and "nullptr" in sel.columns:  # what holds back a sell signal: a live order, nothing to sell, the position
+            print("   fa < lthr, Po rate by: nullptr " + ", ".join(f"{k}: {v:.3f} ({n:,})" for k, n, v in sel.group_by("nullptr").agg(pl.len(), pl.col("placed").mean()).sort("nullptr").iter_rows())
+                  + " | asq > 0 " + ", ".join(f"{k}: {v:.3f} ({n:,})" for k, n, v in sel.group_by(pl.col("asq") > 0).agg(pl.len(), pl.col("placed").mean()).sort("asq").iter_rows())
+                  + " | pos > 0 " + ", ".join(f"{k}: {v:.3f} ({n:,})" for k, n, v in sel.group_by(pl.col("pos") > 0).agg(pl.len(), pl.col("placed").mean()).sort("pos").iter_rows()))
+    if POSM.height:  # the strategy's own target / reserve / available, and the position view chrono gives it
+        pm = POSM
+        parts = []
+        for col in ("target_qty", "reserve_qty", "current_qty", "qty_avl", "sellable_qty", "yesterday_qty"):
+            if col in pm.columns:
+                v = pm[col].drop_nulls().to_numpy()
+                if v.size:
+                    parts.append(f"{col} n {v.size:,} zero {np.mean(v == 0):.3f} p50 {np.median(v):.0f}")
+        print("-- 8 positions: " + "; ".join(parts))
         for name, m in (("fa < lthr", fa < lt), ("lthr <= fa <= -lthr", (fa >= lt) & (fa <= -lt)), ("fa > -lthr", fa > -lt)):
             print(f"   {name:20s}: n {m.sum():,}, executp < 0 {np.mean(ex[m] < 0):.3f}, = 0 {np.mean(ex[m] == 0):.3f}, > 0 {np.mean(ex[m] > 0):.3f}, Po {hit['placed'].to_numpy()[m].mean():.3f}")
 
