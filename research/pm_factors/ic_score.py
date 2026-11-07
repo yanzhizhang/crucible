@@ -240,6 +240,19 @@ def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None, T: np.ndarray = MA
                 out[f"lpma{w}"] = lm0 - win_mean(lm, s0, e0)  # log mid over its window average
                 out[f"spm{w}"] = win_mean(sp, s0, e0)  # mean relative spread
                 out[f"tick1_{w}"] = win_mean(tick1, s0, e0)  # share of snapshots with a one-tick spread
+            # PM's state is EMAs (weight 1 per update, half-lives in trading-clock seconds): price over its EMA, log and
+            # ratio (zzeg / zzup-like values near 1), on the mid and on the last price; the ratio of window means too
+            from ic_kernel import ema_irregular
+
+            mid_, lpx_ok = np.exp(lm), np.isfinite(lpx)
+            for h in (5, 10, 20, 30, 60, 100, 200, 300, 600, 1200):
+                em = at(T, np.log(ema_irregular(t, mid_, float(h))))
+                out[f"lpe{h}"], out[f"rpe{h}"] = lm0 - em, np.exp(lm0 - em)
+                if lpx_ok.sum() > 2:
+                    ep = FI.at_marks(t[lpx_ok], np.log(ema_irregular(t[lpx_ok], np.exp(lpx[lpx_ok]), float(h))), T)
+                    out[f"lppe{h}"] = lp0 - ep
+            for w in (60, 300, 1800):
+                out[f"rpma{w}"] = np.exp(out[f"lpma{w}"])
             rv = out.get("rv900")
             if rv is not None:
                 for h in (30, 60, 300):  # returns in units of the 15-minute realised volatility, clipped like PM's +-10 features
@@ -252,7 +265,7 @@ def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None, T: np.ndarray = MA
                (("v", b["vol"]), ("nv", b["vol"] * b["side"]), ("n", np.ones(t.size)), ("nn", b["side"]), ("a", b["amt"]), ("na", b["amt"] * b["side"]))}
         upto = lambda x, k: cum[k][np.searchsorted(t, x, side="right")]  # noqa: E731 -- running total at times x
         with np.errstate(divide="ignore", invalid="ignore"):
-            for w in (10, 15, 20, 30, 45, 60, 90, 120, 180, 300, 600, 900):
+            for w in (10, 15, 20, 30, 45, 60, 90, 120, 180, 300, 600, 900, 1800, 3600):
                 win = {k: upto(T, k) - upto(T - w, k) for k in cum}
                 out[f"imbv{w}"] = win["nv"] / win["v"]
                 out[f"imbn{w}"] = win["nn"] / win["n"]
@@ -265,6 +278,8 @@ def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None, T: np.ndarray = MA
                 if w == 300:  # the last 5-minute bar's flows, raw: the profile ratios divide them by the samplerS medians
                     out["amt300"], out["vol300"], out["buy300"] = win["a"], win["v"], (win["a"] + win["na"]) / 2
             out["cum_imb"] = upto(T, "nv") / upto(T, "v")
+            out["lcum_vol"], out["lcum_amt"], out["lcum_n"] = np.log1p(upto(T, "v")), np.log1p(upto(T, "a")), np.log1p(upto(T, "n"))
+            out["cum_imba"], out["cum_imbn"] = upto(T, "na") / upto(T, "a"), upto(T, "nn") / upto(T, "n")
             px = FI.at_marks(t, b["price"], T)
             out["lp_vwap"] = np.log(px / (upto(T, "a") / upto(T, "v")))
             hi, lo = np.fmax.accumulate(np.where(cont, b["price"], np.nan)), np.fmin.accumulate(np.where(cont, b["price"], np.nan))

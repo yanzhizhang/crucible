@@ -70,6 +70,27 @@ def seg_spearman(p, r, starts, ends, min_n):  # pragma: no cover
     return out
 
 
+@njit(cache=True)
+def ema_irregular(t, x, half_life):  # pragma: no cover
+    """EMA after each update: weight 1 per update, decayed by 2^(-dt / half_life) between updates (sum / wgt, as PM's
+    engine state); NaN updates are skipped."""
+    out = np.empty(t.size)
+    s = 0.0
+    w = 0.0
+    last = t[0] if t.size else 0.0
+    k = np.log(2.0) / half_life
+    for i in range(t.size):
+        d = np.exp(-(t[i] - last) * k) if t[i] > last else 1.0
+        s *= d
+        w *= d
+        last = t[i]
+        if np.isfinite(x[i]):
+            s += x[i]
+            w += 1.0
+        out[i] = s / w if w > 0 else np.nan
+    return out
+
+
 @njit(parallel=True, cache=True)
 def seg_z(v, starts, ends):  # pragma: no cover
     out = np.full(v.size, np.nan)
