@@ -524,22 +524,27 @@ class Pool:
         return self._samples
 
 
+_SEG: dict[int, tuple] = {}  # id(groups) -> (groups, order, starts, ends): the grouping is sorted once per array
+
+
+def segments(groups: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """(order, starts, ends) of ``groups``: rows sorted by group (stable) and each group's slice in that order."""
+    hit = _SEG.get(id(groups))
+    if hit is None or hit[0] is not groups:
+        order = np.argsort(groups, kind="stable")
+        g = groups[order]
+        cuts = np.flatnonzero(np.diff(g)) + 1
+        hit = (groups, order.astype(np.int64), np.concatenate([[0], cuts]).astype(np.int64), np.concatenate([cuts, [g.size]]).astype(np.int64))
+        _SEG[id(groups)] = hit
+    return hit[1], hit[2], hit[3]
+
+
 def ic_vec(pred: np.ndarray, ret: np.ndarray, groups: np.ndarray) -> np.ndarray:
-    """Cross-sectional Spearman IC per group (mark), NaN where it cannot be computed."""
-    order = np.argsort(groups, kind="stable")  # one sort, then contiguous slices (rows keep their order inside a group)
-    g, p, r = groups[order], pred[order], ret[order]
-    cuts = np.flatnonzero(np.diff(g)) + 1
-    out = []
-    for s, e in zip(np.concatenate([[0], cuts]), np.concatenate([cuts, [g.size]]), strict=True):
-        ps, rs = p[s:e], r[s:e]
-        m = np.isfinite(ps) & np.isfinite(rs)
-        if m.sum() < 20 or np.std(ps[m]) == 0:
-            out.append(np.nan)
-            continue
-        r1 = np.argsort(np.argsort(ps[m])).astype(float)
-        r2 = np.argsort(np.argsort(rs[m])).astype(float)
-        out.append(np.corrcoef(r1, r2)[0, 1])
-    return np.array(out)
+    """Cross-sectional Spearman IC per group (mark), NaN where it cannot be computed (compiled, parallel over groups)."""
+    from ic_kernel import seg_spearman
+
+    order, st, en = segments(groups)
+    return seg_spearman(np.ascontiguousarray(pred[order], np.float64), np.ascontiguousarray(ret[order], np.float64), st, en, 20)
 
 
 def summary(v: np.ndarray) -> tuple[float, float, int]:
@@ -589,6 +594,8 @@ def main() -> None:
     ap.add_argument("--pm-stsfile", type=Path, default=Path("/work/crucible_data/pm_stsfile"),
                     help="PM's morning inputs (rsync of 2.23:/data/share/s): msr / mb / vr, index weights, exchange dummies")
     ap.add_argument("--target-stale", type=float, default=10.0, help="--target: a signal older than this many seconds at the mark is no value")
+    ap.add_argument("--freeze-strong", action=argparse.BooleanOptionalAction, default=True,
+                    help="skip features whose current formula was graded strong in <out>/ic_evidence.parquet")
     ap.add_argument("--profiles", default="ZZWA,ZZAL,ZZQO,ZZXC,ZZTS", help="samplerS families whose cells join the pool ('' = none)")
     ap.add_argument("--hstats", type=Path, default=Path("/data/prod/hstats/HS300"))
     ap.add_argument("--pm-cache", type=Path, default=Path("data/pm_export_all"))
@@ -781,9 +788,61 @@ def main() -> None:
             pooled_cache[stem] = {k: v[np.isfinite(v)] for k, v in ex.items() if np.isfinite(v).sum() >= 50}
         return pooled_cache[stem]
 
+    import ic_kernel as K
+
+    assert np.all(np.diff(grp) >= 0), "panel rows must be grouped by mark"
+    _, seg_st, seg_en = segments(grp)
+    ind_panel = np.full(sid_a.size, -1, np.int64)  # each panel row's Barra industry (for dmi:)
+    for b in range(len(pool.sids)):
+        for m in range(len(pool.sids[b])):
+            ix, i = pidx[b][m], pool.didx[b][m]
+            if pool.ind[b].size:
+                iv = np.where(i >= 0, pool.ind[b][np.clip(i, 0, None)], -1)
+                ok = ix >= 0
+                ind_panel[ix[ok]] = iv[ok]
+    n_ind = int(ind_panel.max()) + 1 if (ind_panel >= 0).any() else 1
+    zeros_sub = np.zeros(sid_a.size, np.int64)
+    base_vec: dict[str, np.ndarray | None] = {}
+
+    def pool_base(base: str) -> np.ndarray | None:
+        """A pool base laid out on the panel rows (once per base)."""
+        if base not in base_vec:
+            v, seen = np.full(sid_a.size, np.nan), False
+            for b in range(len(pool.sids)):
+                for m in range(len(pool.sids[b])):
+                    x = pool.raw(b, m, base)
+                    if x is not None:
+                        ix = pidx[b][m]
+                        ok = ix >= 0
+                        v[ix[ok]] = x[ok]
+                        seen = True
+            base_vec[base] = v if seen else None
+        return base_vec[base]
+
+    def pool_col(expr: str) -> np.ndarray | None:
+        """A pool candidate over the whole panel at once: sign / abs / bp unit, then the per-mark transform (compiled)."""
+        pre, neg, ab, scale, base = parse(expr)
+        v = pool_base(base)
+        if v is None:
+            return None
+        v = np.abs(v) if ab else v.copy()
+        v = (-v if neg else v) * scale
+        if pre == "z:":
+            return K.seg_z(v, seg_st, seg_en)
+        if pre in ("rank:", "crank:"):
+            return K.seg_rank(v, seg_st, seg_en, pre == "crank:")
+        if pre == "dm:":
+            return K.seg_demean(v, zeros_sub, seg_st, seg_en, 1)
+        if pre == "dmi:":
+            return K.seg_demean(v, ind_panel, seg_st, seg_en, n_ind)
+        return v
+
     def column(feature: str, expr: str) -> np.ndarray:
         """One model column filled with expression ``expr`` of the feature's stem."""
         stem = feature.split(".")[0]
+        if stem not in state_stems:
+            x = pool_col(expr)
+            return x if x is not None else np.full(sid_a.size, np.nan)
         v = np.full(sid_a.size, np.nan)
         for b in range(len(blocks)):
             for m in range(MARKS.size):
@@ -825,14 +884,17 @@ def main() -> None:
             self.j, self.pred = j, panel(X) if pred is None else pred
             self.old = [predict_rows(ms, X, brows[b], j) for b, (_, ms, _, _) in enumerate(blocks)] if flat else None
 
-        def score(self, colv: np.ndarray) -> np.ndarray:
+        def pred_with(self, colv: np.ndarray) -> np.ndarray:
             X[:, self.j] = colv
             if not flat:
-                return score(X)
+                return panel(X)
             pred = self.pred.copy()
             for b, (_, ms, _, _) in enumerate(blocks):
                 pred[brows[b]] += predict_rows(ms, X, brows[b], self.j) - self.old[b]
-            return ic_vec(pred, ret, grp)
+            return pred
+
+        def score(self, colv: np.ndarray) -> np.ndarray:
+            return ic_vec(self.pred_with(colv), ret, grp)
 
     assign = dict(KNOWN)
     if args.assign and args.assign.exists():
@@ -854,25 +916,62 @@ def main() -> None:
     print(f"\nall-missing except the assignment {assign}: IC {base[0]:.4f} (t {base[1]:.2f}, {base[2]} marks) ({time.perf_counter() - t0:.0f}s)")
     log = []
     feats = [f for f in fp.sort("gain_share", descending=True)["feature"].to_list() if f in col][: args.max_features]
+    frozen: set[str] = set()
+    ef0 = args.out / "ic_evidence.parquet"
+    if args.freeze_strong and ef0.exists():  # a formula graded strong last time and still assigned is settled: not scanned again
+        ev0 = pl.read_parquet(ef0)
+        frozen = {f for f, e, g in ev0.select("feature", "formula", "grade").iter_rows() if g == "strong" and assign.get(f) == e}
+        print(f"frozen (strong last round, not rescanned): {sorted(frozen)}")
+    sorted_pools: dict[int, dict[str, np.ndarray]] = {}  # id(candidate pool) -> its samples sorted once
+    ranked_cache: dict[str, list[dict]] = {}
+    fp_rows = {r["feature"]: r for r in fp.iter_rows(named=True)}
+    tm = {"rank": 0.0, "column": 0.0, "score": 0.0}
+
+    def fast_rank(feat: str, cs: dict[str, np.ndarray]) -> list[dict]:
+        """FM.rank on presorted samples: quantiles by index, in-range and the training-CDF gap by binary search."""
+        f = fp_rows[feat]
+        pre = "q" if f.get("q_med") is not None else "t"
+        if f.get(f"{pre}_med") is None:
+            return []
+        tq = np.array([f[f"{pre}_p10"], f[f"{pre}_med"], f[f"{pre}_p90"]])
+        span = max(tq[2] - tq[0], 1e-12)
+        pts = FM.interior(cdf[feat]) if feat in cdf else None
+        out = []
+        for k, s in cs.items():
+            n = s.size
+            cq = s[[int(0.1 * (n - 1)), (n - 1) // 2, int(0.9 * (n - 1))]]
+            inr = (np.searchsorted(s, f["hi"], side="right") - np.searchsorted(s, f["lo"], side="left")) / n if f["lo"] is not None else np.nan
+            sc = float(np.mean(np.abs(np.searchsorted(s, pts[0], side="right") / n - pts[1]))) if pts is not None else float(np.abs(cq - tq).sum() / span)
+            out.append({"candidate": k, "score": sc, "in_range": float(inr)})
+        out.sort(key=lambda r: r["score"])
+        return out
+
+    cur_pred = panel(X)  # the full prediction with every assigned column, kept up to date column by column
     for ps in range(args.passes):
         for feat in feats:
+            if feat in frozen:
+                continue
             stem = feat.split(".")[0]
             cand_all = stem_pool(stem)
             if not cand_all:
                 continue
-            ranked = FM.rank(fp.filter(pl.col("feature") == feat), cand_all, len(cand_all), cdf)
+            t1 = time.perf_counter()
+            if id(cand_all) not in sorted_pools:
+                sorted_pools[id(cand_all)] = {k: np.sort(v) for k, v in cand_all.items()}
+            cs = sorted_pools[id(cand_all)]
+            if feat not in ranked_cache:
+                ranked_cache[feat] = fast_rank(feat, cs)
+            ranked = ranked_cache[feat]
+            tm["rank"] += time.perf_counter() - t1
             cut = args.max_cdf if feat in cdf else args.max_score
             # gate on the fingerprint: right units and range first, IC second -- IC alone rewards any useful signal in any column
             rk = {r["candidate"]: r for r in ranked}
             dummy_ok = fp_kind.get(feat) in ("flag", "count", "const")
-            n_distinct: dict[str, int] = {}
 
-            def varied(c: str, ok: bool = dummy_ok, pool_: dict = cand_all, nd: dict = n_distinct) -> bool:
-                if ok or c not in pool_:
+            def varied(c: str, ok: bool = dummy_ok, cs_: dict = cs) -> bool:
+                if ok or c not in cs_:
                     return True
-                if c not in nd:
-                    nd[c] = int(np.unique(pool_[c][:5000]).size)
-                return nd[c] >= args.min_distinct
+                return 1 + int(np.count_nonzero(np.diff(cs_[c]))) >= args.min_distinct
 
             in_scale = lambda r: (not np.isfinite(r["in_range"]) or r["in_range"] >= args.min_in_range) and varied(r["candidate"])  # noqa: E731
             passes = [r["candidate"] for r in ranked if in_scale(r) and r["score"] <= cut]
@@ -898,12 +997,17 @@ def main() -> None:
                 short = [c for c in short if rk[c]["score"] <= rk[cur]["score"] + args.max_worsen]
             j = col[feat]
             keep_col = X[:, j].copy()
-            sw = Swap(j)
+            sw = Swap(j, cur_pred)
             cur_v = np.nan_to_num(ic_vec(sw.pred, ret, grp), nan=0.0)  # a constant prediction (everything missing) ranks nothing: IC 0
             best = (summary(cur_v)[0], cur, 0.0)
             tried = []
             for expr in short:
-                v = np.nan_to_num(sw.score(column(feat, expr)), nan=0.0)
+                t1 = time.perf_counter()
+                cv = column(feat, expr)
+                t2 = time.perf_counter()
+                v = np.nan_to_num(sw.score(cv), nan=0.0)
+                tm["column"] += t2 - t1
+                tm["score"] += time.perf_counter() - t2
                 dv = v - cur_v  # paired over marks: the same marks, the same other columns
                 _, t_gain, _ = summary(dv)
                 tried.append((expr, summary(v)[0], t_gain))
@@ -929,13 +1033,14 @@ def main() -> None:
                         print(f"  accept {feat} = {e} by training CDF (gap {plain[0]['score']:.3f}), IC {ic:.4f} t {tg:.1f}")
             if best[1] != cur and best[1] is not None:
                 assign[feat] = best[1]
-                X[:, j] = column(feat, best[1])
+                cur_pred = sw.pred_with(column(feat, best[1]))
             else:
                 X[:, j] = keep_col
             tried.sort(key=lambda t: -t[2] if np.isfinite(t[2]) else 1e9)
             log.append({"pass": ps, "feature": feat, "kept": assign.get(feat), "ic_after": best[0], "t_gain": best[2],
                         "top": "; ".join(f"{e} {ic:.4f} (t {tg:.1f})" for e, ic, tg in tried[:3])})
             print(f"pass {ps} {feat}: kept {assign.get(feat)} IC {best[0]:.4f} t_gain {best[2]:.1f} ({time.perf_counter() - t0:.0f}s)")
+        print(f"pass {ps} time: fingerprint ranking {tm['rank']:.0f}s, candidate columns {tm['column']:.0f}s, model + IC {tm['score']:.0f}s")
     full_pred = panel(X)
     final = summary(ic_vec(full_pred, ret, grp))
     full_v = np.nan_to_num(ic_vec(full_pred, ret, grp), nan=0.0)
