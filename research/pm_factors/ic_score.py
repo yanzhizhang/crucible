@@ -654,7 +654,8 @@ def main() -> None:
         if pmd is not None:  # PM's daily inputs join the CED table as ced.pm.* / ced.pmw.* / ced.pmx.*
             dc = pmd if dc is None else dc.join(pmd.with_columns(pl.col("sid").cast(dc.schema["sid"])), on="sid", how="left")
             if "pm.msr" in pmd.columns:
-                pmsm = {r[0]: (r[1], r[2]) for r in pmd.select("sid", "pm.msr", "pm.mb").iter_rows()}
+                pmsm = {int(r[0]): (float(r[1]), float(r[2])) for r in pmd.select("sid", "pm.msr", "pm.mb").iter_rows()
+                        if r[1] is not None and r[2] is not None and r[1] > 0 and r[2] > 0}  # stocks PM has no stats for: no ratio
             print(f"{d}: PM daily inputs {[c for c in pmd.columns if c != 'sid']}")
         eng: dict[int, dict[str, np.ndarray]] = {}
         ef = args.engine_dir / f"marks_{d}.parquet"
