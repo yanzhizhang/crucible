@@ -42,6 +42,7 @@ import json
 import re
 import sys
 import time
+from collections import Counter
 from pathlib import Path
 
 import duckdb
@@ -62,7 +63,8 @@ HORIZON = 300.0
 
 def mark_grid(spec: str) -> np.ndarray:
     """'five' = the 5-minute marks; 'rand:N[:seed]' = N random trading-clock seconds in (0, 13800) (the same list in
-    ``run_cpp.py``): PM scores at every snapshot, so mid-bar times sample its training distribution; else a comma list."""
+    ``run_cpp.py``): PM scores at every snapshot, so mid-bar times sample its training distribution; else a comma list.
+    """
     if spec == "five":
         return np.arange(300.0, 13801.0, 300.0)
     if spec.startswith("rand:"):
@@ -612,6 +614,8 @@ def main() -> None:
     ap.add_argument("--pm-stsfile", type=Path, default=Path("/work/crucible_data/pm_stsfile"),
                     help="PM's morning inputs (rsync of 2.23:/data/share/s): msr / mb / vr, index weights, exchange dummies")
     ap.add_argument("--target-stale", type=float, default=10.0, help="--target: a signal older than this many seconds at the mark is no value")
+    ap.add_argument("--implied", type=int, default=0, help="--target only: invert PM's model for this many open features (by gain)")
+    ap.add_argument("--implied-rows", type=int, default=30000, help="rows sampled for --implied")
     ap.add_argument("--freeze-strong", action=argparse.BooleanOptionalAction, default=True,
                     help="skip features whose current formula was graded strong in <out>/ic_evidence.parquet")
     ap.add_argument("--profiles", default="ZZWA,ZZAL,ZZQO,ZZXC,ZZTS", help="samplerS families whose cells join the pool ('' = none)")
@@ -1123,6 +1127,119 @@ def main() -> None:
             print(pl.DataFrame(log))
     print(f"\nIC: start {base[0]:.4f} -> end {final[0]:.4f} (t {final[1]:.2f}, {final[2]} marks); "
           f"{len(assign)} of {len(names)} columns assigned -> {args.out / 'ic_assign.json'}")
+    if args.implied and flat and args.target:
+        implied(args, X, col, blocks, brows, ret, grp, sid_a, blk, mk, full_pred, fp, assign, ev if evid else None, pool, pool_col)
+
+
+def implied(args, X, col, blocks, brows, ret, grp, sid_a, blk, mk, full_pred, fp, assign, ev, pool, pool_col) -> None:
+    """Invert PM's model one open feature at a time: the value of column j that brings our prediction closest to PM's.
+
+    With every other column at our values, the model output is piecewise constant in x_j, the pieces cut at the split
+    thresholds the trees use on j. Per sampled row, each piece's representative value is tried (only the trees that split
+    on j re-run) and the piece whose prediction is nearest PM's (after a linear map of PM's prediction onto our model's
+    raw scale) gives the implied interval; rows where the best piece is not clearly better than the second, or where x_j
+    does not move the prediction, carry no information. From the informative rows: where the value lives (stock-day mean
+    / mark mean shares of variance -> a daily or a market-wide quantity), its range, and the candidates closest to it.
+    Written to <out>/implied.parquet (feature, row, lo, hi, mid)."""
+    strong = set(ev.filter(pl.col("grade") == "strong")["feature"].to_list()) if ev is not None else set()
+    feats = [f for f in fp.sort("gain_share", descending=True)["feature"].to_list() if f in col and f not in strong][: args.implied]
+    rng = np.random.default_rng(1)
+    ok_rows = np.flatnonzero(np.isfinite(ret) & np.isfinite(full_pred))
+    rows = np.sort(rng.choice(ok_rows, min(args.implied_rows, ok_rows.size), replace=False)).astype(np.int64)
+    a_, b_ = np.polyfit(ret[rows], full_pred[rows], 1)  # PM's prediction on our model's raw scale
+    target = a_ * ret[rows] + b_
+    names = pool.names()
+    cand = {}
+    for k in names:  # plain candidates (no cross-sectional transform) on the sampled rows, for the matching below
+        if k.startswith(XS) or k.startswith(DM):
+            continue
+        x = pool_col(k)
+        if x is not None:
+            cand[k] = x[rows]
+    print(f"\n== implied values ({rows.size:,} rows, PM pred mapped as {a_:.3f} x + {b_:.2e}; {len(cand)} plain candidates)")
+    out = []
+    for f in feats:
+        j = col[f]
+        thr = np.unique(np.concatenate([m.thr[(m.feat == j) & ((m.dt & 1) == 0)] for b in range(len(blocks)) for m in blocks[b][1]]))
+        if thr.size < 2:
+            continue
+        reps = np.concatenate([[thr[0] - max(abs(thr[0]), 1.0) * 1e-3], (thr[:-1] + thr[1:]) / 2, [thr[-1] + max(abs(thr[-1]), 1.0) * 1e-3]])
+        keep = X[:, j].copy()
+        base_rows = full_pred[rows].copy()
+        old = np.zeros(rows.size)
+        for b, (_, ms, _, _) in enumerate(blocks):
+            sel = np.flatnonzero(blk[rows] == b)
+            if sel.size:
+                old[sel] = np.mean([m.predict(X, rows[sel], m.trees_of.get(j, np.zeros(0, np.int64))) for m in ms], axis=0)
+        err = np.empty((reps.size, rows.size))
+        resp = np.empty(reps.size)  # the model's mean response to x_j (shape: monotone, U, flat)
+        for k, v in enumerate(reps):
+            X[:, j] = v
+            new = np.zeros(rows.size)
+            for b, (_, ms, _, _) in enumerate(blocks):
+                sel = np.flatnonzero(blk[rows] == b)
+                if sel.size:
+                    new[sel] = np.mean([m.predict(X, rows[sel], m.trees_of.get(j, np.zeros(0, np.int64))) for m in ms], axis=0)
+            err[k] = np.abs(base_rows - old + new - target)
+            resp[k] = np.mean(new - old)
+        X[:, j] = keep
+        e1 = err.min(axis=0)
+        spread = err.max(axis=0) - e1
+        near = err <= e1 + 0.1 * spread  # pieces within 10% of the error range of the best: the implied stretch of x_j
+        idx = np.arange(reps.size)[:, None]
+        kmin = np.where(near, idx, reps.size).min(axis=0)
+        kmax = np.where(near, idx, -1).max(axis=0)
+        info = (spread > 1e-9) & (e1 < 0.2 * spread) & (kmax - kmin < 0.3 * reps.size)  # x_j matters, it fits, the stretch is narrow
+        lo = np.where(kmin > 0, thr[np.clip(kmin - 1, 0, thr.size - 1)], -np.inf)
+        hi = np.where(kmax < thr.size, thr[np.clip(kmax, 0, thr.size - 1)], np.inf)
+        best = (kmin + kmax) // 2
+        mid = reps[best]
+        out.append(pl.DataFrame({"feature": f, "row": rows, "lo": lo, "hi": hi, "mid": mid, "info": info}))
+        m = info
+        if m.sum() < 200:
+            print(f"  {f}: only {int(m.sum())} informative rows")
+            continue
+        d = pl.DataFrame({"y": mid[m], "sd": blk[rows][m] * 10_000_000 + sid_a[rows][m], "mk": grp[rows][m]})
+        tot = d["y"].var()
+        sd_share = d.group_by("sd").agg(pl.col("y").mean().alias("g"), pl.len()).filter(pl.col("len") > 1)
+        r_sd = 1 - d.join(sd_share, on="sd").select((pl.col("y") - pl.col("g")).var()).item() / tot if tot and tot > 0 else np.nan
+        mk_mean = d.group_by("mk").agg(pl.col("y").mean().alias("g"))
+        r_mk = 1 - d.join(mk_mean, on="mk").select((pl.col("y") - pl.col("g")).var()).item() / tot if tot and tot > 0 else np.nan
+        y = mid[m]
+        sc = []
+        for k, x in cand.items():
+            xv = x[m]
+            g = np.isfinite(xv)
+            if g.sum() < 200:
+                continue
+            c = np.corrcoef(pl.Series(xv[g]).rank().to_numpy(), pl.Series(y[g]).rank().to_numpy())[0, 1]
+            if np.isfinite(c):
+                sc.append((abs(c), c, k))
+        sc.sort(reverse=True)
+        cur = assign.get(f, "-")
+        cv = keep[rows][m]
+        own = (np.corrcoef(pl.Series(cv[np.isfinite(cv)]).rank().to_numpy(), pl.Series(y[np.isfinite(cv)]).rank().to_numpy())[0, 1]
+               if np.isfinite(cv).sum() > 200 else np.nan)
+        q = np.linspace(0, resp.size - 1, 5).astype(int)
+        mono = np.corrcoef(np.arange(resp.size), resp)[0, 1]
+        shape = "up" if mono > 0.7 else "down" if mono < -0.7 else ("U" if resp[resp.size // 2] < min(resp[0], resp[-1]) else "hump" if resp[resp.size // 2] > max(resp[0], resp[-1]) else "mixed")
+        inv = {v: k for k, v in col.items()}
+        pairs: Counter = Counter()
+        for b in range(len(blocks)):
+            for mm in blocks[b][1]:
+                at_j = np.flatnonzero(mm.feat == j)
+                for kk in at_j:
+                    t_ = np.searchsorted(mm.node_off, kk, side="right") - 1
+                    for ch in (mm.left[kk], mm.right[kk]):
+                        if ch >= 0:
+                            pairs[inv.get(int(mm.feat[mm.node_off[t_] + ch]), "?")] += 1
+        print(f"  {f} response {shape} ({mono:+.2f}; " + "/".join(f"{resp[i]:+.1e}" for i in q) + "); split together with "
+              + ", ".join(f"{k} {n}" for k, n in pairs.most_common(4) if k != f) + f"; implied vs current formula {own:+.2f}")
+        print(f"  {f} (now {cur}): informative {m.mean():.2f}; implied p10/p50/p90 {np.percentile(y, 10):.4g}/{np.median(y):.4g}/{np.percentile(y, 90):.4g}; "
+              f"variance explained by stock-day {r_sd:.2f}, by mark {r_mk:.2f}; closest: "
+              + ", ".join(f"{k} {c:+.2f}" for _, c, k in sc[:4]))
+    if out:
+        pl.concat(out).write_parquet(args.out / "implied.parquet")
 
 
 if __name__ == "__main__":
