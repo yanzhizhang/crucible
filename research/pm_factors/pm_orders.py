@@ -38,6 +38,7 @@ from pm_signals import NUM, log_files, repair, trading_clock
 SRC = re.compile(r"\[(?:/[^\]]*/)?([\w./]+\.(?:cpp|h|hpp):\d+)\]\s*(.*)$")  # [/work/sht-strategy/src/sol/alg.cpp:251] rest
 TRK = re.compile(r"\btrk (\w+) (.*)$")
 KV = re.compile(r"(\w+)=('([^']*)'|(\S*))")
+GLUE = re.compile(r"(?=\[(?:INFO|WARN|WARNING|ERROR|DEBUG)\] \[/)|(?=\[20\d\d-\d\d-\d\d )")  # where one log line starts
 
 
 def parse_day(files: list[str]) -> tuple[pl.DataFrame, pl.DataFrame, pl.DataFrame, pl.DataFrame, dict]:
@@ -48,7 +49,7 @@ def parse_day(files: list[str]) -> tuple[pl.DataFrame, pl.DataFrame, pl.DataFram
         last: dict[str, float] = {}
         pending: dict | None = None  # the last decision, waiting for its alg.cpp:252 line
         with open(f, encoding="utf-8", errors="replace") as fh:
-            for line in fh:
+            for line in (part for raw in fh for part in GLUE.split(raw) if part.strip()):  # tee can glue two writers' lines
                 m = TRK.search(line)
                 if m:
                     kv = {k.group(1): k.group(3) if k.group(3) is not None else k.group(4) for k in KV.finditer(m.group(2))}
@@ -80,7 +81,8 @@ def parse_day(files: list[str]) -> tuple[pl.DataFrame, pl.DataFrame, pl.DataFram
                     pending["sid"] = int(kv.get("sid", last.get("sid", -1)))
                     decs.append(pending)
                 elif where.endswith("alg.cpp:252") and pending is not None:
-                    pending["nullptr"] = kv.get("nullptr", float(rest.strip().split(":")[-1]) if rest.strip()[-1:].isdigit() else None)
+                    mn = re.search(r"nullptr\s*:\s*(\d+)", rest)  # tee can glue the next line onto this one
+                    pending["nullptr"] = float(mn.group(1)) if mn else None
                     pending = None
     def frame(rows: list[dict]) -> pl.DataFrame:
         return pl.DataFrame(rows, infer_schema_length=None) if rows else pl.DataFrame()

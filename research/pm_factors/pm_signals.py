@@ -65,6 +65,7 @@ def repair(d: dict[str, str]) -> dict[str, str]:
         d["send_ts"] = ""
     return d
 FLOATS = ("prediction", "confidence", "px", "vol")
+GLUE = re.compile(r"(?=\[(?:INFO|WARN|WARNING|ERROR|DEBUG)\] \[/)|(?=\[20\d\d-\d\d-\d\d )")  # where one log line starts
 NUM = re.compile(r"([A-Za-z_][\w\->]*)\s*[:=]\s*(-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?)\b")
 
 
@@ -84,7 +85,7 @@ def read_factor(files: list[str]) -> tuple[pl.DataFrame, pl.DataFrame]:
     for f in files:
         last: dict[str, float] = {}
         with open(f, encoding="utf-8", errors="replace") as fh:
-            for line in fh:
+            for line in (part for raw in fh for part in GLUE.split(raw) if part.strip()):  # tee can glue two writers' lines
                 if "catchRun.cpp" in line and "srcEpoch" in line:
                     last = {k: float(v) for k, v in NUM.findall(line)}
                 elif "alg.cpp" in line and "sidIdx" in line:
