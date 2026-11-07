@@ -775,7 +775,7 @@ def main() -> None:
     def stem_pool(stem: str) -> dict[str, np.ndarray]:
         """Every candidate of a stem over days and marks, as finite samples (atoms pooled, then 30000 rows, then expressions)."""
         if stem not in state_stems:
-            return pool.samples()
+            return pool_samples()
         if stem not in pooled_cache:
             per = [(s, c) for blk in stem_cache(stem) for s, c, _ in blk]
             names = sorted({k for _, c in per for k in c})
@@ -816,8 +816,9 @@ def main() -> None:
                         ok = ix >= 0
                         v[ix[ok]] = x[ok]
                         seen = True
-            base_vec[base] = v if seen else None
-        return base_vec[base]
+            base_vec[base] = v.astype(np.float32) if seen else None  # float32 halves the memory of ~1000 cached bases
+        b_ = base_vec[base]
+        return None if b_ is None else b_.astype(np.float64)
 
     def pool_col(expr: str) -> np.ndarray | None:
         """A pool candidate over the whole panel at once: sign / abs / bp unit, then the per-mark transform (compiled)."""
@@ -836,6 +837,26 @@ def main() -> None:
         if pre == "dmi:":
             return K.seg_demean(v, ind_panel, seg_st, seg_en, n_ind)
         return v
+
+    samples_cache: dict[str, np.ndarray] = {}
+
+    def pool_samples(n: int = 20000, every: int = 3) -> dict[str, np.ndarray]:
+        """Every pool candidate's finite values on every third mark, subsampled to n -- from the whole-panel columns
+        (one compiled transform per candidate) instead of a Python loop over (candidate, day, mark)."""
+        if not samples_cache:
+            t1 = time.perf_counter()
+            rows = np.flatnonzero(mk % every == 0)
+            rng = np.random.default_rng(0)
+            for k in pool.names():
+                x = pool_col(k)
+                if x is None:
+                    continue
+                v = x[rows]
+                v = v[np.isfinite(v)]
+                if v.size >= 50:
+                    samples_cache[k] = rng.choice(v, n, replace=False) if v.size > n else v
+            print(f"candidate samples: {len(samples_cache):,} candidates ({time.perf_counter() - t1:.0f}s)", flush=True)
+        return samples_cache
 
     def column(feature: str, expr: str) -> np.ndarray:
         """One model column filled with expression ``expr`` of the feature's stem."""
