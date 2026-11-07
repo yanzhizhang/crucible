@@ -1,8 +1,8 @@
 r"""Compiled (numba) per-mark kernels for ``ic_score``: the cross-sectional Spearman IC and the cross-sectional transforms,
 over a panel whose rows are grouped contiguously by mark (``starts[k]:ends[k]`` = the rows of mark k), in parallel over marks.
 
-* ``seg_spearman``: rank correlation per mark of two columns over the rows where both are finite (ordinal ranks, ties
-  in stable order; NaN with fewer than ``min_n`` rows or a constant first column);
+* ``seg_spearman``: Spearman correlation per mark of two columns over the rows where both are finite (average ranks for
+  ties; NaN with fewer than ``min_n`` rows or a constant first column);
 * ``seg_z``: z-score per mark (population std; NaN with fewer than 2 values or zero spread);
 * ``seg_rank``: average rank per mark scaled to [0, 1] (``center`` subtracts 0.5);
 * ``seg_demean``: minus the mean of the row's sub-group inside its mark (``sub`` < 0 = no group; groups of fewer than
@@ -13,6 +13,23 @@ from __future__ import annotations
 
 import numpy as np
 from numba import njit, prange
+
+
+@njit(cache=True)
+def _avg_rank(a):  # pragma: no cover
+    """0-based ranks, ties sharing their average (PM's fa is printed to 5 decimals: many ties)."""
+    n = a.size
+    o = np.argsort(a, kind="mergesort")
+    out = np.empty(n)
+    i = 0
+    while i < n:
+        j = i
+        while j + 1 < n and a[o[j + 1]] == a[o[i]]:
+            j += 1
+        for q in range(i, j + 1):
+            out[o[q]] = (i + j) / 2.0
+        i = j + 1
+    return out
 
 
 @njit(parallel=True, cache=True)
@@ -36,13 +53,8 @@ def seg_spearman(p, r, starts, ends, min_n):  # pragma: no cover
                 j += 1
         if a.std() == 0.0:
             continue
-        oa = np.argsort(a, kind="mergesort")
-        ob = np.argsort(b, kind="mergesort")
-        ra = np.empty(n)
-        rb = np.empty(n)
-        for i in range(n):
-            ra[oa[i]] = i
-            rb[ob[i]] = i
+        ra = _avg_rank(a)
+        rb = _avg_rank(b)
         mu = (n - 1) / 2.0
         num = 0.0
         da = 0.0
