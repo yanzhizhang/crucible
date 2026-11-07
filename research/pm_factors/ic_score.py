@@ -245,9 +245,12 @@ def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None, T: np.ndarray = MA
             from ic_kernel import ema_irregular
 
             mid_, lpx_ok = np.exp(lm), np.isfinite(lpx)
-            for h in (5, 10, 20, 30, 60, 100, 200, 300, 600, 1200):
+            dlm = np.concatenate([[np.nan], np.diff(lm)])  # snapshot-to-snapshot log return
+            for h in (5, 10, 15, 20, 25, 30, 40, 45, 50, 60, 75, 90, 100, 120, 150, 200, 240, 300, 450, 600, 900, 1200):
                 em = at(T, np.log(ema_irregular(t, mid_, float(h))))
                 out[f"lpe{h}"], out[f"rpe{h}"] = lm0 - em, np.exp(lm0 - em)
+                out[f"lmie{h}"] = li0 - at(T, np.log(ema_irregular(t, np.exp(lmi), float(h))))  # microprice over its EMA
+                out[f"rete{h}"] = at(T, ema_irregular(t, dlm, float(h)))  # EMA of returns (zzbd.rEma-like)
                 if lpx_ok.sum() > 2:
                     ep = FI.at_marks(t[lpx_ok], np.log(ema_irregular(t[lpx_ok], np.exp(lpx[lpx_ok]), float(h))), T)
                     out[f"lppe{h}"] = lp0 - ep

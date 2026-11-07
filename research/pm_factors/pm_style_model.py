@@ -211,7 +211,7 @@ def trading_days(spec: str) -> list[str]:
 
 CATEGORIES = [  # (category, regex on the feature name), first match wins
     ("market", r"^gen\.(ir|xr|ipc|xpc)\d*_?"),
-    ("returns", r"^gen\.([mp]?ret\d+|lpma\d+|rpma\d+|lp?pe\d+|rpe\d+|lp_open|lp_pc|lp_vwap|stoch|zr\d+)$"),
+    ("returns", r"^gen\.([mp]?ret\d+|lpma\d+|rpma\d+|lp?pe\d+|rpe\d+|lmie\d+|rete\d+|lp_open|lp_pc|lp_vwap|stoch|zr\d+)$"),
     ("book", r"^gen\.(imb1|imb5|timb|spread|spm\d+|tick1_\d+)$"),
     ("tradeflow", r"^gen\.(s?imb[vna]\d+|s?cum_imb[an]?|lcum_(vol|amt|n)|s?lvol\d+|s?lamt\d+|nam\d+|nn\d+|tsz\d+|vfrac\d+)$"),
     ("volrange", r"^gen\.(rv\d+|rng\d+|ldh\d+|ldl\d+)$"),
