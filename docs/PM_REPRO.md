@@ -269,8 +269,10 @@ What is settled and what is not:
 
 ## PM's strategy (execution) -- context for translating it later
 
-Capital: 10M CNY net, of which 9M is held as the base position in CSI 300 constituents (user, 2026-11-07; confirm the
-split of the remainder before translating). PM sends one prediction per CSI 300 snapshot; what chrono itself logs (`trk`
+Capital: 10M CNY net = 9M base position in CSI 300 constituents + 1M cash for the T0 buys (user, 2026-11-07). The
+base is a target, rolled daily: sht-demo `shtcommon/py/ced/base_position.py` spreads x (the base's value at T's close,
+the day's profit rolled in) over the index's T-close weights into `<T+1>/base_position_{v1|v2}_<product>.csv`
+(pos / pos_adj); the actual holding is only moved toward that target each day, not set to it. PM sends one prediction per CSI 300 snapshot; what chrono itself logs (`trk`
 lines) is read by sht-demo `chrono/tools/pnl_report.py` (fills, fees, PnL) and ends there. The untimestamped lines in
 224's `/tmp/zyq/sht-logs/*.log` are PM's strategy deciding whether to trade, not its factor model: `qlive/catchRun.cpp`
 (srcEpoch / recEpoch / sid) and `sol/alg.cpp` (fa = the prediction again; pos, pp_, executp, asq, lthr, hs, liid,
