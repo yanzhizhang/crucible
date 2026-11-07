@@ -3,9 +3,17 @@ sends one signal per CSI 300 snapshot -- so the logs hold PM's model output at e
 
 Per day: every ``trk SIG`` line of the chrono logs (``*_YYYYMMDD_*.log``, several files when chrono restarted, the same
 reading as ``chrono/tools/pnl_report.py``) -> ``<out>/date=D.parquet`` (sid, md_ts = exchange time of the snapshot the
-signal was built on, md_recv_ts = when PM received it, recv_ts, t = md_ts on the trading clock, prediction,
-confidence, px, vol, name), plus a short report. Everything is aligned on md_ts, the snapshot's exchange time: a feed that
-reaches PM late (224's test feed runs ~30 s behind) still names the snapshot each prediction was made on.
+signal was built on, md_recv_ts = when PM received it, recv_ts, t = md_recv_ts on the trading clock -- PM gets a
+snapshot ~40 ms after us, so the latest PM prediction at a mark matches our latest snapshot there --, prediction,
+confidence, px, vol, name, src = sig / fa), plus a short report. Signals PM built on a late feed (md_recv_ts - md_ts over
+``--max-delay``) are dropped: their snapshot is not the one our features see at that time.
+
+224's logs also hold PM's own factor program output (the lines without a timestamp, ``qlive/catchRun.cpp`` +
+``sol/alg.cpp``): per snapshot ``srcEpoch`` (PM's receive time), ``fa`` (the prediction, 5 decimals), ``emsMktVol`` /
+``emsOurVol``, and at a trade decision ``pos / executp / asq / lthr / hs / winsdQty / asf``. chrono does not get every
+signal, so a snapshot with an ``fa`` but no ``trk SIG`` joins as ``src = fa``; all of it is also written to
+``<out>/state/date=D.parquet`` (``kind`` = snap / decision), and the report checks ``fa`` against the SIG prediction and
+fits ``emsMktVol`` as an exponential moving sum of the snapshot volume.
 
 * counts: signals, stocks, signals per stock, share of prediction == 0, prediction quantiles, signal names, and PM's
   feed delay md_recv_ts - md_ts (uniform = intervals, hence PM's clock-driven features, unchanged);
@@ -57,6 +65,92 @@ def repair(d: dict[str, str]) -> dict[str, str]:
         d["send_ts"] = ""
     return d
 FLOATS = ("prediction", "confidence", "px", "vol")
+NUM = re.compile(r"([A-Za-z_][\w\->]*)\s*[:=]\s*(-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?)\b")
+
+
+def log_files(log_dir: Path, day: str) -> list[str]:
+    """chrono's own logs of the day and 224's tee'd ones (2026-11-06_09-25-52-757.log)."""
+    dash = f"{day[:4]}-{day[4:6]}-{day[6:]}"
+    return sorted(set(glob.glob(os.path.join(str(log_dir), f"*_{day}_*.log")))
+                  | set(glob.glob(os.path.join(str(log_dir), f"{dash}_*.log"))))
+
+
+def read_factor(files: list[str]) -> tuple[pl.DataFrame, pl.DataFrame]:
+    """PM's factor program lines -> (one row per snapshot it scored, one row per trade decision).
+
+    A ``catchRun.cpp`` line names the stock and its snapshot (srcEpoch); the ``alg.cpp`` lines after it carry
+    book->epoch = that srcEpoch, so each is tied to the last catchRun line of the same file with the same epoch."""
+    snaps, decisions, unmatched = [], [], 0
+    for f in files:
+        last: dict[str, float] = {}
+        with open(f, encoding="utf-8", errors="replace") as fh:
+            for line in fh:
+                if "catchRun.cpp" in line and "srcEpoch" in line:
+                    last = {k: float(v) for k, v in NUM.findall(line)}
+                elif "alg.cpp" in line and "sidIdx" in line:
+                    kv = {k: float(v) for k, v in NUM.findall(line)}
+                    if last and abs(kv.get("book->epoch", -1.0) - last.get("srcEpoch", -2.0)) < 1e-4:
+                        snaps.append({"sid": int(last["sid"]), "src_epoch": round(last["srcEpoch"] * 1e9),
+                                      "rec_epoch": round(last.get("recEpoch", float("nan")) * 1e9) if "recEpoch" in last else None,
+                                      "sid_idx": int(kv["sidIdx"]), "a_idx": int(kv.get("aIdx", 0)), "fa": kv.get("fa"),
+                                      "ems_our_vol": kv.get("emsOurVol"), "ems_mkt_vol": kv.get("emsMktVol")})
+                    else:
+                        unmatched += 1
+                elif "alg.cpp" in line and "executp" in line:
+                    kv = {k.replace("this->", "").replace("_", ""): float(v) for k, v in NUM.findall(line.split("]", 2)[-1])}
+                    decisions.append({"src_epoch": round(last["srcEpoch"] * 1e9) if "srcEpoch" in last else None, **kv})
+    if unmatched:
+        print(f"  factor lines: {unmatched:,} alg lines without their catchRun line")
+    return pl.DataFrame(snaps), pl.DataFrame(decisions, infer_schema_length=None)
+
+
+def ems_check(con: duckdb.DuckDBPyConnection, day: str, st: pl.DataFrame) -> None:
+    """emsMktVol against exponential moving sums of our snapshot volume increments at PM's snapshot times."""
+    st = st.filter(pl.col("ems_mkt_vol").is_not_null())
+    if st.is_empty():
+        return
+    sids = sorted(st["sid"].unique().to_list())[:120]
+    fast = E.load(con, int(day), sids, 54150.005)["fast"]
+    hl = (30, 60, 120, 300, 600, 900, 1800, 3600)
+    per = (0.9, 0.95, 0.98, 0.99, 0.995)
+    got: dict[str, list] = {f"t{h}": [] for h in hl} | {f"a{al}": [] for al in per}
+    ys = []
+
+    def msum(dv: np.ndarray, dec: np.ndarray) -> np.ndarray:
+        out, acc = np.empty(dv.size), 0.0
+        for i in range(dv.size):
+            acc = acc * dec[i] + dv[i]
+            out[i] = acc
+        return out
+
+    for g in fast.partition_by("sid"):
+        sid = int(g["sid"][0])
+        p = st.filter(pl.col("sid") == sid)
+        if p.height < 50 or g.height < 50:
+            continue
+        ar = E.arrays(g, "fast")
+        t, dv = ar["t_local"], ar["dvol"]
+        T = trading_clock(p["src_epoch"].to_numpy())
+        ys.append(p["ems_mkt_vol"].to_numpy())
+        dt = np.diff(t, prepend=t[0])
+        for h in hl:
+            got[f"t{h}"].append(FI.at_marks(t, msum(dv, np.exp(-dt * np.log(2) / h)), T))
+        for al in per:
+            got[f"a{al}"].append(FI.at_marks(t, msum(dv, np.full(t.size, al)), T))
+    if not ys:
+        return
+    y = np.concatenate(ys)
+    res = []
+    for k, v in got.items():
+        x = np.concatenate(v)
+        m = np.isfinite(x) & np.isfinite(y) & (x > 0) & (y > 0)
+        if m.sum() < 100:
+            continue
+        r = y[m] / x[m]
+        res.append((k, np.median(r), np.mean(np.abs(r / np.median(r) - 1) < 1e-2), np.corrcoef(np.log(x[m]), np.log(y[m]))[0, 1]))
+    res.sort(key=lambda z: -z[3])
+    print("  emsMktVol vs moving sum of snapshot volume (t<half-life s> / a<decay per snapshot>), best 4 by log corr: "
+          + "; ".join(f"{k} ratio {r:.3f} within 1% {w:.3f} logcorr {c:.4f}" for k, r, w, c in res[:4]))
 
 
 def trading_clock(ns: np.ndarray) -> np.ndarray:
@@ -67,9 +161,7 @@ def trading_clock(ns: np.ndarray) -> np.ndarray:
 
 def read_signals(log_dir: Path, day: str) -> pl.DataFrame:
     """Every ``trk SIG`` line of the day's chrono logs, one row each."""
-    dash = f"{day[:4]}-{day[4:6]}-{day[6:]}"  # 224's tee'd logs (chrono + PM's factor program): 2026-11-06_09-25-52-757.log
-    files = sorted(set(glob.glob(os.path.join(str(log_dir), f"*_{day}_*.log")))
-                   | set(glob.glob(os.path.join(str(log_dir), f"{dash}_*.log"))))
+    files = log_files(log_dir, day)
     rows = []
     for f in files:
         with open(f, encoding="utf-8", errors="replace") as fh:
@@ -150,21 +242,49 @@ def main() -> None:
     ap.add_argument("--dates", required=True, help="comma list of YYYYMMDD")
     ap.add_argument("--out", type=Path, default=Path("/work/crucible_data/pm_signals"))
     ap.add_argument("--no-report", action="store_true", help="only write the parquet")
+    ap.add_argument("--max-delay", type=float, default=2.0, help="drop signals PM built on a snapshot that reached it later than this (s)")
     a = ap.parse_args()
     a.out.mkdir(parents=True, exist_ok=True)
     con = duckdb.connect(str(B.CATALOG), read_only=True)
     for d in [x for x in a.dates.split(",") if x]:
         t0 = time.perf_counter()
         sig = read_signals(a.logs, d)
-        if sig.is_empty():
-            print(f"{d}: no trk SIG lines in {a.logs} (*_{d}_*.log or {d[:4]}-{d[4:6]}-{d[6:]}_*.log)")
+        st, dec = read_factor(log_files(a.logs, d))
+        if sig.is_empty() and st.is_empty():
+            print(f"{d}: no trk SIG nor factor lines in {a.logs} (*_{d}_*.log or {d[:4]}-{d[4:6]}-{d[6:]}_*.log)")
             continue
-        sig = sig.with_columns(pl.Series("t", trading_clock(sig["md_ts"].to_numpy())))
-        keep = [c for c in ("date", "sid", "symbol", "md_ts", "md_recv_ts", "recv_ts", "t", "prediction", "confidence", "px", "vol", "name")
+        if not st.is_empty():
+            (a.out / "state").mkdir(parents=True, exist_ok=True)
+            pl.concat([st.with_columns(pl.lit("snap").alias("kind")), dec.with_columns(pl.lit("decision").alias("kind"))],
+                      how="diagonal_relaxed").write_parquet(a.out / "state" / f"date={d}.parquet")
+        if not sig.is_empty():
+            late = ((sig["md_recv_ts"] - sig["md_ts"]) > a.max_delay * 1e9).to_numpy()
+            print(f"  {sig.height:,} SIG lines, {int(late.sum()):,} dropped as built on a feed later than {a.max_delay:g} s")
+            sig = sig.filter(pl.Series(~late))
+            sig = sig.with_columns(pl.Series("t", trading_clock(sig["md_recv_ts"].to_numpy())), pl.lit("sig").alias("src"))
+        if not st.is_empty():
+            key = lambda c: ((pl.col(c) + 50_000) // 100_000).alias("k10us")  # noqa: E731 -- PM prints srcEpoch rounded to 10 us
+            fa = st.with_columns(key("src_epoch"))
+            if not sig.is_empty():
+                both = sig.with_columns(key("md_recv_ts")).join(fa.select("sid", "k10us", "fa"), on=["sid", "k10us"], how="inner")
+                diff = (both["prediction"] - both["fa"]).abs().to_numpy()
+                cor = np.corrcoef(both["prediction"].to_numpy(), both["fa"].to_numpy())[0, 1] if both.height > 2 else float("nan")
+                print(f"  factor program: {st.height:,} scored snapshots, {both.height:,} also in SIG "
+                      f"(|prediction - fa| max {diff.max() if diff.size else float('nan'):.1e}, corr {cor:.6f}), {dec.height:,} trade decisions")
+                fa = fa.join(sig.with_columns(key("md_recv_ts")).select("sid", "k10us"), on=["sid", "k10us"], how="anti")
+            extra = fa.select("sid", pl.col("src_epoch").alias("md_recv_ts"), pl.col("fa").alias("prediction")).with_columns(
+                pl.lit(int(d)).alias("date"), pl.Series("t", trading_clock(fa["src_epoch"].to_numpy())), pl.lit("fa").alias("src"))
+            print(f"  {extra.height:,} snapshots scored by PM but missing from chrono's SIG: added from fa (5 decimals)")
+            sig = extra if sig.is_empty() else pl.concat([sig, extra], how="diagonal_relaxed")
+        keep = [c for c in ("date", "sid", "symbol", "md_ts", "md_recv_ts", "recv_ts", "t", "prediction", "confidence", "px", "vol", "name", "src")
                 if c in sig.columns]
         sig.select(keep).sort("sid", "md_recv_ts").write_parquet(a.out / f"date={d}.parquet")
         if not a.no_report:
-            report(con, d, sig)
+            on_sig = sig.filter(pl.col("src") == "sig") if "md_ts" in sig.columns else sig.clear()
+            if on_sig.height:
+                report(con, d, on_sig)
+            if not st.is_empty():
+                ems_check(con, d, st)
         print(f"  -> {a.out / f'date={d}.parquet'} ({time.perf_counter() - t0:.0f}s)")
     con.close()
 
