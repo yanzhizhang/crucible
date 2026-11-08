@@ -106,3 +106,8 @@
 - 用户指示：全屏控制不再逐次询问，循环自主运行。但审批弹窗是系统级的，仍会出现，超时就失败。
 - 12:46 crucible 结论（zyq 已结案）：bp = 当天涨跌幅（基点）。k=1：bp > 500；k=2：|bp| < 100；k=3：其余（100 ≤ bp ≤ 500，或 bp ≤ -100，跌幅无下限）。stocklist = k=3，作为次日股票池。
 - 12:53 第 4 轮跑完：total 617s（重建 build 188s，panel 83s，implied 303s）。override 全部 4 列一起换上后 IC 0.5447→0.5360；dropped 15 列后 0.5693；扫描后 end 0.5782，34 列，agreement 0.555。三列选中了 lpe7200。结果已原样发给 crucible。
+
+## 第 5 轮 — 2026-11-08 13:00（等待中）
+- crucible 推了 d9069d8（ic_score.py 1511 行，md5 b714e674；ic_kernel.py 187 行，md5 1134cac1）。还没搬。
+- 用户不在电脑边，全屏控制审批超时两次。
+- 13:03 试了只用后台操作：点击可以；Ctrl+C/V 被拦；Ctrl+A 被当成字母 a，打进了公司电脑 crucible 工作区 ic_score.py 的第 26 行（cell 变成 acell）。已用 Edit > Undo 撤销，并通知 crucible 用 git diff 核对。结论：后台只能截图和点击，不能按键。
