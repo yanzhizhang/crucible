@@ -38,8 +38,11 @@ column is removed once (ablation: the paired IC loss and its t) and checked agai
 from __future__ import annotations
 
 import argparse
+import hashlib
+import inspect
 import json
 import re
+import shutil
 import sys
 import time
 from collections import Counter
@@ -333,6 +336,29 @@ def index_relative(gen: dict[str, np.ndarray], ix: dict, sid: int, T: np.ndarray
     return out
 
 
+BUILD_REV = 1  # bump when main()'s per-day build loop changes: every cached build is then rebuilt
+
+
+def build_dir(args, d: str, state: Path, target: Path | None) -> Path | None:
+    """Where one day's build is cached: keyed by the build code, the build arguments and the input files' size / mtime.
+    Market data in the catalog is not in the key: --rebuild when it is in doubt."""
+    if not args.cache or not args.cache_dir.parent.parent.exists():
+        return None
+    import ced_match
+    import same_gap
+
+    def stamp(f: Path | None) -> tuple:
+        return (str(f), f.stat().st_size, f.stat().st_mtime_ns) if f is not None and f.exists() else (str(f),)
+
+    mods = [B, E, FI, same_gap] + ([ced_match] if args.ced else [])
+    code = [inspect.getsource(m) for m in mods] + [inspect.getsource(fn) for fn in (generic, index_relative, index_series, pm_daily, profile_marks)]
+    parts = [BUILD_REV, HORIZON, MARKS.tolist(), args.profiles, str(args.hstats), str(args.pm_cache), str(args.pm_stsfile), args.ced,
+             str(args.ced_xr), args.target_stale, stamp(args.engine_dir / f"marks_{d}.parquet")]
+    key = hashlib.sha256(repr(code + parts).encode()).hexdigest()[:16]
+    day = hashlib.sha256(repr((stamp(state), stamp(target))).encode()).hexdigest()[:8]
+    return args.cache_dir / key / f"date={d}.{day}"
+
+
 def pm_daily(root: Path, d: str, sids: list[int]) -> pl.DataFrame | None:
     """PM's own morning inputs for day d (/tmp/s/stsfile, the latest file before d, as qlive/trd.cpp loads them):
     stats/sod msr / mb / vr, index weights (SH50 HS300 A500 ZZ500 ZZ1000 ZZ2000) and the exchange dummies."""
@@ -616,7 +642,7 @@ def main() -> None:
     ap.add_argument("--target-stale", type=float, default=10.0, help="--target: a signal older than this many seconds at the mark is no value")
     ap.add_argument("--implied", type=int, default=0, help="--target only: invert PM's model for this many open features (by gain)")
     ap.add_argument("--implied-rows", type=int, default=30000, help="rows sampled for --implied")
-    ap.add_argument("--carriers", type=int, default=24, help="--implied: this many top residual candidates tried in each open column")
+    ap.add_argument("--carriers", type=int, default=6, help="--implied: this many top residual groups (every scale of each) tried in each open column")
     ap.add_argument("--freeze-strong", action=argparse.BooleanOptionalAction, default=True,
                     help="skip features whose current formula was graded strong in <out>/ic_evidence.parquet")
     ap.add_argument("--profiles", default="ZZWA,ZZAL,ZZQO,ZZXC,ZZTS", help="samplerS families whose cells join the pool ('' = none)")
@@ -625,6 +651,10 @@ def main() -> None:
     ap.add_argument("--triples", action=argparse.BooleanOptionalAction, default=True, help="state candidates (x - y) / z")
     ap.add_argument("--min-distinct", type=int, default=30, help="fewer distinct values = a dummy: only for flag / count features")
     ap.add_argument("--out", type=Path, default=Path("data/reports/stage6"))
+    ap.add_argument("--cache", action=argparse.BooleanOptionalAction, default=True, help="read / write each day's build under --cache-dir")
+    ap.add_argument("--cache-dir", type=Path, default=Path("/work/crucible_data/cache/ic_build"))
+    ap.add_argument("--rebuild", action="store_true", help="build every day again (market data in doubt) and overwrite the cache")
+    ap.add_argument("--implied-feats", default="", help="--implied: only these features (comma-separated)")
     args = ap.parse_args()
     global MARKS
     MARKS = mark_grid(args.marks)
@@ -660,101 +690,121 @@ def main() -> None:
         if not f.exists():
             print(f"skip {d}: no state file")
             continue
-        tgt: dict[int, tuple[np.ndarray, np.ndarray]] = {}
-        if args.target:
-            tf = args.target / f"date={d}.parquet"
-            if not tf.exists():
-                print(f"skip {d}: no PM signals {tf}")
-                continue
-            for g in pl.read_parquet(tf, columns=["sid", "t", "prediction"]).sort("sid", "t").partition_by("sid"):
-                tgt[int(g["sid"][0])] = (g["t"].to_numpy().astype(float), g["prediction"].to_numpy().astype(float))
-        pm = B.load_state(f)
-        tz = pm.filter(pl.col("key") == "zzba.p.t")["pm"].max()
-        stop = (tz + 34200 if tz <= 7200 else tz - 7200 + 46800) + 0.005
-        sids = sorted(pm["sid"].unique().to_list())
-        up = E.load(con, int(d), sids, stop)
-        ix = index_series(con, int(d), stop)
-        print(f"{d}: index snapshots for {sorted(ix) or 'none (decode with KINDS=index research/backfill.sh)'}")
-        fast = {int(g["sid"][0]): g for g in up["fast"].partition_by("sid")}
-        slow = {int(g["sid"][0]): g for g in up["slow"].partition_by("sid")}
-        dc = CM.daily_candidates(d, sids) if CM is not None else None
-        dbase = {r["sid"]: r for r in dc.select("sid", "adv20", "avgvol20", "freeshare").fill_null(np.nan).iter_rows(named=True)} if dc is not None else {}
-        pmd = pm_daily(args.pm_stsfile, d, sids) if args.pm_stsfile.exists() else None
-        pmsm = {}
-        if pmd is not None:  # PM's daily inputs join the CED table as ced.pm.* / ced.pmw.* / ced.pmx.*
-            dc = pmd if dc is None else dc.join(pmd.with_columns(pl.col("sid").cast(dc.schema["sid"])), on="sid", how="left")
-            if "pm.msr" in pmd.columns:
-                pmsm = {int(r[0]): (float(r[1]), float(r[2])) for r in pmd.select("sid", "pm.msr", "pm.mb").iter_rows()
-                        if r[1] is not None and r[2] is not None and r[1] > 0 and r[2] > 0}  # stocks PM has no stats for: no ratio
-            print(f"{d}: PM daily inputs {[c for c in pmd.columns if c != 'sid']}")
-        eng: dict[int, dict[str, np.ndarray]] = {}
-        ef = args.engine_dir / f"marks_{d}.parquet"
-        if ef.exists():  # the engine's state at the marks (every solved rule) over the Python rebuild's
-            em = pl.read_parquet(ef).filter(pl.col("mark").is_in(MARKS.tolist())).sort("sid", "mark")
-            keep = [c for c in em.columns if c not in ("sid", "mark") and "|" not in c]
-            for g in em.partition_by("sid"):
-                if g.height == MARKS.size:
-                    eng[int(g["sid"][0])] = {c: g[c].to_numpy() for c in keep}
-        prof = profile_marks(args.hstats, args.pm_cache, pfams, d, MARKS) if pfams else {}
-        rets: dict[int, np.ndarray] = {}
-        b_sid, b_key, b_val = [], [], []  # one long frame built once per day (not one small frame per key)
+        tf = args.target / f"date={d}.parquet" if args.target else None
+        if tf is not None and not tf.exists():
+            print(f"skip {d}: no PM signals {tf}")
+            continue
+        t_day = time.perf_counter()
+        cdir = build_dir(args, d, f, tf)
+        if cdir is not None and not args.rebuild and (cdir / "long.parquet").exists():  # this day's build, unchanged inputs: read it back
+            long = pl.read_parquet(cdir / "long.parquet")
+            dc = pl.read_parquet(cdir / "dc.parquet") if (cdir / "dc.parquet").exists() else None
+            rets = {int(g["sid"][0]): g["ret"].to_numpy() for g in pl.read_parquet(cdir / "rets.parquet").partition_by("sid", maintain_order=True)}
+            eng, prof = {}, {}
+            print(f"{d}: build read from cache {cdir.parent.name}")
+        else:
+            tgt: dict[int, tuple[np.ndarray, np.ndarray]] = {}
+            if args.target:
+                for g in pl.read_parquet(tf, columns=["sid", "t", "prediction"]).sort("sid", "t").partition_by("sid"):
+                    tgt[int(g["sid"][0])] = (g["t"].to_numpy().astype(float), g["prediction"].to_numpy().astype(float))
+            pm = B.load_state(f)
+            tz = pm.filter(pl.col("key") == "zzba.p.t")["pm"].max()
+            stop = (tz + 34200 if tz <= 7200 else tz - 7200 + 46800) + 0.005
+            sids = sorted(pm["sid"].unique().to_list())
+            up = E.load(con, int(d), sids, stop)
+            ix = index_series(con, int(d), stop)
+            print(f"{d}: index snapshots for {sorted(ix) or 'none (decode with KINDS=index research/backfill.sh)'}")
+            fast = {int(g["sid"][0]): g for g in up["fast"].partition_by("sid")}
+            slow = {int(g["sid"][0]): g for g in up["slow"].partition_by("sid")}
+            dc = CM.daily_candidates(d, sids) if CM is not None else None
+            dbase = {r["sid"]: r for r in dc.select("sid", "adv20", "avgvol20", "freeshare").fill_null(np.nan).iter_rows(named=True)} if dc is not None else {}
+            pmd = pm_daily(args.pm_stsfile, d, sids) if args.pm_stsfile.exists() else None
+            pmsm = {}
+            if pmd is not None:  # PM's daily inputs join the CED table as ced.pm.* / ced.pmw.* / ced.pmx.*
+                dc = pmd if dc is None else dc.join(pmd.with_columns(pl.col("sid").cast(dc.schema["sid"])), on="sid", how="left")
+                if "pm.msr" in pmd.columns:
+                    pmsm = {int(r[0]): (float(r[1]), float(r[2])) for r in pmd.select("sid", "pm.msr", "pm.mb").iter_rows()
+                            if r[1] is not None and r[2] is not None and r[1] > 0 and r[2] > 0}  # stocks PM has no stats for: no ratio
+                print(f"{d}: PM daily inputs {[c for c in pmd.columns if c != 'sid']}")
+            eng: dict[int, dict[str, np.ndarray]] = {}
+            ef = args.engine_dir / f"marks_{d}.parquet"
+            if ef.exists():  # the engine's state at the marks (every solved rule) over the Python rebuild's
+                em = pl.read_parquet(ef).filter(pl.col("mark").is_in(MARKS.tolist())).sort("sid", "mark")
+                keep = [c for c in em.columns if c not in ("sid", "mark") and "|" not in c]
+                for g in em.partition_by("sid"):
+                    if g.height == MARKS.size:
+                        eng[int(g["sid"][0])] = {c: g[c].to_numpy() for c in keep}
+            prof = profile_marks(args.hstats, args.pm_cache, pfams, d, MARKS) if pfams else {}
+            rets: dict[int, np.ndarray] = {}
+            b_sid, b_key, b_val = [], [], []  # one long frame built once per day (not one small frame per key)
 
-        def add(sid: int, key: str, v: np.ndarray, bs=b_sid, bk=b_key, bv=b_val) -> None:
-            bs.append(sid)
-            bk.append(key)
-            bv.append(np.broadcast_to(np.asarray(v, float), (MARKS.size,)))  # a scalar fills every mark, as the old frame did
-        for sid in sids:
-            gf, gs = fast.get(sid), slow.get(sid)
-            built = FI.rebuild(gf, gs, MARKS)
-            fs = {k.split(".")[0] for k in built}  # only stems the rebuild keeps: zzvm etc. stay on the shared pool (daily ratios)
-            built.update({k: v for k, v in eng.get(sid, {}).items() if k.split(".")[0] in fs})
-            for k, v in built.items():
-                add(sid, k, v)
-            if sid in dbase and "zzqj.v" in built:  # intraday over daily: amount / volume since 09:30 over 20-day averages, volume over float
-                bs = dbase[sid]
-                with np.errstate(divide="ignore", invalid="ignore"):
-                    for k, v in (("amt_adv20", built["zzqj.tpv"] / bs["adv20"]), ("vol_avg20", built["zzqj.v"] / bs["avgvol20"]),
-                                 ("vol_float", built["zzqj.v"] / bs["freeshare"])):
-                        add(sid, f"ced.{k}", np.asarray(v, float))
-            if gf is not None and gf.height > 2:
-                a = E.arrays(gf, "fast")
-                mid = a["mid"]
-                ok = np.isfinite(mid) & (mid > 0)
-                m0 = FI.at_marks(a["t_local"][ok], mid[ok], MARKS)
-                m1 = FI.at_marks(a["t_local"][ok], mid[ok], MARKS + HORIZON)
-                with np.errstate(divide="ignore", invalid="ignore"):
-                    rets[sid] = np.log(m1 / m0)
-            if args.target:  # PM's prediction made on the stock's latest snapshot at or before the mark (exchange clock)
-                ts, pv = tgt.get(sid, (np.zeros(0), np.zeros(0)))
-                last_t = FI.at_marks(ts, ts, MARKS)
-                rets[sid] = np.where(MARKS - last_t <= args.target_stale, FI.at_marks(ts, pv, MARKS), np.nan)
-                add(sid, "px", FI.at_marks(a["t_local"], a["price"], MARKS))
-            gen = generic(gf, gs, MARKS)
-            gen.update(index_relative(gen, ix, sid, MARKS))
-            if sid in pmsm and gf is not None and gf.height > 2:  # spread and depth over PM's own daily normalisers
-                msr, mb = pmsm[sid]
-                af = E.arrays(gf, "fast")
-                dep = FI.at_marks(af["t_local"], (gf["bv1"].to_numpy().astype(float) + gf["av1"].to_numpy().astype(float)) / 2, MARKS)
-                with np.errstate(divide="ignore", invalid="ignore"):
-                    add(sid, "ced.r.sp_msr", gen["spread"] / (2 * msr))
-                    for w in (60, 300, 900):
-                        if f"spm{w}" in gen:
-                            add(sid, f"ced.r.spm{w}_msr", gen[f"spm{w}"] / (2 * msr))
-                    add(sid, "ced.r.ldep_mb", np.log(dep / mb))
-                    add(sid, "ced.r.dep_mb", dep / mb)
-            for k, v in gen.items():
-                add(sid, f"gen.{k}", v.astype(float))
-            for k, v in prof.get(sid, {}).items():
-                add(sid, f"ced.{k}", v)
-                if not k.endswith("@1"):  # the last bar's flow over its profile cell (log): the bar as it ended, before / at the minute
+            def add(sid: int, key: str, v: np.ndarray, bs=b_sid, bk=b_key, bv=b_val) -> None:
+                bs.append(sid)
+                bk.append(key)
+                bv.append(np.broadcast_to(np.asarray(v, float), (MARKS.size,)))  # a scalar fills every mark, as the old frame did
+            for sid in sids:
+                gf, gs = fast.get(sid), slow.get(sid)
+                built = FI.rebuild(gf, gs, MARKS)
+                fs = {k.split(".")[0] for k in built}  # only stems the rebuild keeps: zzvm etc. stay on the shared pool (daily ratios)
+                built.update({k: v for k, v in eng.get(sid, {}).items() if k.split(".")[0] in fs})
+                for k, v in built.items():
+                    add(sid, k, v)
+                if sid in dbase and "zzqj.v" in built:  # intraday over daily: amount / volume since 09:30 over 20-day averages, volume over float
+                    bs = dbase[sid]
                     with np.errstate(divide="ignore", invalid="ignore"):
-                        for r in ("amt300", "vol300", "buy300"):
-                            if r in gen:
-                                add(sid, f"ced.lr.{r}.{k}", np.log(gen[r] / v))
-        nm = MARKS.size
-        long = pl.DataFrame({"sid": np.repeat(np.array(b_sid, np.int64), nm), "mark": np.tile(MARKS, len(b_sid)),
-                             "key": np.repeat(np.array(b_key, dtype=object), nm), "pm": np.concatenate(b_val) if b_val else np.zeros(0)},
-                            schema={"sid": pl.Int64, "mark": pl.Float64, "key": pl.String, "pm": pl.Float64}).filter(pl.col("pm").is_finite())
+                        for k, v in (("amt_adv20", built["zzqj.tpv"] / bs["adv20"]), ("vol_avg20", built["zzqj.v"] / bs["avgvol20"]),
+                                     ("vol_float", built["zzqj.v"] / bs["freeshare"])):
+                            add(sid, f"ced.{k}", np.asarray(v, float))
+                if gf is not None and gf.height > 2:
+                    a = E.arrays(gf, "fast")
+                    mid = a["mid"]
+                    ok = np.isfinite(mid) & (mid > 0)
+                    m0 = FI.at_marks(a["t_local"][ok], mid[ok], MARKS)
+                    m1 = FI.at_marks(a["t_local"][ok], mid[ok], MARKS + HORIZON)
+                    with np.errstate(divide="ignore", invalid="ignore"):
+                        rets[sid] = np.log(m1 / m0)
+                if args.target:  # PM's prediction made on the stock's latest snapshot at or before the mark (exchange clock)
+                    ts, pv = tgt.get(sid, (np.zeros(0), np.zeros(0)))
+                    last_t = FI.at_marks(ts, ts, MARKS)
+                    rets[sid] = np.where(MARKS - last_t <= args.target_stale, FI.at_marks(ts, pv, MARKS), np.nan)
+                    add(sid, "px", FI.at_marks(a["t_local"], a["price"], MARKS))
+                gen = generic(gf, gs, MARKS)
+                gen.update(index_relative(gen, ix, sid, MARKS))
+                if sid in pmsm and gf is not None and gf.height > 2:  # spread and depth over PM's own daily normalisers
+                    msr, mb = pmsm[sid]
+                    af = E.arrays(gf, "fast")
+                    dep = FI.at_marks(af["t_local"], (gf["bv1"].to_numpy().astype(float) + gf["av1"].to_numpy().astype(float)) / 2, MARKS)
+                    with np.errstate(divide="ignore", invalid="ignore"):
+                        add(sid, "ced.r.sp_msr", gen["spread"] / (2 * msr))
+                        for w in (60, 300, 900):
+                            if f"spm{w}" in gen:
+                                add(sid, f"ced.r.spm{w}_msr", gen[f"spm{w}"] / (2 * msr))
+                        add(sid, "ced.r.ldep_mb", np.log(dep / mb))
+                        add(sid, "ced.r.dep_mb", dep / mb)
+                for k, v in gen.items():
+                    add(sid, f"gen.{k}", v.astype(float))
+                for k, v in prof.get(sid, {}).items():
+                    add(sid, f"ced.{k}", v)
+                    if not k.endswith("@1"):  # the last bar's flow over its profile cell (log): the bar as it ended, before / at the minute
+                        with np.errstate(divide="ignore", invalid="ignore"):
+                            for r in ("amt300", "vol300", "buy300"):
+                                if r in gen:
+                                    add(sid, f"ced.lr.{r}.{k}", np.log(gen[r] / v))
+            nm = MARKS.size
+            long = pl.DataFrame({"sid": np.repeat(np.array(b_sid, np.int64), nm), "mark": np.tile(MARKS, len(b_sid)),
+                                 "key": np.repeat(np.array(b_key, dtype=object), nm), "pm": np.concatenate(b_val) if b_val else np.zeros(0)},
+                                schema={"sid": pl.Int64, "mark": pl.Float64, "key": pl.String, "pm": pl.Float64}).filter(pl.col("pm").is_finite())
+            if cdir is not None:  # written whole or not at all: a half-written day is never read back
+                tmp = cdir.with_name(cdir.name + ".tmp")
+                tmp.mkdir(parents=True, exist_ok=True)
+                long.write_parquet(tmp / "long.parquet")
+                if dc is not None:
+                    dc.write_parquet(tmp / "dc.parquet")
+                pl.DataFrame({"sid": np.repeat(np.array(list(rets), np.int64), MARKS.size),
+                              "ret": np.concatenate(list(rets.values())) if rets else np.zeros(0)}).write_parquet(tmp / "rets.parquet")
+                if cdir.exists():
+                    shutil.rmtree(cdir)
+                tmp.rename(cdir)
         by_mark = long.partition_by("mark", as_dict=True, include_key=False)  # one pass instead of a filter per mark
         empty = long.drop("mark").clear()
         frames = [by_mark.get((m,), empty) for m in MARKS]
@@ -762,10 +812,13 @@ def main() -> None:
         state_stems |= set(long["key"].str.extract(r"^([^.]+)\.", 1).drop_nulls().unique().to_list()) - {"gen", "ced"}
         models = load_models(args.models, d, args.fits.split(","), args.subs.split(","))
         blocks.append((d, models, frames, rets))
-        print(f"{d}: {len(sids)} stocks x {MARKS.size} marks, {len(models)} models, engine state for {len(eng)}, "
+        print(f"{d}: {len(rets)} stocks x {MARKS.size} marks, {len(models)} models, engine state for {len(eng)}, "
               f"profiles for {len(prof)} ({time.perf_counter() - t0:.0f}s)")
+        print(f"time build_{d} {time.perf_counter() - t_day:.0f}s")
     if not blocks:
         return
+    print(f"time build {time.perf_counter() - t0:.0f}s")
+    t_st = time.perf_counter()
     # the panel: one row per (day, mark, stock with a forward return)
     rows_sid, rows_grp, rows_ret, rows_blk, rows_mark = [], [], [], [], []
     for bi, (_, _, _, rets) in enumerate(blocks):
@@ -956,23 +1009,35 @@ def main() -> None:
                 print(f"drop {feat} = {expr}: {np.unique(v).size} distinct values on a {fp_kind.get(feat)} feature")
                 X[:, col[feat]] = np.nan
                 del assign[feat]
+    print(f"time panel {time.perf_counter() - t_st:.0f}s")
+    t_st = time.perf_counter()
     base = summary(score(X))
+    ef0 = args.out / "ic_evidence.parquet"
+    ev0 = pl.read_parquet(ef0) if ef0.exists() else None
+    if ev0 is not None:  # formulas whose removal raised the IC last round, each alone (t_loss <= -2): dropped only if dropping them together helps
+        bad = [f for f, e, t in ev0.select("feature", "formula", "t_loss").iter_rows()
+               if t is not None and t <= -args.min_t and assign.get(f) == e and f in col]
+        if bad:
+            kept_cols = {f: X[:, col[f]].copy() for f in bad}
+            for f in bad:
+                X[:, col[f]] = np.nan
+            b2 = summary(score(X))
+            if b2[0] > base[0]:
+                for f in bad:
+                    del assign[f]
+                print(f"dropped (IC rose without them last round; together {base[0]:.4f} -> {b2[0]:.4f}): {bad}")
+                base = b2
+            else:
+                for f, v in kept_cols.items():
+                    X[:, col[f]] = v
+                print(f"kept {bad}: each alone raised the IC when dropped last round, together {base[0]:.4f} -> {b2[0]:.4f}")
     print(f"\nall-missing except the assignment {assign}: IC {base[0]:.4f} (t {base[1]:.2f}, {base[2]} marks) ({time.perf_counter() - t0:.0f}s)")
+    print(f"time base {time.perf_counter() - t_st:.0f}s")
+    t_st = time.perf_counter()
     log = []
     feats = [f for f in fp.sort("gain_share", descending=True)["feature"].to_list() if f in col][: args.max_features]
     frozen: set[str] = set()
-    ef0 = args.out / "ic_evidence.parquet"
-    if ef0.exists():  # a formula whose removal raised the IC last time (t_loss <= -2) hurts: back to missing, rescanned
-        ev0 = pl.read_parquet(ef0)
-        bad = [f for f, e, t in ev0.select("feature", "formula", "t_loss").iter_rows()
-               if t is not None and t <= -args.min_t and assign.get(f) == e and f in col]
-        for f in bad:
-            X[:, col[f]] = np.nan
-            del assign[f]
-        if bad:
-            print(f"dropped (IC rose without them last round): {bad}")
-    if args.freeze_strong and ef0.exists():  # a formula graded strong last time and still assigned is settled: not scanned again
-        ev0 = pl.read_parquet(ef0)
+    if args.freeze_strong and ev0 is not None:  # a formula graded strong last time and still assigned is settled: not scanned again
         frozen = {f for f, e, g in ev0.select("feature", "formula", "grade").iter_rows() if g == "strong" and assign.get(f) == e}
         print(f"frozen (strong last round, not rescanned): {sorted(frozen)}")
     sorted_pools: dict[int, dict[str, np.ndarray]] = {}  # id(candidate pool) -> its samples sorted once
@@ -1094,17 +1159,23 @@ def main() -> None:
                         "top": "; ".join(f"{e} {ic:.4f} (t {tg:.1f})" for e, ic, tg in tried[:3])})
             print(f"pass {ps} {feat}: kept {assign.get(feat)} IC {best[0]:.4f} t_gain {best[2]:.1f} ({time.perf_counter() - t0:.0f}s)")
         print(f"pass {ps} time: fingerprint ranking {tm['rank']:.0f}s, candidate columns {tm['column']:.0f}s, model + IC {tm['score']:.0f}s")
+    print(f"time scan {time.perf_counter() - t_st:.0f}s")
+    t_st = time.perf_counter()
     full_pred = panel(X)
     final = summary(ic_vec(full_pred, ret, grp))
     full_v = np.nan_to_num(ic_vec(full_pred, ret, grp), nan=0.0)
     evid = []
+    prev = {r["feature"]: r for r in ev0.iter_rows(named=True)} if ev0 is not None else {}
     for feat, expr in assign.items():  # ablation: the IC lost when the column goes back to missing, and the training-CDF gap
         if feat not in col:
             continue
         j = col[feat]
         keep_col = X[:, j].copy()
-        loss, t_loss, _ = summary(full_v - np.nan_to_num(Swap(j, full_pred).score(np.full(sid_a.size, np.nan)), nan=0.0))
-        X[:, j] = keep_col
+        if feat in frozen and feat in prev:  # settled (strong, same formula): last round's ablation stands
+            loss, t_loss = prev[feat]["ic_loss"], prev[feat]["t_loss"]
+        else:
+            loss, t_loss, _ = summary(full_v - np.nan_to_num(Swap(j, full_pred).score(np.full(sid_a.size, np.nan)), nan=0.0))
+            X[:, j] = keep_col
         v = keep_col[np.isfinite(keep_col)]
         gap = FM.cdf_gap(v, cdf[feat]) if feat in cdf and v.size else np.nan
         src = ("state" if feat.split(".")[0] in state_stems else "xs" if expr.startswith(XS)
@@ -1128,8 +1199,12 @@ def main() -> None:
             print(pl.DataFrame(log))
     print(f"\nIC: start {base[0]:.4f} -> end {final[0]:.4f} (t {final[1]:.2f}, {final[2]} marks); "
           f"{len(assign)} of {len(names)} columns assigned -> {args.out / 'ic_assign.json'}")
+    print(f"time ablation {time.perf_counter() - t_st:.0f}s")
     if args.implied and flat and args.target:
+        t_st = time.perf_counter()
         implied(args, X, col, blocks, brows, ret, grp, sid_a, blk, mk, full_pred, fp, assign, ev if evid else None, pool, pool_col)
+        print(f"time implied {time.perf_counter() - t_st:.0f}s")
+    print(f"time total {time.perf_counter() - t0:.0f}s")
 
 
 def implied(args, X, col, blocks, brows, ret, grp, sid_a, blk, mk, full_pred, fp, assign, ev, pool, pool_col) -> None:
@@ -1144,6 +1219,10 @@ def implied(args, X, col, blocks, brows, ret, grp, sid_a, blk, mk, full_pred, fp
     Written to <out>/implied.parquet (feature, row, lo, hi, mid)."""
     strong = set(ev.filter(pl.col("grade") == "strong")["feature"].to_list()) if ev is not None else set()
     feats = [f for f in fp.sort("gain_share", descending=True)["feature"].to_list() if f in col and f not in strong][: args.implied]
+    if args.implied_feats:
+        feats = [f for f in args.implied_feats.split(",") if f in col]
+    tm = Counter()  # seconds per stage
+    t1 = time.perf_counter()
     rng = np.random.default_rng(1)
     ok_rows = np.flatnonzero(np.isfinite(ret) & np.isfinite(full_pred))
     rows = np.sort(rng.choice(ok_rows, min(args.implied_rows, ok_rows.size), replace=False)).astype(np.int64)
@@ -1157,10 +1236,28 @@ def implied(args, X, col, blocks, brows, ret, grp, sid_a, blk, mk, full_pred, fp
         x = pool_col(k)
         if x is not None:
             cand[k] = x[rows]
-    print(f"\n== implied values ({rows.size:,} rows, PM pred mapped as {a_:.3f} x + {b_:.2e}; {len(cand)} plain candidates)")
+    n_all = len(cand)
+    seen: dict[bytes, str] = {}
+    for k in sorted(cand, key=lambda s: (len(s), s)):  # identical values (|x| of a positive x, ...): keep the simplest name
+        seen.setdefault(hashlib.blake2b(cand[k].tobytes(), digest_size=16).digest(), k)
+    cand = {k: cand[k] for k in seen.values()}
+    group: dict[bytes, list[str]] = {}  # same ranks up to sign (x, -x, x * 1e4): one candidate for every rank statistic
+    for k in sorted(cand, key=lambda s: (len(s), s)):
+        x = cand[k]
+        g = np.isfinite(x)
+        r = pl.Series(x[g]).rank().to_numpy()
+        if r.size and r[0] > (r.size + 1) / 2:
+            r = r.size + 1 - r
+        group.setdefault(hashlib.blake2b(g.tobytes() + r.tobytes(), digest_size=16).digest(), []).append(k)
+    reps_c = [v[0] for v in group.values()]
+    members = {v[0]: v for v in group.values()}
+    tm["dedup"] += time.perf_counter() - t1
+    print(f"\n== implied values ({rows.size:,} rows, PM pred mapped as {a_:.3f} x + {b_:.2e}; {n_all} plain candidates, {len(cand)} distinct, {len(reps_c)} distinct by rank)")
+    t1 = time.perf_counter()
     res_r = pl.Series(target - full_pred[rows]).rank().to_numpy()  # what our model still misses; a candidate tied to it leaks into every implied value
     rc = []
-    for k, x in cand.items():
+    for k in reps_c:
+        x = cand[k]
         g = np.isfinite(x)
         if g.sum() > 1000:
             c = np.corrcoef(pl.Series(x[g]).rank().to_numpy(), res_r[g])[0, 1]
@@ -1169,7 +1266,8 @@ def implied(args, X, col, blocks, brows, ret, grp, sid_a, blk, mk, full_pred, fp
     rc.sort(reverse=True)
     print("  residual (PM - ours) closest: " + ", ".join(f"{k} {c:+.2f}" for _, c, k in rc[:6]))
     dummy = {k for k, x in cand.items() if np.unique(x[np.isfinite(x)]).size < args.min_distinct}  # dummies cannot carry a level match
-    carriers = [k for _, _, k in rc[: args.carriers]]
+    carriers = [k for _, _, r in rc[: args.carriers] for k in members[r]]  # every scale of the top groups: the trees cut on levels
+    tm["residual"] += time.perf_counter() - t1
     g_rows = grp[rows]
 
     def xs_ic(p: np.ndarray) -> float:  # mean per-mark rank IC with PM, the agreement score on these rows
@@ -1185,7 +1283,8 @@ def implied(args, X, col, blocks, brows, ret, grp, sid_a, blk, mk, full_pred, fp
         return o
 
     ic0 = xs_ic(full_pred[rows])
-    print(f"  agreement on these rows {ic0:.3f}; carrier probe: the top {len(carriers)} residual candidates tried in each open column")
+    print(f"  agreement on these rows {ic0:.3f}; carrier probe: the top {args.carriers} residual groups ({len(carriers)} candidates) "
+          f"tried in each open column, against constants (below / inside / above its split points, missing)")
     best_all = []
     out = []
     for f in feats:
@@ -1196,14 +1295,22 @@ def implied(args, X, col, blocks, brows, ret, grp, sid_a, blk, mk, full_pred, fp
         reps = np.concatenate([[thr[0] - max(abs(thr[0]), 1.0) * 1e-3], (thr[:-1] + thr[1:]) / 2, [thr[-1] + max(abs(thr[-1]), 1.0) * 1e-3]])
         keep = X[:, j].copy()
         base_rows = full_pred[rows].copy()
+        t1 = time.perf_counter()
         old = pj(j)
-        tried = []
-        for k in carriers:  # put the residual's candidate in column j: does agreement with PM go up?
+        tried, const = [], []
+        for nm_, v in (("lo", reps[0]), ("mid", reps[reps.size // 2]), ("hi", reps[-1]), ("nan", np.nan)):  # what any constant gives
+            X[rows, j] = v
+            const.append((xs_ic(base_rows - old + pj(j)) - ic0, nm_))
+        for k in carriers:  # put the residual's candidate in column j: does agreement with PM go up, beyond the best constant?
             X[rows, j] = cand[k]
             tried.append((xs_ic(base_rows - old + pj(j)) - ic0, k))
         X[:, j] = keep
         tried.sort(reverse=True)
-        best_all += [(d, f, k) for d, k in tried[:3]]
+        const.sort(reverse=True)
+        cb = const[0][0]
+        best_all += [(d - cb, f, k, d) for d, k in tried[:3]]
+        tm["carrier"] += time.perf_counter() - t1
+        t1 = time.perf_counter()
         err = np.empty((reps.size, rows.size))
         resp = np.empty(reps.size)  # the model's mean response to x_j (shape: monotone, U, flat)
         for k, v in enumerate(reps):
@@ -1212,6 +1319,7 @@ def implied(args, X, col, blocks, brows, ret, grp, sid_a, blk, mk, full_pred, fp
             err[k] = np.abs(base_rows - old + new - target)
             resp[k] = np.mean(new - old)
         X[:, j] = keep
+        tm["reps"] += time.perf_counter() - t1
         e1 = err.min(axis=0)
         spread = err.max(axis=0) - e1
         near = err <= e1 + 0.1 * spread  # pieces within 10% of the error range of the best: the implied stretch of x_j
@@ -1227,7 +1335,9 @@ def implied(args, X, col, blocks, brows, ret, grp, sid_a, blk, mk, full_pred, fp
         m = info
         if m.sum() < 200:
             print(f"  {f}: only {int(m.sum())} informative rows")
+            print(f"  {f} carrier: const {const[0][1]} {cb:+.4f}; " + ", ".join(f"{k} {d:+.4f} ({d - cb:+.4f})" for d, k in tried[:3]))
             continue
+        t1 = time.perf_counter()
         d = pl.DataFrame({"y": mid[m], "sd": blk[rows][m] * 10_000_000 + sid_a[rows][m], "mk": grp[rows][m]})
         tot = d["y"].var()
         sd_share = d.group_by("sd").agg(pl.col("y").mean().alias("g"), pl.len()).filter(pl.col("len") > 1)
@@ -1236,8 +1346,8 @@ def implied(args, X, col, blocks, brows, ret, grp, sid_a, blk, mk, full_pred, fp
         r_mk = 1 - d.join(mk_mean, on="mk").select((pl.col("y") - pl.col("g")).var()).item() / tot if tot and tot > 0 else np.nan
         y = mid[m]
         sc = []
-        for k, x in cand.items():
-            xv = x[m]
+        for k in reps_c:
+            xv = cand[k][m]
             g = np.isfinite(xv)
             if g.sum() < 200:
                 continue
@@ -1245,6 +1355,8 @@ def implied(args, X, col, blocks, brows, ret, grp, sid_a, blk, mk, full_pred, fp
             if np.isfinite(c):
                 sc.append((abs(c), c, k))
         sc.sort(reverse=True)
+        tm["closest"] += time.perf_counter() - t1
+        t1 = time.perf_counter()
         mb = m & np.isfinite(lo) & np.isfinite(hi)  # bounded intervals only: an open-ended edge piece says little about the level
         lv = []  # level match: how often the candidate's own value falls in the implied interval, over chance (shuffled within its rows)
         for k, x in cand.items():
@@ -1259,6 +1371,7 @@ def implied(args, X, col, blocks, brows, ret, grp, sid_a, blk, mk, full_pred, fp
             xs = rng.permutation(xg)
             lv.append((hit - np.mean((xs > lg) & (xs <= hg)), hit, k))
         lv.sort(reverse=True)
+        tm["level"] += time.perf_counter() - t1
         cur = assign.get(f, "-")
         cv = keep[rows][m]
         own = (np.corrcoef(pl.Series(cv[np.isfinite(cv)]).rank().to_numpy(), pl.Series(y[np.isfinite(cv)]).rank().to_numpy())[0, 1]
@@ -1282,9 +1395,12 @@ def implied(args, X, col, blocks, brows, ret, grp, sid_a, blk, mk, full_pred, fp
               f"variance explained by stock-day {r_sd:.2f}, by mark {r_mk:.2f}; closest: "
               + ", ".join(f"{k} {c:+.2f}" for _, c, k in sc[:4]))
         print(f"  {f} level match ({mb.mean():.2f} bounded; in interval / lift over chance): " + ", ".join(f"{k} {h:.2f}/{d:+.2f}" for d, h, k in lv[:4]))
-        print(f"  {f} carrier: " + ", ".join(f"{k} {d:+.4f}" for d, k in tried[:3]))
+        print(f"  {f} carrier: const {const[0][1]} {cb:+.4f}; " + ", ".join(f"{k} {d:+.4f} ({d - cb:+.4f})" for d, k in tried[:3]))
     best_all.sort(reverse=True)
-    print("  carrier best overall (agreement gain, column <- candidate): " + ", ".join(f"{f}<-{k} {d:+.4f}" for d, f, k in best_all[:10]))
+    print("  carrier best overall (gain over the column's best constant; raw gain), column <- candidate: "
+          + ", ".join(f"{f}<-{k} {dc:+.4f} ({d:+.4f})" for dc, f, k, d in best_all[:10]))
+    for k, v in tm.items():
+        print(f"time implied_{k} {v:.0f}s")
     if out:
         pl.concat(out).write_parquet(args.out / "implied.parquet")
 
