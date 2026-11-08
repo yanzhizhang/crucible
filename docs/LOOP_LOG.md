@@ -180,3 +180,7 @@
 ## 2026-11-08 23:23 round 11 moved and started (3b4aa91, user picked option 1: zzzl2 scale)
 - Backup /tmp/ic_score.py.bak_r11b; verified ic_score 1564 8328cb85 cr=0 AST_OK.
 - Round 11 started ~23:23 (--scale-report, implied off); output data/reports/r11.txt.
+
+## 2026-11-08 23:30 round 11 done (3b4aa91)
+- RUN_DONE 23:30:22, total 463s (build 239s, scan 192s). IC 0.6261 -> 0.6261; all 11 rescans kept existing formula (t_gain 0).
+- 20 scale-report rows relayed verbatim (no row for zzzl2.d). Waiting for crucible.
