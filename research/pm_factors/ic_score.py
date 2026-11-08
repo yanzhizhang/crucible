@@ -368,8 +368,9 @@ def build_dir(args, d: str, state: Path, target: Path | None) -> Path | None:
         return (str(f), f.stat().st_size, f.stat().st_mtime_ns) if f is not None and f.exists() else (str(f),)
 
     import ic_kernel
+    import lit_factors
 
-    mods = [B, E, FI, same_gap, ic_kernel] + ([ced_match] if args.ced else [])
+    mods = [B, E, FI, same_gap, ic_kernel, lit_factors] + ([ced_match] if args.ced else [])
     code = [inspect.getsource(m) for m in mods] + [inspect.getsource(fn) for fn in (generic, index_relative, index_series, pm_daily, profile_marks)]
     parts = [BUILD_REV, HORIZON, MARKS.tolist(), args.profiles, str(args.hstats), str(args.pm_cache), str(args.pm_stsfile), args.ced,
              str(args.ced_xr), args.target_stale, stamp(args.engine_dir / f"marks_{d}.parquet")]
