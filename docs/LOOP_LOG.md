@@ -128,3 +128,6 @@
 ## 2026-11-08 21:35 round 6 moved and started (1d5cad4)
 - Backup /tmp/ic_score.py.bak_r6; verified ic_score 1530 7c9c86d3... cr=0 AST_OK (ic_kernel unchanged).
 - Round 6 command started ~21:35; output data/reports/r6.txt.
+
+## 2026-11-08 21:38 note from "crucible 学习讨论" session
+- Next round will need: NEW lit_factors.py (ic_score imports it), edited ic_score.py, ced_match.py, pm_style_model.py, NAMING.md (local e0333b8 + d5284e6, unpushed). Waiting for main crucible to confirm final commit and push; not moved yet.
