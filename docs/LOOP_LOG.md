@@ -207,3 +207,7 @@
 - 00:13 the user-pasted command was R12 again (stale clipboard); re-ran R12, overwrote r12.txt + stage6_r12/ic_assign.json with identical result (IC 0.6261->0.6351, t 165.97, 37/209). R13 still pending; user asked to paste the R13 command.
 - 00:21 second user paste was again R12 (scan list zzjx3.b..zzeu2). Windows App reconnected (new window 30667). Letting it finish; will retry R13 paste myself after.
 - 00:30 R13 correctly started by user paste (stage6_r13; scan list ~40 cols zzop/zzqf/zzhi/zzwj/zzdw/zzri/zzkp...). build 80s (cache).
+
+## 2026-11-09 00:35 round 13 done (e35a70e, new candidates)
+- RUN_DONE 00:35:38, total 425s. IC 0.6351 -> 0.6629 (t 177.25); 75 of 209 assigned (was 37).
+- Headline + 16 visible scale rows relayed; full pass-0/scale transcription pending (full-screen approval timed out, background capture failing).
