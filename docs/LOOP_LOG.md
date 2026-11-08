@@ -118,3 +118,9 @@
 - Incident: ic_kernel content was first pasted+saved into VDI pm_orders.py (wrong tab); undone with ctrl+z + save. Verified pm_orders.py 279 lines md5 9832ac7d = git. No run happened in between.
 - Verified on 97: ic_score 1511 b714e674..., ic_kernel 187 1134cac1..., cr=0, AST_OK.
 - Round 5 command started 21:12 in the (crucible) terminal; output to data/reports/r5.txt.
+
+## 2026-11-08 21:23 round 5 done (d9069d8)
+- RUN_DONE 21:23:17, total 617s (build 188s, panel 60s, scan 97s, implied 262s).
+- IC: start 0.5645 -> end 0.5945 (t 154.66, 660 marks); 37 of 209 columns assigned -> data/reports/stage6_r5/ic_assign.json; agreement 0.568.
+- dropped: zzzl2.f, zzho (0.5578 -> 0.5645).
+- Full output relayed verbatim to crucible (it was offline at send; queued).
