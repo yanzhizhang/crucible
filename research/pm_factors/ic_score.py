@@ -279,6 +279,12 @@ def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None, T: np.ndarray = MA
             if rv is not None:
                 for h in (30, 60, 300):  # returns in units of the 15-minute realised volatility, clipped like PM's +-10 features
                     out[f"zr{h}"] = np.clip(out[f"ret{h}"] / (rv * np.sqrt(h / 900)), -10, 10)
+                for h in (60, 200, 600, 1800, 3600, 14400):  # price over its EMA in units of the 15-minute volatility
+                    out[f"lpev{h}"] = np.clip(out[f"lpe{h}"] / rv, -10, 10)
+            for h in (60, 200, 600, 1800, 3600, 14400):  # Bollinger-style z: (log mid - its EMA) / EMA std of log mid
+                m1 = ema_irregular(t, lm, float(h))
+                sd = np.sqrt(np.maximum(ema_irregular(t, lm * lm, float(h)) - m1 * m1, 0.0))
+                out[f"zpe{h}"] = np.clip(at(T, (lm - m1) / np.where(sd > 1e-9, sd, np.nan)), -10, 10)
     if gs is not None and gs.height > 2:
         b = E.arrays(gs, "slow")
         t = b["t_local"]
