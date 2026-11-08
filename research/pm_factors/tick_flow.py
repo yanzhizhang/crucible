@@ -35,16 +35,23 @@ BUY, SELL = 1063, 1550
 
 
 def load_orders(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop: float) -> pl.DataFrame:
-    """Load the new orders and cancels received by the stop: kind 1 = new order, 2 = cancel; side +1 buy / -1 sell; amount in yuan."""
+    """Load the new orders and cancels received by the stop: kind 1 = new order, 2 = cancel; side +1 buy / -1 sell; amount in yuan;
+    px = order price (0 for a market order), seq = the channel sequence number (NULL when the catalog has none)."""
     S, L = B.SOD, B.LSOD
     con.register("want_o", pl.DataFrame({"sid": sids}))
+    import dcp_ema as E  # column check
+
+    seq = "seq_id::DOUBLE" if "seq_id" in E.columns(con, "raw_order") else "NULL::DOUBLE"
+    tseq = "seq_id::DOUBLE" if "seq_id" in E.columns(con, "raw_transaction") else "NULL::DOUBLE"
     df = con.sql(f"""
         SELECT symbol_id AS sid, {B.tc(L)} AS t_local, {S} AS s, update_type AS kind,
-               CASE dir WHEN {BUY} THEN 1.0 WHEN {SELL} THEN -1.0 ELSE 0.0 END AS side, volume::DOUBLE AS vol, price * volume AS amt
+               CASE dir WHEN {BUY} THEN 1.0 WHEN {SELL} THEN -1.0 ELSE 0.0 END AS side, volume::DOUBLE AS vol, price * volume AS amt,
+               price::DOUBLE AS px, {seq} AS seq
         FROM raw_order o JOIN want_o w ON w.sid = o.symbol_id
         WHERE o.date = {date} AND update_type IN (1, 2) AND {L} <= {stop}
         UNION ALL
-        SELECT symbol_id, {B.tc(L)}, {S}, 2, CASE dir WHEN {BUY} THEN 1.0 WHEN {SELL} THEN -1.0 ELSE 0.0 END, volume::DOUBLE, price * volume
+        SELECT symbol_id, {B.tc(L)}, {S}, 2, CASE dir WHEN {BUY} THEN 1.0 WHEN {SELL} THEN -1.0 ELSE 0.0 END, volume::DOUBLE, price * volume,
+               price::DOUBLE, {tseq}
         FROM raw_transaction r JOIN want_o w ON w.sid = r.symbol_id
         WHERE r.date = {date} AND trade_type = 2 AND {L} <= {stop}
         ORDER BY 1, 2""").pl()

@@ -55,6 +55,7 @@ import feature_intraday as FI  # state rebuild, at_marks
 import ic_score as IC  # generic tick quantities, index series
 import own_model as OM  # state features, default stop
 import tick_flow as TF  # order flow
+import lit_factors as LF  # order_stream
 
 UNI = {"000300": 0, "000905": 1, "000852": 2}  # CSI 300 / 500 / 1000
 UNI_INDEX = {0: "hs300", 1: "zz500", 2: "zz1000"}
@@ -141,7 +142,7 @@ def build_day(d: str, keep: int, hstats: Path, cache: Path) -> pl.DataFrame | No
         rows = []
         for i in range(0, len(sids), CHUNK):
             part = sids[i:i + CHUNK]
-            up = E.load(con, int(d), part, stop)
+            up = E.load(con, int(d), part, stop, extra=True)
             fast = {int(g["sid"][0]): g for g in up["fast"].partition_by("sid")}
             slow = {int(g["sid"][0]): g for g in up["slow"].partition_by("sid")}
             orders = {int(g["sid"][0]): g for g in TF.load_orders(con, int(d), part, stop).partition_by("sid")}
@@ -172,6 +173,7 @@ def build_day(d: str, keep: int, hstats: Path, cache: Path) -> pl.DataFrame | No
                 gen.update(IC.index_relative(gen, ix, sid, T))
                 feats = {f"gen.{k}": v for k, v in gen.items() if k not in ("amt300", "vol300", "buy300")}
                 feats.update({f"flow.{k}": v for k, v in TF.flow(orders.get(sid), gs, gf, T).items()})
+                feats.update({f"flow.{k}": v for k, v in LF.order_stream(orders.get(sid), gf, gs, T).items()})
                 feats.update(OM.state_features(FI.rebuild(gf, gs, T), FI.at_marks(t, mid, T)))
                 if sid in prof:
                     feats.update(norm_features(gen, prof[sid], T))
@@ -210,6 +212,11 @@ def trading_days(spec: str) -> list[str]:
 
 
 CATEGORIES = [  # (category, regex on the feature name), first match wins
+    ("size_tier_flow", r"^gen\.(net_buy_amount_share_orders|amount_share_orders)_"),
+    ("deep_book", r"^gen\.(ofi_levels|depth_weighted|bid_depth_weighted|ask_depth_weighted|log_bid_depth|log_ask_depth|book_slope)"),
+    ("open_auction", r"^gen\.(overnight_gap|return_open_to_1000|log_open_auction|open_auction_)"),
+    ("limits_time", r"^gen\.(log_distance_to_|position_in_limit_band|trading_seconds_since)"),
+    ("order_stream", r"^flow\.(marketable_|passive_order|order_price_aggr|log_new_order|log_mean_new_order|log_channel_seq)"),
     ("literature", r"^gen\.(ofi_|microprice_minus|realized_|downside_var|price_volume_corr|trade_sign_autocorr|amihud_|toxicity_|log_mid_price|tick_size_over)"),
     ("market", r"^gen\.(ir|xr|ipc|xpc)\d*_?"),
     ("returns", r"^gen\.([mp]?ret\d+|lpma\d+|rpma\d+|lp?pe\d+|rpe\d+|lmie\d+|rete\d+|lp_open|lp_pc|lp_vwap|stoch|zr\d+)$"),

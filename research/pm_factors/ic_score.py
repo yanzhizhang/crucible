@@ -382,10 +382,12 @@ def build_dir(args, d: str, state: Path, target: Path | None) -> Path | None:
     import ic_kernel
     import lit_factors
 
-    mods = [B, E, FI, same_gap, ic_kernel, lit_factors] + ([ced_match] if args.ced else [])
+    import tick_flow
+
+    mods = [B, E, FI, same_gap, ic_kernel, lit_factors] + ([ced_match] if args.ced else []) + ([tick_flow] if args.order_flow else [])
     code = [inspect.getsource(m) for m in mods] + [inspect.getsource(fn) for fn in (generic, index_relative, index_series, pm_daily, profile_marks)]
     parts = [BUILD_REV, HORIZON, MARKS.tolist(), args.profiles, str(args.hstats), str(args.pm_cache), str(args.pm_stsfile), args.ced,
-             str(args.ced_xr), args.target_stale, stamp(args.engine_dir / f"marks_{d}.parquet")]
+             str(args.ced_xr), args.target_stale, stamp(args.engine_dir / f"marks_{d}.parquet"), args.order_flow]
     key = hashlib.sha256(repr(code + parts).encode()).hexdigest()[:16]
     day = hashlib.sha256(repr((stamp(state), stamp(target))).encode()).hexdigest()[:8]
     return args.cache_dir / key / f"date={d}.{day}"
@@ -683,6 +685,8 @@ def main() -> None:
     ap.add_argument("--triples", action=argparse.BooleanOptionalAction, default=True, help="state candidates (x - y) / z")
     ap.add_argument("--min-distinct", type=int, default=30, help="fewer distinct values = a dummy: only for flag / count features")
     ap.add_argument("--out", type=Path, default=Path("data/reports/stage6"))
+    ap.add_argument("--order-flow", action=argparse.BooleanOptionalAction, default=True,
+                    help="load the order stream: gen.flow_* (tick_flow.flow) and lit_factors.order_stream candidates")
     ap.add_argument("--cache", action=argparse.BooleanOptionalAction, default=True, help="read / write each day's build under --cache-dir")
     ap.add_argument("--cache-dir", type=Path, default=Path("/work/crucible_data/cache/ic_build"))
     ap.add_argument("--rebuild", action="store_true", help="build every day again (market data in doubt) and overwrite the cache")
@@ -754,11 +758,15 @@ def main() -> None:
             tz = pm.filter(pl.col("key") == "zzba.p.t")["pm"].max()
             stop = (tz + 34200 if tz <= 7200 else tz - 7200 + 46800) + 0.005
             sids = sorted(pm["sid"].unique().to_list())
-            up = E.load(con, int(d), sids, stop)
+            up = E.load(con, int(d), sids, stop, extra=True)
             ix = index_series(con, int(d), stop)
             print(f"{d}: index snapshots for {sorted(ix) or 'none (decode with KINDS=index research/backfill.sh)'}")
             fast = {int(g["sid"][0]): g for g in up["fast"].partition_by("sid")}
             slow = {int(g["sid"][0]): g for g in up["slow"].partition_by("sid")}
+            if args.order_flow:
+                import tick_flow as TF
+
+                orders = {int(g["sid"][0]): g for g in TF.load_orders(con, int(d), sids, stop).partition_by("sid")}
             dc = CM.daily_candidates(d, sids) if CM is not None else None
             dbase = {r["sid"]: r for r in dc.select("sid", "adv20", "avgvol20", "freeshare").fill_null(np.nan).iter_rows(named=True)} if dc is not None else {}
             lca_c = [c for c in (dc.columns if dc is not None else []) if c.startswith("lca")]  # multi-day close EMAs over yesterday's close (log)
@@ -814,6 +822,12 @@ def main() -> None:
                     rets[sid] = np.where(MARKS - last_t <= args.target_stale, FI.at_marks(ts, pv, MARKS), np.nan)
                     add(sid, "px", FI.at_marks(a["t_local"], a["price"], MARKS))
                 gen = generic(gf, gs, MARKS)
+                if args.order_flow:  # order stream as tick bases: tick_flow as gen.flow_<name>, lit_factors.order_stream under its own names
+                    from lit_factors import order_stream
+
+                    go = orders.get(sid)
+                    gen.update({f"flow_{k}": v for k, v in TF.flow(go, gs, gf, MARKS).items()})
+                    gen.update(order_stream(go, gf, gs, MARKS))
                 gen.update(index_relative(gen, ix, sid, MARKS))
                 if sid in danch and "lp_pc" in gen:  # price over a multi-day EMA of closes (an EMA state carried across days)
                     for c in lca_c:

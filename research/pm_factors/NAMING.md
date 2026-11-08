@@ -179,4 +179,7 @@ The older short names in `ic_score.generic` stay (assignments in `ic_assign.json
 | `ir<w>_<ix>`, `xr<w>_<ix>`, `ipc_<ix>`, `xpc_<ix>` | index return over w s, stock minus index, index and stock-minus-index vs previous close |
 | `ced.pm.msr` / `mb` / `vr`, `ced.pmw.<index>`, `ced.pmx.SSE` | PM's own morning inputs: 22-day half spread / level-1 depth / vr, index weights, exchange dummy |
 | `ced.r.sp_msr`, `ced.r.ldep_mb` | spread over 2 x msr, log depth over mb |
+| `flow_big_imb<w>` / `flow_small_imb<w>` / `flow_big_share<w>` | (ic_score; `flow.` in pm_style_model) per-fill ticket over 200k / under 40k CNY: signed-amount imbalance, big tickets' share of the amount |
+| `flow_ord_imb<w>` / `flow_ord_big_imb<w>` / `flow_cxl_imb<w>` / `flow_cxl_rate<w>` | new-order amount imbalance (all / over 200k CNY), cancel amount imbalance, cancelled over new-order amount |
+| `flow_lambda<w>` / `flow_refill_imb<w>` / `flow_refill<w>` | Kyle lambda (mid log change per 1e6 net shares), level-1 queue refill imbalance / refill over depth |
 | prefixes `-`, `|x|`, `*1e4`, `z:`, `rank:`, `crank:`, `dm:`, `dmi:` | negate, absolute value, in bp, cross-sectional z-score / rank in [0,1] / in [-0.5,0.5], minus the market / industry mean |

@@ -57,19 +57,56 @@ VALUES = {
 }
 
 
-def load(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop: float) -> dict[str, pl.DataFrame]:
-    """Snapshots and trades received by the stop, with both clocks and the fields the values need."""
+def columns(con: duckdb.DuckDBPyConnection, view: str) -> set[str]:
+    """Column names of a catalog view (empty when it does not exist)."""
+    try:
+        return set(con.sql(f"DESCRIBE {view}").pl()["column_name"].to_list())
+    except duckdb.Error:
+        return set()
+
+
+def _book_sql(have: set[str]) -> tuple[str, str, str]:
+    """Extra snapshot columns for ``lit_factors`` (inner select, outer select, excluded helpers), each only when the view has it:
+    5-level depth-weighted bid / ask price, level-5 prices, the up / down limit, and the level 2-5 order-flow events (Cont)."""
+    inner, outer = [], []
+    if {"bid_px", "bid_vol", "ask_px", "ask_vol"} <= have:
+        for side, tag in (("bid", "b"), ("ask", "a")):
+            num = " + ".join(f"coalesce(q.{side}_px[{i}]::DOUBLE * q.{side}_vol[{i}]::DOUBLE, 0)" for i in range(1, 6))
+            inner += [f"({num}) / nullif(list_sum(q.{side}_vol[1:5])::DOUBLE, 0) AS {tag}wp5", f"q.{side}_px[5]::DOUBLE AS {tag}5px"]
+        inner += ["q.bid_px AS _bp", "q.bid_vol AS _bq", "q.ask_px AS _ap", "q.ask_vol AS _aq"]
+        inner += [f"lag(q.{c}) OVER (PARTITION BY q.symbol_id ORDER BY q.spider_ts) AS _p{t}"
+                  for c, t in (("bid_px", "bp"), ("bid_vol", "bq"), ("ask_px", "ap"), ("ask_vol", "aq"))]
+        ev = []
+        for i in range(2, 6):  # Cont-Kukanov-Stoikov event per level, a side counts only while both its prices are quoted
+            bid = (f"CASE WHEN _bp[{i}] > 0 AND _pbp[{i}] > 0 THEN _bq[{i}] * (_bp[{i}] >= _pbp[{i}])::INT"
+                   f" - _pbq[{i}] * (_bp[{i}] <= _pbp[{i}])::INT ELSE 0 END")
+            ask = (f"CASE WHEN _ap[{i}] > 0 AND _pap[{i}] > 0 THEN _aq[{i}] * (_ap[{i}] <= _pap[{i}])::INT"
+                   f" - _paq[{i}] * (_ap[{i}] >= _pap[{i}])::INT ELSE 0 END")
+            ev.append(f"coalesce(({bid}) - ({ask}), 0)")
+        outer.append(f"({' + '.join(ev)})::DOUBLE AS ofi2_5")
+    if {"high_limited", "low_limited"} <= have:
+        inner += ["q.high_limited::DOUBLE AS ul", "q.low_limited::DOUBLE AS ll"]
+    drop = "EXCLUDE (_bp, _bq, _ap, _aq, _pbp, _pbq, _pap, _paq)" if outer else ""
+    return "".join(f", {c}" for c in inner), "".join(f", {c}" for c in outer), drop
+
+
+def load(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop: float, extra: bool = False) -> dict[str, pl.DataFrame]:
+    """Snapshots and trades received by the stop, with both clocks and the fields the values need; ``extra`` adds the
+    deeper-book / limit / aggressor-order columns ``lit_factors`` reads (only those the catalog has)."""
     S, L = B.SOD, B.LSOD
     con.register("want", pl.DataFrame({"sid": sids}))
-    fast = con.sql(f"""SELECT symbol_id AS sid, market_id AS mkt, {B.tc(L)} AS t_local, {B.tc(S)} AS t_exch, spider_ts AS ls, {S} AS s,
+    inner, outer, drop = _book_sql(columns(con, "raw_quotation")) if extra else ("", "", "")
+    fast = con.sql(f"""SELECT * {drop} {outer} FROM (
+        SELECT symbol_id AS sid, market_id AS mkt, {B.tc(L)} AS t_local, {B.tc(S)} AS t_exch, spider_ts AS ls, {S} AS s,
         price, q.bid_px[1] AS b1, q.ask_px[1] AS a1, q.bid_vol[1]::DOUBLE AS bv1, q.ask_vol[1]::DOUBLE AS av1,
         list_sum(q.bid_vol[1:5])::DOUBLE AS bv5, list_sum(q.ask_vol[1:5])::DOUBLE AS av5,
         total_bid_volume::DOUBLE AS tbv, total_ask_volume::DOUBLE AS tav, total_volume::DOUBLE AS cv, total_amount::DOUBLE AS ca,
-        open::DOUBLE AS op, high::DOUBLE AS hi, low::DOUBLE AS lo, pre_close::DOUBLE AS pc
-        FROM raw_quotation q JOIN want w ON w.sid = q.symbol_id WHERE q.date = {date} AND {L} <= {stop}
-        ORDER BY sid, spider_ts""").pl()
+        open::DOUBLE AS op, high::DOUBLE AS hi, low::DOUBLE AS lo, pre_close::DOUBLE AS pc {inner}
+        FROM raw_quotation q JOIN want w ON w.sid = q.symbol_id WHERE q.date = {date} AND {L} <= {stop})
+        ORDER BY sid, ls""").pl()
+    seq = ", buy_seq_id::BIGINT AS bsq, sell_seq_id::BIGINT AS ssq" if extra and {"buy_seq_id", "sell_seq_id"} <= columns(con, "raw_transaction") else ""
     slow = con.sql(f"""SELECT symbol_id AS sid, market_id AS mkt, {B.tc(L)} AS t_local, {B.tc(S)} AS t_exch, spider_ts AS ls, {S} AS s,
-        price, volume::DOUBLE AS vol, volume * price AS amt, CASE dir WHEN 1063 THEN 1.0 WHEN 1550 THEN -1.0 ELSE 0.0 END AS side
+        price, volume::DOUBLE AS vol, volume * price AS amt, CASE dir WHEN 1063 THEN 1.0 WHEN 1550 THEN -1.0 ELSE 0.0 END AS side {seq}
         FROM raw_transaction r JOIN want w ON w.sid = r.symbol_id
         WHERE r.date = {date} AND r.trade_type = 1 AND {L} <= {stop} ORDER BY sid, spider_ts""").pl()
     ref = con.sql(f"""SELECT symbol_id AS sid, max(open) FILTER (open > 0)::DOUBLE AS op, max(pre_close) FILTER (pre_close > 0)::DOUBLE AS pc
