@@ -365,7 +365,7 @@ def index_relative(gen: dict[str, np.ndarray], ix: dict, sid: int, T: np.ndarray
     return out
 
 
-BUILD_REV = 2  # bump when main()'s per-day build loop changes: every cached build is then rebuilt
+BUILD_REV = 3  # bump when main()'s per-day build loop changes: every cached build is then rebuilt
 
 
 def build_dir(args, d: str, state: Path, target: Path | None) -> Path | None:
@@ -456,7 +456,7 @@ def profile_marks(hstats: Path, cache: Path, fams: list[str], d: str, marks: np.
     return out
 
 
-XS = ("z:", "rank:", "crank:")  # cross-sectional transforms within a mark: each has the same CDF whatever it transforms
+XS = ("z:", "rank:", "crank:", "srank:")  # srank = rank in [-1, 1]; cross-sectional transforms within a mark: each has the same CDF whatever it transforms
 DM = ("dm:", "dmi:")  # minus the mark's cross-sectional mean / its Barra industry's mean: units kept (peer-relative, ZZQF)
 
 
@@ -485,7 +485,7 @@ def xs(pre: str, v: np.ndarray) -> np.ndarray:
             out[f] = (v[f] - v[f].mean()) / sd
         return out
     out[f] = (pl.Series(v[f]).rank("average").to_numpy() - 1) / (f.sum() - 1)
-    return out - 0.5 if pre == "crank:" else out
+    return out - 0.5 if pre == "crank:" else 2 * out - 1 if pre == "srank:" else out
 
 
 def demean(v: np.ndarray, g: np.ndarray) -> np.ndarray:
@@ -761,6 +761,8 @@ def main() -> None:
             slow = {int(g["sid"][0]): g for g in up["slow"].partition_by("sid")}
             dc = CM.daily_candidates(d, sids) if CM is not None else None
             dbase = {r["sid"]: r for r in dc.select("sid", "adv20", "avgvol20", "freeshare").fill_null(np.nan).iter_rows(named=True)} if dc is not None else {}
+            lca_c = [c for c in (dc.columns if dc is not None else []) if c.startswith("lca")]  # multi-day close EMAs over yesterday's close (log)
+            danch = {r["sid"]: r for r in dc.select("sid", *lca_c).fill_null(np.nan).iter_rows(named=True)} if lca_c else {}
             pmd = pm_daily(args.pm_stsfile, d, sids) if args.pm_stsfile.exists() else None
             pmsm = {}
             if pmd is not None:  # PM's daily inputs join the CED table as ced.pm.* / ced.pmw.* / ced.pmx.*
@@ -813,6 +815,9 @@ def main() -> None:
                     add(sid, "px", FI.at_marks(a["t_local"], a["price"], MARKS))
                 gen = generic(gf, gs, MARKS)
                 gen.update(index_relative(gen, ix, sid, MARKS))
+                if sid in danch and "lp_pc" in gen:  # price over a multi-day EMA of closes (an EMA state carried across days)
+                    for c in lca_c:
+                        gen[f"lpd{c[3:]}"] = gen["lp_pc"] - float(danch[sid][c])
                 if sid in pmsm and gf is not None and gf.height > 2:  # spread and depth over PM's own daily normalisers
                     msr, mb = pmsm[sid]
                     af = E.arrays(gf, "fast")
@@ -961,6 +966,8 @@ def main() -> None:
             return K.seg_z(v, seg_st, seg_en)
         if pre in ("rank:", "crank:"):
             return K.seg_rank(v, seg_st, seg_en, pre == "crank:")
+        if pre == "srank:":
+            return 2 * K.seg_rank(v, seg_st, seg_en, False) - 1
         if pre == "dm:":
             return K.seg_demean(v, zeros_sub, seg_st, seg_en, 1)
         if pre == "dmi:":

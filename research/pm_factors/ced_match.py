@@ -103,6 +103,9 @@ def daily_candidates(d: str, sids: list[int]) -> pl.DataFrame | None:
         a5 = a5.join(an, on="sid", how="left")
     out = agg.join(a20, on="sid", how="left").join(a5, on="sid", how="left").join(
         sod.select("sid", "freeshare", "totshare", "maxp_allowed"), on="sid", how="left")
+    ema = hist.with_columns((pl.col("close") * pl.col("adj_factor")).alias("ca")).group_by("sid", maintain_order=True).agg(
+        [pl.col("ca").ewm_mean(half_life=h, adjust=False).last().log().sub(pl.col("ca").last().log()).alias(f"lca{h}") for h in (1, 2, 3, 5, 10, 20)])
+    out = out.join(ema, on="sid", how="left")  # log(EMA of adjusted closes, half-life in days / yesterday's close)
     wd = __import__("datetime").date(int(d[:4]), int(d[4:6]), int(d[6:])).weekday()
     out = out.with_columns(pl.col("close").log().alias("log_close_price"), (0.01 / pl.col("close")).alias("tick_size_over_close"),
                            pl.lit(float(wd)).alias("weekday_mon0"))  # price level (tick size matters on cheap stocks), day of week
