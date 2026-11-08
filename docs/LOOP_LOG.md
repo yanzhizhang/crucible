@@ -131,3 +131,8 @@
 
 ## 2026-11-08 21:38 note from "crucible 学习讨论" session
 - Next round will need: NEW lit_factors.py (ic_score imports it), edited ic_score.py, ced_match.py, pm_style_model.py, NAMING.md (local e0333b8 + d5284e6, unpushed). Waiting for main crucible to confirm final commit and push; not moved yet.
+
+## 2026-11-08 21:47 round 6 done (1d5cad4)
+- RUN_DONE 21:46:43, total 703s (build 196s, panel 56s, scan 200s, implied 243s).
+- IC: start 0.5661 -> end 0.5987 (t 154.19, 660 marks); 38 of 209 assigned; agreement 0.569; dropped zzeu2.
+- Relayed verbatim to crucible. origin now d5284e6 (lit_factors.py etc., pushed by the 学习讨论 session with user approval); waiting for round 7 hash/files/command.
