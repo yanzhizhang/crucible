@@ -195,3 +195,8 @@
 - R12 started ~23:46; rule: if a build day >15 min, stop and rerun with --no-order-flow.
 - User (23:48): let R12 run to completion even if build is slow (overrides the >15 min stop rule); user wants to try the new candidate factors.
 - crucible sent R13 command (e35a70e, nothing to move, new-candidate scan of qf/wj/dw/op/ri/kp/hi/ho). Hold until crucible reviews R12 output.
+
+## 2026-11-08 23:58 round 12 done (e35a70e)
+- RUN_DONE 23:58:10, total 779s (build 480s with order flow, scan 266s, implied off).
+- IC 0.6261 -> 0.6351 (t 165.97); 37 of 209. New picks: zzzl2.g overnight_gap_log, zzeu srank:-flow_ord_imb60, zzeu2 srank:-rete75; no lpd kept.
+- Relayed verbatim; R13 held until crucible confirms.
