@@ -251,7 +251,7 @@ def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None, T: np.ndarray = MA
 
             mid_, lpx_ok = np.exp(lm), np.isfinite(lpx)
             dlm = np.concatenate([[np.nan], np.diff(lm)])  # snapshot-to-snapshot log return
-            for h in (5, 10, 15, 20, 25, 30, 40, 45, 50, 60, 75, 90, 100, 120, 150, 200, 240, 300, 450, 600, 900, 1200):
+            for h in (5, 10, 15, 20, 25, 30, 40, 45, 50, 60, 75, 90, 100, 120, 150, 200, 240, 300, 450, 600, 900, 1200, 1800, 2400, 3600, 5400, 7200):
                 em = at(T, np.log(ema_irregular(t, mid_, float(h))))
                 out[f"lpe{h}"], out[f"rpe{h}"] = lm0 - em, np.exp(lm0 - em)
                 out[f"lmie{h}"] = li0 - at(T, np.log(ema_irregular(t, np.exp(lmi), float(h))))  # microprice over its EMA
@@ -654,6 +654,8 @@ def main() -> None:
     ap.add_argument("--cache", action=argparse.BooleanOptionalAction, default=True, help="read / write each day's build under --cache-dir")
     ap.add_argument("--cache-dir", type=Path, default=Path("/work/crucible_data/cache/ic_build"))
     ap.add_argument("--rebuild", action="store_true", help="build every day again (market data in doubt) and overwrite the cache")
+    ap.add_argument("--override", default="", help="feat=expr;feat=expr: replace these assigned formulas (each alone and together reported)")
+    ap.add_argument("--scan-feats", default="", help="scan these features (comma-separated) instead of the top --max-features")
     ap.add_argument("--drop-harmful", action=argparse.BooleanOptionalAction, default=True,
                     help="at the start, drop the assigned formulas the IC rises without (each alone and all together)")
     ap.add_argument("--implied-feats", default="", help="--implied: only these features (comma-separated)")
@@ -1013,12 +1015,19 @@ def main() -> None:
     if args.assign and args.assign.exists():
         assign = json.loads(args.assign.read_text())
     print(f"time panel_rows {time.perf_counter() - t_st:.0f}s")
+    ovr = dict(kv.split("=", 1) for kv in args.override.split(";") if "=" in kv)
+    ovr = {f.strip(): e.strip() for f, e in ovr.items() if f.strip() in col}
+    col_t = []
     for feat, expr in list(assign.items()):
         if feat in col:
+            t1 = time.perf_counter()
             X[:, col[feat]] = column(feat, expr)
+            col_t.append((time.perf_counter() - t1, feat, expr))
             v = X[:, col[feat]]
             v = v[np.isfinite(v)]
-            if feat in cdf and v.size and (g := FM.cdf_gap(v, cdf[feat])) > args.drop_gap:  # a start pick off the training CDF is dropped
+            if feat in ovr:  # replaced below: no gate on the formula it replaces
+                pass
+            elif feat in cdf and v.size and (g := FM.cdf_gap(v, cdf[feat])) > args.drop_gap:  # a start pick off the training CDF is dropped
                 print(f"drop {feat} = {expr}: training-CDF gap {g:.3f} > {args.drop_gap}")
                 X[:, col[feat]] = np.nan
                 del assign[feat]
@@ -1026,6 +1035,20 @@ def main() -> None:
                 print(f"drop {feat} = {expr}: {np.unique(v).size} distinct values on a {fp_kind.get(feat)} feature")
                 X[:, col[feat]] = np.nan
                 del assign[feat]
+    col_t.sort(reverse=True)
+    print("time panel_slowest_columns " + ", ".join(f"{f}={e} {s:.0f}s" for s, f, e in col_t[:5]))
+    if ovr:  # --override: each alone (the others as assigned), then all together; kept as the start (no CDF gate)
+        p_a = panel(X)
+        ic_a = summary(ic_vec(p_a, ret, grp))
+        for f, e in ovr.items():
+            kc = X[:, col[f]].copy()
+            v1 = summary(Swap(col[f], p_a).score(column(f, e)))
+            X[:, col[f]] = kc
+            print(f"override {f}: {assign.get(f, '-')} -> {e}: IC {ic_a[0]:.4f} -> {v1[0]:.4f} alone")
+        for f, e in ovr.items():
+            X[:, col[f]] = column(f, e)
+            assign[f] = e
+        print(f"override all {len(ovr)}: IC {ic_a[0]:.4f} -> {summary(score(X))[0]:.4f}")
     print(f"time panel {time.perf_counter() - t_st:.0f}s")
     t_st = time.perf_counter()
     pred0 = panel(X)
@@ -1060,6 +1083,8 @@ def main() -> None:
     t_st = time.perf_counter()
     log = []
     feats = [f for f in fp.sort("gain_share", descending=True)["feature"].to_list() if f in col][: args.max_features]
+    if args.scan_feats:
+        feats = [f for f in args.scan_feats.split(",") if f in col]
     frozen: set[str] = set()
     if args.freeze_strong and ev0 is not None:  # a formula graded strong last time and still assigned is settled: not scanned again
         frozen = {f for f, e, g in ev0.select("feature", "formula", "grade").iter_rows() if g == "strong" and assign.get(f) == e}
