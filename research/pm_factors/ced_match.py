@@ -103,6 +103,9 @@ def daily_candidates(d: str, sids: list[int]) -> pl.DataFrame | None:
         a5 = a5.join(an, on="sid", how="left")
     out = agg.join(a20, on="sid", how="left").join(a5, on="sid", how="left").join(
         sod.select("sid", "freeshare", "totshare", "maxp_allowed"), on="sid", how="left")
+    wd = __import__("datetime").date(int(d[:4]), int(d[4:6]), int(d[6:])).weekday()
+    out = out.with_columns(pl.col("close").log().alias("log_close_price"), (0.01 / pl.col("close")).alias("tick_size_over_close"),
+                           pl.lit(float(wd)).alias("weekday_mon0"))  # price level (tick size matters on cheap stocks), day of week
     out = out.with_columns((pl.col("close") * pl.col("totshare")).log().alias("lmcap"), (pl.col("close") * pl.col("freeshare")).log().alias("lfcap"),
                            pl.col("adv20").log().alias("ladv20"), (pl.col("avgvol20") / pl.col("freeshare")).alias("turn20"),
                            (pl.col("maxp_allowed") / pl.col("close")).log().alias("band"))

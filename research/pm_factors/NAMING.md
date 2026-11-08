@@ -141,3 +141,42 @@ Mechanism: each 5-minute cell = median over the last N trading days (N > 20), un
 | ZZSQ | daily, a / ab / b | | |
 | ZZAC | samplerR: as / bs size quantiles per 5-minute bar | | |
 | ZZCR | samplerR: as / ps / ab quantiles per day | | |
+
+## Our own names (rule from 2026-11-08)
+
+PM's names are codes (`zzro2.a`); ours must not be. Every new factor we write is named
+`<quantity>_<detail>_<window>`: whole words from a small vocabulary (return, imbalance, spread, depth, volume, amount,
+skew, kurt, corr, ema, ...), the window in seconds with an `s` (`_300s`), units or scaling spelled out (`_rel`, `_bp`,
+`_per_1e8_cny`). The module that computes it keeps one plain sentence per name (`lit_factors.DESCRIBE`, `describe()`),
+and reports print it next to the name. Examples: `ofi_level1_norm_60s`, `realized_skew_900s`,
+`toxicity_abs_imb_1min_mean_1800s`, `tick_size_over_mid`; daily: `log_close_price`, `tick_size_over_close`, `weekday_mon0`.
+
+The older short names in `ic_score.generic` stay (assignments in `ic_assign.json` refer to them); what they mean:
+
+| name | meaning |
+| --- | --- |
+| `ret<w>` / `mret<w>` / `pret<w>` | log return over the last w s of the mid / microprice / last price |
+| `imb1`, `imb5`, `timb` | (bid - ask) / (bid + ask) volume: level 1, levels 1-5, whole book |
+| `imbv<w>` / `imba<w>` / `imbn<w>` | trade imbalance (buy - sell) / (buy + sell) over w s by volume / amount / count (BS flag) |
+| `simbv<w>` / `simba<w>` / `simbn<w>` | the same from snapshot differences only (no BS flag; sign = interval price vs previous mid) |
+| `lvol<w>` / `lamt<w>` / `slvol<w>` / `slamt<w>` | log(1 + volume / amount) traded over w s, from trades / from snapshots |
+| `nam<w>` / `nn<w>` | net buy amount (CNY) / net buy trade count over w s |
+| `tsz<w>` | mean trade size (shares) over w s |
+| `vfrac<w>` | log(volume over w s / volume since the open) |
+| `cum_imb`, `cum_imba`, `cum_imbn`, `scum_imb` | trade imbalance since 09:30 by volume / amount / count, snapshot version |
+| `lcum_vol` / `lcum_amt` / `lcum_n` | log(1 + volume / amount / trades since 09:30) |
+| `rv<w>` | realized volatility of snapshot mid log returns over w s |
+| `zr<w>` | ret<w> in units of the 15-minute realized volatility, clipped to +-10 |
+| `rng<w>`, `ldh<w>`, `ldl<w>` | log high - log low of the mid over w s; distance (log) to that high / low |
+| `lpma<w>` / `rpma<w>` | log mid minus its mean over w s / exp of it |
+| `lpe<h>` / `rpe<h>` / `lppe<h>` / `lmie<h>` | log mid (last price, microprice) minus its EMA with half-life h s / ratio |
+| `lpes<h>` | the same with the EMA started at the previous close (carried over from yesterday) |
+| `rete<h>` | EMA (half-life h s) of snapshot mid log returns |
+| `lee<a>_<b>` | EMA(a) minus EMA(b) of the log mid (MACD-like) |
+| `spread`, `spm<w>`, `tick1_<w>` | relative spread now / mean over w s / share of snapshots with a one-tick spread |
+| `lp_open`, `lp_pc`, `lp_vwap` | log mid over the open / the previous close / the day's VWAP |
+| `stoch` | (price - day low) / (day high - day low) |
+| `ir<w>_<ix>`, `xr<w>_<ix>`, `ipc_<ix>`, `xpc_<ix>` | index return over w s, stock minus index, index and stock-minus-index vs previous close |
+| `ced.pm.msr` / `mb` / `vr`, `ced.pmw.<index>`, `ced.pmx.SSE` | PM's own morning inputs: 22-day half spread / level-1 depth / vr, index weights, exchange dummy |
+| `ced.r.sp_msr`, `ced.r.ldep_mb` | spread over 2 x msr, log depth over mb |
+| prefixes `-`, `|x|`, `*1e4`, `z:`, `rank:`, `crank:`, `dm:`, `dmi:` | negate, absolute value, in bp, cross-sectional z-score / rank in [0,1] / in [-0.5,0.5], minus the market / industry mean |

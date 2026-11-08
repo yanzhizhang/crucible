@@ -306,6 +306,9 @@ def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None, T: np.ndarray = MA
             out["lp_vwap"] = np.log(px / (upto(T, "a") / upto(T, "v")))
             hi, lo = np.fmax.accumulate(np.where(cont, b["price"], np.nan)), np.fmin.accumulate(np.where(cont, b["price"], np.nan))
             out["stoch"] = (px - FI.at_marks(t, lo, T)) / (FI.at_marks(t, hi, T) - FI.at_marks(t, lo, T))
+    from lit_factors import literature  # textbook factors, self-describing names (lit_factors.DESCRIBE)
+
+    out.update(literature(gf, gs, T))
     return out
 
 
