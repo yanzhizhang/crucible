@@ -91,3 +91,9 @@
 - 11:39 把 zyq_stocks.py 粘进 97 并保存（151 行，md5 675f5fa7，和 35e6083 一致）。97 = 35e6083。
 - 11:40 第一次运行用了没有激活 conda 的第二个终端：python 找不到，只打出一串 gettext 报错，history 检查过，没有副作用。教训：运行前先看提示符有没有 (crucible)，或者先 which python。
 - 11:46 在 crucible 环境里重跑成功：p = 当天 preclose，bp = 当天收益（corr 1.000），q = 收盘价；k 按当天涨幅分档（k=1 > 500bp，k=2 在 ±100bp 内，k=3 是其余），stocklist = k=3 这一组。结果已发给 crucible。
+
+## 12:28 循环故障排查
+- 现象：crucible 一直没有回复第 3 轮结果、zyq_stocks 结果和分析交接。
+- 原因（在公司电脑 crucible 窗口截屏确认）：我发出的消息显示「not delivered — approval timed out · Claude has not seen it: the sender's permission mode differs」。crucible 是 Auto 模式，总管是 Bypass permissions 模式，模式不同的会话之间消息需要用户在接收方批准，没人批准就超时丢弃了。
+- crucible 自己说重开后的现状、要搬的文件和命令已经发给总管了，但总管这边也一条没收到。很可能反方向同样被拦了。
+- 待用户处理：把两边改成同一种权限模式，或者在收到批准提示时及时批准。之后总管重发丢失的消息。
