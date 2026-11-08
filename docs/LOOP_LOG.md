@@ -155,3 +155,7 @@
 - RUN_DONE 22:24:28, total 605s (build 76s, panel 25s, scan 222s, implied 276s).
 - IC: start 0.6016 -> end 0.6242 (t 160.52, 660 marks); 38 of 209 assigned; agreement 0.596; dropped zzsf.d, zzwa.a.
 - Evidence table (21 rows) + all requested lines relayed verbatim to crucible.
+
+## 2026-11-08 22:31 round 9 moved and started (4ea8f89)
+- Backup /tmp/ic_score.py.bak_r9; verified ic_score 1540 82354832... cr=0 AST_OK.
+- Round 9 started ~22:31; output data/reports/r9.txt.
