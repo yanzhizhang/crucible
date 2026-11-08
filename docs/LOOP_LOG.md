@@ -172,3 +172,7 @@
 ## 2026-11-08 23:00 round 10 done (4ea8f89); 0b601de pending
 - RUN_DONE 22:59:38, total 513s (build 78s, scan 154s). IC 0.6260 -> 0.6261 (t 165.85); 37 of 209; agreement 0.598; dropped zzgh2.b. Relayed verbatim.
 - crucible fixed --scan-match bug: 0b601de ic_score.py 1541 lines md5 7c8d5533 (checked on Mac). Move blocked: Mac screen locked (loginwindow) before the backup command ran; nothing pasted into VDI.
+
+## 2026-11-08 23:05 0b601de moved; loop paused
+- Backup /tmp/ic_score.py.bak_r11; verified ic_score 1541 7c8d5533 cr=0 AST_OK.
+- crucible: R10 converged (IC 0.6261, t_gain 0 on all rescans); no R11. Next direction is the user's call. 97 idle.
