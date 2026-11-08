@@ -616,6 +616,7 @@ def main() -> None:
     ap.add_argument("--target-stale", type=float, default=10.0, help="--target: a signal older than this many seconds at the mark is no value")
     ap.add_argument("--implied", type=int, default=0, help="--target only: invert PM's model for this many open features (by gain)")
     ap.add_argument("--implied-rows", type=int, default=30000, help="rows sampled for --implied")
+    ap.add_argument("--carriers", type=int, default=24, help="--implied: this many top residual candidates tried in each open column")
     ap.add_argument("--freeze-strong", action=argparse.BooleanOptionalAction, default=True,
                     help="skip features whose current formula was graded strong in <out>/ic_evidence.parquet")
     ap.add_argument("--profiles", default="ZZWA,ZZAL,ZZQO,ZZXC,ZZTS", help="samplerS families whose cells join the pool ('' = none)")
@@ -1167,6 +1168,25 @@ def implied(args, X, col, blocks, brows, ret, grp, sid_a, blk, mk, full_pred, fp
                 rc.append((abs(c), c, k))
     rc.sort(reverse=True)
     print("  residual (PM - ours) closest: " + ", ".join(f"{k} {c:+.2f}" for _, c, k in rc[:6]))
+    dummy = {k for k, x in cand.items() if np.unique(x[np.isfinite(x)]).size < args.min_distinct}  # dummies cannot carry a level match
+    carriers = [k for _, _, k in rc[: args.carriers]]
+    g_rows = grp[rows]
+
+    def xs_ic(p: np.ndarray) -> float:  # mean per-mark rank IC with PM, the agreement score on these rows
+        d = pl.DataFrame({"g": g_rows, "p": p, "t": target}).with_columns(pl.col("p").rank().over("g"), pl.col("t").rank().over("g"))
+        return float(d.group_by("g").agg(pl.corr("p", "t")).filter(pl.col("p").is_finite())["p"].mean())
+
+    def pj(j: int) -> np.ndarray:  # the trees that split on column j, at the current X, on the sampled rows
+        o = np.zeros(rows.size)
+        for b, (_, ms, _, _) in enumerate(blocks):
+            sel = np.flatnonzero(blk[rows] == b)
+            if sel.size:
+                o[sel] = np.mean([m.predict(X, rows[sel], m.trees_of.get(j, np.zeros(0, np.int64))) for m in ms], axis=0)
+        return o
+
+    ic0 = xs_ic(full_pred[rows])
+    print(f"  agreement on these rows {ic0:.3f}; carrier probe: the top {len(carriers)} residual candidates tried in each open column")
+    best_all = []
     out = []
     for f in feats:
         j = col[f]
@@ -1176,20 +1196,19 @@ def implied(args, X, col, blocks, brows, ret, grp, sid_a, blk, mk, full_pred, fp
         reps = np.concatenate([[thr[0] - max(abs(thr[0]), 1.0) * 1e-3], (thr[:-1] + thr[1:]) / 2, [thr[-1] + max(abs(thr[-1]), 1.0) * 1e-3]])
         keep = X[:, j].copy()
         base_rows = full_pred[rows].copy()
-        old = np.zeros(rows.size)
-        for b, (_, ms, _, _) in enumerate(blocks):
-            sel = np.flatnonzero(blk[rows] == b)
-            if sel.size:
-                old[sel] = np.mean([m.predict(X, rows[sel], m.trees_of.get(j, np.zeros(0, np.int64))) for m in ms], axis=0)
+        old = pj(j)
+        tried = []
+        for k in carriers:  # put the residual's candidate in column j: does agreement with PM go up?
+            X[rows, j] = cand[k]
+            tried.append((xs_ic(base_rows - old + pj(j)) - ic0, k))
+        X[:, j] = keep
+        tried.sort(reverse=True)
+        best_all += [(d, f, k) for d, k in tried[:3]]
         err = np.empty((reps.size, rows.size))
         resp = np.empty(reps.size)  # the model's mean response to x_j (shape: monotone, U, flat)
         for k, v in enumerate(reps):
             X[:, j] = v
-            new = np.zeros(rows.size)
-            for b, (_, ms, _, _) in enumerate(blocks):
-                sel = np.flatnonzero(blk[rows] == b)
-                if sel.size:
-                    new[sel] = np.mean([m.predict(X, rows[sel], m.trees_of.get(j, np.zeros(0, np.int64))) for m in ms], axis=0)
+            new = pj(j)
             err[k] = np.abs(base_rows - old + new - target)
             resp[k] = np.mean(new - old)
         X[:, j] = keep
@@ -1226,20 +1245,19 @@ def implied(args, X, col, blocks, brows, ret, grp, sid_a, blk, mk, full_pred, fp
             if np.isfinite(c):
                 sc.append((abs(c), c, k))
         sc.sort(reverse=True)
-        lo_m, hi_m = lo[m], hi[m]
-        perm = rng.permutation(int(m.sum()))
-        lv = []  # level match: how often the candidate's own value falls in the implied interval, over chance (shuffled rows)
+        mb = m & np.isfinite(lo) & np.isfinite(hi)  # bounded intervals only: an open-ended edge piece says little about the level
+        lv = []  # level match: how often the candidate's own value falls in the implied interval, over chance (shuffled within its rows)
         for k, x in cand.items():
-            xv = x[m]
+            if k in dummy:
+                continue
+            xv = x[mb]
             g = np.isfinite(xv)
             if g.sum() < 200:
                 continue
-            hit = np.mean(((xv > lo_m) & (xv <= hi_m))[g])
-            xs = xv[perm]
-            gs = np.isfinite(xs)
-            base = np.mean(((xs > lo_m) & (xs <= hi_m))[gs]) if gs.sum() >= 200 else np.nan
-            if np.isfinite(base):
-                lv.append((hit - base, hit, k))
+            xg, lg, hg = xv[g], lo[mb][g], hi[mb][g]
+            hit = np.mean((xg > lg) & (xg <= hg))
+            xs = rng.permutation(xg)
+            lv.append((hit - np.mean((xs > lg) & (xs <= hg)), hit, k))
         lv.sort(reverse=True)
         cur = assign.get(f, "-")
         cv = keep[rows][m]
@@ -1263,7 +1281,10 @@ def implied(args, X, col, blocks, brows, ret, grp, sid_a, blk, mk, full_pred, fp
         print(f"  {f} (now {cur}): informative {m.mean():.2f}; implied p10/p50/p90 {np.percentile(y, 10):.4g}/{np.median(y):.4g}/{np.percentile(y, 90):.4g}; "
               f"variance explained by stock-day {r_sd:.2f}, by mark {r_mk:.2f}; closest: "
               + ", ".join(f"{k} {c:+.2f}" for _, c, k in sc[:4]))
-        print(f"  {f} level match (in interval, lift over chance): " + ", ".join(f"{k} {h:.2f}/{d:+.2f}" for d, h, k in lv[:4]))
+        print(f"  {f} level match ({mb.mean():.2f} bounded; in interval / lift over chance): " + ", ".join(f"{k} {h:.2f}/{d:+.2f}" for d, h, k in lv[:4]))
+        print(f"  {f} carrier: " + ", ".join(f"{k} {d:+.4f}" for d, k in tried[:3]))
+    best_all.sort(reverse=True)
+    print("  carrier best overall (agreement gain, column <- candidate): " + ", ".join(f"{f}<-{k} {d:+.4f}" for d, f, k in best_all[:10]))
     if out:
         pl.concat(out).write_parquet(args.out / "implied.parquet")
 
