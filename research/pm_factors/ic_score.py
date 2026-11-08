@@ -1114,7 +1114,8 @@ def main() -> None:
     if args.scan_feats:
         feats = [f for f in args.scan_feats.split(",") if f in col]
     if args.scan_match:
-        feats = (feats if args.scan_feats else []) + [f for f in names if f in col and re.search(args.scan_match, f) and f not in feats]
+        base_f = feats if args.scan_feats else []  # without --scan-feats, feats is still the top --max-features list here
+        feats = base_f + [f for f in names if f in col and re.search(args.scan_match, f) and f not in base_f]
         print(f"scan: {feats}")
     frozen: set[str] = set()
     if args.freeze_strong and ev0 is not None:  # a formula graded strong last time and still assigned is settled: not scanned again
