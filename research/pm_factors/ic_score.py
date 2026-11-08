@@ -655,6 +655,8 @@ def main() -> None:
     ap.add_argument("--cache-dir", type=Path, default=Path("/work/crucible_data/cache/ic_build"))
     ap.add_argument("--rebuild", action="store_true", help="build every day again (market data in doubt) and overwrite the cache")
     ap.add_argument("--implied-feats", default="", help="--implied: only these features (comma-separated)")
+    ap.add_argument("--carrier-assigned", action=argparse.BooleanOptionalAction, default=True,
+                    help="--implied: also try the residual candidates in every assigned column, strong ones included")
     args = ap.parse_args()
     global MARKS
     MARKS = mark_grid(args.marks)
@@ -1266,7 +1268,15 @@ def implied(args, X, col, blocks, brows, ret, grp, sid_a, blk, mk, full_pred, fp
     rc.sort(reverse=True)
     print("  residual (PM - ours) closest: " + ", ".join(f"{k} {c:+.2f}" for _, c, k in rc[:6]))
     dummy = {k for k, x in cand.items() if np.unique(x[np.isfinite(x)]).size < args.min_distinct}  # dummies cannot carry a level match
-    carriers = [k for _, _, r in rc[: args.carriers] for k in members[r]]  # every scale of the top groups: the trees cut on levels
+    top_g, per_fam = [], Counter()
+    for _, _, r in rc:  # the top residual groups, at most two per family (rpe900 / rpe1200 are one family): more kinds of quantity
+        fam = re.sub(r"\d+", "#", parse(r)[4])
+        if per_fam[fam] < 2:
+            per_fam[fam] += 1
+            top_g.append(r)
+        if len(top_g) >= args.carriers:
+            break
+    carriers = [k for r in top_g for k in members[r]]  # every scale of the top groups: the trees cut on levels
     tm["residual"] += time.perf_counter() - t1
     g_rows = grp[rows]
 
@@ -1399,6 +1409,31 @@ def implied(args, X, col, blocks, brows, ret, grp, sid_a, blk, mk, full_pred, fp
     best_all.sort(reverse=True)
     print("  carrier best overall (gain over the column's best constant; raw gain), column <- candidate: "
           + ", ".join(f"{f}<-{k} {dc:+.4f} ({d:+.4f})" for dc, f, k, d in best_all[:10]))
+    if args.carrier_assigned:  # the assigned columns too (strong ones included): a formula the residual's quantity beats is suspect
+        t1 = time.perf_counter()
+        base_rows = full_pred[rows].copy()
+        beat, worse = [], []
+        for f in [f for f in assign if f in col and f not in feats]:
+            j = col[f]
+            keep = X[:, j].copy()
+            old = pj(j)
+            res = []
+            for nm_, v in (("const", np.nanmedian(keep[rows]) if np.isfinite(keep[rows]).any() else 0.0), ("missing", np.nan)):
+                X[rows, j] = v
+                res.append((xs_ic(base_rows - old + pj(j)) - ic0, nm_))
+            for k in carriers:
+                X[rows, j] = cand[k]
+                res.append((xs_ic(base_rows - old + pj(j)) - ic0, k))
+            X[:, j] = keep
+            res.sort(reverse=True)
+            beat.append((res[0][0], f, res[0][1], assign[f]))
+            worse.append((-next(d for d, k in res if k == "missing"), f, assign[f]))
+        beat.sort(reverse=True)
+        worse.sort()
+        tm["carrier_assigned"] += time.perf_counter() - t1
+        print(f"  assigned columns ({len(beat)}), the best replacement (residual candidate, its median, missing) over the current formula: "
+              + ", ".join(f"{f}<-{k} {d:+.4f} (now {e})" for d, f, k, e in beat[:10]))
+        print("  assigned columns worth least (agreement lost when missing): " + ", ".join(f"{f} {d:+.4f} ({e})" for d, f, e in worse[:8]))
     for k, v in tm.items():
         print(f"time implied_{k} {v:.0f}s")
     if out:
