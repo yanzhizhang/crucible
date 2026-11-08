@@ -141,3 +141,8 @@
 - Backups /tmp/{ic_score,ced_match,pm_style_model}.py.bak_r7; lit_factors.py was new on 97.
 - Verified: lit_factors 129 7d6a5d77, ic_score 1534 357f70bd, ced_match 227 d9e8611f, pm_style_model 401 f351d1f1 (pm_orders, ic_kernel unchanged), cr=0, AST_OK. NAMING.md (docs) not moved.
 - Round 7 started ~21:56; output data/reports/r7.txt.
+
+## 2026-11-08 22:07 round 7 done (d5284e6)
+- RUN_DONE 22:07:19, total 671s (build 232s, panel 81s, scan 111s, implied 240s).
+- IC: start 0.5733 -> end 0.5993 (t 145.57, 660 marks); 31 of 209 assigned; agreement 0.570; dropped zzpk.
+- Relayed verbatim to crucible; waiting for round 8.
