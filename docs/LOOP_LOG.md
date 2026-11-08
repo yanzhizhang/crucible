@@ -184,3 +184,7 @@
 ## 2026-11-08 23:30 round 11 done (3b4aa91)
 - RUN_DONE 23:30:22, total 463s (build 239s, scan 192s). IC 0.6261 -> 0.6261; all 11 rescans kept existing formula (t_gain 0).
 - 20 scale-report rows relayed verbatim (no row for zzzl2.d). Waiting for crucible.
+
+## 2026-11-08 23:39 round 12 (827f1ac) on hold: md5 mismatch
+- Backups /tmp/{ic_score,ced_match}.py.bak_r12. ced_match 230 4684a1ba OK.
+- ic_score on 97 = 1585 c2ae8c77, expected 1571 a81bf7b1: company working tree has uncommitted edits (ic_score M, pm_style_model M, dcp_ema.py new). Not run; asked crucible to commit or restore.
