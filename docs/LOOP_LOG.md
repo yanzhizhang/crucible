@@ -159,3 +159,8 @@
 ## 2026-11-08 22:31 round 9 moved and started (4ea8f89)
 - Backup /tmp/ic_score.py.bak_r9; verified ic_score 1540 82354832... cr=0 AST_OK.
 - Round 9 started ~22:31; output data/reports/r9.txt.
+
+## 2026-11-08 22:43 round 9 done (4ea8f89)
+- RUN_DONE 22:43:13, total 696s (build 234s, panel 25s, scan 182s, implied 245s).
+- IC: start 0.6244 -> end 0.6251 (t 161.18, 660 marks); 37 of 209 assigned; agreement 0.597; dropped zzqf5.q.c1.
+- Terminal scrollback jumped; first block re-read via read-only grep on r9.txt. 37 evidence rows relayed verbatim.
