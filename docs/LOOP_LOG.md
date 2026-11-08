@@ -111,3 +111,4 @@
 - crucible 推了 d9069d8（ic_score.py 1511 行，md5 b714e674；ic_kernel.py 187 行，md5 1134cac1）。还没搬。
 - 用户不在电脑边，全屏控制审批超时两次。
 - 13:03 试了只用后台操作：点击可以；Ctrl+C/V 被拦；Ctrl+A 被当成字母 a，打进了公司电脑 crucible 工作区 ic_score.py 的第 26 行（cell 变成 acell）。已用 Edit > Undo 撤销，并通知 crucible 用 git diff 核对。结论：后台只能截图和点击，不能按键。
+- 13:08 crucible 确认：git diff 为空，搜不到 acell，撤销生效，没有残留。第 5 轮最终 hash 就是 d9069d8。等用户回来批准全屏控制后再搬。
