@@ -281,6 +281,12 @@ def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None, T: np.ndarray = MA
                     out[f"zr{h}"] = np.clip(out[f"ret{h}"] / (rv * np.sqrt(h / 900)), -10, 10)
                 for h in (60, 200, 600, 1800, 3600, 14400):  # price over its EMA in units of the 15-minute volatility
                     out[f"lpev{h}"] = np.clip(out[f"lpe{h}"] / rv, -10, 10)
+            tw = np.where(t > 7200, t + 5400, t)  # wall clock: the lunch break back in (t is the trading clock)
+            ix_ = np.arange(t.size, dtype=float)  # per snapshot: a classic EMA counted in updates, not seconds
+            for h in (60, 200, 600, 1800, 3600, 14400):
+                out[f"lpew{h}"] = lm0 - at(T, np.log(ema_irregular(tw, mid_, float(h))))
+            for n in (10, 20, 50, 100, 200, 600, 1200, 2400):
+                out[f"lpek{n}"] = lm0 - at(T, np.log(ema_irregular(ix_, mid_, float(n))))
             for h in (60, 200, 600, 1800, 3600, 14400):  # Bollinger-style z: (log mid - its EMA) / EMA std of log mid
                 m1 = ema_irregular(t, lm, float(h))
                 sd = np.sqrt(np.maximum(ema_irregular(t, lm * lm, float(h)) - m1 * m1, 0.0))
@@ -684,6 +690,7 @@ def main() -> None:
     ap.add_argument("--scan-include", default="", help="regex: candidates the scan always tries on top of its shortlist")
     ap.add_argument("--scan-feats", default="", help="scan these features (comma-separated) instead of the top --max-features")
     ap.add_argument("--scan-match", default="", help="also scan every feature whose name matches this regex")
+    ap.add_argument("--scale-report", default="", help="regex: print PM's training CDF vs our values for matching assigned columns")
     ap.add_argument("--drop-harmful", action=argparse.BooleanOptionalAction, default=True,
                     help="at the start, drop the assigned formulas the IC rises without (each alone and all together)")
     ap.add_argument("--implied-feats", default="", help="--implied: only these features (comma-separated)")
@@ -1274,6 +1281,22 @@ def main() -> None:
         with pl.Config(tbl_rows=80, tbl_cols=7, tbl_width_chars=200, fmt_str_lengths=40, float_precision=4):
             print("\n== evidence per assigned column: training-CDF gap, IC lost without it (t); strong = gap <= 0.02 and t >= 2")
             print(ev)
+    if args.scale_report:  # per assigned column: PM's training-CDF points vs our quantiles at the same p, and the affine map between
+        print("\n== scale: feature | formula | gap | PM t = a x ours + b | gap after | PM t @p ~ .1/.5/.9 | ours @ same p")
+        for feat, expr in assign.items():
+            if feat not in col or feat not in cdf or not re.search(args.scale_report, feat):
+                continue
+            v = X[:, col[feat]]
+            v = v[np.isfinite(v)]
+            if v.size < 100:
+                continue
+            tp, pp = FM.interior(cdf[feat])
+            qo = np.quantile(v, pp)
+            a_, b_ = np.polyfit(qo, tp, 1) if np.ptp(qo) > 0 else (np.nan, np.nan)
+            g0, g1 = FM.cdf_gap(v, cdf[feat]), FM.cdf_gap(a_ * v + b_, cdf[feat]) if np.isfinite(a_) else np.nan
+            ix = [int(np.argmin(np.abs(pp - p))) for p in (0.1, 0.5, 0.9)]
+            print(f"  {feat} | {expr} | {g0:.3f} | a {a_:.4g} b {b_:.4g} | {g1:.3f} | "
+                  + "/".join(f"{tp[i]:.4g}@{pp[i]:.2f}" for i in ix) + " | " + "/".join(f"{qo[i]:.4g}" for i in ix))
     if log:
         pl.DataFrame(log).write_parquet(args.out / "ic_log.parquet")
     with pl.Config(tbl_rows=100, tbl_cols=6, tbl_width_chars=230, fmt_str_lengths=90, float_precision=4):
