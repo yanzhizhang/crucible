@@ -1157,6 +1157,16 @@ def implied(args, X, col, blocks, brows, ret, grp, sid_a, blk, mk, full_pred, fp
         if x is not None:
             cand[k] = x[rows]
     print(f"\n== implied values ({rows.size:,} rows, PM pred mapped as {a_:.3f} x + {b_:.2e}; {len(cand)} plain candidates)")
+    res_r = pl.Series(target - full_pred[rows]).rank().to_numpy()  # what our model still misses; a candidate tied to it leaks into every implied value
+    rc = []
+    for k, x in cand.items():
+        g = np.isfinite(x)
+        if g.sum() > 1000:
+            c = np.corrcoef(pl.Series(x[g]).rank().to_numpy(), res_r[g])[0, 1]
+            if np.isfinite(c):
+                rc.append((abs(c), c, k))
+    rc.sort(reverse=True)
+    print("  residual (PM - ours) closest: " + ", ".join(f"{k} {c:+.2f}" for _, c, k in rc[:6]))
     out = []
     for f in feats:
         j = col[f]
@@ -1216,6 +1226,21 @@ def implied(args, X, col, blocks, brows, ret, grp, sid_a, blk, mk, full_pred, fp
             if np.isfinite(c):
                 sc.append((abs(c), c, k))
         sc.sort(reverse=True)
+        lo_m, hi_m = lo[m], hi[m]
+        perm = rng.permutation(int(m.sum()))
+        lv = []  # level match: how often the candidate's own value falls in the implied interval, over chance (shuffled rows)
+        for k, x in cand.items():
+            xv = x[m]
+            g = np.isfinite(xv)
+            if g.sum() < 200:
+                continue
+            hit = np.mean(((xv > lo_m) & (xv <= hi_m))[g])
+            xs = xv[perm]
+            gs = np.isfinite(xs)
+            base = np.mean(((xs > lo_m) & (xs <= hi_m))[gs]) if gs.sum() >= 200 else np.nan
+            if np.isfinite(base):
+                lv.append((hit - base, hit, k))
+        lv.sort(reverse=True)
         cur = assign.get(f, "-")
         cv = keep[rows][m]
         own = (np.corrcoef(pl.Series(cv[np.isfinite(cv)]).rank().to_numpy(), pl.Series(y[np.isfinite(cv)]).rank().to_numpy())[0, 1]
@@ -1238,6 +1263,7 @@ def implied(args, X, col, blocks, brows, ret, grp, sid_a, blk, mk, full_pred, fp
         print(f"  {f} (now {cur}): informative {m.mean():.2f}; implied p10/p50/p90 {np.percentile(y, 10):.4g}/{np.median(y):.4g}/{np.percentile(y, 90):.4g}; "
               f"variance explained by stock-day {r_sd:.2f}, by mark {r_mk:.2f}; closest: "
               + ", ".join(f"{k} {c:+.2f}" for _, c, k in sc[:4]))
+        print(f"  {f} level match (in interval, lift over chance): " + ", ".join(f"{k} {h:.2f}/{d:+.2f}" for d, h, k in lv[:4]))
     if out:
         pl.concat(out).write_parquet(args.out / "implied.parquet")
 
