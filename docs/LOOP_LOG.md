@@ -194,3 +194,4 @@
 - Moved dcp_ema 359 daecf0a2, lit_factors 317 5b2d27b4, pm_style_model 408 4eebf0f0, tick_flow 121 9c448277; all 6 md5 OK, AST_OK. Backups /tmp/*.bak_r12.
 - R12 started ~23:46; rule: if a build day >15 min, stop and rerun with --no-order-flow.
 - User (23:48): let R12 run to completion even if build is slow (overrides the >15 min stop rule); user wants to try the new candidate factors.
+- crucible sent R13 command (e35a70e, nothing to move, new-candidate scan of qf/wj/dw/op/ri/kp/hi/ho). Hold until crucible reviews R12 output.
