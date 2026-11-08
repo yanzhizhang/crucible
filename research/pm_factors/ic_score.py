@@ -654,6 +654,8 @@ def main() -> None:
     ap.add_argument("--cache", action=argparse.BooleanOptionalAction, default=True, help="read / write each day's build under --cache-dir")
     ap.add_argument("--cache-dir", type=Path, default=Path("/work/crucible_data/cache/ic_build"))
     ap.add_argument("--rebuild", action="store_true", help="build every day again (market data in doubt) and overwrite the cache")
+    ap.add_argument("--drop-harmful", action=argparse.BooleanOptionalAction, default=True,
+                    help="at the start, drop the assigned formulas the IC rises without (each alone and all together)")
     ap.add_argument("--implied-feats", default="", help="--implied: only these features (comma-separated)")
     ap.add_argument("--carrier-assigned", action=argparse.BooleanOptionalAction, default=True,
                     help="--implied: also try the residual candidates in every assigned column, strong ones included")
@@ -686,6 +688,8 @@ def main() -> None:
         print(f"CED candidates from {CM.S.STORE}")
     pool = Pool(args.xs)
     state_stems: set[str] = set()
+    stem_parts: list[list[dict[str, pl.DataFrame]]] = []  # per block, per mark: stem -> its state rows
+    empty_st = pl.DataFrame(schema={"sid": pl.Int64, "key": pl.String, "pm": pl.Float64})
     blocks = []  # per day: (models, frames per mark, sids per mark, forward returns per mark)
     for d in [x.strip() for x in args.dates.split(",") if x.strip()]:
         f = args.dcp_dir / f"{d}.jz"
@@ -810,6 +814,10 @@ def main() -> None:
         by_mark = long.partition_by("mark", as_dict=True, include_key=False)  # one pass instead of a filter per mark
         empty = long.drop("mark").clear()
         frames = [by_mark.get((m,), empty) for m in MARKS]
+        st_ = pl.col("key").str.extract(r"^([^.]+)\.", 1)
+        stem_parts.append([{k[0]: v for k, v in fr.filter(~pl.col("key").str.starts_with("gen.") & ~pl.col("key").str.starts_with("ced."))
+                            .with_columns(st_.alias("_st")).partition_by("_st", as_dict=True, include_key=False).items()}
+                           for fr in frames])  # per mark, the state rows split by stem once (not one full-frame filter per stem)
         pool.add_block(frames, dc)
         state_stems |= set(long["key"].str.extract(r"^([^.]+)\.", 1).drop_nulls().unique().to_list()) - {"gen", "ced"}
         models = load_models(args.models, d, args.fits.split(","), args.subs.split(","))
@@ -844,8 +852,14 @@ def main() -> None:
 
     def stem_cache(stem: str) -> list:
         if stem not in cache:
-            cache[stem] = [[(s, c, rows_of(b, m, s)) for m, (s, c) in enumerate(stem_frames(fr, stem))]
-                           for b, (_, _, fr, _) in enumerate(blocks)]
+            def part(p: dict) -> pl.DataFrame:  # the stem's rows, plus zzxu.last (FM.atoms takes the price from it)
+                own = p.get(stem, empty_st)
+                if stem == "zzxu" or "zzxu" not in p:
+                    return own
+                return pl.concat([own, p["zzxu"].filter(pl.col("key") == "zzxu.last")])
+
+            cache[stem] = [[(s, c, rows_of(b, m, s)) for m, (s, c) in enumerate(stem_frames([part(p) for p in stem_parts[b]], stem))]
+                           for b in range(len(blocks))]
         return cache[stem]
 
     pooled_cache: dict[str, dict[str, np.ndarray]] = {}
@@ -998,6 +1012,7 @@ def main() -> None:
     assign = dict(KNOWN)
     if args.assign and args.assign.exists():
         assign = json.loads(args.assign.read_text())
+    print(f"time panel_rows {time.perf_counter() - t_st:.0f}s")
     for feat, expr in list(assign.items()):
         if feat in col:
             X[:, col[feat]] = column(feat, expr)
@@ -1013,12 +1028,19 @@ def main() -> None:
                 del assign[feat]
     print(f"time panel {time.perf_counter() - t_st:.0f}s")
     t_st = time.perf_counter()
-    base = summary(score(X))
+    pred0 = panel(X)
+    v0 = ic_vec(pred0, ret, grp)
+    base = summary(v0)
     ef0 = args.out / "ic_evidence.parquet"
     ev0 = pl.read_parquet(ef0) if ef0.exists() else None
-    if ev0 is not None:  # formulas whose removal raised the IC last round, each alone (t_loss <= -2): dropped only if dropping them together helps
-        bad = [f for f, e, t in ev0.select("feature", "formula", "t_loss").iter_rows()
-               if t is not None and t <= -args.min_t and assign.get(f) == e and f in col]
+    if args.drop_harmful:  # formulas whose removal raises the IC, each alone (t <= -2), on this run's data: dropped only if dropping them together helps too
+        v0 = np.nan_to_num(v0, nan=0.0)
+        bad = []
+        for f in [f for f in assign if f in col]:
+            kc = X[:, col[f]].copy()
+            if summary(v0 - np.nan_to_num(Swap(col[f], pred0).score(np.full(sid_a.size, np.nan)), nan=0.0))[1] <= -args.min_t:
+                bad.append(f)
+            X[:, col[f]] = kc
         if bad:
             kept_cols = {f: X[:, col[f]].copy() for f in bad}
             for f in bad:
@@ -1027,12 +1049,12 @@ def main() -> None:
             if b2[0] > base[0]:
                 for f in bad:
                     del assign[f]
-                print(f"dropped (IC rose without them last round; together {base[0]:.4f} -> {b2[0]:.4f}): {bad}")
+                print(f"dropped (IC rises without each; together {base[0]:.4f} -> {b2[0]:.4f}): {bad}")
                 base = b2
             else:
                 for f, v in kept_cols.items():
                     X[:, col[f]] = v
-                print(f"kept {bad}: each alone raised the IC when dropped last round, together {base[0]:.4f} -> {b2[0]:.4f}")
+                print(f"kept {bad}: the IC rises without each alone, but together {base[0]:.4f} -> {b2[0]:.4f}")
     print(f"\nall-missing except the assignment {assign}: IC {base[0]:.4f} (t {base[1]:.2f}, {base[2]} marks) ({time.perf_counter() - t0:.0f}s)")
     print(f"time base {time.perf_counter() - t_st:.0f}s")
     t_st = time.perf_counter()
