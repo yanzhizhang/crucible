@@ -176,3 +176,7 @@
 ## 2026-11-08 23:05 0b601de moved; loop paused
 - Backup /tmp/ic_score.py.bak_r11; verified ic_score 1541 7c8d5533 cr=0 AST_OK.
 - crucible: R10 converged (IC 0.6261, t_gain 0 on all rescans); no R11. Next direction is the user's call. 97 idle.
+
+## 2026-11-08 23:23 round 11 moved and started (3b4aa91, user picked option 1: zzzl2 scale)
+- Backup /tmp/ic_score.py.bak_r11b; verified ic_score 1564 8328cb85 cr=0 AST_OK.
+- Round 11 started ~23:23 (--scale-report, implied off); output data/reports/r11.txt.
