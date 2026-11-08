@@ -136,3 +136,8 @@
 - RUN_DONE 21:46:43, total 703s (build 196s, panel 56s, scan 200s, implied 243s).
 - IC: start 0.5661 -> end 0.5987 (t 154.19, 660 marks); 38 of 209 assigned; agreement 0.569; dropped zzeu2.
 - Relayed verbatim to crucible. origin now d5284e6 (lit_factors.py etc., pushed by the 学习讨论 session with user approval); waiting for round 7 hash/files/command.
+
+## 2026-11-08 21:56 round 7 moved and started (d5284e6)
+- Backups /tmp/{ic_score,ced_match,pm_style_model}.py.bak_r7; lit_factors.py was new on 97.
+- Verified: lit_factors 129 7d6a5d77, ic_score 1534 357f70bd, ced_match 227 d9e8611f, pm_style_model 401 f351d1f1 (pm_orders, ic_kernel unchanged), cr=0, AST_OK. NAMING.md (docs) not moved.
+- Round 7 started ~21:56; output data/reports/r7.txt.
