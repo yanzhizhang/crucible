@@ -251,8 +251,9 @@ def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None, T: np.ndarray = MA
 
             mid_, lpx_ok = np.exp(lm), np.isfinite(lpx)
             dlm = np.concatenate([[np.nan], np.diff(lm)])  # snapshot-to-snapshot log return
+            ems = {}
             for h in (5, 10, 15, 20, 25, 30, 40, 45, 50, 60, 75, 90, 100, 120, 150, 200, 240, 300, 450, 600, 900, 1200, 1800, 2400, 3600, 5400, 7200, 10800, 14400):
-                em = at(T, np.log(ema_irregular(t, mid_, float(h))))
+                em = ems[h] = at(T, np.log(ema_irregular(t, mid_, float(h))))
                 out[f"lpe{h}"], out[f"rpe{h}"] = lm0 - em, np.exp(lm0 - em)
                 out[f"lmie{h}"] = li0 - at(T, np.log(ema_irregular(t, np.exp(lmi), float(h))))  # microprice over its EMA
                 out[f"rete{h}"] = at(T, ema_irregular(t, dlm, float(h)))  # EMA of returns (zzbd.rEma-like)
@@ -261,6 +262,10 @@ def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None, T: np.ndarray = MA
                     out[f"lppe{h}"] = lp0 - ep
             for w in (60, 300, 1800):
                 out[f"rpma{w}"] = np.exp(out[f"lpma{w}"])
+            hs = (30, 60, 120, 300, 600, 1200, 1800, 3600, 7200, 14400)
+            for i, ha in enumerate(hs):  # fast EMA over slow EMA (log, MACD-like): lpe_a - lpe_b as one column
+                for hb in hs[i + 1:]:
+                    out[f"lee{ha}_{hb}"] = ems[ha] - ems[hb]
             from ic_kernel import ema_seeded
 
             pc = gf["pc"].to_numpy().astype(float)[ok] if "pc" in gf.columns else np.full(t.size, np.nan)
@@ -345,7 +350,7 @@ def index_relative(gen: dict[str, np.ndarray], ix: dict, sid: int, T: np.ndarray
     return out
 
 
-BUILD_REV = 1  # bump when main()'s per-day build loop changes: every cached build is then rebuilt
+BUILD_REV = 2  # bump when main()'s per-day build loop changes: every cached build is then rebuilt
 
 
 def build_dir(args, d: str, state: Path, target: Path | None) -> Path | None:
@@ -668,6 +673,7 @@ def main() -> None:
     ap.add_argument("--override", default="", help="feat=expr;feat=expr: replace these assigned formulas (each alone and together reported)")
     ap.add_argument("--scan-include", default="", help="regex: candidates the scan always tries on top of its shortlist")
     ap.add_argument("--scan-feats", default="", help="scan these features (comma-separated) instead of the top --max-features")
+    ap.add_argument("--scan-match", default="", help="also scan every feature whose name matches this regex")
     ap.add_argument("--drop-harmful", action=argparse.BooleanOptionalAction, default=True,
                     help="at the start, drop the assigned formulas the IC rises without (each alone and all together)")
     ap.add_argument("--implied-feats", default="", help="--implied: only these features (comma-separated)")
@@ -1097,6 +1103,9 @@ def main() -> None:
     feats = [f for f in fp.sort("gain_share", descending=True)["feature"].to_list() if f in col][: args.max_features]
     if args.scan_feats:
         feats = [f for f in args.scan_feats.split(",") if f in col]
+    if args.scan_match:
+        feats = (feats if args.scan_feats else []) + [f for f in names if f in col and re.search(args.scan_match, f) and f not in feats]
+        print(f"scan: {feats}")
     frozen: set[str] = set()
     if args.freeze_strong and ev0 is not None:  # a formula graded strong last time and still assigned is settled: not scanned again
         frozen = {f for f, e, g in ev0.select("feature", "formula", "grade").iter_rows() if g == "strong" and assign.get(f) == e}
@@ -1317,17 +1326,27 @@ def implied(args, X, col, blocks, brows, ret, grp, sid_a, blk, mk, full_pred, fp
     tm["dedup"] += time.perf_counter() - t1
     print(f"\n== implied values ({rows.size:,} rows, PM pred mapped as {a_:.3f} x + {b_:.2e}; {n_all} plain candidates, {len(cand)} distinct, {len(reps_c)} distinct by rank)")
     t1 = time.perf_counter()
-    res_r = pl.Series(target - full_pred[rows]).rank().to_numpy()  # what our model still misses; a candidate tied to it leaks into every implied value
-    rc = []
+    # per-mark ranks of ours and PM's; "misses" = PM's rank beyond what ours explains, "extra" = ours beyond PM's
+    rk = pl.DataFrame({"g": grp[rows], "p": full_pred[rows], "t": ret[rows]}).with_columns(
+        ((pl.col(c).rank() - 0.5) / pl.len() - 0.5).over("g").alias(c) for c in ("p", "t"))
+    pr, tr = rk["p"].to_numpy(), rk["t"].to_numpy()
+    res_miss = tr - np.polyfit(pr, tr, 1)[0] * pr
+    res_extra = pr - np.polyfit(tr, pr, 1)[0] * tr
+    rc, rx = [], []
     for k in reps_c:
         x = cand[k]
         g = np.isfinite(x)
         if g.sum() > 1000:
-            c = np.corrcoef(pl.Series(x[g]).rank().to_numpy(), res_r[g])[0, 1]
+            xr = pl.Series(x[g]).rank().to_numpy()
+            c, c2 = np.corrcoef(xr, res_miss[g])[0, 1], np.corrcoef(xr, res_extra[g])[0, 1]
             if np.isfinite(c):
                 rc.append((abs(c), c, k))
+            if np.isfinite(c2):
+                rx.append((abs(c2), c2, k))
     rc.sort(reverse=True)
-    print("  residual (PM - ours) closest: " + ", ".join(f"{k} {c:+.2f}" for _, c, k in rc[:6]))
+    rx.sort(reverse=True)
+    print("  residual (PM beyond ours, per-mark ranks) closest: " + ", ".join(f"{k} {c:+.2f}" for _, c, k in rc[:6]))
+    print("  residual (ours beyond PM, per-mark ranks) closest: " + ", ".join(f"{k} {c:+.2f}" for _, c, k in rx[:6]))
     dummy = {k for k, x in cand.items() if np.unique(x[np.isfinite(x)]).size < args.min_distinct}  # dummies cannot carry a level match
     top_g, per_fam = [], Counter()
     for _, _, r in rc:  # the top residual groups, at most two per family (rpe900 / rpe1200 are one family): more kinds of quantity
