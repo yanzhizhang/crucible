@@ -124,3 +124,7 @@
 - IC: start 0.5645 -> end 0.5945 (t 154.66, 660 marks); 37 of 209 columns assigned -> data/reports/stage6_r5/ic_assign.json; agreement 0.568.
 - dropped: zzzl2.f, zzho (0.5578 -> 0.5645).
 - Full output relayed verbatim to crucible (it was offline at send; queued).
+
+## 2026-11-08 21:35 round 6 moved and started (1d5cad4)
+- Backup /tmp/ic_score.py.bak_r6; verified ic_score 1530 7c9c86d3... cr=0 AST_OK (ic_kernel unchanged).
+- Round 6 command started ~21:35; output data/reports/r6.txt.
