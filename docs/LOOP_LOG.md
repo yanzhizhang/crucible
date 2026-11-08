@@ -204,3 +204,4 @@
 ## 2026-11-09 00:05 round 13 blocked: Mac->Windows App clipboard sync stuck
 - crucible OKd R13 as sent. Mac clipboard holds R13 cmd (verified), but VDI paste keeps giving the R12 command (4 tries, incl. TextEdit switch and refocus). Each stale paste cleared with ^C, never executed. R13 not started.
 - 00:05 user pasted R13 command manually in VDI; running (terminal title python).
+- 00:13 the user-pasted command was R12 again (stale clipboard); re-ran R12, overwrote r12.txt + stage6_r12/ic_assign.json with identical result (IC 0.6261->0.6351, t 165.97, 37/209). R13 still pending; user asked to paste the R13 command.
