@@ -188,3 +188,8 @@
 ## 2026-11-08 23:39 round 12 (827f1ac) on hold: md5 mismatch
 - Backups /tmp/{ic_score,ced_match}.py.bak_r12. ced_match 230 4684a1ba OK.
 - ic_score on 97 = 1585 c2ae8c77, expected 1571 a81bf7b1: company working tree has uncommitted edits (ic_score M, pm_style_model M, dcp_ema.py new). Not run; asked crucible to commit or restore.
+
+## 2026-11-08 23:46 round 12 started at e35a70e
+- e35a70e = 学习讨论 commit (user approved push); ic_score/ced_match already right on 97.
+- Moved dcp_ema 359 daecf0a2, lit_factors 317 5b2d27b4, pm_style_model 408 4eebf0f0, tick_flow 121 9c448277; all 6 md5 OK, AST_OK. Backups /tmp/*.bak_r12.
+- R12 started ~23:46; rule: if a build day >15 min, stop and rerun with --no-order-flow.
