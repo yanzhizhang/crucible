@@ -206,3 +206,4 @@
 - 00:05 user pasted R13 command manually in VDI; running (terminal title python).
 - 00:13 the user-pasted command was R12 again (stale clipboard); re-ran R12, overwrote r12.txt + stage6_r12/ic_assign.json with identical result (IC 0.6261->0.6351, t 165.97, 37/209). R13 still pending; user asked to paste the R13 command.
 - 00:21 second user paste was again R12 (scan list zzjx3.b..zzeu2). Windows App reconnected (new window 30667). Letting it finish; will retry R13 paste myself after.
+- 00:30 R13 correctly started by user paste (stage6_r13; scan list ~40 cols zzop/zzqf/zzhi/zzwj/zzdw/zzri/zzkp...). build 80s (cache).
