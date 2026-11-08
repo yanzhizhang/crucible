@@ -164,3 +164,7 @@
 - RUN_DONE 22:43:13, total 696s (build 234s, panel 25s, scan 182s, implied 245s).
 - IC: start 0.6244 -> end 0.6251 (t 161.18, 660 marks); 37 of 209 assigned; agreement 0.597; dropped zzqf5.q.c1.
 - Terminal scrollback jumped; first block re-read via read-only grep on r9.txt. 37 evidence rows relayed verbatim.
+
+## 2026-11-08 22:51 round 10 started (4ea8f89, nothing moved)
+- Scan-list check: md5 82354832 ok; r9 scan list 9 cols; regex matches all 9 listed; grep -c pass 0 = 10. Relayed verbatim.
+- Round 10 started ~22:51; output data/reports/r10.txt.
