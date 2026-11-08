@@ -251,7 +251,7 @@ def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None, T: np.ndarray = MA
 
             mid_, lpx_ok = np.exp(lm), np.isfinite(lpx)
             dlm = np.concatenate([[np.nan], np.diff(lm)])  # snapshot-to-snapshot log return
-            for h in (5, 10, 15, 20, 25, 30, 40, 45, 50, 60, 75, 90, 100, 120, 150, 200, 240, 300, 450, 600, 900, 1200, 1800, 2400, 3600, 5400, 7200):
+            for h in (5, 10, 15, 20, 25, 30, 40, 45, 50, 60, 75, 90, 100, 120, 150, 200, 240, 300, 450, 600, 900, 1200, 1800, 2400, 3600, 5400, 7200, 10800, 14400):
                 em = at(T, np.log(ema_irregular(t, mid_, float(h))))
                 out[f"lpe{h}"], out[f"rpe{h}"] = lm0 - em, np.exp(lm0 - em)
                 out[f"lmie{h}"] = li0 - at(T, np.log(ema_irregular(t, np.exp(lmi), float(h))))  # microprice over its EMA
@@ -261,6 +261,15 @@ def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None, T: np.ndarray = MA
                     out[f"lppe{h}"] = lp0 - ep
             for w in (60, 300, 1800):
                 out[f"rpma{w}"] = np.exp(out[f"lpma{w}"])
+            from ic_kernel import ema_seeded
+
+            pc = gf["pc"].to_numpy().astype(float)[ok] if "pc" in gf.columns else np.full(t.size, np.nan)
+            pc0 = pc[np.isfinite(pc) & (pc > 0)]
+            if pc0.size and t.size > 2:  # an EMA carried over from yesterday: starts at the open from pre-close at steady-state weight
+                dt = float(np.median(np.diff(t))) if t.size > 10 else 3.0
+                for h in (600, 900, 1200, 1800, 2400, 3600, 7200, 14400, 28800):
+                    w0 = 1.0 / (1.0 - 2.0 ** (-max(dt, 0.1) / h))  # an EMA's weight after many updates every dt
+                    out[f"lpes{h}"] = lm0 - at(T, np.log(ema_seeded(t, mid_, float(h), float(pc0[0]), w0, 0.0)))
             rv = out.get("rv900")
             if rv is not None:
                 for h in (30, 60, 300):  # returns in units of the 15-minute realised volatility, clipped like PM's +-10 features
@@ -350,7 +359,9 @@ def build_dir(args, d: str, state: Path, target: Path | None) -> Path | None:
     def stamp(f: Path | None) -> tuple:
         return (str(f), f.stat().st_size, f.stat().st_mtime_ns) if f is not None and f.exists() else (str(f),)
 
-    mods = [B, E, FI, same_gap] + ([ced_match] if args.ced else [])
+    import ic_kernel
+
+    mods = [B, E, FI, same_gap, ic_kernel] + ([ced_match] if args.ced else [])
     code = [inspect.getsource(m) for m in mods] + [inspect.getsource(fn) for fn in (generic, index_relative, index_series, pm_daily, profile_marks)]
     parts = [BUILD_REV, HORIZON, MARKS.tolist(), args.profiles, str(args.hstats), str(args.pm_cache), str(args.pm_stsfile), args.ced,
              str(args.ced_xr), args.target_stale, stamp(args.engine_dir / f"marks_{d}.parquet")]
@@ -655,6 +666,7 @@ def main() -> None:
     ap.add_argument("--cache-dir", type=Path, default=Path("/work/crucible_data/cache/ic_build"))
     ap.add_argument("--rebuild", action="store_true", help="build every day again (market data in doubt) and overwrite the cache")
     ap.add_argument("--override", default="", help="feat=expr;feat=expr: replace these assigned formulas (each alone and together reported)")
+    ap.add_argument("--scan-include", default="", help="regex: candidates the scan always tries on top of its shortlist")
     ap.add_argument("--scan-feats", default="", help="scan these features (comma-separated) instead of the top --max-features")
     ap.add_argument("--drop-harmful", action=argparse.BooleanOptionalAction, default=True,
                     help="at the start, drop the assigned formulas the IC rises without (each alone and all together)")
@@ -1153,6 +1165,8 @@ def main() -> None:
             if assign.get(feat):  # refine: every gate-passing neighbour of the current pick (other horizons / windows, mid / micro / last price)
                 fam = family(assign[feat])
                 short = list(dict.fromkeys(short + [c for c in passes if family(c) == fam and c != assign[feat]]))
+            if args.scan_include:  # every gate-passing candidate the pattern names (other families the scan should try too)
+                short = list(dict.fromkeys(short + [c for c in passes if re.search(args.scan_include, c) and c != assign.get(feat)]))
             if not short:
                 log.append({"pass": ps, "feature": feat, "kept": assign.get(feat), "ic_after": np.nan, "t_gain": 0.0,
                             "top": "no candidate passes the fingerprint gate; closest: "
@@ -1465,21 +1479,27 @@ def implied(args, X, col, blocks, brows, ret, grp, sid_a, blk, mk, full_pred, fp
             keep = X[:, j].copy()
             old = pj(j)
             res = []
-            for nm_, v in (("const", np.nanmedian(keep[rows]) if np.isfinite(keep[rows]).any() else 0.0), ("missing", np.nan)):
+            thr = np.unique(np.concatenate([m.thr[(m.feat == j) & ((m.dt & 1) == 0)] for b in range(len(blocks)) for m in blocks[b][1]]))
+            cs_ = [("const", np.nanmedian(keep[rows]) if np.isfinite(keep[rows]).any() else 0.0), ("missing", np.nan)]
+            if thr.size:  # below / above every split point: a candidate whose values all sit on one side is only a constant
+                cs_ += [("const_lo", thr[0] - max(abs(thr[0]), 1.0)), ("const_hi", thr[-1] + max(abs(thr[-1]), 1.0))]
+            for nm_, v in cs_:
                 X[rows, j] = v
                 res.append((xs_ic(base_rows - old + pj(j)) - ic0, nm_))
+            cbest = max(d for d, k in res)
             for k in carriers:
                 X[rows, j] = cand[k]
                 res.append((xs_ic(base_rows - old + pj(j)) - ic0, k))
             X[:, j] = keep
             res.sort(reverse=True)
-            beat.append((res[0][0], f, res[0][1], assign[f]))
+            beat.append((res[0][0], f, res[0][1], assign[f], res[0][0] - cbest if res[0][1] not in dict(cs_) else 0.0))
             worse.append((-next(d for d, k in res if k == "missing"), f, assign[f]))
         beat.sort(reverse=True)
         worse.sort()
         tm["carrier_assigned"] += time.perf_counter() - t1
-        print(f"  assigned columns ({len(beat)}), the best replacement (residual candidate, its median, missing) over the current formula: "
-              + ", ".join(f"{f}<-{k} {d:+.4f} (now {e})" for d, f, k, e in beat[:10]))
+        print(f"  assigned columns ({len(beat)}), the best replacement (residual candidate, constants, missing) over the current formula "
+              f"[a candidate's margin over the best constant]: "
+              + ", ".join(f"{f}<-{k} {d:+.4f} [{dc:+.4f}] (now {e})" for d, f, k, e, dc in beat[:10]))
         print("  assigned columns worth least (agreement lost when missing): " + ", ".join(f"{f} {d:+.4f} ({e})" for d, f, e in worse[:8]))
     for k, v in tm.items():
         print(f"time implied_{k} {v:.0f}s")

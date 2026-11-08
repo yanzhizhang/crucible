@@ -91,6 +91,26 @@ def ema_irregular(t, x, half_life):  # pragma: no cover
     return out
 
 
+@njit(cache=True)
+def ema_seeded(t, x, half_life, x0, w0, t0):  # pragma: no cover
+    """ema_irregular started from a prior state: value x0 with weight w0 at time t0 (yesterday's state carried over)."""
+    out = np.empty(t.size)
+    s = x0 * w0
+    w = w0
+    last = t0
+    k = np.log(2.0) / half_life
+    for i in range(t.size):
+        d = np.exp(-(t[i] - last) * k) if t[i] > last else 1.0
+        s *= d
+        w *= d
+        last = t[i]
+        if np.isfinite(x[i]):
+            s += x[i]
+            w += 1.0
+        out[i] = s / w if w > 0 else np.nan
+    return out
+
+
 @njit(parallel=True, cache=True)
 def seg_z(v, starts, ends):  # pragma: no cover
     out = np.full(v.size, np.nan)
