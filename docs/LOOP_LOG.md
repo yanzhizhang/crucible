@@ -146,3 +146,7 @@
 - RUN_DONE 22:07:19, total 671s (build 232s, panel 81s, scan 111s, implied 240s).
 - IC: start 0.5733 -> end 0.5993 (t 145.57, 660 marks); 31 of 209 assigned; agreement 0.570; dropped zzpk.
 - Relayed verbatim to crucible; waiting for round 8.
+
+## 2026-11-08 22:14 round 8 started (d5284e6, no files moved)
+- Ran drop-line grep on r7/r6 logs (17 lines, all training-CDF gap > 0.05), relayed verbatim.
+- Round 8 started ~22:14 with --drop-gap 1; output data/reports/r8.txt.
