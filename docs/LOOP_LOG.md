@@ -200,3 +200,6 @@
 - RUN_DONE 23:58:10, total 779s (build 480s with order flow, scan 266s, implied off).
 - IC 0.6261 -> 0.6351 (t 165.97); 37 of 209. New picks: zzzl2.g overnight_gap_log, zzeu srank:-flow_ord_imb60, zzeu2 srank:-rete75; no lpd kept.
 - Relayed verbatim; R13 held until crucible confirms.
+
+## 2026-11-09 00:05 round 13 blocked: Mac->Windows App clipboard sync stuck
+- crucible OKd R13 as sent. Mac clipboard holds R13 cmd (verified), but VDI paste keeps giving the R12 command (4 tries, incl. TextEdit switch and refocus). Each stale paste cleared with ^C, never executed. R13 not started.
