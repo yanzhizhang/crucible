@@ -150,3 +150,8 @@
 ## 2026-11-08 22:14 round 8 started (d5284e6, no files moved)
 - Ran drop-line grep on r7/r6 logs (17 lines, all training-CDF gap > 0.05), relayed verbatim.
 - Round 8 started ~22:14 with --drop-gap 1; output data/reports/r8.txt.
+
+## 2026-11-08 22:24 round 8 done (d5284e6, --drop-gap 1)
+- RUN_DONE 22:24:28, total 605s (build 76s, panel 25s, scan 222s, implied 276s).
+- IC: start 0.6016 -> end 0.6242 (t 160.52, 660 marks); 38 of 209 assigned; agreement 0.596; dropped zzsf.d, zzwa.a.
+- Evidence table (21 rows) + all requested lines relayed verbatim to crucible.
