@@ -218,3 +218,6 @@
 - R14 started 08:11: --calibrate, --assign stage6_r13 -> --out stage6_r14, tee r14.txt
 - R14 done 08:17:39, total 394s (build 93s, scan 260s). dropped zzzl2.b (0.6629->0.6631). IC 0.6631 -> 0.6641 (t 177.19), 75/209.
 - kept cal: count 1 -- zzhi2.i cal:gen.ofi_levels1to5_norm_10s IC 0.6083 t_gain 5.1. Relayed verbatim to crucible.
+
+## R15 (64cdf95, no move) -- 2026-11-09 08:22
+- rescan top-60 gain columns with --calibrate --max-features 60; --assign stage6_r14 -> --out stage6_r15, tee r15.txt
