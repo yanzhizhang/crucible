@@ -249,3 +249,4 @@
 ## 9c1627f: 1109 rebuild, decision samples, R16 -- 2026-11-09 22:08
 - moved dcp_ema/lit_factors/pm_signals (md5 match); pm_lgb_params.json Prettier-reformatted (105 lines), content same per user. Clipboard-sync mishaps on pm_signals (unsaved), fixed.
 - step1: factor lines 1,057,734 matched by order; corr 0.993984; 479,137 trade decisions. step3 decision samples relayed. R16 started 22:08.
+- user: record PM model params completely. Sent crucible: empty params list, seeds per file (fit1=fit3 18467/26500/15724/6334/41/19169; fit2 400/30056/12879/17869/175/16083), feature_infos md5 grouping (fit1=fit3 per s; s1..s4 differ), whole-file md5s (all differ), importances/infos not transcribed (asked crucible for an extraction script). Asked crucible to add to pm_lgb_params.json and push.
