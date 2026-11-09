@@ -245,3 +245,7 @@
 - user: daily chrono config readable at 224 /tmp/o/executor/{date}/run_s.json5. Copied 20261110 to 97 /work/crucible_data/chrono_cfg/20261110/ (read-only pull). Summary to crucible with password/user/acct/IP masked. runS params_path config2_HS300.json (zhangyiqing home) -> Permission denied; not bypassed.
 - 1109 state check: sidIdx=657953 executp=73098 in 09-18-09 log; state/date=20261109.parquet missing; 1106 state 2060426 rows (decision 745638, snap 1314788). Relayed.
 - user: skip config2_HS300.json (maybe infer from logs later); asked crucible to commit PM LightGBM params to repo (cfg + docs/PM_REPRO.md) and propose next move.
+
+## 9c1627f: 1109 rebuild, decision samples, R16 -- 2026-11-09 22:08
+- moved dcp_ema/lit_factors/pm_signals (md5 match); pm_lgb_params.json Prettier-reformatted (105 lines), content same per user. Clipboard-sync mishaps on pm_signals (unsaved), fixed.
+- step1: factor lines 1,057,734 matched by order; corr 0.993984; 479,137 trade decisions. step3 decision samples relayed. R16 started 22:08.
