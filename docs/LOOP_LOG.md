@@ -241,3 +241,5 @@
 ## 224 logs 20261109 -- 2026-11-09 21:37 (user approved)
 - rsync pull from 224 (key auth): 7 logs 2026-11-09_*.log, 831MB received. RUN_DONE 21:37:11
 - pm_signals 20261109: 1,079,074 signals, 300 stocks; PM feed delay p50 0.56s p99 1.67s; 117 dropped (>2s feed); no snapshots of ours for 1109 so market checks skipped; -> pm_signals/date=20261109.parquet. RUN_DONE 21:38:33. Relayed verbatim.
+- 1109 catchRun grep: alg lines only in 09-18-09 (804149) and 13-46-48 (1218282) logs; relayed verbatim.
+- user: daily chrono config readable at 224 /tmp/o/executor/{date}/run_s.json5. Copied 20261110 to 97 /work/crucible_data/chrono_cfg/20261110/ (read-only pull). Summary to crucible with password/user/acct/IP masked. runS params_path config2_HS300.json (zhangyiqing home) -> Permission denied; not bypassed.
