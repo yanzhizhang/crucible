@@ -275,3 +275,4 @@
 - pm_poslog step1 (user OK): 224 has no 1106 position_log; 1109 position_log ~104KB pulled; base_position csvs for both days. User: base positions only in use from tomorrow. Asked crucible whether to still run step 2.
 - 00:16 R19 started tab A (107 unmapped). Tab B: pm_poslog.py + daily_pm.sh moved (md5 OK); pm_poslog crashed ColumnNotFoundError "symbol" (base_position csv picked up by glob). Relayed. daily_pm 1110 held until after close + R19.
 - c0ab9f6 pm_poslog moved (md5 OK); still fails: symbol is "000001.SZ" not int. Relayed with R18 IC line. R19 running.
+- 9e76485 pm_poslog moved (md5 OK, first paste missed: Chrome in the way, md5 gate blocked the run). 1109: 900 rows, 300 stocks, 3 dumps at 15:56/16:04/16:07 (after close); 0 of 479,137 decisions matched. Relayed.
