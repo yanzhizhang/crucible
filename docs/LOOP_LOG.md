@@ -256,3 +256,6 @@
 - moved pm_decisions (124, md5 OK), pm_lgb_meta (78, OK), pm_lgb_params.json (Prettier, JSON_OK).
 - CORRECTION: model files exist in all 18 tk5m months (204 files); 3 generations: 202509-202604, 202601.updated+202605-202608, 202609-202612. Earlier "only 3 months" was my misread.
 - R16: IC 0.6717 -> 0.6791 (t 170.37), 100/209 assigned, total 892s; name_map 54.7% of gain. pm_decisions2 + pm_lgb_meta relayed verbatim.
+
+## ebb4df5 (R17 round) -- 2026-11-09 22:42
+- Mac->Windows clipboard sync stalled: 3 pastes produced the stale R16 summary command (read-only), each cancelled with ^C, never run. Nothing run for step A/B/C; no files moved yet. Waiting on user.
