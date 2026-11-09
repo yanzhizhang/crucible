@@ -284,10 +284,12 @@ grows with hs.
 
 The full parameter list, machine-readable: `research/pm_factors/pm_lgb_params.json`.
 
-* Month folders 202509 .. 202612 (plus `202601.updated`) each have `lgb/`, but model files exist in three only:
-  `202509`, `202601.updated` (dated 2026-09-04), `202609`. Each holds `livev1_fit{1,2,3}/model_s{1,2,3,4}.txt`
-  (36 files, ~13 MB each). `/data/prod/models.zip` and 2.23's `prod.tar.gz` of 2026-11-09 hold the same files
-  (md5 84da910c, 27 entries). That tarball ends 2026-11-03 and adds nothing that 97's `/data/prod` lacks.
+* All 17 month folders, 202509 .. 202612 plus `202601.updated` (dated 2026-09-04), hold
+  `lgb/livev1_fit{1,2,3}/model_s{1,2,3,4}.txt` as regular files: 204 files, ~13 MB each. (An earlier reading of
+  "three months only" was wrong.) By their column ranges and split counts (`pm_lgb_meta.py`) there are three
+  generations: A = 202509-202604, B = `202601.updated` + 202605-202608, C = 202609-202612. November trades on C.
+  `/data/prod/models.zip` and 2.23's `prod.tar.gz` of 2026-11-09 hold the same files (md5 84da910c, 27 entries).
+  That tarball ends 2026-11-03 and adds nothing that 97's `/data/prod` lacks.
 * The header is plain LightGBM v3: `objective=regression`, `num_class=1`, `max_feature_idx=208` (209 columns),
   `feature_names=Column_0 ..` (generic, so the column names come from `lgb_fn_v1_209_cte.csv`), and
   `feature_infos` = each column's training [min:max].
@@ -340,6 +342,7 @@ per-mark Spearman between our model's prediction and PM's own prediction (`pm_si
 | R13 | ZZQF/WJ/DW/OP/RI/KP/HI/HO families vs the new candidates | 0.6629 | 75 |
 | R14 | `cal:` (quantile-map onto PM's training CDF) on off-scale families | 0.6641 | 75 |
 | R15 | top-60-gain columns, with `cal:` | 0.6717 | 81 (49.9 % of gain) |
+| R16 | unmapped families + 10-level book candidates | 0.6791 | 100 (54.7 % of gain) |
 
 * Sibling stems share formulas (ZZQF: the `q.c2` / `c3` / `c4` leaves match `-return_open_to_1000_log`, and the
   `q.c1` leaves match bid depth or small-order net buying), so a stem looks like one template with parameter

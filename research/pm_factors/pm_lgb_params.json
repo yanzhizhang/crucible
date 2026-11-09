@@ -1,10 +1,24 @@
 {
- "_source": "PM tk5m LightGBM models, /data/prod/models/tk5m/{202509,202601.updated,202609}/lgb/livev1_fit{1,2,3}/model_s{1,2,3,4}.txt on 97, read 2026-11-09; parameters block of 202609/lgb/livev1_fit1/model_s1.txt, identical in all 36 files apart from the seed lines (hash c61ef6fa); empty-valued lines left out",
+ "_source": "PM tk5m LightGBM models, /data/prod/models/tk5m/<month>/lgb/livev1_fit{1,2,3}/model_s{1,2,3,4}.txt on 97, read 2026-11-09; parameters block of 202609/lgb/livev1_fit1/model_s1.txt, identical in all 36 files apart from the seed lines (hash c61ef6fa); empty-valued ones in params_empty",
  "files": {
   "months": [
    "202509",
-   "202601.updated",
-   "202609"
+   "202510",
+   "202511",
+   "202512",
+   "202601",
+   "202602",
+   "202603",
+   "202604",
+   "202605",
+   "202606",
+   "202607",
+   "202608",
+   "202609",
+   "202610",
+   "202611",
+   "202612",
+   "202601.updated"
   ],
   "fits": [
    "livev1_fit1",
@@ -21,7 +35,34 @@
   "n_features": 209,
   "feature_names": "Column_0 .. Column_208 (names from lgb_fn_v1_209_cte.csv)",
   "version": "v3",
-  "zip_md5": "84da910c"
+  "zip_md5": "84da910c",
+  "n_files": 204,
+  "generations": {
+   "_note": "months whose 12 files give identical pm_lgb_meta summaries (column ranges, split counts); md5s above were read for one month of each",
+   "A": [
+    "202509",
+    "202510",
+    "202511",
+    "202512",
+    "202601",
+    "202602",
+    "202603",
+    "202604"
+   ],
+   "B": [
+    "202601.updated",
+    "202605",
+    "202606",
+    "202607",
+    "202608"
+   ],
+   "C": [
+    "202609",
+    "202610",
+    "202611",
+    "202612"
+   ]
+  }
  },
  "params": {
   "boosting": "gbdt",
@@ -167,7 +208,7 @@
   ]
  },
  "feature_infos_md5": {
-  "_note": "first 8 hex of the feature_infos line; [fit1 = fit3, fit2]; s1..s4 all differ",
+  "_note": "first 8 hex of the feature_infos line; [fit1 = fit3, fit2]; s1..s4 all differ; read for 202509 (A), 202601.updated (B), 202609 (C)",
   "202509": {
    "s1": [
     "dbf9edb5",
@@ -224,7 +265,7 @@
   }
  },
  "file_md5": {
-  "_note": "first 8 hex of each model file; [fit1, fit2, fit3]; all 36 differ",
+  "_note": "first 8 hex of each model file; [fit1, fit2, fit3]; all 36 differ; read for 202509 (A), 202601.updated (B), 202609 (C)",
   "202509": {
    "s1": [
     "b7d2adc9",
