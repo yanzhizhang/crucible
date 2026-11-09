@@ -30,13 +30,13 @@ python -u research/pm_factors/pm_signals.py --logs $DATA/chrono_logs --dates $D 
 grep -E "signals,|factor lines|order match|factor program|->" $O/${D}_signals.txt | sed 's/^/  /'
 
 say "4 DataYesSharesL2 $D -> dysl2_raw, catalog_dysl2"
-if ls $DY/$D.zip $DY/$D >/dev/null 2>&1; then
+if [ -e $DY/$D.zip ] || [ -d $DY/$D ]; then  # a zip, or (recent days) the unzipped folder
   python -u research/decode_datayes_day.py --root $DY --date $D --out $DATA/dysl2_raw --workers $W --kinds quotation,order,transaction,index \
     > $O/${D}_decode.txt 2>&1 || say "  decode FAILED: $(tail -2 $O/${D}_decode.txt)"
   CRUCIBLE_SOURCE=dysl2 python -u research/catalog.py > $O/${D}_catalog.txt 2>&1 || say "  catalog FAILED: $(tail -1 $O/${D}_catalog.txt)"
   CRUCIBLE_SOURCE=dysl2 python -c "import sys; sys.path.insert(0,'research/pm_factors'); import duckdb, dcp_build as B; c=duckdb.connect(str(B.CATALOG), read_only=True); print('  quotes', c.sql('SELECT date, count(*), count(DISTINCT symbol_id) FROM raw_quotation WHERE date = $D GROUP BY 1').fetchall())"
 else
-  say "  no $DY/$D.zip yet: rerun this script later for steps 4-5"
+  say "  no $DY/$D(.zip) yet: rerun this script later for steps 4-5"
 fi
 
 say "5 decisions + position log"
