@@ -279,3 +279,4 @@
 - 6223698 pm_poslog (md5 OK): nearest-dump fallback, 479,137 decisions; pos==qty 0.510; corr(fa, base-qty) +0.001. Relayed.
 - R19 (dysl2 scan 107 unmapped) done 00:29:02: IC 0.6805 -> 0.6900 (t 172.68), 144/209 assigned (61.8% gain), 738s; 1109 still "no state file"; 2 book-depth picks (zzyj3.c beyond_level5, zzxt depth_imbalance_level3). Relayed. daily_pm 1110 waits for close.
 - 00:34 p1_intrading_dcp newest 20261106.jz (no 1109/1110 -> "no state file"). DataYes 1110 not yet present. Waiting for close to run daily_pm.sh 20261110.
+- ca89f34 daily_pm.sh moved (md5 82c8fcae OK). crucible asks: ssh 2.23 read-only ls/find for PM state files (1109/1110 .jz, hstats); asking user first.
