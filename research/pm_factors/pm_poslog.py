@@ -1,7 +1,7 @@
 r"""PM's ``pos`` (runS decision lines) against chrono's own position log on 224, and both against PM's prediction.
 
 chrono writes ``position_log_csv`` every 30 s (``time,ts,trading_day,strategy,account,symbol,qty,yesterday_qty,today_qty,
-sold_qty,frozen_qty,sellable_qty,avg_cost,base_qty``; ts epoch ns, symbol the numeric code). Each decision row (sid,
+sold_qty,frozen_qty,sellable_qty,avg_cost,base_qty``; ts epoch ns, symbol ``000001.SZ``). Each decision row (sid,
 src_epoch) takes the latest log row of its stock at or before it; printed, per day:
 
 * how often pos equals qty, yesterday_qty, sellable_qty, base_qty, base_qty - qty, qty - base_qty (exactly, and within
@@ -37,7 +37,7 @@ def day(poslog: Path, state: Path, d: str) -> None:
         print(f"\n== {d}: no position log under {poslog}/{d}")
         return
     lg = pl.concat([pl.read_csv(f, infer_schema_length=10000) for f in files], how="diagonal_relaxed")
-    lg = lg.with_columns(pl.col("symbol").cast(pl.Int64).alias("sid"), pl.col("ts").cast(pl.Int64),
+    lg = lg.with_columns(pl.col("symbol").cast(pl.String).str.slice(0, 6).cast(pl.Int64).alias("sid"), pl.col("ts").cast(pl.Int64),
                          *[pl.col(c).cast(pl.Float64) for c in LOG if c in lg.columns]).sort("sid", "ts")
     print(f"\n== {d}: {lg.height:,} position-log rows from {len(files)} file(s), {lg['sid'].n_unique()} stocks, "
           f"{lg['ts'].n_unique()} dumps; qty != 0 {np.mean(lg['qty'].to_numpy() != 0):.3f}, base_qty != 0 {np.mean(lg['base_qty'].to_numpy() != 0):.3f}")
