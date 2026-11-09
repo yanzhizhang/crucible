@@ -72,6 +72,25 @@ def day(path: Path, d: str) -> None:
           f"== +asq {hi.mean():.3f} (fa > 0 among them {np.mean(fa[hi] > 0) if hi.any() else np.nan:.3f}); "
           f"sign(executp) == sign(fa) {np.mean(np.sign(ex) == np.sign(fa)):.3f}; integer executp {np.mean(np.isclose(ex, np.round(ex))):.3f}, "
           f"multiple of 100 {np.mean(np.isclose(ex % 100, 0) | np.isclose(ex % 100, 100)):.3f}")
+    pos, pp = dec["pos"].to_numpy(), dec["pp"].to_numpy()
+    nz, pz = ex != 0, pos != 0  # zero rows hid everything above: 3/4 of executp and of pos are 0
+    lth, hs_ = dec["lthr"].to_numpy(), dec["hs"].to_numpy()
+    print(f"  non-zero only: executp {nz.mean():.3f} of rows, pos {pz.mean():.3f}, both {np.mean(nz & pz):.3f}, executp without pos "
+          f"{np.mean(nz & ~pz):.3f}, pos without executp {np.mean(pz & ~nz):.3f}")
+    if pz.any():
+        print(f"  pos != 0: sign(pos) == sign(fa) {np.mean(np.sign(pos[pz]) == np.sign(fa[pz])):.3f}; executp == pos {np.mean(np.isclose(ex[pz], pos[pz])):.3f}, "
+              f"== pos - pp {np.mean(np.isclose(ex[pz], pos[pz] - pp[pz])):.3f}, == clip(pos, +-asq) "
+              f"{np.mean(np.isclose(ex[pz], np.clip(pos[pz], -asq[pz], asq[pz]))):.3f}; executp / pos p1/p10/p50/p90/p99 {q(ex[pz] / pos[pz])}; "
+              f"pos multiple of 100 {np.mean(np.isclose(pos[pz] % 100, 0) | np.isclose(pos[pz] % 100, 100)):.3f}; "
+              f"pos / winsdQty p1/p10/p50/p90/p99 {q(pos[pz] / dec['winsdQty'].to_numpy()[pz])}")
+        for nm, sel in (("pos > 0", pos > 0), ("pos < 0", pos < 0), ("pos == 0", ~pz)):
+            print(f"  {nm} ({sel.sum():,}): fa p10/p50/p90 {q(fa[sel], (10, 50, 90))}; fa - hs {q(fa[sel] - hs_[sel], (10, 50, 90))}; "
+                  f"fa + lthr {q(fa[sel] + lth[sel], (10, 50, 90))}; fa - lthr {q(fa[sel] - lth[sel], (10, 50, 90))}; "
+                  f"asq > 0 {np.mean(asq[sel] > 0):.3f}")
+    if nz.any():
+        a_ = asq > 0
+        print(f"  executp != 0 and asq > 0 ({np.sum(nz & a_):,}): |executp| == asq {np.mean(np.isclose(np.abs(ex[nz & a_]), asq[nz & a_])):.3f}, "
+              f"|executp| < asq {np.mean(np.abs(ex[nz & a_]) < asq[nz & a_] - 1e-9):.3f}; sign(executp) == sign(fa) {np.mean(np.sign(ex[nz]) == np.sign(fa[nz])):.3f}")
     w = dec["winsdQty"].to_numpy()
     print(f"  executp / winsdQty p1/p10/p50/p90/p99 {q(ex / np.where(w > 0, w, np.nan))}")
     t = dec.with_columns((pl.col("fa") * pl.col("winsdQty")).alias("fa_w"), ((pl.col("fa") - pl.col("hs")) * pl.col("winsdQty")).alias("fa_m_hs_w"),
