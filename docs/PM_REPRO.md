@@ -343,13 +343,30 @@ per-mark Spearman between our model's prediction and PM's own prediction (`pm_si
 | R14 | `cal:` (quantile-map onto PM's training CDF) on off-scale families | 0.6641 | 75 |
 | R15 | top-60-gain columns, with `cal:` | 0.6717 | 81 (49.9 % of gain) |
 | R16 | unmapped families + 10-level book candidates | 0.6791 | 100 (54.7 % of gain) |
+| R17 | book imbalance and OFI at every depth (levels 1..k and level k alone, k = 1..10; `ebb4df5`) | 0.6806 | 102 |
+| R18 | scoring only: R17's formulas on DataYesSharesL2 (`CRUCIBLE_SOURCE=dysl2`, what 224 runs on) instead of feitu | 0.6805 | 102 |
+| R19 | dysl2, scan of the 107 unmapped columns (each tries every candidate, 10-level book included) | 0.6900 | 144 (61.8 % of gain) |
 
+R17-R19 use 660 marks (t 172-173). R18 shows the two sources score the same (0.6806 feitu vs 0.6805 dysl2), so
+rounds from R19 on run on dysl2. The out-of-sample check on 20261109 was skipped in R18 and R19 (no state file).
+
+R19 per family (mapped / columns, gain): ZZRO 5/6 12.2 %, ZZQF 19/21 6.1 %, ZZZL 6/9 5.9 %, ZZWA 8/11 5.4 %,
+ZZGH 1/2 4.6 %, ZZEU 2/2 3.9 %, ZZPE 4/5 3.8 %, ZZAL 5/8 2.9 %, ZZOP 3/4 2.8 %, ZZSF 1/2 2.5 %, ZZEL 0/2 2.4 %,
+ZZAG 1/6 2.3 %, ZZEG 0/2 2.1 %, ZZSA 2/4 2.1 %, ZZXU 2/2 2.0 %. Largest single gains in R19's scan (t_gain): `zzie4.c`
+<- passive order net amount at or inside the best quote over 60 s (12.9), `zzlk` <- amount share of orders over
+200k CNY over 120 s (8.0), `zzlk2` <- `lpek50` (7.8), `zzyj4.a` <- `simba20` (7.2), `zzxt3` <- CED's ZZAL `an`
+(6.8), `zzfe2` <- trade-sign autocorrelation over 60 s (6.4).
+
+* An assignment is a stand-in, not a recovered formula: the IC rewards any candidate that carries similar
+  information (`zzro2.a` once picked a spread). Only stage 1-4c results are cell-by-cell matches against PM's own
+  files; candidates also pass the fingerprint gate first (>= 95 % inside PM's training range, close quantiles).
 * Sibling stems share formulas (ZZQF: the `q.c2` / `c3` / `c4` leaves match `-return_open_to_1000_log`, and the
   `q.c1` leaves match bid depth or small-order net buying), so a stem looks like one template with parameter
   variants.
-* ZZRO is relative to the market (`dm:` returns, t 10-16). Its biggest leaf, `zzro2.a` (5.3 % of gain), is
-  unmapped.
-* No column mapped yet in ZZEL, ZZAG, ZZEG, ZZSA, ZZBT, ZZPP or ZZQO (~14 % of gain together).
+* ZZRO is relative to the market (`dm:` returns, t 10-16). At R16 its biggest leaf, `zzro2.a` (5.3 % of gain), was
+  unmapped; R19 maps 5 of its 6 columns.
+* At R16 no column was mapped in ZZEL, ZZAG, ZZEG, ZZSA, ZZBT, ZZPP or ZZQO (~14 % of gain together). After R19,
+  ZZEL and ZZEG still have none, ZZAG has 1 of 6 and ZZSA 2 of 4 (ZZBT / ZZPP / ZZQO are not in R19's top-15 line).
 
 ## Stage 4b -- PM's day-end factor state (`/data/prod/h/HS300/p1_intrading_dcp/<D>.jz`)
 
