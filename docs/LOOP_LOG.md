@@ -251,3 +251,8 @@
 - step1: factor lines 1,057,734 matched by order; corr 0.993984; 479,137 trade decisions. step3 decision samples relayed. R16 started 22:08.
 - user: record PM model params completely. Sent crucible: empty params list, seeds per file (fit1=fit3 18467/26500/15724/6334/41/19169; fit2 400/30056/12879/17869/175/16083), feature_infos md5 grouping (fit1=fit3 per s; s1..s4 differ), whole-file md5s (all differ), importances/infos not transcribed (asked crucible for an extraction script). Asked crucible to add to pm_lgb_params.json and push.
 - e6e6761 pm_decisions.py moved (md5 OK). First run failed: 2nd terminal lacked conda (python not found); rerun 22:20:02 OK. Relayed verbatim (1106: 745,638 decisions; 1109: 479,137; winsdQty/emsMktVol p50 = 3/17). R16 build 484s, scanning.
+
+## 81efa4c + R16 results -- 2026-11-09 22:31
+- moved pm_decisions (124, md5 OK), pm_lgb_meta (78, OK), pm_lgb_params.json (Prettier, JSON_OK).
+- CORRECTION: model files exist in all 18 tk5m months (204 files); 3 generations: 202509-202604, 202601.updated+202605-202608, 202609-202612. Earlier "only 3 months" was my misread.
+- R16: IC 0.6717 -> 0.6791 (t 170.37), 100/209 assigned, total 892s; name_map 54.7% of gain. pm_decisions2 + pm_lgb_meta relayed verbatim.
