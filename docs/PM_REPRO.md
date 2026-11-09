@@ -280,6 +280,67 @@ winsdQty, asf; emsMktVol, emsOurVol). `research/pm_factors/pm_signals.py` stores
 Seen so far: hs ~ half a tick over the price; winsdQty = emsMktVol x 0.17647 (3/17) exactly; asf = 0.8; lthr < 0 and
 grows with hs.
 
+## Stage 5 -- PM's tk5m LightGBM models (`/data/prod/models/tk5m`, read on 97 2026-11-09)
+
+The full parameter list, machine-readable: `research/pm_factors/pm_lgb_params.json`.
+
+* Month folders 202509 .. 202612 (plus `202601.updated`) each have `lgb/`, but model files exist in three only:
+  `202509`, `202601.updated` (dated 2026-09-04), `202609`. Each holds `livev1_fit{1,2,3}/model_s{1,2,3,4}.txt`
+  (36 files, ~13 MB each). `/data/prod/models.zip` and 2.23's `prod.tar.gz` of 2026-11-09 hold the same files
+  (md5 84da910c, 27 entries). That tarball ends 2026-11-03 and adds nothing that 97's `/data/prod` lacks.
+* The header is plain LightGBM v3: `objective=regression`, `num_class=1`, `max_feature_idx=208` (209 columns),
+  `feature_names=Column_0 ..` (generic, so the column names come from `lgb_fn_v1_209_cte.csv`), and
+  `feature_infos` = each column's training [min:max].
+* Every file has 2000 trees, although `num_iterations` is 3000 and `early_stopping_round` is 0, so the file
+  was probably saved at a chosen iteration. `metric` is `custom`.
+* With the seed lines excluded, the parameters block is identical in all 36 files (hash c61ef6fa).
+  So fit1..3 look like a seed ensemble; one fit file shows `bagging_seed: 400`, not verified per file.
+* Parameters: `gbdt`, `learning_rate` 0.03, `num_leaves` 64, `max_depth` 6, `min_data_in_leaf` 20,
+  `bagging_fraction` 0.9 (`bagging_freq` 2), `feature_fraction` 0.7, `lambda_l1` 0.5, `lambda_l2` 1,
+  **`max_bin` 128**, `min_data_in_bin` 3, `bin_construct_sample_cnt` 200000, `use_missing` 1,
+  `zero_as_missing` 0, `boost_from_average` 1.
+  * `max_bin` 128: a column has at most ~127 split thresholds, roughly a 1/128 quantile grid of its training
+    values. This is the grid the fingerprint's `q_*` estimates (the probe's docstring said ~255).
+  * `use_missing` with `zero_as_missing` 0: a NaN takes each split's learned default branch and 0 is a real
+    value, so `ic_score`'s "column missing" baseline is the model's own missing path.
+
+## PM's runS::initialize() (C++ screenshot from Zhang Yiqing, 2026-11-09)
+
+`runS` is PM's strategy plugin inside chrono: 224's chrono config (`/tmp/o/executor/<D>/run_s.json5`, copy on
+97 at `/work/crucible_data/chrono_cfg/20261110/`) loads `libcatchRun.so` as `strategy_type "runS"` (`strategy_id
+runS_a`, capital 10M CNY, base position `base_position_v1_hs300.csv`, one XTP account). Its `params_path` is
+`.../zhangyiqing/workspace/chrono/release/chrono_runtime/cfg/sim_example/config2_HS300.json` (not readable by
+our account). Chrono's risk rules there: trading window 930-1130 / 1300-1455, price cage 2 % each way,
+400 orders/s; fees 1.5 bp commission, 5 bp stamp on sells, 0.641 bp transfer.
+`initialize()` logs "waiting for attach", reserves `time_slots` of 6000 x 240 (~ all
+A-shares x 240 one-minute slots; reserve only), then sleeps 2 s. It reads that JSON config
+(`params_path()`) with keys including `date` and `NumLevels`, hands the whole config to `qTrader(dateS, cfg)`,
+and sizes the book message `FBL` to `NumLevels` levels; `resize(n, 10)` fills with the value 10. The level count
+is not shown, probably 10 for L2. Execution-side code, so its value for the factors is uncertain. The one lead
+is that PM's book is likely 10 levels deep, while our book candidates (`lit_factors`) stop at 5.
+
+## Stage 6 -- ic_score rounds (score candidates through PM's own models)
+
+`research/pm_factors/ic_score.py` fills the 209 columns with candidate formulas and keeps whichever raise the
+per-mark Spearman between our model's prediction and PM's own prediction (`pm_signals`). Days 20261104-06,
+240 random marks. `name_map.py` prints the assignment as a family / stem / leaf tree.
+
+| round | change | IC | columns |
+|---|---|---|---|
+| R5-R7 | scan, residual both ways | 0.5945 -> 0.5993 | |
+| R8 | `--drop-gap 1` (stop dropping off-scale picks between rounds) | 0.6242 | |
+| R12 | literature + order-flow candidates (`lit_factors`, `tick_flow`) | 0.6351 | 37 |
+| R13 | ZZQF/WJ/DW/OP/RI/KP/HI/HO families vs the new candidates | 0.6629 | 75 |
+| R14 | `cal:` (quantile-map onto PM's training CDF) on off-scale families | 0.6641 | 75 |
+| R15 | top-60-gain columns, with `cal:` | 0.6717 | 81 (49.9 % of gain) |
+
+* Sibling stems share formulas (ZZQF: the `q.c2` / `c3` / `c4` leaves match `-return_open_to_1000_log`, and the
+  `q.c1` leaves match bid depth or small-order net buying), so a stem looks like one template with parameter
+  variants.
+* ZZRO is relative to the market (`dm:` returns, t 10-16). Its biggest leaf, `zzro2.a` (5.3 % of gain), is
+  unmapped.
+* No column mapped yet in ZZEL, ZZAG, ZZEG, ZZSA, ZZBT, ZZPP or ZZQO (~14 % of gain together).
+
 ## Stage 4b -- PM's day-end factor state (`/data/prod/h/HS300/p1_intrading_dcp/<D>.jz`)
 
 53 days (2023-01-16 .. 2023-02-28, 2026-04-29, 2026-09-01 .. 2026-10-13), plus `sod/` copies (sod/D =

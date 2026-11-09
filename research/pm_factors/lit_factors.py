@@ -62,6 +62,16 @@ DESCRIBE = {
     "log_bid_depth_5lvl_per_rel_distance_to_level5": "log(bid volume of levels 1-5 / ((mid - bid level-5 price) / mid)): bid book slope",
     "log_ask_depth_5lvl_per_rel_distance_to_level5": "log(ask volume of levels 1-5 / ((ask level-5 price - mid) / mid)): ask book slope",
     "book_slope_log_ratio_bid_over_ask_5lvl": "bid book slope minus ask book slope (both logs)",
+    "ofi_levels1to10_norm_{w}s": "order-flow imbalance summed over book levels 1-10 over the last {w} s, divided by the mean 10-level depth",
+    "ofi_levels6to10_norm_{w}s": "order-flow imbalance summed over book levels 6-10 over the last {w} s, divided by the mean level 6-10 depth",
+    "depth_weighted_price_10lvl_minus_mid_rel": "(price averaged over both sides' 10 levels weighted by volume - mid) / mid",
+    "bid_depth_weighted_distance_10lvl_rel": "(mid - volume-weighted bid price of levels 1-10) / mid",
+    "ask_depth_weighted_distance_10lvl_rel": "(volume-weighted ask price of levels 1-10 - mid) / mid",
+    "depth_imbalance_10lvl": "(bid - ask volume of levels 1-10) / their sum",
+    "depth_imbalance_levels6to10": "(bid - ask volume of levels 6-10) / their sum",
+    "bid_depth_share_beyond_level5": "bid volume of levels 6-10 / bid volume of levels 1-10",
+    "ask_depth_share_beyond_level5": "ask volume of levels 6-10 / ask volume of levels 1-10",
+    "book_slope_log_ratio_bid_over_ask_10lvl": "bid minus ask log(10-level volume / relative distance to level 10)",
     # open auction, first half hour, limits, time
     "overnight_gap_log": "log(open / previous close)",
     "return_open_to_1000_log": "log(mid at min(now, 10:00) / open)",
@@ -203,6 +213,20 @@ def _book_open_limits(gf: pl.DataFrame | None, T: np.ndarray) -> dict[str, np.nd
         put("log_bid_depth_5lvl_per_rel_distance_to_level5", sb)
         put("log_ask_depth_5lvl_per_rel_distance_to_level5", sa)
         put("book_slope_log_ratio_bid_over_ask_5lvl", sb - sa)
+        if "bwp10" in gf.columns:  # the same over 10 levels, and the share of depth beyond level 5
+            bv10, av10 = f("bv10"), f("av10")
+            bw10, aw10, b10, a10 = f("bwp10"), f("awp10"), f("b10px"), f("a10px")
+            put("depth_weighted_price_10lvl_minus_mid_rel", ((bw10 * bv10 + aw10 * av10) / (bv10 + av10) - mid) / mid)
+            put("bid_depth_weighted_distance_10lvl_rel", (mid - bw10) / mid)
+            put("ask_depth_weighted_distance_10lvl_rel", (aw10 - mid) / mid)
+            put("depth_imbalance_10lvl", (bv10 - av10) / (bv10 + av10))
+            put("depth_imbalance_levels6to10", ((bv10 - bv5) - (av10 - av5)) / (bv10 - bv5 + av10 - av5))
+            put("bid_depth_share_beyond_level5", (bv10 - bv5) / bv10)
+            put("ask_depth_share_beyond_level5", (av10 - av5) / av10)
+            r10b, r10a = np.where(b10 > 0, (mid - b10) / mid, np.nan), np.where(a10 > 0, (a10 - mid) / mid, np.nan)
+            s10b = np.log(bv10 / np.where(r10b > 0, r10b, np.nan))
+            s10a = np.log(av10 / np.where(r10a > 0, r10a, np.nan))
+            put("book_slope_log_ratio_bid_over_ask_10lvl", s10b - s10a)
         if "ofi2_5" in gf.columns:  # level-1 event here, levels 2-5 from SQL; both on every snapshot, quoted prices only
             b1, a1 = f("b1"), f("a1")
             e1 = np.zeros(tl.size)
@@ -212,10 +236,18 @@ def _book_open_limits(gf: pl.DataFrame | None, T: np.ndarray) -> dict[str, np.nd
             e25 = np.nan_to_num(f("ofi2_5"))
             cs15, cs25 = _cs(e1 + e25), _cs(e25)
             cd15, cd25, cn = _cs((bv5 + av5) / 2), _cs((bv5 - bv1 + av5 - av1) / 2), _cs(np.ones(tl.size))
+            if "ofi6_10" in gf.columns:
+                e610 = np.nan_to_num(f("ofi6_10"))
+                bv10_, av10_ = f("bv10"), f("av10")
+                cs110, cs610 = _cs(e1 + e25 + e610), _cs(e610)
+                cd110, cd610 = _cs((bv10_ + av10_) / 2), _cs((bv10_ - bv5 + av10_ - av5) / 2)
             for w in (10, 30, 60, 300):
                 n = _win(cn, tl, T, w)
                 out[f"ofi_levels1to5_norm_{w}s"] = _win(cs15, tl, T, w) / (_win(cd15, tl, T, w) / n)
                 out[f"ofi_levels2to5_norm_{w}s"] = _win(cs25, tl, T, w) / (_win(cd25, tl, T, w) / n)
+                if "ofi6_10" in gf.columns:
+                    out[f"ofi_levels1to10_norm_{w}s"] = _win(cs110, tl, T, w) / (_win(cd110, tl, T, w) / n)
+                    out[f"ofi_levels6to10_norm_{w}s"] = _win(cs610, tl, T, w) / (_win(cd610, tl, T, w) / n)
     op, pc = _first_pos(f("op"), np.nanmin), _first_pos(f("pc"))
     one = np.ones(np.shape(T))
     out["overnight_gap_log"] = one * np.log(op / pc)

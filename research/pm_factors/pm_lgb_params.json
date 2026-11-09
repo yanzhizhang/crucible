@@ -1,0 +1,32 @@
+{
+ "_source": "PM tk5m LightGBM models, /data/prod/models/tk5m/{202509,202601.updated,202609}/lgb/livev1_fit{1,2,3}/model_s{1,2,3,4}.txt on 97, read 2026-11-09; parameters block of 202609/lgb/livev1_fit1/model_s1.txt, identical in all 36 files apart from the seed lines (hash c61ef6fa); empty-valued lines left out",
+ "files": {"months": ["202509", "202601.updated", "202609"], "fits": ["livev1_fit1", "livev1_fit2", "livev1_fit3"], "models": ["s1", "s2", "s3", "s4"],
+           "trees_per_file": 2000, "n_features": 209, "feature_names": "Column_0 .. Column_208 (names from lgb_fn_v1_209_cte.csv)",
+           "version": "v3", "zip_md5": "84da910c"},
+ "params": {
+  "boosting": "gbdt", "objective": "regression", "metric": "custom", "tree_learner": "serial", "device_type": "cpu", "linear_tree": 0,
+  "num_iterations": 3000, "learning_rate": 0.03, "num_leaves": 64, "num_threads": 70, "deterministic": 0,
+  "force_col_wise": 0, "force_row_wise": 0, "histogram_pool_size": -1,
+  "max_depth": 6, "min_data_in_leaf": 20, "min_sum_hessian_in_leaf": 0.001,
+  "bagging_fraction": 0.9, "pos_bagging_fraction": 1, "neg_bagging_fraction": 1, "bagging_freq": 2,
+  "feature_fraction": 0.7, "feature_fraction_bynode": 1, "extra_trees": 0,
+  "early_stopping_round": 0, "first_metric_only": 0, "max_delta_step": 0,
+  "lambda_l1": 0.5, "lambda_l2": 1, "linear_lambda": 0, "min_gain_to_split": 0,
+  "drop_rate": 0.1, "max_drop": 50, "skip_drop": 0.5, "xgboost_dart_mode": 0, "uniform_drop": 0,
+  "top_rate": 0.2, "other_rate": 0.1, "min_data_per_group": 100, "max_cat_threshold": 32, "cat_l2": 10, "cat_smooth": 10,
+  "max_cat_to_onehot": 4, "top_k": 20,
+  "monotone_constraints_method": "basic", "monotone_penalty": 0, "refit_decay_rate": 0.9, "cegb_tradeoff": 1,
+  "cegb_penalty_split": 0, "path_smooth": 0, "verbosity": -1, "saved_feature_importance_type": 0,
+  "max_bin": 128, "min_data_in_bin": 3, "bin_construct_sample_cnt": 200000, "is_enable_sparse": 1,
+  "enable_bundle": 1, "use_missing": 1, "zero_as_missing": 0, "feature_pre_filter": 1, "pre_partition": 0, "two_round": 0, "header": 0,
+  "num_class": 1, "is_unbalance": 0, "scale_pos_weight": 1, "sigmoid": 1, "boost_from_average": 1, "reg_sqrt": 0,
+  "alpha": 0.9, "fair_c": 1, "poisson_max_delta_step": 0.7, "tweedie_variance_power": 1.5,
+  "lambdarank_truncation_level": 30, "lambdarank_norm": 1, "multi_error_top_k": 1
+ },
+ "seeds_fit1_s1": {"bagging_seed": 18467, "feature_fraction_seed": 26500, "extra_seed": 15724, "drop_seed": 6334,
+                   "data_random_seed": 41, "objective_seed": 19169},
+ "notes": ["2000 trees saved although num_iterations is 3000 and early_stopping_round 0: saved at a chosen iteration (custom metric)",
+           "fit1..3 differ only in seeds (one later file shows bagging_seed 400; not verified per file): a seed ensemble",
+           "max_bin 128: at most ~127 thresholds per column, ~ a 1/128 quantile grid of the training values",
+           "use_missing 1, zero_as_missing 0: NaN takes each split's default branch; 0 is a value"]
+}

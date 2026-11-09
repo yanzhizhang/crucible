@@ -81,18 +81,24 @@ def read_factor(files: list[str]) -> tuple[pl.DataFrame, pl.DataFrame]:
 
     A ``catchRun.cpp`` line names the stock and its snapshot (srcEpoch); the ``alg.cpp`` lines after it carry
     book->epoch = that srcEpoch, so each is tied to the last catchRun line of the same file with the same epoch."""
-    snaps, decisions, unmatched = [], [], 0
+    snaps, decisions, unmatched, loose = [], [], 0, 0
     for f in files:
         last: dict[str, float] = {}
+        used = True  # the last catchRun line already has its alg line
         with open(f, encoding="utf-8", errors="replace") as fh:
             for line in (part for raw in fh for part in GLUE.split(raw) if part.strip()):  # tee can glue two writers' lines
                 if "catchRun.cpp" in line and "srcEpoch" in line:
-                    last = {k: float(v) for k, v in NUM.findall(line)}
+                    last, used = {k: float(v) for k, v in NUM.findall(line)}, False
                 elif "alg.cpp" in line and "sidIdx" in line:
                     kv = {k: float(v) for k, v in NUM.findall(line)}
-                    if last and abs(kv.get("book->epoch", -1.0) - last.get("srcEpoch", -2.0)) < 1e-4:
+                    exact = bool(last) and abs(kv.get("book->epoch", -1.0) - last.get("srcEpoch", -2.0)) < 1e-4
+                    # from 2026-11-09 book->epoch is no longer srcEpoch (a few ms to ~40 ms later): the next unused catchRun line
+                    if exact or (last and "sid" in last and not used):
+                        loose += not exact
+                        used = True
                         snaps.append({"sid": int(last["sid"]), "src_epoch": round(last["srcEpoch"] * 1e9),
                                       "rec_epoch": round(last.get("recEpoch", float("nan")) * 1e9) if "recEpoch" in last else None,
+                                      "book_epoch": round(kv["book->epoch"] * 1e9) if "book->epoch" in kv else None,
                                       "sid_idx": int(kv["sidIdx"]), "a_idx": int(kv.get("aIdx", 0)), "fa": kv.get("fa"),
                                       "ems_our_vol": kv.get("emsOurVol"), "ems_mkt_vol": kv.get("emsMktVol")})
                     else:
@@ -100,8 +106,13 @@ def read_factor(files: list[str]) -> tuple[pl.DataFrame, pl.DataFrame]:
                 elif "alg.cpp" in line and "executp" in line:
                     kv = {k.replace("this->", "").replace("_", ""): float(v) for k, v in NUM.findall(line.split("]", 2)[-1])}
                     decisions.append({"src_epoch": round(last["srcEpoch"] * 1e9) if "srcEpoch" in last else None, **kv})
-    if unmatched:
-        print(f"  factor lines: {unmatched:,} alg lines without their catchRun line")
+    print(f"  factor lines: {len(snaps):,} matched ({loose:,} by order, not by epoch), {unmatched:,} alg lines without their catchRun line")
+    if loose and snaps:  # an order match is right when each sidIdx keeps one sid and the epoch lag stays small
+        sp = pl.DataFrame(snaps)
+        top = sp.group_by("sid_idx", "sid").len().sort("len", descending=True).unique("sid_idx", keep="first")
+        lag = ((sp["book_epoch"] - sp["src_epoch"]) / 1e6).drop_nulls().to_numpy()
+        print(f"  order match check: {top['len'].sum() / sp.height:.4f} of rows on their sidIdx's main sid; "
+              f"book->epoch - srcEpoch (ms) p1/p50/p99 " + "/".join(f"{np.percentile(lag, q):.1f}" for q in (1, 50, 99)))
     return pl.DataFrame(snaps), pl.DataFrame(decisions, infer_schema_length=None)
 
 

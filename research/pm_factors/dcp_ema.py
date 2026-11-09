@@ -67,23 +67,26 @@ def columns(con: duckdb.DuckDBPyConnection, view: str) -> set[str]:
 
 def _book_sql(have: set[str]) -> tuple[str, str, str]:
     """Extra snapshot columns for ``lit_factors`` (inner select, outer select, excluded helpers), each only when the view has it:
-    5-level depth-weighted bid / ask price, level-5 prices, the up / down limit, and the level 2-5 order-flow events (Cont)."""
+    5- and 10-level depth-weighted bid / ask price, level-5 / level-10 prices, 10-level depth, the up / down limit, and the level 2-5 and 6-10 order-flow events (Cont)."""
     inner, outer = [], []
     if {"bid_px", "bid_vol", "ask_px", "ask_vol"} <= have:
         for side, tag in (("bid", "b"), ("ask", "a")):
-            num = " + ".join(f"coalesce(q.{side}_px[{i}]::DOUBLE * q.{side}_vol[{i}]::DOUBLE, 0)" for i in range(1, 6))
-            inner += [f"({num}) / nullif(list_sum(q.{side}_vol[1:5])::DOUBLE, 0) AS {tag}wp5", f"q.{side}_px[5]::DOUBLE AS {tag}5px"]
+            for n in (5, 10):  # PM's book is likely 10 deep (runS NumLevels): 5- and 10-level versions
+                num = " + ".join(f"coalesce(q.{side}_px[{i}]::DOUBLE * q.{side}_vol[{i}]::DOUBLE, 0)" for i in range(1, n + 1))
+                inner += [f"({num}) / nullif(list_sum(q.{side}_vol[1:{n}])::DOUBLE, 0) AS {tag}wp{n}", f"q.{side}_px[{n}]::DOUBLE AS {tag}{n}px"]
+            inner.append(f"list_sum(q.{side}_vol[1:10])::DOUBLE AS {tag}v10")
         inner += ["q.bid_px AS _bp", "q.bid_vol AS _bq", "q.ask_px AS _ap", "q.ask_vol AS _aq"]
         inner += [f"lag(q.{c}) OVER (PARTITION BY q.symbol_id ORDER BY q.spider_ts) AS _p{t}"
                   for c, t in (("bid_px", "bp"), ("bid_vol", "bq"), ("ask_px", "ap"), ("ask_vol", "aq"))]
         ev = []
-        for i in range(2, 6):  # Cont-Kukanov-Stoikov event per level, a side counts only while both its prices are quoted
+        for i in range(2, 11):  # Cont-Kukanov-Stoikov event per level, a side counts only while both its prices are quoted
             bid = (f"CASE WHEN _bp[{i}] > 0 AND _pbp[{i}] > 0 THEN _bq[{i}] * (_bp[{i}] >= _pbp[{i}])::INT"
                    f" - _pbq[{i}] * (_bp[{i}] <= _pbp[{i}])::INT ELSE 0 END")
             ask = (f"CASE WHEN _ap[{i}] > 0 AND _pap[{i}] > 0 THEN _aq[{i}] * (_ap[{i}] <= _pap[{i}])::INT"
                    f" - _paq[{i}] * (_ap[{i}] >= _pap[{i}])::INT ELSE 0 END")
             ev.append(f"coalesce(({bid}) - ({ask}), 0)")
-        outer.append(f"({' + '.join(ev)})::DOUBLE AS ofi2_5")
+        outer.append(f"({' + '.join(ev[:4])})::DOUBLE AS ofi2_5")
+        outer.append(f"({' + '.join(ev[4:])})::DOUBLE AS ofi6_10")
     if {"high_limited", "low_limited"} <= have:
         inner += ["q.high_limited::DOUBLE AS ul", "q.low_limited::DOUBLE AS ll"]
     drop = "EXCLUDE (_bp, _bq, _ap, _aq, _pbp, _pbq, _pap, _paq)" if outer else ""
