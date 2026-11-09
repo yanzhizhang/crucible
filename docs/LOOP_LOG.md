@@ -211,3 +211,8 @@
 ## 2026-11-09 00:35 round 13 done (e35a70e, new candidates)
 - RUN_DONE 00:35:38, total 425s. IC 0.6351 -> 0.6629 (t 177.25); 75 of 209 assigned (was 37).
 - Headline + 16 visible scale rows relayed; full pass-0/scale transcription pending (full-screen approval timed out, background capture failing).
+
+## R14 (64cdf95) -- 2026-11-09 08:11
+- R13 rest: read pass-0 lines 1-70, evidence table (75 rows), scale rows; crucible said no transcription needed (superseded).
+- moved ic_score.py (1613 lines, md5 5c8ba08e..., cr=0, AST_OK on 97); backup /tmp/ic_score.py.bak_r13
+- R14 started 08:11: --calibrate, --assign stage6_r13 -> --out stage6_r14, tee r14.txt
