@@ -232,3 +232,8 @@
 - extracted to /work/incoming/prod_20261109; diff -rq vs /data/prod (read-only): "2453 Only", grouped output empty; many stderr "No such file or directory" pairs for index/1min_src/p*/202609*.nc. RUN_DONE 21:05:22. Relayed verbatim.
 - check: 0 differ, 0 Only-in-new; Only-in-/data/prod by top dir: 1min_src 22, CEDxr4d 2311, h 5, hstats 93, index 22. Newest dates in tar: 20261030/1102/1103; /data/prod ZZQI has 20261104-06. RUN_DONE 21:07:59. Relayed verbatim.
 - models.zip check (user asked): md5 84da910ce232ca6a6b9c354180f284e9 identical in /data/prod and new tar; 27 entries each, newest models/tk5m/ 2026-09-08 (tk5m/202509, 202601, lgb_fn_v1_209_cte.csv 08-31). No new model.
+
+## PM model params + runS init -- 2026-11-09 21:27 (user asked)
+- /data/prod/models/tk5m: model files only in 202509, 202601.updated, 202609; each livev1_fit{1,2,3}/model_s{1..4}.txt; 2000 trees each; params block (excluding seeds) identical across 36 files.
+- key params: gbdt regression, metric custom, num_iterations 3000, lr 0.03, num_leaves 64, max_depth 6, min_data_in_leaf 20, bagging 0.9/freq 2, feature_fraction 0.7, l1 0.5, l2 1, max_bin 128, early_stopping 0.
+- runS::initialize screenshot (reserve 6000*240, daily JSON cfg: date, NumLevels; FBL book). Both sent to crucible to record long-term and plan next round.
