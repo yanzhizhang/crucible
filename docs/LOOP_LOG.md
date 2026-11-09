@@ -237,3 +237,7 @@
 - /data/prod/models/tk5m: model files only in 202509, 202601.updated, 202609; each livev1_fit{1,2,3}/model_s{1..4}.txt; 2000 trees each; params block (excluding seeds) identical across 36 files.
 - key params: gbdt regression, metric custom, num_iterations 3000, lr 0.03, num_leaves 64, max_depth 6, min_data_in_leaf 20, bagging 0.9/freq 2, feature_fraction 0.7, l1 0.5, l2 1, max_bin 128, early_stopping 0.
 - runS::initialize screenshot (reserve 6000*240, daily JSON cfg: date, NumLevels; FBL book). Both sent to crucible to record long-term and plan next round.
+
+## 224 logs 20261109 -- 2026-11-09 21:37 (user approved)
+- rsync pull from 224 (key auth): 7 logs 2026-11-09_*.log, 831MB received. RUN_DONE 21:37:11
+- pm_signals 20261109: 1,079,074 signals, 300 stocks; PM feed delay p50 0.56s p99 1.67s; 117 dropped (>2s feed); no snapshots of ours for 1109 so market checks skipped; -> pm_signals/date=20261109.parquet. RUN_DONE 21:38:33. Relayed verbatim.
