@@ -221,3 +221,4 @@
 
 ## R15 (64cdf95, no move) -- 2026-11-09 08:22
 - rescan top-60 gain columns with --calibrate --max-features 60; --assign stage6_r14 -> --out stage6_r15, tee r15.txt
+- crucible add-on be6b3cf: move research/pm_factors/name_map.py (58 lines, md5 99f1e65f verified on Mac); after R15 run name_map + R13 top-15 grep. Blocked: full-screen approval timed out twice, then "Computer control is disabled in Settings".
