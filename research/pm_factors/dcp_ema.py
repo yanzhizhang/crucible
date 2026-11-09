@@ -75,6 +75,7 @@ def _book_sql(have: set[str]) -> tuple[str, str, str]:
                 num = " + ".join(f"coalesce(q.{side}_px[{i}]::DOUBLE * q.{side}_vol[{i}]::DOUBLE, 0)" for i in range(1, n + 1))
                 inner += [f"({num}) / nullif(list_sum(q.{side}_vol[1:{n}])::DOUBLE, 0) AS {tag}wp{n}", f"q.{side}_px[{n}]::DOUBLE AS {tag}{n}px"]
             inner.append(f"list_sum(q.{side}_vol[1:10])::DOUBLE AS {tag}v10")
+            inner += [f"q.{side}_vol[{i}]::DOUBLE AS {tag}q{i}" for i in range(2, 11)]  # each level's volume (levels 2-10)
         inner += ["q.bid_px AS _bp", "q.bid_vol AS _bq", "q.ask_px AS _ap", "q.ask_vol AS _aq"]
         inner += [f"lag(q.{c}) OVER (PARTITION BY q.symbol_id ORDER BY q.spider_ts) AS _p{t}"
                   for c, t in (("bid_px", "bp"), ("bid_vol", "bq"), ("ask_px", "ap"), ("ask_vol", "aq"))]
@@ -87,6 +88,7 @@ def _book_sql(have: set[str]) -> tuple[str, str, str]:
             ev.append(f"coalesce(({bid}) - ({ask}), 0)")
         outer.append(f"({' + '.join(ev[:4])})::DOUBLE AS ofi2_5")
         outer.append(f"({' + '.join(ev[4:])})::DOUBLE AS ofi6_10")
+        outer += [f"({e})::DOUBLE AS ofil{i}" for i, e in zip(range(2, 11), ev, strict=True)]  # each level's own OFI event
     if {"high_limited", "low_limited"} <= have:
         inner += ["q.high_limited::DOUBLE AS ul", "q.low_limited::DOUBLE AS ll"]
     drop = "EXCLUDE (_bp, _bq, _ap, _aq, _pbp, _pbq, _pap, _paq)" if outer else ""

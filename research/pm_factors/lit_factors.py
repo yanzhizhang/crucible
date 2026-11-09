@@ -62,6 +62,10 @@ DESCRIBE = {
     "log_bid_depth_5lvl_per_rel_distance_to_level5": "log(bid volume of levels 1-5 / ((mid - bid level-5 price) / mid)): bid book slope",
     "log_ask_depth_5lvl_per_rel_distance_to_level5": "log(ask volume of levels 1-5 / ((ask level-5 price - mid) / mid)): ask book slope",
     "book_slope_log_ratio_bid_over_ask_5lvl": "bid book slope minus ask book slope (both logs)",
+    "ofi_levels1to{k}_norm_{w}s": "order-flow imbalance summed over book levels 1-{k} over the last {w} s, divided by the mean 1-{k}-level depth",
+    "ofi_level{k}_norm_{w}s": "order-flow imbalance at book level {k} alone over the last {w} s, divided by its mean depth",
+    "depth_imbalance_levels1to{k}": "(bid - ask volume of levels 1-{k}) / their sum",
+    "depth_imbalance_level{k}": "(bid - ask volume at level {k}) / their sum",
     "ofi_levels1to10_norm_{w}s": "order-flow imbalance summed over book levels 1-10 over the last {w} s, divided by the mean 10-level depth",
     "ofi_levels6to10_norm_{w}s": "order-flow imbalance summed over book levels 6-10 over the last {w} s, divided by the mean level 6-10 depth",
     "depth_weighted_price_10lvl_minus_mid_rel": "(price averaged over both sides' 10 levels weighted by volume - mid) / mid",
@@ -101,7 +105,7 @@ TIER_WINDOWS = (120, 300, 600, 1800)  # seconds; plus since 09:30
 def describe(name: str) -> str:
     """Plain description of one of our names (``gen.`` / ``flow.`` prefix allowed), '' when unknown."""
     base = name.removeprefix("gen.").removeprefix("flow.")
-    slots = {"w": r"\d+", "win": r"\d+s|since_0930", "tier": "|".join(t for t, _, _ in TIERS)}
+    slots = {"k": r"\d+", "w": r"\d+", "win": r"\d+s|since_0930", "tier": "|".join(t for t, _, _ in TIERS)}
     for pat, text in DESCRIBE.items():
         rx = re.escape(pat)
         for k, g in slots.items():
@@ -227,6 +231,14 @@ def _book_open_limits(gf: pl.DataFrame | None, T: np.ndarray) -> dict[str, np.nd
             s10b = np.log(bv10 / np.where(r10b > 0, r10b, np.nan))
             s10a = np.log(av10 / np.where(r10a > 0, r10a, np.nan))
             put("book_slope_log_ratio_bid_over_ask_10lvl", s10b - s10a)
+        if "bq10" in gf.columns:  # every depth: book imbalance over levels 1..k and at level k alone, k = 1..10
+            bq = [bv1] + [f(f"bq{i}") for i in range(2, 11)]
+            aq = [av1] + [f(f"aq{i}") for i in range(2, 11)]
+            cb, ca = np.cumsum(np.nan_to_num(bq), axis=0), np.cumsum(np.nan_to_num(aq), axis=0)
+            for lv in range(1, 11):
+                put(f"depth_imbalance_levels1to{lv}", (cb[lv - 1] - ca[lv - 1]) / (cb[lv - 1] + ca[lv - 1]))
+                if lv > 1:
+                    put(f"depth_imbalance_level{lv}", (bq[lv - 1] - aq[lv - 1]) / (bq[lv - 1] + aq[lv - 1]))
         if "ofi2_5" in gf.columns:  # level-1 event here, levels 2-5 from SQL; both on every snapshot, quoted prices only
             b1, a1 = f("b1"), f("a1")
             e1 = np.zeros(tl.size)
@@ -241,10 +253,23 @@ def _book_open_limits(gf: pl.DataFrame | None, T: np.ndarray) -> dict[str, np.nd
                 bv10_, av10_ = f("bv10"), f("av10")
                 cs110, cs610 = _cs(e1 + e25 + e610), _cs(e610)
                 cd110, cd610 = _cs((bv10_ + av10_) / 2), _cs((bv10_ - bv5 + av10_ - av5) / 2)
+            if "ofil10" in gf.columns:
+                evl = {lv: np.nan_to_num(f(f"ofil{lv}")) for lv in range(2, 11)}
+                ql = {1: (bv1 + av1) / 2} | {lv: (f(f"bq{lv}") + f(f"aq{lv}")) / 2 for lv in range(2, 11)}
+                csl, cdl = {lv: _cs(evl[lv]) for lv in evl}, {lv: _cs(ql[lv]) for lv in evl}
+                run_e, run_q, csk, cdk = e1.copy(), np.nan_to_num(ql[1]), {}, {}
+                for lv in range(2, 11):
+                    run_e, run_q = run_e + evl[lv], run_q + np.nan_to_num(ql[lv])
+                    csk[lv], cdk[lv] = _cs(run_e), _cs(run_q)
             for w in (10, 30, 60, 300):
                 n = _win(cn, tl, T, w)
                 out[f"ofi_levels1to5_norm_{w}s"] = _win(cs15, tl, T, w) / (_win(cd15, tl, T, w) / n)
                 out[f"ofi_levels2to5_norm_{w}s"] = _win(cs25, tl, T, w) / (_win(cd25, tl, T, w) / n)
+                if "ofil10" in gf.columns:  # OFI over levels 1..k and at level k alone, each over its own mean depth
+                    for lv in range(2, 11):
+                        if lv not in (5, 10):
+                            out[f"ofi_levels1to{lv}_norm_{w}s"] = _win(csk[lv], tl, T, w) / (_win(cdk[lv], tl, T, w) / n)
+                        out[f"ofi_level{lv}_norm_{w}s"] = _win(csl[lv], tl, T, w) / (_win(cdl[lv], tl, T, w) / n)
                 if "ofi6_10" in gf.columns:
                     out[f"ofi_levels1to10_norm_{w}s"] = _win(cs110, tl, T, w) / (_win(cd110, tl, T, w) / n)
                     out[f"ofi_levels6to10_norm_{w}s"] = _win(cs610, tl, T, w) / (_win(cd610, tl, T, w) / n)

@@ -91,6 +91,22 @@ def day(path: Path, d: str) -> None:
         a_ = asq > 0
         print(f"  executp != 0 and asq > 0 ({np.sum(nz & a_):,}): |executp| == asq {np.mean(np.isclose(np.abs(ex[nz & a_]), asq[nz & a_])):.3f}, "
               f"|executp| < asq {np.mean(np.abs(ex[nz & a_]) < asq[nz & a_] - 1e-9):.3f}; sign(executp) == sign(fa) {np.mean(np.sign(ex[nz]) == np.sign(fa[nz])):.3f}")
+    sq = dec.sort("sid", "src_epoch").with_columns(  # per stock over time: does pos carry over, and what moves it
+        pl.col("pos").shift(1).over("sid").alias("pos0"), pl.col("executp").shift(1).over("sid").alias("ex0"),
+        pl.col("fa").shift(1).over("sid").alias("fa0"), ((pl.col("src_epoch") // 1_000_000_000 + 8 * 3600) % 86400).alias("tod"))
+    sq = sq.filter(pl.col("pos0").is_not_null())
+    if sq.height:
+        dp = (sq["pos"] - sq["pos0"]).to_numpy()
+        ch = dp != 0
+        e0, tod = sq["ex0"].to_numpy(), sq["tod"].to_numpy()
+        print(f"  per stock over time ({sq.height:,} consecutive pairs): pos unchanged {np.mean(~ch):.3f}; on a change: dpos == previous "
+              f"executp {np.mean(np.isclose(dp[ch], e0[ch])):.3f}, sign(dpos) == sign(fa) {np.mean(np.sign(dp[ch]) == np.sign(sq['fa'].to_numpy()[ch])):.3f}, "
+              f"from 0 {np.mean(sq['pos0'].to_numpy()[ch] == 0):.3f}, to 0 {np.mean(sq['pos'].to_numpy()[ch] == 0):.3f}; dpos p1/p10/p50/p90/p99 {q(dp[ch])}")
+        if ch.any():
+            hh = (tod[ch] // 3600 * 100 + tod[ch] % 3600 // 60)
+            top = pl.Series(hh).value_counts().sort("count", descending=True).head(8)
+            print("  pos changes by HHMM (top 8): " + ", ".join(f"{int(a):04d} x{b}" for a, b in top.iter_rows())
+                  + f"; second of minute == 0 {np.mean(tod[ch] % 60 == 0):.3f}")
     w = dec["winsdQty"].to_numpy()
     print(f"  executp / winsdQty p1/p10/p50/p90/p99 {q(ex / np.where(w > 0, w, np.nan))}")
     t = dec.with_columns((pl.col("fa") * pl.col("winsdQty")).alias("fa_w"), ((pl.col("fa") - pl.col("hs")) * pl.col("winsdQty")).alias("fa_m_hs_w"),
