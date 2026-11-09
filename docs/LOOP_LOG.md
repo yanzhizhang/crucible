@@ -216,3 +216,5 @@
 - R13 rest: read pass-0 lines 1-70, evidence table (75 rows), scale rows; crucible said no transcription needed (superseded).
 - moved ic_score.py (1613 lines, md5 5c8ba08e..., cr=0, AST_OK on 97); backup /tmp/ic_score.py.bak_r13
 - R14 started 08:11: --calibrate, --assign stage6_r13 -> --out stage6_r14, tee r14.txt
+- R14 done 08:17:39, total 394s (build 93s, scan 260s). dropped zzzl2.b (0.6629->0.6631). IC 0.6631 -> 0.6641 (t 177.19), 75/209.
+- kept cal: count 1 -- zzhi2.i cal:gen.ofi_levels1to5_norm_10s IC 0.6083 t_gain 5.1. Relayed verbatim to crucible.
