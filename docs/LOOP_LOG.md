@@ -266,3 +266,7 @@
 - 1109 backfill: no feitu for 1109; fell back to XTP L2 (DataYes), 1 day decoded in 67s; basics days 45. Relayed.
 - user: use datayesl2share (what 224 runs on) as the market-data source; forwarded to crucible.
 - 23:27 crucible: 1109 backfill used XTPSharesL2 (/mnt/TickDataRepo), not DataYesSharesL2; HOLD all decode/rounds until it sends commands. Catalog check pasted garbled (extra quote) via Mac clipboard, cancelled, not run. crucible company session waits on user choice: separate catalog for DataYesSharesL2.
+
+## 922a922 DataYesSharesL2 catalog -- 2026-11-09 23:37
+- user chose separate dysl2 catalog (feitu untouched). Moved catalog.py/dcp_build.py/ic_score.py, md5 OK. Clipboard sync works again.
+- step1 probe OK (DataYesSharesL2 has 1102-1109). step2 decode 4 days -> /work/crucible_data/dysl2_raw + catalog_dysl2 started ~23:37.
