@@ -262,3 +262,4 @@
 - step A (user-pasted): 97 raw_quotation has 1104-1106 only, no 1109 -> R17 on 3 days. Clipboard sync still broken; user pastes commands.
 - step C pm_decisions3 done 22:51:16, relayed verbatim. R17 running (user-pasted).
 - R17 (3 days, user-pasted) done 23:04:10, total 790s: IC 0.6791 -> 0.6806 (t 173.31), 102/209 (55.5% gain). md5 of 3 ebb4df5 files matched. Relayed verbatim.
+- 23:20 1109 decode: user already pasted ls + CPUS=32 backfill.sh 20261109 in 97 tab 1 (tee data/reports/backfill_20261109.txt); running. Clipboard sync still broken.
