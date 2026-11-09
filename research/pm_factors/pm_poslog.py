@@ -53,6 +53,10 @@ def day(poslog: Path, state: Path, d: str) -> None:
     j = dec.join_asof(lg.select("sid", "ts", *[c for c in LOG if c in lg.columns]), left_on="src_epoch", right_on="ts", by="sid",
                       strategy="backward").drop_nulls("qty")
     print(f"  decisions with a log row at or before them: {j.height:,} of {dec.height:,}")
+    if j.height < dec.height // 2:  # the log started late (on 1109 only after the close): the nearest dump, as no order moved the holding
+        j = dec.join_asof(lg.select("sid", "ts", *[c for c in LOG if c in lg.columns]), left_on="src_epoch", right_on="ts", by="sid",
+                          strategy="nearest").drop_nulls("qty")
+        print(f"  -> nearest dump instead (holding assumed constant through the day): {j.height:,} decisions")
     if j.is_empty():
         return
     j = j.with_columns((pl.col("base_qty") - pl.col("qty")).alias("gap"), (pl.col("qty") - pl.col("base_qty")).alias("ngap"))
