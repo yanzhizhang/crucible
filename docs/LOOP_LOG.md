@@ -243,3 +243,5 @@
 - pm_signals 20261109: 1,079,074 signals, 300 stocks; PM feed delay p50 0.56s p99 1.67s; 117 dropped (>2s feed); no snapshots of ours for 1109 so market checks skipped; -> pm_signals/date=20261109.parquet. RUN_DONE 21:38:33. Relayed verbatim.
 - 1109 catchRun grep: alg lines only in 09-18-09 (804149) and 13-46-48 (1218282) logs; relayed verbatim.
 - user: daily chrono config readable at 224 /tmp/o/executor/{date}/run_s.json5. Copied 20261110 to 97 /work/crucible_data/chrono_cfg/20261110/ (read-only pull). Summary to crucible with password/user/acct/IP masked. runS params_path config2_HS300.json (zhangyiqing home) -> Permission denied; not bypassed.
+- 1109 state check: sidIdx=657953 executp=73098 in 09-18-09 log; state/date=20261109.parquet missing; 1106 state 2060426 rows (decision 745638, snap 1314788). Relayed.
+- user: skip config2_HS300.json (maybe infer from logs later); asked crucible to commit PM LightGBM params to repo (cfg + docs/PM_REPRO.md) and propose next move.
