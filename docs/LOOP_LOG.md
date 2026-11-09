@@ -259,3 +259,5 @@
 
 ## ebb4df5 (R17 round) -- 2026-11-09 22:42
 - Mac->Windows clipboard sync stalled: 3 pastes produced the stale R16 summary command (read-only), each cancelled with ^C, never run. Nothing run for step A/B/C; no files moved yet. Waiting on user.
+- step A (user-pasted): 97 raw_quotation has 1104-1106 only, no 1109 -> R17 on 3 days. Clipboard sync still broken; user pastes commands.
+- step C pm_decisions3 done 22:51:16, relayed verbatim. R17 running (user-pasted).
