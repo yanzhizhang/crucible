@@ -490,6 +490,25 @@ def xs(pre: str, v: np.ndarray) -> np.ndarray:
     return out - 0.5 if pre == "crank:" else 2 * out - 1 if pre == "srank:" else out
 
 
+CAL = "cal:"
+
+
+def calibrate(v: np.ndarray, pts: tuple[np.ndarray, np.ndarray] | None) -> np.ndarray:
+    """v's pooled mid-rank ECDF mapped through PM's training CDF points (t, p): same order, PM's scale (clamped at the end points)."""
+    if pts is None:
+        return v
+    o = np.argsort(pts[0], kind="mergesort")  # every point, tails included: they place the extreme thresholds
+    t, p = pts[0][o], np.maximum.accumulate(pts[1][o])
+    f = np.isfinite(v)
+    out = np.full(v.size, np.nan)
+    if f.sum() < 2 or t.size < 2:
+        return out
+    s = np.sort(v[f])
+    u = (np.searchsorted(s, v[f], side="left") + np.searchsorted(s, v[f], side="right")) / (2.0 * s.size)
+    out[f] = np.interp(u, p, t)
+    return out
+
+
 def demean(v: np.ndarray, g: np.ndarray) -> np.ndarray:
     """v minus its group's mean over finite values (groups of fewer than 3, and group -1, give NaN)."""
     f = np.isfinite(v) & (g >= 0)
@@ -694,6 +713,8 @@ def main() -> None:
     ap.add_argument("--scan-include", default="", help="regex: candidates the scan always tries on top of its shortlist")
     ap.add_argument("--scan-feats", default="", help="scan these features (comma-separated) instead of the top --max-features")
     ap.add_argument("--scan-match", default="", help="also scan every feature whose name matches this regex")
+    ap.add_argument("--calibrate", action=argparse.BooleanOptionalAction, default=False,
+                    help="scan: also every shortlisted candidate quantile-mapped onto PM's training CDF (cal:<expr>)")
     ap.add_argument("--scale-report", default="", help="regex: print PM's training CDF vs our values for matching assigned columns")
     ap.add_argument("--drop-harmful", action=argparse.BooleanOptionalAction, default=True,
                     help="at the start, drop the assigned formulas the IC rises without (each alone and all together)")
@@ -1009,7 +1030,9 @@ def main() -> None:
         return samples_cache
 
     def column(feature: str, expr: str) -> np.ndarray:
-        """One model column filled with expression ``expr`` of the feature's stem."""
+        """One model column filled with expression ``expr`` of the feature's stem (``cal:`` = quantile-mapped onto PM's training CDF)."""
+        if expr.startswith(CAL):
+            return calibrate(column(feature, expr[len(CAL):]), cdf.get(feature))
         stem = feature.split(".")[0]
         if stem not in state_stems:
             x = pool_col(expr)
@@ -1215,6 +1238,10 @@ def main() -> None:
                 short = list(dict.fromkeys(short + [c for c in passes if family(c) == fam and c != assign[feat]]))
             if args.scan_include:  # every gate-passing candidate the pattern names (other families the scan should try too)
                 short = list(dict.fromkeys(short + [c for c in passes if re.search(args.scan_include, c) and c != assign.get(feat)]))
+            if args.calibrate and feat in cdf:  # the same candidates on PM's scale: right information, wrong units (zzzl2 a = 3-17)
+                c0 = assign.get(feat)
+                extra = [] if not c0 else [c0[len(CAL):]] if c0.startswith(CAL) else [CAL + c0]  # the pick itself, the other way
+                short = [c for c in dict.fromkeys(short + [CAL + c for c in short if not c.startswith(CAL)] + extra) if c != c0]
             if not short:
                 log.append({"pass": ps, "feature": feat, "kept": assign.get(feat), "ic_after": np.nan, "t_gain": 0.0,
                             "top": "no candidate passes the fingerprint gate; closest: "
@@ -1223,7 +1250,7 @@ def main() -> None:
                 continue
             cur = assign.get(feat)
             if args.max_worsen is not None and feat in cdf and cur in rk:  # IC may not trade a better-fitting formula for a worse one
-                short = [c for c in short if rk[c]["score"] <= rk[cur]["score"] + args.max_worsen]
+                short = [c for c in short if c not in rk or rk[c]["score"] <= rk[cur]["score"] + args.max_worsen]
             j = col[feat]
             keep_col = X[:, j].copy()
             sw = Swap(j, cur_pred)
@@ -1289,8 +1316,9 @@ def main() -> None:
             X[:, j] = keep_col
         v = keep_col[np.isfinite(keep_col)]
         gap = FM.cdf_gap(v, cdf[feat]) if feat in cdf and v.size else np.nan
-        src = ("state" if feat.split(".")[0] in state_stems else "xs" if expr.startswith(XS)
-               else expr.lstrip("-|").split(".")[0])
+        e_ = expr.removeprefix(CAL)
+        src = ("state" if feat.split(".")[0] in state_stems else "xs" if e_.startswith(XS)
+               else e_.lstrip("-|").split(".")[0]) + (" cal" if expr.startswith(CAL) else "")
         grade = ("strong" if gap <= 0.02 and t_loss >= 2 else "fits" if gap <= args.accept_cdf else "weak") if np.isfinite(gap) \
             else ("ic" if t_loss >= 2 else "weak")
         evid.append({"feature": feat, "formula": expr, "source": src, "cdf_gap": gap, "ic_loss": loss, "t_loss": t_loss, "grade": grade})
