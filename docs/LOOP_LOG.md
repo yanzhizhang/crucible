@@ -276,3 +276,5 @@
 - 00:16 R19 started tab A (107 unmapped). Tab B: pm_poslog.py + daily_pm.sh moved (md5 OK); pm_poslog crashed ColumnNotFoundError "symbol" (base_position csv picked up by glob). Relayed. daily_pm 1110 held until after close + R19.
 - c0ab9f6 pm_poslog moved (md5 OK); still fails: symbol is "000001.SZ" not int. Relayed with R18 IC line. R19 running.
 - 9e76485 pm_poslog moved (md5 OK, first paste missed: Chrome in the way, md5 gate blocked the run). 1109: 900 rows, 300 stocks, 3 dumps at 15:56/16:04/16:07 (after close); 0 of 479,137 decisions matched. Relayed.
+- 6223698 pm_poslog (md5 OK): nearest-dump fallback, 479,137 decisions; pos==qty 0.510; corr(fa, base-qty) +0.001. Relayed.
+- R19 (dysl2 scan 107 unmapped) done 00:29:02: IC 0.6805 -> 0.6900 (t 172.68), 144/209 assigned (61.8% gain), 738s; 1109 still "no state file"; 2 book-depth picks (zzyj3.c beyond_level5, zzxt depth_imbalance_level3). Relayed. daily_pm 1110 waits for close.
