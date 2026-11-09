@@ -32,7 +32,7 @@ def corr(a: np.ndarray, b: np.ndarray) -> float:
 
 
 def day(poslog: Path, state: Path, d: str) -> None:
-    files = sorted(poslog.glob(f"{d}/**/*.csv")) + sorted(poslog.glob(f"*{d}*.csv"))
+    files = sorted(poslog.glob(f"{d}/position_log/*.csv"))  # only the position log, not the base_position csv next to it
     if not files:
         print(f"\n== {d}: no position log under {poslog}/{d}")
         return
