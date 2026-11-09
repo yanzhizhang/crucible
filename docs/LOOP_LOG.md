@@ -270,3 +270,4 @@
 ## 922a922 DataYesSharesL2 catalog -- 2026-11-09 23:37
 - user chose separate dysl2 catalog (feitu untouched). Moved catalog.py/dcp_build.py/ic_score.py, md5 OK. Clipboard sync works again.
 - step1 probe OK (DataYesSharesL2 has 1102-1109). step2 decode 4 days -> /work/crucible_data/dysl2_raw + catalog_dysl2 started ~23:37.
+- dysl2 decode+catalog done 23:47:51: 4 days, ~22-23M quotes/day, 5224 symbols, 10 levels. Relayed. R18 (dysl2 scoring, 3d + 1109) started 23:48.
