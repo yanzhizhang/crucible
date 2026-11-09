@@ -1,32 +1,295 @@
 {
  "_source": "PM tk5m LightGBM models, /data/prod/models/tk5m/{202509,202601.updated,202609}/lgb/livev1_fit{1,2,3}/model_s{1,2,3,4}.txt on 97, read 2026-11-09; parameters block of 202609/lgb/livev1_fit1/model_s1.txt, identical in all 36 files apart from the seed lines (hash c61ef6fa); empty-valued lines left out",
- "files": {"months": ["202509", "202601.updated", "202609"], "fits": ["livev1_fit1", "livev1_fit2", "livev1_fit3"], "models": ["s1", "s2", "s3", "s4"],
-           "trees_per_file": 2000, "n_features": 209, "feature_names": "Column_0 .. Column_208 (names from lgb_fn_v1_209_cte.csv)",
-           "version": "v3", "zip_md5": "84da910c"},
- "params": {
-  "boosting": "gbdt", "objective": "regression", "metric": "custom", "tree_learner": "serial", "device_type": "cpu", "linear_tree": 0,
-  "num_iterations": 3000, "learning_rate": 0.03, "num_leaves": 64, "num_threads": 70, "deterministic": 0,
-  "force_col_wise": 0, "force_row_wise": 0, "histogram_pool_size": -1,
-  "max_depth": 6, "min_data_in_leaf": 20, "min_sum_hessian_in_leaf": 0.001,
-  "bagging_fraction": 0.9, "pos_bagging_fraction": 1, "neg_bagging_fraction": 1, "bagging_freq": 2,
-  "feature_fraction": 0.7, "feature_fraction_bynode": 1, "extra_trees": 0,
-  "early_stopping_round": 0, "first_metric_only": 0, "max_delta_step": 0,
-  "lambda_l1": 0.5, "lambda_l2": 1, "linear_lambda": 0, "min_gain_to_split": 0,
-  "drop_rate": 0.1, "max_drop": 50, "skip_drop": 0.5, "xgboost_dart_mode": 0, "uniform_drop": 0,
-  "top_rate": 0.2, "other_rate": 0.1, "min_data_per_group": 100, "max_cat_threshold": 32, "cat_l2": 10, "cat_smooth": 10,
-  "max_cat_to_onehot": 4, "top_k": 20,
-  "monotone_constraints_method": "basic", "monotone_penalty": 0, "refit_decay_rate": 0.9, "cegb_tradeoff": 1,
-  "cegb_penalty_split": 0, "path_smooth": 0, "verbosity": -1, "saved_feature_importance_type": 0,
-  "max_bin": 128, "min_data_in_bin": 3, "bin_construct_sample_cnt": 200000, "is_enable_sparse": 1,
-  "enable_bundle": 1, "use_missing": 1, "zero_as_missing": 0, "feature_pre_filter": 1, "pre_partition": 0, "two_round": 0, "header": 0,
-  "num_class": 1, "is_unbalance": 0, "scale_pos_weight": 1, "sigmoid": 1, "boost_from_average": 1, "reg_sqrt": 0,
-  "alpha": 0.9, "fair_c": 1, "poisson_max_delta_step": 0.7, "tweedie_variance_power": 1.5,
-  "lambdarank_truncation_level": 30, "lambdarank_norm": 1, "multi_error_top_k": 1
+ "files": {
+  "months": [
+   "202509",
+   "202601.updated",
+   "202609"
+  ],
+  "fits": [
+   "livev1_fit1",
+   "livev1_fit2",
+   "livev1_fit3"
+  ],
+  "models": [
+   "s1",
+   "s2",
+   "s3",
+   "s4"
+  ],
+  "trees_per_file": 2000,
+  "n_features": 209,
+  "feature_names": "Column_0 .. Column_208 (names from lgb_fn_v1_209_cte.csv)",
+  "version": "v3",
+  "zip_md5": "84da910c"
  },
- "seeds_fit1_s1": {"bagging_seed": 18467, "feature_fraction_seed": 26500, "extra_seed": 15724, "drop_seed": 6334,
-                   "data_random_seed": 41, "objective_seed": 19169},
- "notes": ["2000 trees saved although num_iterations is 3000 and early_stopping_round 0: saved at a chosen iteration (custom metric)",
-           "fit1..3 differ only in seeds (one later file shows bagging_seed 400; not verified per file): a seed ensemble",
-           "max_bin 128: at most ~127 thresholds per column, ~ a 1/128 quantile grid of the training values",
-           "use_missing 1, zero_as_missing 0: NaN takes each split's default branch; 0 is a value"]
+ "params": {
+  "boosting": "gbdt",
+  "objective": "regression",
+  "metric": "custom",
+  "tree_learner": "serial",
+  "device_type": "cpu",
+  "linear_tree": 0,
+  "num_iterations": 3000,
+  "learning_rate": 0.03,
+  "num_leaves": 64,
+  "num_threads": 70,
+  "deterministic": 0,
+  "force_col_wise": 0,
+  "force_row_wise": 0,
+  "histogram_pool_size": -1,
+  "max_depth": 6,
+  "min_data_in_leaf": 20,
+  "min_sum_hessian_in_leaf": 0.001,
+  "bagging_fraction": 0.9,
+  "pos_bagging_fraction": 1,
+  "neg_bagging_fraction": 1,
+  "bagging_freq": 2,
+  "feature_fraction": 0.7,
+  "feature_fraction_bynode": 1,
+  "extra_trees": 0,
+  "early_stopping_round": 0,
+  "first_metric_only": 0,
+  "max_delta_step": 0,
+  "lambda_l1": 0.5,
+  "lambda_l2": 1,
+  "linear_lambda": 0,
+  "min_gain_to_split": 0,
+  "drop_rate": 0.1,
+  "max_drop": 50,
+  "skip_drop": 0.5,
+  "xgboost_dart_mode": 0,
+  "uniform_drop": 0,
+  "top_rate": 0.2,
+  "other_rate": 0.1,
+  "min_data_per_group": 100,
+  "max_cat_threshold": 32,
+  "cat_l2": 10,
+  "cat_smooth": 10,
+  "max_cat_to_onehot": 4,
+  "top_k": 20,
+  "monotone_constraints_method": "basic",
+  "monotone_penalty": 0,
+  "refit_decay_rate": 0.9,
+  "cegb_tradeoff": 1,
+  "cegb_penalty_split": 0,
+  "path_smooth": 0,
+  "verbosity": -1,
+  "saved_feature_importance_type": 0,
+  "max_bin": 128,
+  "min_data_in_bin": 3,
+  "bin_construct_sample_cnt": 200000,
+  "is_enable_sparse": 1,
+  "enable_bundle": 1,
+  "use_missing": 1,
+  "zero_as_missing": 0,
+  "feature_pre_filter": 1,
+  "pre_partition": 0,
+  "two_round": 0,
+  "header": 0,
+  "num_class": 1,
+  "is_unbalance": 0,
+  "scale_pos_weight": 1,
+  "sigmoid": 1,
+  "boost_from_average": 1,
+  "reg_sqrt": 0,
+  "alpha": 0.9,
+  "fair_c": 1,
+  "poisson_max_delta_step": 0.7,
+  "tweedie_variance_power": 1.5,
+  "lambdarank_truncation_level": 30,
+  "lambdarank_norm": 1,
+  "multi_error_top_k": 1
+ },
+ "notes": [
+  "2000 trees saved although num_iterations is 3000 and early_stopping_round 0: saved at a chosen iteration (custom metric)",
+  "max_bin 128: at most ~127 thresholds per column, ~ a 1/128 quantile grid of the training values",
+  "use_missing 1, zero_as_missing 0: NaN takes each split's default branch; 0 is a value",
+  "fit2 has its own seeds; fit1 and fit3 share seeds and feature_infos (the same training rows) but are different files: a seed-independent difference (deterministic 0, num_threads 70) or a refit",
+  "s1..s4 have different feature_infos: each trained on its own rows (time-of-day segment or horizon), not a seed ensemble",
+  "per-column training ranges and split counts of every file: pm_lgb_meta.py -> data/reports/pm_lgb_meta.csv on 97"
+ ],
+ "params_empty": [
+  "data",
+  "valid",
+  "monotone_constraints",
+  "feature_contri",
+  "forcedsplits_filename",
+  "cegb_penalty_feature_lazy",
+  "cegb_penalty_feature_coupled",
+  "interaction_constraints",
+  "max_bin_by_feature",
+  "label_column",
+  "weight_column",
+  "group_column",
+  "ignore_column",
+  "categorical_feature",
+  "forcedbins_filename",
+  "label_gain",
+  "eval_at",
+  "auc_mu_weights",
+  "machine_list_filename",
+  "machines"
+ ],
+ "seeds_by_fit": {
+  "_columns": [
+   "bagging_seed",
+   "feature_fraction_seed",
+   "extra_seed",
+   "drop_seed",
+   "data_random_seed",
+   "objective_seed"
+  ],
+  "_note": "same in all 3 months and all of s1..s4",
+  "livev1_fit1": [
+   18467,
+   26500,
+   15724,
+   6334,
+   41,
+   19169
+  ],
+  "livev1_fit2": [
+   400,
+   30056,
+   12879,
+   17869,
+   175,
+   16083
+  ],
+  "livev1_fit3": [
+   18467,
+   26500,
+   15724,
+   6334,
+   41,
+   19169
+  ]
+ },
+ "feature_infos_md5": {
+  "_note": "first 8 hex of the feature_infos line; [fit1 = fit3, fit2]; s1..s4 all differ",
+  "202509": {
+   "s1": [
+    "dbf9edb5",
+    "744ae3b7"
+   ],
+   "s2": [
+    "2f7c798c",
+    "b1a3be10"
+   ],
+   "s3": [
+    "a9009100",
+    "d076d7b6"
+   ],
+   "s4": [
+    "73324e0b",
+    "a78b7a33"
+   ]
+  },
+  "202601.updated": {
+   "s1": [
+    "4e84f765",
+    "7b5fcbd8"
+   ],
+   "s2": [
+    "eac55990",
+    "8515ad43"
+   ],
+   "s3": [
+    "2190f99a",
+    "8de5a14d"
+   ],
+   "s4": [
+    "a5189445",
+    "928a1456"
+   ]
+  },
+  "202609": {
+   "s1": [
+    "3e3e53f0",
+    "f50783d3"
+   ],
+   "s2": [
+    "760fb7e7",
+    "38dc375f"
+   ],
+   "s3": [
+    "f6daca69",
+    "86fe628e"
+   ],
+   "s4": [
+    "77fb4a4c",
+    "06cc38ab"
+   ]
+  }
+ },
+ "file_md5": {
+  "_note": "first 8 hex of each model file; [fit1, fit2, fit3]; all 36 differ",
+  "202509": {
+   "s1": [
+    "b7d2adc9",
+    "f5e2d43b",
+    "ded8ca1c"
+   ],
+   "s2": [
+    "1d8d4f70",
+    "8d9e8478",
+    "edac5d43"
+   ],
+   "s3": [
+    "2b630779",
+    "cdbf6319",
+    "570a3783"
+   ],
+   "s4": [
+    "26c756d8",
+    "6429bfe0",
+    "29bff953"
+   ]
+  },
+  "202601.updated": {
+   "s1": [
+    "5458fda9",
+    "4bfbfdfd",
+    "148b5539"
+   ],
+   "s2": [
+    "45b54abd",
+    "927bd370",
+    "20d9f50f"
+   ],
+   "s3": [
+    "2c5cab07",
+    "7bdaea9b",
+    "9939fc59"
+   ],
+   "s4": [
+    "540a6754",
+    "9ec2e78e",
+    "f187e0b8"
+   ]
+  },
+  "202609": {
+   "s1": [
+    "1419d468",
+    "b2472f27",
+    "c6d6fd5f"
+   ],
+   "s2": [
+    "9a80d44b",
+    "4c285aea",
+    "07f0b63d"
+   ],
+   "s3": [
+    "64eaae7a",
+    "70ff2aff",
+    "13363ea6"
+   ],
+   "s4": [
+    "fb9282f1",
+    "dbad1f43",
+    "2cbae768"
+   ]
+  }
+ }
 }

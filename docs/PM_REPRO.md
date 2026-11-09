@@ -294,7 +294,14 @@ The full parameter list, machine-readable: `research/pm_factors/pm_lgb_params.js
 * Every file has 2000 trees, although `num_iterations` is 3000 and `early_stopping_round` is 0, so the file
   was probably saved at a chosen iteration. `metric` is `custom`.
 * With the seed lines excluded, the parameters block is identical in all 36 files (hash c61ef6fa).
-  So fit1..3 look like a seed ensemble; one fit file shows `bagging_seed: 400`, not verified per file.
+  * Seeds by fit, the same in every month and every s: fit1 and fit3 use 18467 / 26500 / 15724 / 6334 / 41 / 19169
+    (bagging / feature_fraction / extra / drop / data_random / objective); fit2 uses 400 / 30056 / 12879 / 17869 / 175 / 16083.
+  * fit1 and fit3 also share their `feature_infos` (the same training rows) but are different files (all 36 file md5s
+    differ): with `deterministic` 0 and 70 threads, a rerun with the same seeds gives different trees.
+  * s1..s4 have different `feature_infos` in every month, so each was trained on its own rows (a time-of-day segment
+    or a horizon), not a seed ensemble.
+  * The empty-valued parameters, the per-fit seeds and the md5s are in `pm_lgb_params.json`. Every file's 209
+    training ranges and split counts are written by `pm_lgb_meta.py` to `data/reports/pm_lgb_meta.csv` on 97.
 * Parameters: `gbdt`, `learning_rate` 0.03, `num_leaves` 64, `max_depth` 6, `min_data_in_leaf` 20,
   `bagging_fraction` 0.9 (`bagging_freq` 2), `feature_fraction` 0.7, `lambda_l1` 0.5, `lambda_l2` 1,
   **`max_bin` 128**, `min_data_in_bin` 3, `bin_construct_sample_cnt` 200000, `use_missing` 1,
