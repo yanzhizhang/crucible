@@ -388,6 +388,8 @@ def build_dir(args, d: str, state: Path, target: Path | None) -> Path | None:
     code = [inspect.getsource(m) for m in mods] + [inspect.getsource(fn) for fn in (generic, index_relative, index_series, pm_daily, profile_marks)]
     parts = [BUILD_REV, HORIZON, MARKS.tolist(), args.profiles, str(args.hstats), str(args.pm_cache), str(args.pm_stsfile), args.ced,
              str(args.ced_xr), args.target_stale, stamp(args.engine_dir / f"marks_{d}.parquet"), args.order_flow]
+    if str(B.CATALOG) != "/work/crucible_data/catalog.duckdb":  # another market-data source (CRUCIBLE_SOURCE): its own builds
+        parts.append(str(B.CATALOG))
     key = hashlib.sha256(repr(code + parts).encode()).hexdigest()[:16]
     day = hashlib.sha256(repr((stamp(state), stamp(target))).encode()).hexdigest()[:8]
     return args.cache_dir / key / f"date={d}.{day}"

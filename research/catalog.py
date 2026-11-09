@@ -30,6 +30,7 @@ Usage (WSL)::
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 import time
 from pathlib import Path
@@ -43,15 +44,18 @@ from bench.resmon import ResourceMonitor, append_history
 REPO = Path(__file__).resolve().parents[1]
 DATA = Path("/work/crucible_data")
 PUBLIC = REPO / "data" / "public_cache"
-CATALOG = DATA / "catalog.duckdb"
+# market-data source: feitu (default) -> feitu_raw + catalog.duckdb; CRUCIBLE_SOURCE=dysl2 -> dysl2_raw + catalog_dysl2.duckdb
+SOURCE = os.environ.get("CRUCIBLE_SOURCE", "feitu")
+RAW = f"{SOURCE}_raw"
+CATALOG = DATA / ("catalog.duckdb" if SOURCE == "feitu" else f"catalog_{SOURCE}.duckdb")
 
 VIEWS = {
     **{
-        f"raw_{k}": f"read_parquet('{DATA}/feitu_raw/kind={k}/date=*/part-*.parquet', hive_partitioning=true)"
+        f"raw_{k}": f"read_parquet('{DATA}/{RAW}/kind={k}/date=*/part-*.parquet', hive_partitioning=true)"
         for k in ("order", "transaction", "quotation", "index")
     },
     "raw_manifest": (
-        f"read_parquet('{DATA}/feitu_raw/kind=*/date=*/_manifest.parquet', hive_partitioning=true, "
+        f"read_parquet('{DATA}/{RAW}/kind=*/date=*/_manifest.parquet', hive_partitioning=true, "
         "union_by_name=true)"
     ),
     "bars_1min": f"read_parquet('{DATA}/store/bars/1min/date=*/part.parquet', hive_partitioning=true)",
@@ -139,9 +143,9 @@ def build_summaries(con: duckdb.DuckDBPyConnection, *, rebuild: bool) -> None:
             print(f"  summary {kind} {day}: {time.perf_counter() - t0:.1f}s")
 
     have = {r[0] for r in con.execute("SELECT view_name FROM duckdb_views()").fetchall()}
-    parts = [f"""SELECT 'feitu_raw/' || kind AS dataset, CAST(date AS VARCHAR) AS date,
+    parts = [f"""SELECT '{RAW}/' || kind AS dataset, CAST(date AS VARCHAR) AS date,
                count(*) AS files, sum(rows) AS rows, sum(bytes) AS source_bytes
-        FROM read_parquet('{DATA}/feitu_raw/kind=*/date=*/_manifest.parquet',
+        FROM read_parquet('{DATA}/{RAW}/kind=*/date=*/_manifest.parquet',
                           hive_partitioning=true, union_by_name=true)
         GROUP BY ALL"""]
     # optional sources (the intranet box has no bars store and no public cache): only those present

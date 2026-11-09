@@ -32,6 +32,7 @@ keeps the ``*.t`` keys the plain clock matches and shows one row per clock.
 from __future__ import annotations
 
 import argparse
+import os
 import gzip
 import json
 import re
@@ -42,7 +43,8 @@ import duckdb
 import polars as pl
 
 warnings.filterwarnings("ignore", message="Sortedness of columns")
-CATALOG = Path("/work/crucible_data/catalog.duckdb")
+_SRC = os.environ.get("CRUCIBLE_SOURCE", "feitu")  # market-data source, as in research/catalog.py
+CATALOG = Path("/work/crucible_data") / ("catalog.duckdb" if _SRC == "feitu" else f"catalog_{_SRC}.duckdb")
 DCP = Path("/data/prod/h/HS300/p1_intrading_dcp")
 SOD = "((time / 1e9 + 28800) % 86400)"
 LSOD = "((spider_ts / 1e9 + 28800) % 86400)"
