@@ -222,3 +222,7 @@
 ## R15 (64cdf95, no move) -- 2026-11-09 08:22
 - rescan top-60 gain columns with --calibrate --max-features 60; --assign stage6_r14 -> --out stage6_r15, tee r15.txt
 - crucible add-on be6b3cf: move research/pm_factors/name_map.py (58 lines, md5 99f1e65f verified on Mac); after R15 run name_map + R13 top-15 grep. Blocked: full-screen approval timed out twice, then "Computer control is disabled in Settings".
+- R15 done 08:36:04, total 799s (build 91s, scan 654s). IC 0.6641 -> 0.6717 (t 170.52), 81/209. No dropped line.
+- 20:41 control back. An unrun stale R15 command sat at the 97 prompt; cancelled with ^C (not run, r15.txt intact).
+- moved name_map.py (58 lines, md5 99f1e65f, cr=0); name_map: 81 of 209 columns mapped (49.9% of model gain). Top families ZZRO 3/6 12.2%, ZZQF 19/21 6.1%, ZZZL 6/9 5.9%.
+- relayed R15 headline + grep, name_map head + family lines, R13 top-15 verbatim to crucible.
