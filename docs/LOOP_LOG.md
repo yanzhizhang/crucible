@@ -230,3 +230,4 @@
 ## prod.tar.gz from 2.23 -- 2026-11-09 21:00 (user approved)
 - scp -P 60777 key auth (no password), 6107MB in 31s -> /work/incoming/prod_20261109.tar.gz; 3956 entries, TOP=prod; /work 17T free
 - extracted to /work/incoming/prod_20261109; diff -rq vs /data/prod (read-only): "2453 Only", grouped output empty; many stderr "No such file or directory" pairs for index/1min_src/p*/202609*.nc. RUN_DONE 21:05:22. Relayed verbatim.
+- check: 0 differ, 0 Only-in-new; Only-in-/data/prod by top dir: 1min_src 22, CEDxr4d 2311, h 5, hstats 93, index 22. Newest dates in tar: 20261030/1102/1103; /data/prod ZZQI has 20261104-06. RUN_DONE 21:07:59. Relayed verbatim.
