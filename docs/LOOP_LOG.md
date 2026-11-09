@@ -272,3 +272,4 @@
 - step1 probe OK (DataYesSharesL2 has 1102-1109). step2 decode 4 days -> /work/crucible_data/dysl2_raw + catalog_dysl2 started ~23:37.
 - dysl2 decode+catalog done 23:47:51: 4 days, ~22-23M quotes/day, 5224 symbols, 10 levels. Relayed. R18 (dysl2 scoring, 3d + 1109) started 23:48.
 - R18 (dysl2) 3 days: IC 0.6805 (vs feitu 0.6806), 549s. 1109 alone skipped: "no state file". Relayed; R19 and pm_poslog (new 224 rsync) held.
+- pm_poslog step1 (user OK): 224 has no 1106 position_log; 1109 position_log ~104KB pulled; base_position csvs for both days. User: base positions only in use from tomorrow. Asked crucible whether to still run step 2.
