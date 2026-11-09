@@ -231,3 +231,4 @@
 - scp -P 60777 key auth (no password), 6107MB in 31s -> /work/incoming/prod_20261109.tar.gz; 3956 entries, TOP=prod; /work 17T free
 - extracted to /work/incoming/prod_20261109; diff -rq vs /data/prod (read-only): "2453 Only", grouped output empty; many stderr "No such file or directory" pairs for index/1min_src/p*/202609*.nc. RUN_DONE 21:05:22. Relayed verbatim.
 - check: 0 differ, 0 Only-in-new; Only-in-/data/prod by top dir: 1min_src 22, CEDxr4d 2311, h 5, hstats 93, index 22. Newest dates in tar: 20261030/1102/1103; /data/prod ZZQI has 20261104-06. RUN_DONE 21:07:59. Relayed verbatim.
+- models.zip check (user asked): md5 84da910ce232ca6a6b9c354180f284e9 identical in /data/prod and new tar; 27 entries each, newest models/tk5m/ 2026-09-08 (tk5m/202509, 202601, lgb_fn_v1_209_cte.csv 08-31). No new model.
