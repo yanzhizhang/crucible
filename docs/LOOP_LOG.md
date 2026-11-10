@@ -292,3 +292,4 @@
 - user asked: pull PM live alpha. 2.23 livev1 = 20M, only rec10_p/20260430/alpha.parquet (mtime 11/10 04:09) -> 97 /work/crucible_data/pm_livev1 (read-only rsync, key auth). 1,386,204 x (sid,date,src_epoch,rec_epoch,alpha), 299 sids, date 20260430. hstats/sod HS300 = symlink chains only, not copied.
 - incident: a ctrl+j typed 'j' into livev1_step1.txt in the editor; undone with ctrl+z before any save. Heredoc paste hung in the split pane; ^C, reran as python -c.
 - all relayed to crucible verbatim (account masked).
+- 19:42 crucible six read-only checks (SIG/catchRun, REJ/TRD/ORD, ORD context, pos sign + 4 sids, 20260430 availability, alpha timing) -> 97 data/reports/daily/20261110_check6.txt (135 lines); transcribed to crucible (acct masked). 20260430: no EOD .jz (only 0429), DataYes 20260430 exists, feitu_raw has 3 matches.
