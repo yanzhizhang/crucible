@@ -96,6 +96,34 @@ DESCRIBE = {
     "log_new_order_to_trade_count_ratio_{w}s": "log((1 + new orders) / (1 + trades)) over the last {w} s",
     "log_mean_new_order_amount_cny_{w}s": "log of the mean new-order amount (CNY) over the last {w} s",
     "log_channel_sequence_advance_per_s_{w}s": "log(1 + channel sequence numbers advanced per second over the last {w} s): the whole channel's message rate",
+    # the whole rebuilt order book (full_book.py)
+    "full_book_depth_imbalance": "(bid - ask) / (bid + ask) resting volume over the whole rebuilt book",
+    "full_book_amount_imbalance": "(bid - ask) / (bid + ask) resting amount (price x volume) over the whole rebuilt book",
+    "full_book_depth_imbalance_within_{bp}bp": "(bid - ask) / (bid + ask) resting volume within {bp} bp of the mid",
+    "full_book_depth_imbalance_beyond_level10": "(bid - ask) / (bid + ask) resting volume beyond each side's 10 best price levels",
+    "bid_depth_share_beyond_level10_full_book": "share of the whole bid side's volume resting beyond its 10 best price levels",
+    "ask_depth_share_beyond_level10_full_book": "share of the whole ask side's volume resting beyond its 10 best price levels",
+    "bid_depth_share_beyond_200bp_full_book": "share of the whole bid side's volume resting more than 200 bp below the mid",
+    "ask_depth_share_beyond_200bp_full_book": "share of the whole ask side's volume resting more than 200 bp above the mid",
+    "bid_depth_weighted_distance_full_book_rel": "volume-weighted distance of the whole bid side below the mid, over the mid",
+    "ask_depth_weighted_distance_full_book_rel": "volume-weighted distance of the whole ask side above the mid, over the mid",
+    "depth_weighted_distance_ask_minus_bid_full_book_rel": "ask minus bid volume-weighted distance from the mid, over the mid",
+    "bid_price_levels_count_log": "log of the number of bid price levels holding volume",
+    "ask_price_levels_count_log": "log of the number of ask price levels holding volume",
+    "price_levels_count_imbalance": "(bid - ask) / (bid + ask) number of price levels holding volume",
+    "resting_order_count_imbalance_full_book": "(bid - ask) / (bid + ask) number of resting orders over the whole book",
+    "resting_order_count_imbalance_within_100bp": "(bid - ask) / (bid + ask) number of resting orders within 100 bp of the mid",
+    "bid_mean_resting_order_size_log": "log of the mean remaining size of the resting bid orders",
+    "ask_mean_resting_order_size_log": "log of the mean remaining size of the resting ask orders",
+    "mean_resting_order_size_bid_over_ask_log": "log of (mean resting bid order size / mean resting ask order size)",
+    "best_level_mean_order_size_bid_over_ask_log": "log of (mean order size at the best bid / mean order size at the best ask)",
+    "best_level_order_count_imbalance": "(bid - ask) / (bid + ask) number of orders resting at the best prices",
+    "bid_resting_volume_share_placed_last_{w}s": "share of the resting bid volume from orders that arrived in the last {w} s",
+    "ask_resting_volume_share_placed_last_{w}s": "share of the resting ask volume from orders that arrived in the last {w} s",
+    "resting_volume_placed_last_{w}s_imbalance": "(bid - ask) / (bid + ask) resting volume from orders that arrived in the last {w} s",
+    "full_book_depth_over_10_levels_log": "log of (whole-book resting volume / the volume in each side's 10 best levels)",
+    "full_book_bid_depth_log": "log of the whole bid side's resting volume",
+    "full_book_ask_depth_log": "log of the whole ask side's resting volume",
 }
 
 TIERS = (("under_40k_cny", 0.0, 4e4), ("40k_to_200k_cny", 4e4, 2e5), ("200k_to_1m_cny", 2e5, 1e6), ("over_1m_cny", 1e6, np.inf))
@@ -105,7 +133,7 @@ TIER_WINDOWS = (120, 300, 600, 1800)  # seconds; plus since 09:30
 def describe(name: str) -> str:
     """Plain description of one of our names (``gen.`` / ``flow.`` prefix allowed), '' when unknown."""
     base = name.removeprefix("gen.").removeprefix("flow.")
-    slots = {"k": r"\d+", "w": r"\d+", "win": r"\d+s|since_0930", "tier": "|".join(t for t, _, _ in TIERS)}
+    slots = {"k": r"\d+", "w": r"\d+", "bp": r"\d+", "win": r"\d+s|since_0930", "tier": "|".join(t for t, _, _ in TIERS)}
     for pat, text in DESCRIBE.items():
         rx = re.escape(pat)
         for k, g in slots.items():

@@ -388,6 +388,8 @@ def build_dir(args, d: str, state: Path, target: Path | None) -> Path | None:
     code = [inspect.getsource(m) for m in mods] + [inspect.getsource(fn) for fn in (generic, index_relative, index_series, pm_daily, profile_marks)]
     parts = [BUILD_REV, HORIZON, MARKS.tolist(), args.profiles, str(args.hstats), str(args.pm_cache), str(args.pm_stsfile), args.ced,
              str(args.ced_xr), args.target_stale, stamp(args.engine_dir / f"marks_{d}.parquet"), args.order_flow]
+    if args.full_book is not None:  # whole-book factors: their file is part of the build
+        parts.append(stamp(args.full_book / f"date={d}.parquet"))
     if str(B.CATALOG) != "/work/crucible_data/catalog.duckdb":  # another market-data source (CRUCIBLE_SOURCE): its own builds
         parts.append(str(B.CATALOG))
     key = hashlib.sha256(repr(code + parts).encode()).hexdigest()[:16]
@@ -688,6 +690,8 @@ def main() -> None:
                     help="a feature with a pick only moves to a candidate whose training-CDF gap is at most this much worse (off by default)")
     ap.add_argument("--xs-shortlist", type=int, default=6,
                     help="z / rank candidates look alike to the CDF: try the gate-passing ones of this many bases with the largest own |IC|")
+    ap.add_argument("--full-book", type=Path, default=None,
+                    help="full_book.py output dir (date=D.parquet on the same --marks): whole-book factors as gen.<name>")
     ap.add_argument("--engine-dir", type=Path, default=Path("data/engine"), help="marks_<D>.parquet from run_cpp.py --marks <the same grid>")
     ap.add_argument("--marks", default="five", help="five | rand:N[:seed] | a,b,...: the times scored (run_cpp.py --marks must match)")
     ap.add_argument("--target", type=Path, help="pm_signals.py output: score against PM's own live prediction (the latest signal of each "
@@ -810,6 +814,16 @@ def main() -> None:
                 for g in em.partition_by("sid"):
                     if g.height == MARKS.size:
                         eng[int(g["sid"][0])] = {c: g[c].to_numpy() for c in keep}
+            fbk: dict[int, dict[str, np.ndarray]] = {}
+            fbf = args.full_book / f"date={d}.parquet" if args.full_book is not None else None
+            if fbf is not None and fbf.exists():  # whole-book factors from our replay (full_book.py), on this mark grid only
+                fm = pl.read_parquet(fbf).filter(pl.col("mark").is_in(MARKS.tolist())).sort("sid", "mark")
+                for g in fm.partition_by("sid"):
+                    if g.height == MARKS.size:
+                        fbk[int(g["sid"][0])] = {c: g[c].to_numpy() for c in fm.columns if c not in ("sid", "mark")}
+                print(f"{d}: full-book factors for {len(fbk)} stocks from {fbf}")
+            elif fbf is not None:
+                print(f"{d}: no {fbf}: no full-book factors")
             prof = profile_marks(args.hstats, args.pm_cache, pfams, d, MARKS) if pfams else {}
             rets: dict[int, np.ndarray] = {}
             b_sid, b_key, b_val = [], [], []  # one long frame built once per day (not one small frame per key)
@@ -851,6 +865,7 @@ def main() -> None:
                     go = orders.get(sid)
                     gen.update({f"flow_{k}": v for k, v in TF.flow(go, gs, gf, MARKS).items()})
                     gen.update(order_stream(go, gf, gs, MARKS))
+                gen.update(fbk.get(sid, {}))
                 gen.update(index_relative(gen, ix, sid, MARKS))
                 if sid in danch and "lp_pc" in gen:  # price over a multi-day EMA of closes (an EMA state carried across days)
                     for c in lca_c:

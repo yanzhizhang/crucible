@@ -54,6 +54,7 @@ by symbol then sequence, for the chosen universe only.
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -62,8 +63,9 @@ import polars as pl
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 DATA = Path("/work/crucible_data")
-RAW = DATA / "feitu_raw"
-OUT = DATA / "store" / "bt_events"
+SOURCE = os.environ.get("CRUCIBLE_SOURCE", "feitu")  # the decoded feed, as in research/catalog.py
+RAW = DATA / f"{SOURCE}_raw"
+OUT = DATA / "store" / ("bt_events" if SOURCE == "feitu" else f"bt_events_{SOURCE}")
 SSE, SZSE = 3553, 3554
 BUY, SELL = 1063, 1550
 #: bump when the encoding changes: cached event files with another version are rebuilt
