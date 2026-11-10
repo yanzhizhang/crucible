@@ -314,3 +314,5 @@
 ## R22 r22_alpha.sh (e9c6474) -- 2026-11-11 01:12
 - user via crucible: run R22 in parallel with R21. r22_alpha.sh (67, f5d69e9b, new), alpha_target.py (50, b3b21536, new), ic_score.py (1637, bf5a4d9e; old copy /tmp/ic_score.py.bak_r22) pasted; md5 OK.
 - right pane had no conda env: conda activate crucible. Started 01:12:04, tee data/reports/r22.txt. Step 0: 0430 alpha 1,386,204 preds, 299 stocks; feitu catalog 0430 quotes 30.59M / 29462 syms; feitu index 0430 0 files. Relayed.
+- 01:13 R21 done: held out 1106 fold 0.7141 vs R17 0.7178 (R20 0.7304). New since R17: 66; same in all 3 folds + R20: 0; two folds: 11; unstable 55. Full transcript relayed (read by background screenshots; full-screen approval timed out, user asleep).
+- R22 at 01:13: engine step ran for 0430 (40s); full_book 0430 only 110 stocks (1104-1106: 299-300). Flagged to crucible.
