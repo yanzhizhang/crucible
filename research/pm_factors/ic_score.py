@@ -663,6 +663,8 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--dates", required=True)
     ap.add_argument("--dcp-dir", type=Path, default=B.DCP)
+    ap.add_argument("--state-fallback", action="store_true",
+                    help="a day with no state file of its own takes the stock list and stop time from the latest earlier one")
     ap.add_argument("--models", type=Path, default=Path("/data/prod/models/tk5m"))
     ap.add_argument("--feature-csv", type=Path, default=Path("/data/prod/models/lgb_fn_v1_209_cte.csv"))
     ap.add_argument("--fingerprint", type=Path, default=Path("data/reports/stage5/fingerprint.parquet"))
@@ -761,6 +763,11 @@ def main() -> None:
     blocks = []  # per day: (models, frames per mark, sids per mark, forward returns per mark)
     for d in [x.strip() for x in args.dates.split(",") if x.strip()]:
         f = args.dcp_dir / f"{d}.jz"
+        if not f.exists() and args.state_fallback:  # the state file only gives the stock list and the stop time: an earlier day's will do
+            prev = sorted(p for p in args.dcp_dir.glob("2*.jz") if p.stem < d)
+            if prev:
+                f = prev[-1]
+                print(f"{d}: no state file, stock list and stop time from {f.name}")
         if not f.exists():
             print(f"skip {d}: no state file")
             continue
