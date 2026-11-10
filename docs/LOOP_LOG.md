@@ -294,3 +294,4 @@
 - all relayed to crucible verbatim (account masked).
 - 19:42 crucible six read-only checks (SIG/catchRun, REJ/TRD/ORD, ORD context, pos sign + 4 sids, 20260430 availability, alpha timing) -> 97 data/reports/daily/20261110_check6.txt (135 lines); transcribed to crucible (acct masked). 20260430: no EOD .jz (only 0429), DataYes 20260430 exists, feitu_raw has 3 matches.
 - 19:46 last two read-only greps (srcEpoch/sidIdx lines; sid 338 pos path) -> 97 data/reports/daily/20261110_g2.txt (42 lines); relayed verbatim. crucible: done for 1110.
+- 444e888 pm_signals fix (1110 srcEpoch = exchange second; 317, ac9bd9df) and R20 84dfe3c (full_book 256 bef7e4a3, lit_factors 402 41833980, ic_score 1630 21089907, bt/events 223 7a7e80f2) pulled, md5 OK on Mac. Not moved: full-screen approval timed out 3x (user away). crucible sent exact R20 step1/step2 + transcribe commands; queued.
