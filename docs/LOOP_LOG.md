@@ -284,3 +284,11 @@
 - 00:41 2.23 step1: h/HS300/p1_intrading_dcp stops at 20261106.jz (no EOD 1109); sod/1109 -> 1106 symlink; hstats/HS300/ZZQI has 20261109. Step 2 copy not run (needs user OK; crucible ** include fix noted).
 - crucible: skip 2.23 step 2 (no EOD 1109 .jz). Idle until after 1110 close: daily_pm.sh 20261110 (check DataYesSharesL2/20261110 + ReadyFlag first).
 - da0522d daily_pm.sh step 6 (53 lines, md5 34cfbff4). crucible asked for git pull on 97; declined (git on 97 needs user OK; 97 is on main with staged changes). Copy-paste pending: full-screen approval timed out.
+
+## 1110 daily + PM livev1 -- 2026-11-10 19:40
+- moved daily_pm.sh da0522d (53, 34cfbff4) by Mac clipboard; user pasted pm_signals.py 8f26a5e (314, c2fc957b); both cr=0 OK. DataYes 20261110 + dys_finish.20261110 present.
+- daily_pm 20261110 19:30:23-19:35:09 (tee failed: dir created by script). pm_signals 1,114,420 signals, 300 stocks; quotes 21.66M rows, 5225 syms; poslog 203,700 rows; runS orders from 10:05 log: SEND 645+1409, REJ 1273+9361 (10630 'T+1'), TRD 126+423, nullptr 13488+713359.
+- extras -> data/reports/daily/20261110_extra.txt (dropped 0 all logs).
+- user asked: pull PM live alpha. 2.23 livev1 = 20M, only rec10_p/20260430/alpha.parquet (mtime 11/10 04:09) -> 97 /work/crucible_data/pm_livev1 (read-only rsync, key auth). 1,386,204 x (sid,date,src_epoch,rec_epoch,alpha), 299 sids, date 20260430. hstats/sod HS300 = symlink chains only, not copied.
+- incident: a ctrl+j typed 'j' into livev1_step1.txt in the editor; undone with ctrl+z before any save. Heredoc paste hung in the split pane; ^C, reran as python -c.
+- all relayed to crucible verbatim (account masked).
