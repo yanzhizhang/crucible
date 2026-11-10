@@ -303,3 +303,4 @@
 - R20 step 1 full_book 1104-1106 rand:240 workers 3: 57s, crossed 0.0000 all days, empty side 0.0015-0.0057, finite min 1.000 -> gates pass. Relayed.
 - R20 step 2 scan started 00:06 (unmapped: 65) -> data/reports/r20.txt, stage6_r20.
 - 00:09 scan: build_20261104 184s, 1105 building. ~00:17 Mac locked (lock screen); captures fail, cannot read 97. Scan keeps running on 97 (tee -> data/reports/r20.txt). Released control; waiting for user to unlock. Transcribe commands for step 2 not yet run.
+- 00:23 R20 step 2 done (total 1015s: build 497s, scan 442s). dropped zzqf10.c3, zzpe.c, zzal.f (0.6900->0.6911). IC 0.6911 -> 0.6916 (t 177.33, 660 marks), 148/209 assigned (r19 144). 1 full-book factor assigned: zzag.a = dm:-gen.full_book_depth_imbalance_within_50bp (t_gain 0.3). 6 other assignment changes. Extract -> 97 data/reports/r20_extract.txt (16 lines). Relayed verbatim.
