@@ -283,3 +283,4 @@
 - 00:40 2.23 probe (user OK, read-only): prod/h/HS300/p1_intrading_dcp, hstats/HS300/{ZZQI,ZZMS,ZZTS}/20261109, /data/share/s {index,sid2symbol,stats}. Xftp (user) shows sod/p1_intrading_dcp/20261109.jz (symlink). Nothing copied. Relayed.
 - 00:41 2.23 step1: h/HS300/p1_intrading_dcp stops at 20261106.jz (no EOD 1109); sod/1109 -> 1106 symlink; hstats/HS300/ZZQI has 20261109. Step 2 copy not run (needs user OK; crucible ** include fix noted).
 - crucible: skip 2.23 step 2 (no EOD 1109 .jz). Idle until after 1110 close: daily_pm.sh 20261110 (check DataYesSharesL2/20261110 + ReadyFlag first).
+- da0522d daily_pm.sh step 6 (53 lines, md5 34cfbff4). crucible asked for git pull on 97; declined (git on 97 needs user OK; 97 is on main with staged changes). Copy-paste pending: full-screen approval timed out.
