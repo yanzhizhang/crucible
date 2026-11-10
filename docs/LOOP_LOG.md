@@ -304,3 +304,8 @@
 - R20 step 2 scan started 00:06 (unmapped: 65) -> data/reports/r20.txt, stage6_r20.
 - 00:09 scan: build_20261104 184s, 1105 building. ~00:17 Mac locked (lock screen); captures fail, cannot read 97. Scan keeps running on 97 (tee -> data/reports/r20.txt). Released control; waiting for user to unlock. Transcribe commands for step 2 not yet run.
 - 00:23 R20 step 2 done (total 1015s: build 497s, scan 442s). dropped zzqf10.c3, zzpe.c, zzal.f (0.6900->0.6911). IC 0.6911 -> 0.6916 (t 177.33, 660 marks), 148/209 assigned (r19 144). 1 full-book factor assigned: zzag.a = dm:-gen.full_book_depth_imbalance_within_50bp (t_gain 0.3). 6 other assignment changes. Extract -> 97 data/reports/r20_extract.txt (16 lines). Relayed verbatim.
+
+## R21 cv_r20.sh (2576a85) -- 2026-11-11 00:30
+- crucible R21 ("run A then C"). cv_r20.sh 48 lines md5 6beebe02 moved by editor paste; verified on 97. Started 00:31:42 foreground, tee data/reports/r21.txt. A: book-mapped columns 46.
+- read-only test-day checks (97 + 2.23 ssh key auth, BatchMode) -> 97 data/reports/r21_testday.txt (30 lines), relayed: only 20260429.jz on both; ZZAL has 20260429, no 202604 3x; tk5m 202509..202612 (+202601.updated); livev1 rec10_p/20260430/alpha.parquet 19,938,668 B.
+- Mac kept awake with caffeinate (3 h) so the screen does not lock mid-run.
