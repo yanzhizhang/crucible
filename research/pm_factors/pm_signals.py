@@ -285,7 +285,10 @@ def main() -> None:
             sig = sig.with_columns(pl.Series("t", trading_clock(sig["md_recv_ts"].to_numpy())), pl.lit("sig").alias("src"))
         if not st.is_empty():
             key = lambda c: ((pl.col(c) + 50_000) // 100_000).alias("k10us")  # noqa: E731 -- PM prints srcEpoch rounded to 10 us
-            fa = st.with_columns(key("src_epoch"))
+            # from 2026-11-10 srcEpoch is the exchange second and recEpoch the receive time SIG's md_recv_ts carries
+            new = "rec_epoch" in st.columns and st["rec_epoch"].null_count() < st.height and bool((st["src_epoch"] % 1_000_000_000 == 0).mean() > 0.9)
+            st = st.with_columns((pl.col("rec_epoch") if new else pl.col("src_epoch")).cast(pl.Int64).alias("recv_epoch")).drop_nulls("recv_epoch")
+            fa = st.with_columns(key("recv_epoch"))
             if not sig.is_empty():
                 both = sig.with_columns(key("md_recv_ts")).join(fa.select("sid", "k10us", "fa"), on=["sid", "k10us"], how="inner")
                 diff = (both["prediction"] - both["fa"]).abs().to_numpy()
@@ -293,8 +296,8 @@ def main() -> None:
                 print(f"  factor program: {st.height:,} scored snapshots, {both.height:,} also in SIG "
                       f"(|prediction - fa| max {diff.max() if diff.size else float('nan'):.1e}, corr {cor:.6f}), {dec.height:,} trade decisions")
                 fa = fa.join(sig.with_columns(key("md_recv_ts")).select("sid", "k10us"), on=["sid", "k10us"], how="anti")
-            extra = fa.select("sid", pl.col("src_epoch").alias("md_recv_ts"), pl.col("fa").alias("prediction")).with_columns(
-                pl.lit(int(d)).alias("date"), pl.Series("t", trading_clock(fa["src_epoch"].to_numpy())), pl.lit("fa").alias("src"))
+            extra = fa.select("sid", pl.col("recv_epoch").alias("md_recv_ts"), pl.col("fa").alias("prediction")).with_columns(
+                pl.lit(int(d)).alias("date"), pl.Series("t", trading_clock(fa["recv_epoch"].to_numpy())), pl.lit("fa").alias("src"))
             print(f"  {extra.height:,} snapshots scored by PM but missing from chrono's SIG: added from fa (5 decimals)")
             sig = extra if sig.is_empty() else pl.concat([sig, extra], how="diagonal_relaxed")
         keep = [c for c in ("date", "sid", "symbol", "md_ts", "md_recv_ts", "recv_ts", "t", "prediction", "confidence", "px", "vol", "name", "src")
