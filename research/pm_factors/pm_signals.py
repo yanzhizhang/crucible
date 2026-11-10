@@ -66,6 +66,7 @@ def repair(d: dict[str, str]) -> dict[str, str]:
     return d
 FLOATS = ("prediction", "confidence", "px", "vol")
 GLUE = re.compile(r"(?=\[(?:INFO|WARN|WARNING|ERROR|DEBUG)\] \[/)|(?=\[20\d\d-\d\d-\d\d )")  # where one log line starts
+SRC = re.compile(r"\] \[(?:[^\]\s]*/)?([^\]/\s:]+):\d+\]")  # the source file name in "[LEVEL] [path/file.cpp:123]"
 NUM = re.compile(r"([A-Za-z_][\w\->]*)\s*[:=]\s*(-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?)\b")
 
 
@@ -107,6 +108,14 @@ def read_factor(files: list[str]) -> tuple[pl.DataFrame, pl.DataFrame]:
                     kv = {k.replace("this->", "").replace("_", ""): float(v) for k, v in NUM.findall(line.split("]", 2)[-1])}
                     decisions.append({"src_epoch": round(last["srcEpoch"] * 1e9) if "srcEpoch" in last else None, **kv})
     print(f"  factor lines: {len(snaps):,} matched ({loose:,} by order, not by epoch), {unmatched:,} alg lines without their catchRun line")
+    if not snaps:  # from 1111 the plugin logs through chrono's logger: show which [file:line] sources carry the lines now
+        src: dict[str, int] = {}
+        for f in files:
+            with open(f, encoding="utf-8", errors="replace") as fh:
+                for raw in fh:
+                    for m in SRC.finditer(raw):
+                        src[m.group(1)] = src.get(m.group(1), 0) + 1
+        print("  no factor lines; top [file] sources: " + ", ".join(f"{k} {v:,}" for k, v in sorted(src.items(), key=lambda x: -x[1])[:12]))
     if loose and snaps:  # an order match is right when each sidIdx keeps one sid and the epoch lag stays small
         sp = pl.DataFrame(snaps)
         top = sp.group_by("sid_idx", "sid").len().sort("len", descending=True).unique("sid_idx", keep="first")
