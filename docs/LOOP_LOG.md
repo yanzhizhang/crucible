@@ -293,3 +293,4 @@
 - incident: a ctrl+j typed 'j' into livev1_step1.txt in the editor; undone with ctrl+z before any save. Heredoc paste hung in the split pane; ^C, reran as python -c.
 - all relayed to crucible verbatim (account masked).
 - 19:42 crucible six read-only checks (SIG/catchRun, REJ/TRD/ORD, ORD context, pos sign + 4 sids, 20260430 availability, alpha timing) -> 97 data/reports/daily/20261110_check6.txt (135 lines); transcribed to crucible (acct masked). 20260430: no EOD .jz (only 0429), DataYes 20260430 exists, feitu_raw has 3 matches.
+- 19:46 last two read-only greps (srcEpoch/sidIdx lines; sid 338 pos path) -> 97 data/reports/daily/20261110_g2.txt (42 lines); relayed verbatim. crucible: done for 1110.
