@@ -309,3 +309,8 @@
 - crucible R21 ("run A then C"). cv_r20.sh 48 lines md5 6beebe02 moved by editor paste; verified on 97. Started 00:31:42 foreground, tee data/reports/r21.txt. A: book-mapped columns 46.
 - read-only test-day checks (97 + 2.23 ssh key auth, BatchMode) -> 97 data/reports/r21_testday.txt (30 lines), relayed: only 20260429.jz on both; ZZAL has 20260429, no 202604 3x; tk5m 202509..202612 (+202601.updated); livev1 rec10_p/20260430/alpha.parquet 19,938,668 B.
 - Mac kept awake with caffeinate (3 h) so the screen does not lock mid-run.
+- 01:03 R21 C: held out 1104 fold 0.5833 vs R17 0.6081 (R20 in-sample 0.6184); held out 1105 fold 0.6980 vs R17 0.7116 (R20 0.7211). Part A: IC 0.6916 -> 0.6927, 148 -> 148, 7 columns changed. Progress relayed (crucible session restarted; now addressed as "crucible").
+
+## R22 r22_alpha.sh (e9c6474) -- 2026-11-11 01:12
+- user via crucible: run R22 in parallel with R21. r22_alpha.sh (67, f5d69e9b, new), alpha_target.py (50, b3b21536, new), ic_score.py (1637, bf5a4d9e; old copy /tmp/ic_score.py.bak_r22) pasted; md5 OK.
+- right pane had no conda env: conda activate crucible. Started 01:12:04, tee data/reports/r22.txt. Step 0: 0430 alpha 1,386,204 preds, 299 stocks; feitu catalog 0430 quotes 30.59M / 29462 syms; feitu index 0430 0 files. Relayed.
