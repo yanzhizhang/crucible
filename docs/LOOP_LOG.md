@@ -295,3 +295,10 @@
 - 19:42 crucible six read-only checks (SIG/catchRun, REJ/TRD/ORD, ORD context, pos sign + 4 sids, 20260430 availability, alpha timing) -> 97 data/reports/daily/20261110_check6.txt (135 lines); transcribed to crucible (acct masked). 20260430: no EOD .jz (only 0429), DataYes 20260430 exists, feitu_raw has 3 matches.
 - 19:46 last two read-only greps (srcEpoch/sidIdx lines; sid 338 pos path) -> 97 data/reports/daily/20261110_g2.txt (42 lines); relayed verbatim. crucible: done for 1110.
 - 444e888 pm_signals fix (1110 srcEpoch = exchange second; 317, ac9bd9df) and R20 84dfe3c (full_book 256 bef7e4a3, lit_factors 402 41833980, ic_score 1630 21089907, bt/events 223 7a7e80f2) pulled, md5 OK on Mac. Not moved: full-screen approval timed out 3x (user away). crucible sent exact R20 step1/step2 + transcribe commands; queued.
+
+## pm_signals fix + R20 -- 2026-11-10 23:58
+- user back, full-screen approved. First editor paste used a stale VDI clipboard (1 line); ctrl+z + save restored the 314-line file before anything ran. Clipboard sync now via osascript activate TextEdit -> Windows App.
+- pm_signals.py 444e888 on 97: md5 ac9bd9df, 317 lines. Rerun 1110 (77s): 1,046,984 of 1,102,234 fa snapshots also in SIG, corr 0.990641, |pred-fa| max 5.7e-3; 55,250 added from fa; 1,114,420 signals, 300 stocks. Relayed.
+- R20 files backed up to /tmp/*.bak_r20 (lit_factors, ic_score, events); full_book.py new. All 4 md5 OK on 97 (bef7e4a3, 4183398d, 21089907, 7a7e80f2).
+- R20 step 1 full_book 1104-1106 rand:240 workers 3: 57s, crossed 0.0000 all days, empty side 0.0015-0.0057, finite min 1.000 -> gates pass. Relayed.
+- R20 step 2 scan started 00:06 (unmapped: 65) -> data/reports/r20.txt, stage6_r20.
