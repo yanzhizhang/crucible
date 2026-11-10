@@ -44,4 +44,10 @@ python -u research/pm_factors/pm_decisions.py --dates $D > $O/${D}_decisions.txt
 python -u research/pm_factors/pm_poslog.py --dates $D > $O/${D}_poslog.txt 2>&1 || say "  pm_poslog FAILED"
 grep -E "^==|per stock" $O/${D}_decisions.txt | cut -c1-200 | sed 's/^/  /'
 grep -E "^==|decisions with|pos ==|executp ==|prediction vs" $O/${D}_poslog.txt | cut -c1-230 | sed 's/^/  /'
+say "6 orders: does runS send now (base position pushed from 1110)"
+for f in $DATA/chrono_logs/${D:0:4}-${D:4:2}-${D:6:2}_*; do
+  [ -f "$f" ] || continue
+  echo "  $(basename $f): nullptr $(grep -c 'order is nullptr' $f), ORD $(grep -c 'trk ORD' $f), SEND $(grep -c 'trk SEND' $f), REJ $(grep -c 'trk REJ' $f), TRD $(grep -c 'trk TRD' $f)"
+done
+cat $DATA/chrono_logs/${D:0:4}-${D:4:2}-${D:6:2}_* 2>/dev/null | grep 'trk REJ' | grep -o 'reason=[^ ]*' | sort | uniq -c | sort -rn | head -5 | sed 's/^/  REJ /'
 say "done $D"
