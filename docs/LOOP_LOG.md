@@ -319,3 +319,9 @@
 - 01:29 R22 step 3 (held out): r17 0430 0.3105 / 1109 0.5366 / 1110 0.7024; r20 0.3039/0.5331/0.7054; r21 0.2920/0.5322/0.7051. Step 2 0430 full_book 110 stocks.
 - crucible asked for a read-only 0430 coverage check (catalog order/transaction/quotation vs alpha sids); full-screen approval timed out (user asleep) -> not run, command saved in scratchpad chk0430.txt.
 - 01:50:36 R22 done. Step 4 scan 0430+1104-1106: dropped 0.5842->0.6114; IC 0.6114 -> 0.6334 (t 137.14, 900 marks), 148 -> 140 (23 new, 31 dropped); 0430 engine state 0 / profiles 0. Step 5 r22 held out: 1109 0.5478, 1110 0.7147. Read by background scroll + screenshots, full transcript relayed. r22_alpha.sh md5 line on 97 not seen (scrolled), recheck pending.
+
+### 2026-11-11 — R22 0430 coverage check (read-only)
+- Ran crucible's check in left 97 terminal -> data/reports/r22_chk0430.txt (24 lines). Relayed verbatim.
+- order / transaction / quotation: alpha stocks present 299 of 299 each (rows 42,295,829 / 32,050,536 / 1,493,368); missing [].
+- feitu_raw 0430 order and transaction parts present (SH+SZ, Nov 5).
+- md5 research/r22_alpha.sh on 97 = f5d69e9b... (matches).
