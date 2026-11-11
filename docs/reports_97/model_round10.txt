@@ -1,0 +1,46 @@
+### M1 probe every model month
+36 models, months ['202509', '202609', 'undated']
+### M2 engine state at the 5-minute marks (C++)
+  20261104: state at 240 marks x 300 stocks -> data/engine/marks_20261104.parquet
+  20261105: state at 240 marks x 300 stocks -> data/engine/marks_20261105.parquet
+  20261106: state at 240 marks x 300 stocks -> data/engine/marks_20261106.parquet
+### M3 ic_score on the newest days
+20261105: PM daily inputs ['pm.msr', 'pm.mb', 'pm.vr', 'pmw.SH50', 'pmw.HS300', 'pmw.A500', 'pmw.ZZ500', 'pmw.ZZ1000', 'pmw.ZZ2000', 'pmx.SSE', 'pmx.SZSE']
+20261105: 300 stocks x 240 marks, 1 models, engine state for 300, profiles for 301 (108s)
+20261106: index snapshots for ['hs300', 'sh', 'sz', 'zz1000', 'zz500']
+20261106: PM daily inputs ['pm.msr', 'pm.mb', 'pm.vr', 'pmw.SH50', 'pmw.HS300', 'pmw.A500', 'pmw.ZZ500', 'pmw.ZZ1000', 'pmw.ZZ2000', 'pmx.SSE', 'pmx.SZSE']
+20261106: 300 stocks x 240 marks, 1 models, engine state for 300, profiles for 301 (154s)
+drop zzfe = crank:-gen.lpe300: training-CDF gap 0.077 > 0.05
+drop zzsf.c = gen.rng1800: training-CDF gap 0.069 > 0.05
+drop zzab2 = log(px / zzab2.r): training-CDF gap 0.057 > 0.05
+drop zzop.j = gen.tsz20: training-CDF gap 0.055 > 0.05
+drop zzef2 = z:-gen.lpe100: training-CDF gap 0.069 > 0.05
+drop zzpe.e = z:-gen.imb1: training-CDF gap 0.065 > 0.05
+drop zzzl2.g = gen.lp_pc: training-CDF gap 0.053 > 0.05
+drop zzaa.b = gen.cum_imbn*1e4: training-CDF gap 0.055 > 0.05
+drop zzwa.j = |gen.lpe30|: training-CDF gap 0.070 > 0.05
+  accept zzzl2.g = gen.xpc_zz500 by training CDF (gap 0.008), IC 0.5649 t -1.4
+IC: start 0.5707 -> end 0.6171 (t 163.33, 660 marks); 60 of 209 columns assigned -> data/reports/stage6/ic_assign.json
+
+########## SUMMARY (photograph from here) ##########
+dropped (IC rose without them last round): ['zzzl.d']
+frozen (strong last round, not rescanned): ['zzal.d', 'zzbs2.b', 'zzel.a', 'zzeu2', 'zzho', 'zzpe.b', 'zzqf2.q.c1', 'zzqf5.q.c1', 'zzsa2.a', 'zzyg.0.a', 'zzzl2.c']
+IC: start 0.5707 -> end 0.6171 (t 163.33, 660 marks); 60 of 209 columns assigned -> data/reports/stage6/ic_assign.json
+model 202609: 209 features; with a formula 60 (gain 0.547): strong 12 (0.100), fits 15 (0.109), ic 3 (0.037), weak 30 (0.302)
+strong: zzel.a=gen.spm600; zzzl2.c=gen.lp_pc; zzeu2=gen.imb1; zzal.d=dm:gen.imbv180; zzjx3.b=-gen.pret1800; zzpe.b=z:-gen.imb5; zzho=dm:gen.imbn45; zzzl2.g=gen.xpc_zz500; zzqf2.q.c1=dm:gen.lp_vwap; zzqf5.q.c1=dm:gen.lp_vwap; zzbs2.b=-gen.lp_pc; zzyg.0.a=ced.stats.SRet
+vs last round: new 4, changed 11, dropped 1
+  zzro2.a (weak): -gen.lpe30 -> -gen.lpe50
+  zzro2.c (weak): dm:-gen.lpma300 -> dm:-gen.ret120
+  zzwa.j (weak): |gen.lpe30| -> |gen.lpe40|
+  zzjx3.b (strong): dm:gen.lp_vwap -> -gen.pret1800
+  zzro2.b (weak): gen.lppe20 -> dm:gen.lppe25
+  zzop.j (weak): gen.tsz20 -> |gen.tsz20|
+  zzfe (weak): crank:-gen.lpe300 -> crank:-gen.rete150
+  zzhj (weak): dm:gen.imbn20 -> dm:gen.imbn15
+  zzro.e (weak): - -> gen.rete40
+  zzzl2.g (strong): gen.lp_pc -> gen.xpc_zz500
+  zzef2 (weak): z:-gen.lpe100 -> z:-gen.rete150
+  zzop2.b (weak): - -> |gen.imbv120|*1e4
+  dropped: zzzl.d
+open families (gain without a strong formula; features / with formula / strong): ZZRO 0.114 (6/4/0), ZZWA 0.055 (11/6/0), ZZQF 0.054 (21/4/2), ZZGH 0.051 (2/1/0), ZZZL 0.044 (9/3/2), ZZPE 0.031 (5/4/1), ZZOP 0.030 (4/3/0), ZZSF 0.026 (2/2/0), ZZEU 0.024 (2/2/1), ZZAG 0.024 (6/1/0), ZZFB 0.022 (2/2/0), ZZEG 0.020 (2/0/0)
+(full tables: FULL=1, or python research/pm_factors/model_status.py)
