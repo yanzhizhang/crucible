@@ -354,3 +354,10 @@
 - add_day 20261111 (new day, mixed-format logs): pm_signals parsed 2,253,132 signals; IC on 1111: R17 0.4589, R24 0.4653, R24 gated 0.4434. pm_poslog FAILED on a glued ts field. PM 1111.jz not on 2.23 yet; step 5 to re-run.
 - All transcriptions in docs/reports_97/r24/ (README, r24_*, r23_diag, add_20261111). Push still blocked; user to push or restart for the new allow rule.
 - 00:0x user: keep the screen and work through every direction with crucible; ask the user only when their input is needed. Told crucible to send rounds back to back; same safety limits.
+
+## R25 running, R26 held (2026-11-12 ~00:40)
+- R25 started 00:22:37 (c6081a1, 7 md5 verified). Step 0 found no .jz on 224; find2 (find -L, mounts, grep) confirmed none on 224's chrono/strategy side. stsfile on 224: /tmp/s/stsfile, runs on 1111 loaded the 20261109 day.
+- 2.23 sod/p1_intrading_dcp/D.jz are links to dcp D-1 (made ~08:45 or later).
+- gen_compare in R25 step 3 crashed (month dtype); gen_flags.py (f49663f) pasted, md5 ok, to run after R25.
+- R26 (8adf617) r26.sh + sts_days.py pasted, NOT run: crucible put it on hold (stsfile is read by runS, not by the factor model). ic_score.py 712ed7c8 not pasted.
+- Steps 0-5 relayed; step 6 (25 variants x 3 days) running.
