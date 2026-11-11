@@ -1,0 +1,17 @@
+# data/reports/r25_23_jz_links.txt on 97 (101 lines): read-only find of *.jz symlinks under 2.23:/data/share (maxdepth 8), then ls of HS300/sod/p1_intrading_dcp, then dcp dirs
+# Only one directory holds .jz links: /data/share/data/prod/h/HS300/sod/p1_intrading_dcp. 47 links; every link D.jz -> ../../p1_intrading_dcp/<previous trading day>.jz. No old/shared target.
+# uniq -c of targets: every target appears exactly 2 times (once in the find list, once in the ls listing), e.g. 2 ../../p1_intrading_dcp/20261110.jz ... 2 ../../p1_intrading_dcp/20261014.jz
+link mtime (find)  sod D.jz -> dcp target
+2026-09-08 15:31   20260430 -> 20260429
+2026-10-13 20:10   20260901 -> 20260831, 0902->0901, 0903->0902, 0904->0903, 0907->0904, 0908->0907, 0909->0908, 0910->0909, 0911->0910, 0914->0911, 0915->0914
+2026-11-04 18:20   20260916->0915, 0917->0916, 0918->0917, 0921->0918, 0922->0921, 0923->0922, 0924->0923, 0928->0924, 0929->0928, 0930->0929, 1008->0930
+2026-11-04 18:21   20261009->1008, 1012->1009, 1013->1012, 1014->1013, 1015->1014, 1016->1015, 1019->1016, 1020->1019, 1021->1020, 1022->1021, 1023->1022, 1026->1023, 1027->1026, 1028->1027, 1029->1028, 1030->1029
+2026-11-04 20:07   20261102 -> 20261030
+2026-11-05 20:10   20261103 -> 20261102
+2026-11-06 20:19   20261104 -> 20261103
+2026-11-09 08:45   20261105 -> 20261104
+2026-11-10 21:13   20261106 -> 20261105
+2026-11-11 08:45   20261109 -> 20261106
+2026-11-11 08:45   20261110 -> 20261109
+2026-11-11 08:45   20261111 -> 20261110
+== dirs: /data/share/data/prod/h/HS300/p1_intrading_dcp, /data/share/data/prod/h/HS300/sod/p1_intrading_dcp (only HS300)
