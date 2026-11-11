@@ -335,3 +335,8 @@
 - R23 (2bbe6ae) files pasted to 97: r23.sh, ic_score.py, gen_compare.py, state_keys.py md5 match; residual_breakdown.py 7d7e109b (expected bc3ea095): RDP clipboard inserted U+00AC before the "±" on line 6. Fix (sed -i '6s/\xc2\xac//') pasted, not run.
 - 09:10 Windows App: "Your session was disconnected ... another connection was made to the remote PC" (0x5). Not reconnected; R23 not started.
 - crucible pushed ffa8e09: residual_breakdown.py pure ASCII (md5 695d46bd, 74 lines); other 4 R23 files ASCII-only, md5 unchanged. Plan when VDI is back: ctrl+c the unrun sed line in the right 97 terminal, re-paste residual_breakdown.py, verify md5, start R23. On hold until the user is home.
+
+## R24 queued (1bf13d9), VDI on hold
+- crucible asked for R24: paste ic_score.py, r24.sh, seed_probe.py/.sh, static_probe.sh, state_keys.py; then run seed_probe, static_probe, r24, static_probe again.
+- Mac rebased onto 1bf13d9; all 6 md5s and line counts match; all ASCII. The 2.23 access in the scripts is read-only (ls/find/md5/rsync pull into /work).
+- Told crucible R23 never ran (Windows App disconnected 09:10 before start). Waiting for the user to be home before touching the VDI.
