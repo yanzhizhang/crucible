@@ -21,3 +21,7 @@ training CDF by generation: 1 generation(s) ['55f31009'], 138 features
 359:[23:31:44] 5 held out: R17 / R24 / R24 gated on 1110 and 0430 (own-generation CDF)
 (r24.txt was 359 lines at 23:3x; step 5 running)
 [23:33:28]   r17 (102 columns): 1110 0.6958, 0430 0.3107
+[23:35:32]   r24 (116 columns): 1110 0.7045, 0430 0.2874
+[23:37:33]   r24g (98 columns): 1110 0.6675, 0430 0.2608
+[23:37:33] done
+(r24.txt final: 363 lines; static_probe_after_r24.txt 128 lines; r23_diag running, 62 lines at 23:58)

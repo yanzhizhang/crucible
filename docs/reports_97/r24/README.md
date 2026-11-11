@@ -23,3 +23,10 @@ Chain: seed_probe -> static_probe -> r24 -> static_probe (after r24) -> r23_diag
 - 2.23:/data/share/s = ex/ index/ (HDF5 .xr per day), sid2symbol/ (json per day), stats/.
 - Open columns at R17 by input location: hstats 12 cols (gain 0.0345), neither 85 (0.3107), state 10 (0.1002).
 - R24 step 2 (pooled CDF vs own-generation CDF, IC): 0430 0.3105 / 0.3107, 1109 0.5366 / 0.5357, 1110 0.7024 / 0.6958.
+- R24 step 5 held out (IC, own-generation CDF):
+
+| assignment | columns | 1110 | 0430 |
+|---|---|---|---|
+| R17 | 102 | 0.6958 | 0.3107 |
+| R24 | 116 | 0.7045 | 0.2874 |
+| R24 gated (1109) | 98 | 0.6675 | 0.2608 |
