@@ -31,12 +31,25 @@ def corr(a: np.ndarray, b: np.ndarray) -> float:
     return float(np.corrcoef(a[m], b[m])[0, 1]) if m.sum() > 2 and a[m].std() > 0 and b[m].std() > 0 else float("nan")
 
 
+def read_log(f: Path) -> pl.DataFrame:
+    """One position-log csv; rows cut by a process restart (a partial row glued to the next one) are dropped with a WARNING."""
+    import io
+    import re
+    lines = f.read_text(errors="replace").splitlines()
+    head = lines[0].split(",")
+    its = head.index("ts") if "ts" in head else None
+    good = [ln for ln in lines[1:] if ln.count(",") == len(head) - 1 and (its is None or re.fullmatch(r"-?\d+", ln.split(",")[its]))]
+    if len(good) < len(lines) - 1:
+        print(f"WARNING {f.name}: {len(lines) - 1 - len(good)} of {len(lines) - 1} rows malformed (cut by a restart?), dropped")
+    return pl.read_csv(io.StringIO("\n".join([lines[0], *good])), infer_schema_length=10000)
+
+
 def day(poslog: Path, state: Path, d: str) -> None:
     files = sorted(poslog.glob(f"{d}/position_log/*.csv"))  # only the position log, not the base_position csv next to it
     if not files:
         print(f"\n== {d}: no position log under {poslog}/{d}")
         return
-    lg = pl.concat([pl.read_csv(f, infer_schema_length=10000) for f in files], how="diagonal_relaxed")
+    lg = pl.concat([read_log(f) for f in files], how="diagonal_relaxed")
     lg = lg.with_columns(pl.col("symbol").cast(pl.String).str.slice(0, 6).cast(pl.Int64).alias("sid"), pl.col("ts").cast(pl.Int64),
                          *[pl.col(c).cast(pl.Float64) for c in LOG if c in lg.columns]).sort("sid", "ts")
     print(f"\n== {d}: {lg.height:,} position-log rows from {len(files)} file(s), {lg['sid'].n_unique()} stocks, "

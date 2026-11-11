@@ -80,9 +80,24 @@ def main() -> None:
                   f"zero {r['zero']:.2f}{'  integer' if r['integer'] else ''}  distinct {r['distinct']}")
 
     if a.hstats:
+        import re
+
         hs = {d.name.lower() for d in a.hstats.iterdir() if d.is_dir()}
-        grp = pl.DataFrame([{"feature": f, "stem": s, "gain": gain.get(f, 0.0),
-                             "group": "state" if s in have else ("hstats" if s.lower() in hs else "neither")}
+        base = lambda x: re.sub(r"\d+$", "", x)  # noqa: E731 -- zzro2 -> zzro: a variant family may live on its base's state
+        all_st = set(st["stem"].unique().to_list())
+        jz_base = {base(x) for x in all_st}
+        hs_base = {base(x) for x in hs}
+
+        def where(s: str) -> str:
+            if s in all_st:
+                return "state"
+            if base(s) in jz_base:
+                return "state_base"
+            if s.lower() in hs:
+                return "hstats"
+            return "hstats_base" if base(s.lower()) in hs_base else "neither"
+
+        grp = pl.DataFrame([{"feature": f, "stem": s, "gain": gain.get(f, 0.0), "group": where(s)}
                             for s, fs in open_stems.items() for f in fs if f not in assign],
                            schema={"feature": pl.String, "stem": pl.String, "gain": pl.Float64, "group": pl.String})
         grp = grp.sort("group", "gain", descending=[False, True])
