@@ -92,6 +92,7 @@ def main() -> None:
     ap.add_argument("--catalog", type=Path, default=CATALOG)
     ap.add_argument("--threads", type=int, default=8, help="engine threads (stock chunks)")
     ap.add_argument("--prev", type=Path, help="previous day's state (PM .jz or engine file) for the |c<N> carry variants")
+    ap.add_argument("--seed-all", default="", help="c<N> / w<N> / wt<N>: seed EVERY ema from --prev (N s of decay), not only the |c<N> variants")
     ap.add_argument("--out", type=Path, default=Path("data/engine"))
     ap.add_argument("--work", type=Path, default=Path("data/engine/work"), help="where events.bin / rules.tsv / prev.bin go")
     ap.add_argument("--keep", action="store_true", help="keep the work files (default: delete events.bin after the run)")
@@ -112,8 +113,8 @@ def main() -> None:
     stop = stop or DEFAULT_STOP
     work = a.work / str(a.date)
     work.mkdir(parents=True, exist_ok=True)
-    names = write_rules(EMAS, work / "rules.tsv")
-    n_prev = write_prev(load_prev(a.prev), names, work / "prev.bin")
+    names = write_rules(EMAS, work / "rules.tsv", a.seed_all)
+    n_prev = write_prev(load_prev(a.prev), names, work / "prev.bin", a.seed_all)
     ev = load_events(con, int(a.date), sids, stop)
     con.close()
     write_events(ev, work / "events.bin")

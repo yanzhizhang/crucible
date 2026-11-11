@@ -35,21 +35,23 @@ def seed_tag(name: str) -> str:
     return f"{sd[0]}{int(sd[1])}" if sd else "-"
 
 
-def write_rules(emas: dict[str, tuple[str, float, str]], dst: Path) -> list[str]:
-    """rules.tsv in EMAS order; returns the rule names (the engine's rule indices)."""
+def write_rules(emas: dict[str, tuple[str, float, str]], dst: Path, seed_all: str = "") -> list[str]:
+    """rules.tsv in EMAS order; returns the rule names (the engine's rule indices). ``seed_all`` ("c0", "c600" ...) seeds
+    every rule without a tag of its own from yesterday's state too (the main keys, not only the |c<N> variants)."""
     names = list(emas)
     with dst.open("w", newline="\n") as f:
         for p in names:
             clock, half, what = emas[p]
-            f.write(f"{p}\t{clock}\t{half!r}\t{what}\t{seed_tag(p)}\n")
+            tag = seed_tag(p) if (seed_of(p) or not seed_all) else seed_all
+            f.write(f"{p}\t{clock}\t{half!r}\t{what}\t{tag}\n")
     return names
 
 
-def write_prev(prev: dict[int, dict[str, float]], names: list[str], dst: Path) -> int:
-    """prev.bin: yesterday's sum / wgt for every carry rule and stock that has them."""
+def write_prev(prev: dict[int, dict[str, float]], names: list[str], dst: Path, seed_all: str = "") -> int:
+    """prev.bin: yesterday's sum / wgt for every carry rule (every rule with ``seed_all``) and stock that has them."""
     rows = []
     for i, p in enumerate(names):
-        if seed_of(p) is None:
+        if seed_of(p) is None and not seed_all:
             continue
         base = p.partition("|")[0]
         for sid, kv in prev.items():
