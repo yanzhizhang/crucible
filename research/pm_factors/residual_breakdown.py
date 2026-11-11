@@ -3,7 +3,7 @@ r"""Where does our prediction part from PM's? ``ic_score --dump-pred`` rows brok
 Within each (day, mark) both predictions are ranked; the residual is PM's rank minus what our rank explains (OLS). Printed:
 
 * the per-mark rank IC by half hour of the trading clock, per day (missing open / close inputs show up as a dip there);
-* by board (SH main, STAR, SZ main, ChiNext): IC and residual variance (limit rules / tick size / ±20 % boards);
+* by board (SH main, STAR, SZ main, ChiNext): IC and residual variance (limit rules / tick size / +-20 % boards);
 * stock persistence: the share of the residual variance a stock-day mean explains, the share a stock mean over all days
   explains, and the day-to-day correlation of the stock means (a persistent stock effect = a daily or static input missing);
 * PM's tails: where PM ranks a stock in its top / bottom 10 %, how often ours does too (extremes driven by an input we lack);
