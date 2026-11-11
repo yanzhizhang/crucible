@@ -331,3 +331,6 @@
 - 08:26:41 R22b started (tee data/reports/r22b.txt).
 - 08:52:20 R22b done (r22b.txt 100 lines, relayed). Step 2: 0430 299 stocks (189 no price limits, pre_close +-30 %). Step 3 0430: r17 0.3105, r20 0.3028, r21 0.2984, r22 0.4823 (in-sample). Step 4: dropped 0.5862->0.6119; IC 0.6119 -> 0.6344 (t 142.64), 148 -> 143. Step 5 r22b held out: 1109 0.5361, 1110 0.7047.
 - User asked for data/reports listing: 1670 files, 30G (414 parquet data 31.3GB, 1256 text 135MB). User chose model-fit text reports to transcribe into docs/reports_97/ (local only).
+- User asked for 97 data/reports listing (1670 files, 30G; 414 parquet 31.3GB, 1256 text 135MB), then only the PM LightGBM params: already in repo as research/pm_factors/pm_lgb_params.json. Transcribed pm_lgb_meta.txt, model_round1.txt, model_round10.txt into docs/reports_97 (md5 match 97); stopped there.
+- R23 (2bbe6ae) files pasted to 97: r23.sh, ic_score.py, gen_compare.py, state_keys.py md5 match; residual_breakdown.py 7d7e109b (expected bc3ea095): RDP clipboard inserted U+00AC before the "±" on line 6. Fix (sed -i '6s/\xc2\xac//') pasted, not run.
+- 09:10 Windows App: "Your session was disconnected ... another connection was made to the remote PC" (0x5). Not reconnected; R23 not started.
