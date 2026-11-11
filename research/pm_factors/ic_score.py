@@ -62,6 +62,7 @@ from same_gap import day_frame  # samplerS cells of one family and day (cached p
 
 MARKS = np.arange(300.0, 13801.0, 300.0)  # 09:35 ... 14:50: the last mark still has 5 minutes of continuous session ahead
 HORIZON = 300.0
+STS_MAP: dict[str, str] = {}  # --pm-sts-map: trading day -> the stsfile day 224's PM loaded
 
 
 def mark_grid(spec: str) -> np.ndarray:
@@ -386,7 +387,7 @@ def build_dir(args, d: str, state: Path, target: Path | None) -> Path | None:
 
     mods = [B, E, FI, same_gap, ic_kernel, lit_factors] + ([ced_match] if args.ced else []) + ([tick_flow] if args.order_flow else [])
     code = [inspect.getsource(m) for m in mods] + [inspect.getsource(fn) for fn in (generic, index_relative, index_series, pm_daily, profile_marks)]
-    parts = [BUILD_REV, HORIZON, MARKS.tolist(), args.profiles, str(args.hstats), str(args.pm_cache), str(args.pm_stsfile), args.ced,
+    parts = [BUILD_REV, HORIZON, MARKS.tolist(), args.profiles, str(args.hstats), str(args.pm_cache), str(args.pm_stsfile), args.pm_sts_day, STS_MAP.get(d), args.ced,
              str(args.ced_xr), args.target_stale, stamp(args.engine_dir / f"marks_{d}.parquet"), args.order_flow]
     if args.full_book is not None:  # whole-book factors: their file is part of the build
         parts.append(stamp(args.full_book / f"date={d}.parquet"))
@@ -397,13 +398,16 @@ def build_dir(args, d: str, state: Path, target: Path | None) -> Path | None:
     return args.cache_dir / key / f"date={d}.{day}"
 
 
-def pm_daily(root: Path, d: str, sids: list[int]) -> pl.DataFrame | None:
-    """PM's own morning inputs for day d (/tmp/s/stsfile, the latest file before d, as qlive/trd.cpp loads them):
-    stats/sod msr / mb / vr, index weights (SH50 HS300 A500 ZZ500 ZZ1000 ZZ2000) and the exchange dummies."""
+def pm_daily(root: Path, d: str, sids: list[int], rule: str = "before", pick: str | None = None) -> pl.DataFrame | None:
+    """PM's own morning inputs for day d (/tmp/s/stsfile): stats/sod msr / mb / vr, index weights (SH50 HS300 A500 ZZ500
+    ZZ1000 ZZ2000) and the exchange dummies. Which file: ``pick`` (a day, e.g. the one 224's log shows it loaded) -> the latest
+    on or before it; else rule ``before`` = the latest before d, ``on`` = the latest on or before d."""
     import xarray as xr
 
     def latest(sub: str, prefix: str = "") -> Path | None:
-        fs = sorted(p for p in (root / sub).glob(f"{prefix}2*.xr") if p.stem.removeprefix(prefix) < d)
+        lim = pick or d
+        ok = (lambda x: x <= lim) if (pick or rule == "on") else (lambda x: x < lim)
+        fs = sorted(p for p in (root / sub).glob(f"{prefix}2*.xr") if ok(p.stem.removeprefix(prefix)))
         return fs[-1] if fs else None
 
     out = pl.DataFrame({"sid": sids}, schema={"sid": pl.Int64})
@@ -412,6 +416,7 @@ def pm_daily(root: Path, d: str, sids: list[int]) -> pl.DataFrame | None:
         f = latest(sub, prefix)
         if f is None:
             continue
+        print(f"{d}: stsfile {sub}/{f.name}")
         with xr.open_dataset(f) as ds:
             x = ds["x"].squeeze(drop=True)
             cols = {f"{tag}.{v}": x.sel(V=v).values.astype(float) for v in ds["V"].values}
@@ -767,6 +772,9 @@ def main() -> None:
                                                 "stock at the mark) instead of the forward return; days without a file are skipped")
     ap.add_argument("--pm-stsfile", type=Path, default=Path("/work/crucible_data/pm_stsfile"),
                     help="PM's morning inputs (rsync of 2.23:/data/share/s): msr / mb / vr, index weights, exchange dummies")
+    ap.add_argument("--pm-sts-day", choices=("before", "on"), default="before",
+                    help="stsfile day: the latest before the trading day (before) or on or before it (on)")
+    ap.add_argument("--pm-sts-map", type=Path, help="json {day: stsfile day}: the day 224's PM loaded (sts_days.py), overrides --pm-sts-day")
     ap.add_argument("--target-stale", type=float, default=10.0, help="--target: a signal older than this many seconds at the mark is no value")
     ap.add_argument("--implied", type=int, default=0, help="--target only: invert PM's model for this many open features (by gain)")
     ap.add_argument("--implied-rows", type=int, default=30000, help="rows sampled for --implied")
@@ -799,6 +807,9 @@ def main() -> None:
     args = ap.parse_args()
     global MARKS
     MARKS = mark_grid(args.marks)
+    if args.pm_sts_map:
+        STS_MAP.update({str(k): str(v) for k, v in json.loads(args.pm_sts_map.read_text()).items()})
+        print(f"stsfile days from {args.pm_sts_map}: {STS_MAP}")
     t0 = time.perf_counter()
     args.out.mkdir(parents=True, exist_ok=True)
     lines = [ln.strip() for ln in args.feature_csv.read_text(errors="replace").splitlines() if ln.strip()]
@@ -874,7 +885,7 @@ def main() -> None:
             dbase = {r["sid"]: r for r in dc.select("sid", "adv20", "avgvol20", "freeshare").fill_null(np.nan).iter_rows(named=True)} if dc is not None else {}
             lca_c = [c for c in (dc.columns if dc is not None else []) if c.startswith("lca")]  # multi-day close EMAs over yesterday's close (log)
             danch = {r["sid"]: r for r in dc.select("sid", *lca_c).fill_null(np.nan).iter_rows(named=True)} if lca_c else {}
-            pmd = pm_daily(args.pm_stsfile, d, sids) if args.pm_stsfile.exists() else None
+            pmd = pm_daily(args.pm_stsfile, d, sids, args.pm_sts_day, STS_MAP.get(d)) if args.pm_stsfile.exists() else None
             pmsm = {}
             if pmd is not None:  # PM's daily inputs join the CED table as ced.pm.* / ced.pmw.* / ced.pmx.*
                 dc = pmd if dc is None else dc.join(pmd.with_columns(pl.col("sid").cast(dc.schema["sid"])), on="sid", how="left")
