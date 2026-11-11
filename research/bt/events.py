@@ -69,7 +69,7 @@ OUT = DATA / "store" / ("bt_events" if SOURCE == "feitu" else f"bt_events_{SOURC
 SSE, SZSE = 3553, 3554
 BUY, SELL = 1063, 1550
 #: bump when the encoding changes: cached event files with another version are rebuilt
-EVENTS_VERSION = 2
+EVENTS_VERSION = 3
 #: cancel latency at or below which a cancel counts as the exchange's automatic one (prototype
 #: default for capnp dumps; its TDF config uses 1 ms because TDF stamps milliseconds)
 AUTO_CANCEL_MS = 100
@@ -194,12 +194,20 @@ def build(date: str, universe: pl.DataFrame) -> tuple[pl.DataFrame, pl.DataFrame
     limits = (
         pl.scan_parquet(RAW / "kind=quotation" / f"date={date}" / "part-*.parquet")
         .join(keys.lazy(), on=["symbol_id", "market_id"], how="semi")
-        .filter(pl.col("high_limited") > 0)
+        .filter((pl.col("high_limited") > 0) | (pl.col("pre_close") > 0))
         .group_by("symbol_id", "market_id")
-        .agg(_tick("high_limited").max().alias("up_tick"), _tick("low_limited").min().alias("dn_tick"),
+        .agg(_tick("high_limited").filter(pl.col("high_limited") > 0).max().alias("up_lim"),
+             _tick("low_limited").filter(pl.col("high_limited") > 0).min().alias("dn_lim"),
              _tick("pre_close").max().alias("pre_close_tick"))
         .collect(engine="streaming")
     )
+    # a day whose snapshots carry no price limits (feitu 20260430: 189 of 299 HS300 stocks) gets pre_close +-30 %, wider
+    # than any board's band: the book only needs a tick range that holds every real order
+    limits = limits.with_columns(
+        pl.coalesce("up_lim", (pl.col("pre_close_tick") * 1.3).ceil().cast(pl.Int64)).alias("up_tick"),
+        pl.coalesce("dn_lim", (pl.col("pre_close_tick") * 0.7).floor().cast(pl.Int64)).alias("dn_tick"),
+        pl.col("up_lim").is_null().alias("band_from_pre_close"),
+    ).drop("up_lim", "dn_lim").filter(pl.col("up_tick") > 0)
     return ev, limits
 
 

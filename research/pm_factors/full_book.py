@@ -214,7 +214,9 @@ def build_day(d: str, out: Path, marks: np.ndarray, sids: list[int]) -> str:
     df.write_parquet(out / f"date={d}.parquet")
     n = len(rows) * marks.size
     fin = df.select(pl.exclude("sid", "mark").is_not_null().mean()).row(0)
-    return (f"{d}: {len(rows)} stocks x {marks.size} marks, {len(df.columns) - 2} factors; marks with a crossed book {crossed / n:.4f}, "
+    nb = int(lim["band_from_pre_close"].sum()) if "band_from_pre_close" in lim.columns else 0
+    return (f"{d}: {len(rows)} stocks x {marks.size} marks ({nb} with no price limits in the snapshots: pre_close +-30 %), "
+            f"{len(df.columns) - 2} factors; marks with a crossed book {crossed / n:.4f}, "
             f"with an empty side {empty / n:.4f}; unresolved cancels {bad[E.S_UNRESOLVED_CANCEL]:,}, unresolved passive fills "
             f"{bad[E.S_UNRESOLVED_PASSIVE]:,}, out-of-band adds {bad[E.S_OUT_OF_BAND]:,}; finite share min {min(fin):.3f} "
             f"({time.time() - t0:.0f}s) -> {out / f'date={d}.parquet'}")
