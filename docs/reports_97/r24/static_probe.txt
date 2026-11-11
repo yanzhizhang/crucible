@@ -1,0 +1,118 @@
+[23:12:04] 1 code / count / categorical columns in the tk5m models
+fingerprint columns: ['feature', 'family', 'lo', 'hi', 'gain_share', 'n_thr', 'distinct', 't_p10', 't_med', 't_p90', 'half_int', 'at_zero', 'q_p10', 'q_med', 'q_p90', 'bins', 'kind']
+shape: (6, 9)
+feature kind lo hi ... half_int at_zero gain_share r17   [str str f64 f64 ... f64 f64 f64 str; one column hidden by polars as "..."]
+zzgh2.b count 0.0000 35547.0000 ... 0.9772 0.0140 0.0240 rank:gen.rete150
+zzgh.b count 0.0000 23699.0000 ... 0.9890 0.0046 0.0225 -
+zzqo.c count -372313.0000 614543.0000 ... 0.9344 0.0030 0.0048 z:-gen.lpek50
+zzaa.b count -370776.0000 275270.0000 ... 0.9234 0.0042 0.0034 -
+zzqo.a count -3858.0000 3599.0000 ... 0.9787 0.0192 0.0024 cal:dm:-gen.ofi_levels2to5_norm_60s
+zzxc.a count -9932.0000 8430.0000 ... 0.9596 0.0311 0.0013 -
+[23:12:05] 2 non-model files under /data/prod/models/tk5m
+/data/prod/models/tk5m
+/data/prod/models/tk5m/202601.updated
+/data/prod/models/tk5m/202601.updated/lgb
+/data/prod/models/tk5m/202601.updated/lgb/livev1_fit1
+/data/prod/models/tk5m/202601.updated/lgb/livev1_fit3
+/data/prod/models/tk5m/202601.updated/lgb/livev1_fit2
+/data/prod/models/tk5m/202509
+/data/prod/models/tk5m/202509/lgb
+/data/prod/models/tk5m/202509/lgb/livev1_fit1
+/data/prod/models/tk5m/202509/lgb/livev1_fit3
+/data/prod/models/tk5m/202509/lgb/livev1_fit2
+/data/prod/models/tk5m/202609
+/data/prod/models/tk5m/202609/lgb
+/data/prod/models/tk5m/202609/lgb/livev1_fit1
+/data/prod/models/tk5m/202609/lgb/livev1_fit2
+/data/prod/models/tk5m/202609/lgb/livev1_fit3
+[23:12:05] 3 sample of 2.23:/data/share/s
+total 56
+drwx--x--x  6 root root  4096 2026-10-26 15:12:12.649231454 +0800 .
+drwxr-xr-x 11 root root  4096 2026-11-09 17:09:22.802206462 +0800 ..
+drwxr-xr-x  2 root root 36864 2026-11-11 08:46:01.454198763 +0800 ex
+drwxr-xr-x  2 root root  4096 2026-11-11 08:46:01.454198763 +0800 index
+drwxr-xr-x  2 root root  4096 2026-11-11 08:46:01.453198753 +0800 sid2symbol
+drwxr-xr-x  3 root root  4096 2026-10-26 14:59:59.521489719 +0800 stats
+
+== ex
+total 5940
+drwxr-xr-x 2 root root  36864 Nov 11 08:46 .
+drwx--x--x 6 root root   4096 Oct 26 15:12 ..
+-rw-r--r-- 1 root root 239244 Oct 16 14:42 ex-20261008.xr
+-rw-r--r-- 1 root root 239244 Oct 16 14:42 ex-20261009.xr
+-rw-r--r-- 1 root root 239244 Oct 16 14:42 ex-20261012.xr
+-rw-r--r-- 1 root root 239244 Oct 16 14:42 ex-20261013.xr
+-rw-r--r-- 1 root root 239244 Oct 16 14:42 ex-20261014.xr
+-rw-r--r-- 1 root root 239244 Oct 16 14:42 ex-20261015.xr
+-rw-r--r-- 1 root root 239244 Oct 16 08:45 ex-20261016.xr
+-rw-r--r-- 1 root root 239244 Oct 19 08:45 ex-20261019.xr
+-rw-r--r-- 1 root root 239244 Oct 20 08:45 ex-20261020.xr
+-rw-r--r-- 1 root root 239244 Oct 21 08:45 ex-20261021.xr
+-rw-r--r-- 1 root root 239244 Oct 22 08:45 ex-20261022.xr
+-rw-r--r-- 1 root root 239244 Oct 23 08:45 ex-20261023.xr
+== ex/ex-20261111.xr
+ex/ex-20261111.xr: Hierarchical Data Format (version 5) data
+0000000 211   H   D   F  \r  \n 032  \n 002  \b  \b  \0  \0  \0  \0  \0
+0000016  \0  \0  \0  \0 377 377 377 377 377 377 377 377   | 246 003  \0
+0000032  \0  \0  \0  \0   0  \0  \0  \0  \0  \0  \0  \0   E 331   { 342
+0000048   O   H   D   R 002  \f 264 002   "  \0  \0  \0  \0  \0 003  \t
+0000064  \0  \0  \0  \0  \0  \0  \0 377 377 377 377 377 377 377 377 377
+0000080 377 377 377 377 377 377 377 377 377 377 377 377 377 377 377  \n
+0000096 002  \0 001  \0  \0  \0  \0 020 020  \0  \0  \0  \0   M 032  \0
+0000112  \0  \0  \0  \0  \0 233  \0  \0  \0  \0  \0  \0  \0 006 024  \0
+
+== index
+total 7316
+drwxr-xr-x 2 root root   4096 Nov 11 08:46 .
+drwx--x--x 6 root root   4096 Oct 26 15:12 ..
+-rw-r--r-- 1 root root 295465 Oct 16 14:42 index-20261008.xr
+-rw-r--r-- 1 root root 298923 Oct 16 14:42 index-20261009.xr
+-rw-r--r-- 1 root root 298826 Oct 16 14:42 index-20261012.xr
+-rw-r--r-- 1 root root 298936 Oct 16 14:42 index-20261013.xr
+-rw-r--r-- 1 root root 298992 Oct 16 14:42 index-20261014.xr
+-rw-r--r-- 1 root root 299063 Oct 16 14:42 index-20261015.xr
+-rw-r--r-- 1 root root 298919 Oct 16 08:45 index-20261016.xr
+-rw-r--r-- 1 root root 298962 Oct 19 08:45 index-20261019.xr
+-rw-r--r-- 1 root root 298937 Oct 20 08:45 index-20261020.xr
+-rw-r--r-- 1 root root 298879 Oct 21 08:45 index-20261021.xr
+-rw-r--r-- 1 root root 298985 Oct 22 08:45 index-20261022.xr
+-rw-r--r-- 1 root root 298877 Oct 23 08:45 index-20261023.xr
+== index/index-20261111.xr
+index/index-20261111.xr: Hierarchical Data Format (version 5) data
+0000000 211   H   D   F  \r  \n 032  \n 002  \b  \b  \0  \0  \0  \0  \0
+0000016  \0  \0  \0  \0 377 377 377 377 377 377 377 377 332 217 004  \0
+0000032  \0  \0  \0  \0   0  \0  \0  \0  \0  \0  \0  \0 373   #   f   |
+0000048   O   H   D   R 002  \f 264 002   "  \0  \0  \0  \0  \0 003  \t
+0000064  \0  \0  \0  \0  \0  \0  \0 377 377 377 377 377 377 377 377 377
+0000080 377 377 377 377 377 377 377 377 377 377 377 377 377 377 377  \n
+0000096 002  \0 001  \0  \0  \0  \0 020 020  \0  \0  \0  \0   M 032  \0
+0000112  \0  \0  \0  \0  \0 233  \0  \0  \0  \0  \0  \0  \0 006 024  \0
+
+== sid2symbol
+total 1256
+drwxr-xr-x 2 root root  4096 Nov 11 08:46 .
+drwx--x--x 6 root root  4096 Oct 26 15:12 ..
+-rw-r--r-- 1 root root 96815 Oct 26 08:45 20261026.json
+-rw-r--r-- 1 root root 96815 Oct 27 08:45 20261027.json
+-rw-r--r-- 1 root root 96815 Oct 28 08:45 20261028.json
+-rw-r--r-- 1 root root 96815 Oct 29 08:45 20261029.json
+-rw-r--r-- 1 root root 96815 Oct 30 08:45 20261030.json
+-rw-r--r-- 1 root root 96833 Nov  2 08:45 20261102.json
+-rw-r--r-- 1 root root 96833 Nov  3 08:45 20261103.json
+-rw-r--r-- 1 root root 96833 Nov  4 08:45 20261104.json
+-rw-r--r-- 1 root root 96833 Nov  5 09:18 20261105.json
+-rw-r--r-- 1 root root 96833 Nov  6 08:45 20261106.json
+-rw-r--r-- 1 root root 96833 Nov  9 08:45 20261109.json
+-rw-r--r-- 1 root root 96833 Nov 10 08:45 20261110.json
+== sid2symbol/20261111.json
+sid2symbol/20261111.json: JSON data
+{"1": "000001", "10": "000010", "100": "000100", "11": "000011", "12": "000012", "1201": "001201", "1203": "001203", "1205": "001205", "1206": "001206", "1207": "001207", "1208": "001208", "1212": "001212", "1213": "001213", "1215": "001215
+[23:12:05] 4 open columns by where their inputs live (state / hstats / neither)
+  r17:
+20261106.jz: 300 stocks; 81 stems with an unassigned column, 10 of them with state keys -> data/reports/state_keys_r17.csv
+open columns by where their inputs can live (16 hstats families):
+  hstats     12 columns, gain 0.0345, families 5: zzwa, zzal, zzts, zzxc, zzqo
+  neither    85 columns, gain 0.3107, families 66: zzro2, zzel, zzbt, zzsf, zzop, zzzl2, zzrg, zzeg2, zzef2, zzpe, zzja, zzsa2, zzsa, zzag, zzzs, zzag2, zzaa, zzzl, zzbs2, zzpp, zzbo, zzvm2, zzhx, zzfq, zzuc, zzhk, zzpz, zzyj3, zzqf6, zzbt2
+  state      10 columns, gain 0.1002, families 10: zzgh, zzeg, zzba, zzpk, zzab2, zzmh, zzcb, zzxo, zzvm, zzvx
+  r24: no data/reports/stage6_r24/ic_assign.json
+[23:12:07] done

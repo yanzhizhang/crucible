@@ -1,0 +1,106 @@
+20261106.jz: 300 stocks; 81 stems with an unassigned column, 10 of them with state keys -> data/reports/state_keys_r17.csv
+
+zzgh (open gain 0.0225, 1 keys). Columns: zzgh.b
+    zzgh.nb                 stocks 1.00  p10/50/90 -0.115119 / 0.0131859 / 0.158272  zero 0.00  distinct 300
+
+zzeg (open gain 0.0135, 6 keys). Columns: zzeg
+    zzeg.c.high             stocks 1.00  p10/50/90 5.363 / 24.915 / 107.684  zero 0.00  distinct 289
+    zzeg.c.low              stocks 1.00  p10/50/90 5.115 / 22.365 / 97.64  zero 0.00  distinct 294
+    zzeg.c.rEma.sum         stocks 1.00  p10/50/90 542.864 / 2309.48 / 9782.5  zero 0.00  distinct 300
+    zzeg.c.rEma.t           stocks 1.00  p10/50/90 14503.2 / 14530.7 / 14546.2  zero 0.00  distinct 258
+    zzeg.c.rEma.wgt         stocks 1.00  p10/50/90 84.4788 / 107.656 / 112.713  zero 0.00  distinct 300
+    zzeg.c.span             stocks 1.00  p10/50/90 5.257 / 23.565 / 101.774  zero 0.00  distinct 299
+
+zzba (open gain 0.0128, 6 keys). Columns: zzba
+    zzba.p.sum              stocks 1.00  p10/50/90 7069.63 / 34740.4 / 198783  zero 0.00  distinct 300
+    zzba.p.t                stocks 1.00  p10/50/90 14503.2 / 14530.7 / 14546.2  zero 0.00  distinct 258
+    zzba.p.wgt              stocks 1.00  p10/50/90 716.29 / 1592.45 / 3986.3  zero 0.00  distinct 300
+    zzba.r.sum              stocks 1.00  p10/50/90 138.757 / 1077.96 / 10261.3  zero 0.00  distinct 300
+    zzba.r.t                stocks 1.00  p10/50/90 14503.2 / 14530.7 / 14546.2  zero 0.00  distinct 258
+    zzba.r.wgt              stocks 1.00  p10/50/90 716.29 / 1592.45 / 3986.3  zero 0.00  distinct 300
+
+zzpk (open gain 0.0092, 6 keys). Columns: zzpk
+    zzpk.high               stocks 1.00  p10/50/90 5.332 / 24.205 / 107.461  zero 0.00  distinct 292
+    zzpk.low                stocks 1.00  p10/50/90 5.17 / 23.305 / 102.261  zero 0.00  distinct 292
+    zzpk.open               stocks 1.00  p10/50/90 5.19 / 23.45 / 105.02  zero 0.00  distinct 289
+    zzpk.p.sum              stocks 1.00  p10/50/90 552.33 / 2318.5 / 9847.19  zero 0.00  distinct 300
+    zzpk.p.t                stocks 1.00  p10/50/90 14503.2 / 14530.7 / 14546.2  zero 0.00  distinct 258
+    zzpk.p.wgt              stocks 1.00  p10/50/90 84.4788 / 107.656 / 112.713  zero 0.00  distinct 300
+
+zzab2 (open gain 0.0088, 3 keys). Columns: zzab2
+    zzab2.r.sum             stocks 1.00  p10/50/90 552.33 / 2318.5 / 9847.19  zero 0.00  distinct 300
+    zzab2.r.t               stocks 1.00  p10/50/90 14503.2 / 14530.7 / 14546.2  zero 0.00  distinct 258
+    zzab2.r.wgt             stocks 1.00  p10/50/90 84.4788 / 107.656 / 112.713  zero 0.00  distinct 300
+
+zzmh (open gain 0.0075, 4 keys). Columns: zzmh
+    zzmh.hm                 stocks 1.00  p10/50/90 5.332 / 24.2 / 107.218  zero 0.00  distinct 295
+    zzmh.r.sum              stocks 1.00  p10/50/90 3.7974e-05 / 0.000682414 / 0.0044122  zero 0.00  distinct 300
+    zzmh.r.t                stocks 1.00  p10/50/90 14503.2 / 14530.7 / 14546.2  zero 0.00  distinct 258
+    zzmh.r.wgt              stocks 1.00  p10/50/90 1.00195 / 1.1431 / 1.14387  zero 0.00  distinct 299
+
+zzcb (open gain 0.0072, 3 keys). Columns: zzcb
+    zzcb.r.sum              stocks 1.00  p10/50/90 1.97863 / 11.1124 / 248.536  zero 0.00  distinct 300
+    zzcb.r.t                stocks 1.00  p10/50/90 14503.2 / 14530.7 / 14546.2  zero 0.00  distinct 258
+    zzcb.r.wgt              stocks 1.00  p10/50/90 1.46198 / 2.47361 / 2.79636  zero 0.00  distinct 300
+
+zzxo (open gain 0.0070, 31 keys). Columns: zzxo
+    zzxo.last               stocks 1.00  p10/50/90 5.298 / 23.82 / 105.039  zero 0.00  distinct 290
+    zzxo.r.0                stocks 1.00  p10/50/90 5.297 / 23.79 / 104.852  zero 0.00  distinct 291
+    zzxo.r.1                stocks 1.00  p10/50/90 5.297 / 23.79 / 104.863  zero 0.00  distinct 292
+    zzxo.r.10               stocks 1.00  p10/50/90 5.297 / 23.805 / 104.927  zero 0.00  distinct 287
+    zzxo.r.11               stocks 1.00  p10/50/90 5.297 / 23.8 / 104.945  zero 0.00  distinct 292
+    zzxo.r.12               stocks 1.00  p10/50/90 5.297 / 23.805 / 104.939  zero 0.00  distinct 289
+    zzxo.r.13               stocks 1.00  p10/50/90 5.298 / 23.81 / 105.053  zero 0.00  distinct 291
+    zzxo.r.14               stocks 1.00  p10/50/90 5.298 / 23.805 / 105.035  zero 0.00  distinct 290
+    zzxo.r.15               stocks 1.00  p10/50/90 5.297 / 23.81 / 105.094  zero 0.00  distinct 290
+    zzxo.r.16               stocks 1.00  p10/50/90 5.289 / 23.8 / 105.114  zero 0.00  distinct 292
+    zzxo.r.17               stocks 1.00  p10/50/90 5.288 / 23.81 / 105.168  zero 0.00  distinct 291
+    zzxo.r.18               stocks 1.00  p10/50/90 5.288 / 23.82 / 105.047  zero 0.00  distinct 294
+    zzxo.r.19               stocks 1.00  p10/50/90 5.288 / 23.81 / 105.055  zero 0.00  distinct 294
+    zzxo.r.2                stocks 1.00  p10/50/90 5.298 / 23.785 / 104.762  zero 0.00  distinct 291
+    zzxo.r.20               stocks 1.00  p10/50/90 5.289 / 23.805 / 105.088  zero 0.00  distinct 293
+    zzxo.r.21               stocks 1.00  p10/50/90 5.289 / 23.805 / 105.1  zero 0.00  distinct 293
+    zzxo.r.22               stocks 1.00  p10/50/90 5.297 / 23.82 / 105.079  zero 0.00  distinct 292
+    zzxo.r.23               stocks 1.00  p10/50/90 5.297 / 23.815 / 105.059  zero 0.00  distinct 293
+    zzxo.r.24               stocks 1.00  p10/50/90 5.289 / 23.805 / 105.024  zero 0.00  distinct 294
+    zzxo.r.25               stocks 1.00  p10/50/90 5.288 / 23.81 / 105.123  zero 0.00  distinct 289
+    zzxo.r.26               stocks 1.00  p10/50/90 5.289 / 23.815 / 105.08  zero 0.00  distinct 292
+    zzxo.r.27               stocks 1.00  p10/50/90 5.288 / 23.81 / 105.024  zero 0.00  distinct 290
+    zzxo.r.28               stocks 1.00  p10/50/90 5.298 / 23.81 / 105.032  zero 0.00  distinct 288
+    zzxo.r.29               stocks 1.00  p10/50/90 5.297 / 23.815 / 105.03  zero 0.00  distinct 289
+    zzxo.r.3                stocks 1.00  p10/50/90 5.288 / 23.79 / 104.717  zero 0.00  distinct 291
+    zzxo.r.4                stocks 1.00  p10/50/90 5.289 / 23.795 / 104.735  zero 0.00  distinct 292
+    zzxo.r.5                stocks 1.00  p10/50/90 5.289 / 23.785 / 104.726  zero 0.00  distinct 293
+    zzxo.r.6                stocks 1.00  p10/50/90 5.297 / 23.78 / 104.804  zero 0.00  distinct 289
+    zzxo.r.7                stocks 1.00  p10/50/90 5.288 / 23.79 / 104.844  zero 0.00  distinct 290
+    zzxo.r.8                stocks 1.00  p10/50/90 5.298 / 23.795 / 104.982  zero 0.00  distinct 288
+    zzxo.r.9                stocks 1.00  p10/50/90 5.298 / 23.795 / 104.945  zero 0.00  distinct 293
+
+zzvm (open gain 0.0066, 5 keys). Columns: zzvm
+    zzvm.c.re.sum           stocks 1.00  p10/50/90 8647.62 / 42095.6 / 255060  zero 0.00  distinct 300
+    zzvm.c.re.t             stocks 1.00  p10/50/90 14401.2 / 14403.5 / 14408.4  zero 0.00  distinct 285
+    zzvm.c.re.wgt           stocks 1.00  p10/50/90 850.626 / 2015.71 / 5064.32  zero 0.00  distinct 300
+    zzvm.c.tpv              stocks 1.00  p10/50/90 2.30889e+08 / 7.47997e+08 / 3.3259e+09  zero 0.00  distinct 300
+    zzvm.c.v                stocks 1.00  p10/50/90 9.87182e+06 / 3.8013e+07 / 1.57446e+08  zero 0.00  integer  distinct 300
+
+zzvx (open gain 0.0051, 20 keys). Columns: zzvx.a
+    zzvx.high               stocks 1.00  p10/50/90 5.332 / 24.205 / 107.461  zero 0.00  distinct 292
+    zzvx.low                stocks 1.00  p10/50/90 5.17 / 23.305 / 102.261  zero 0.00  distinct 292
+    zzvx.rEmaD.sum          stocks 1.00  p10/50/90 1.46198 / 2.47361 / 2.79636  zero 0.00  distinct 300
+    zzvx.rEmaD.t            stocks 1.00  p10/50/90 14503.2 / 14530.7 / 14546.2  zero 0.00  distinct 258
+    zzvx.rEmaD.wgt          stocks 1.00  p10/50/90 1.46198 / 2.47361 / 2.79636  zero 0.00  distinct 300
+    zzvx.rEmaO.sum          stocks 1.00  p10/50/90 1.46198 / 2.47361 / 2.79636  zero 0.00  distinct 300
+    zzvx.rEmaO.t            stocks 1.00  p10/50/90 14503.2 / 14530.7 / 14546.2  zero 0.00  distinct 258
+    zzvx.rEmaO.wgt          stocks 1.00  p10/50/90 1.46198 / 2.47361 / 2.79636  zero 0.00  distinct 300
+    zzvx.trDEmaD.sum        stocks 1.00  p10/50/90 0.24734 / 1.43817 / 9.44789  zero 0.00  distinct 300
+    zzvx.trDEmaD.t          stocks 1.00  p10/50/90 14503.2 / 14530.7 / 14546.2  zero 0.00  distinct 258
+    zzvx.trDEmaD.wgt        stocks 1.00  p10/50/90 1.46198 / 2.47361 / 2.79636  zero 0.00  distinct 300
+    zzvx.trDEmaO.sum        stocks 1.00  p10/50/90 0.24734 / 1.43817 / 9.44789  zero 0.00  distinct 300
+    zzvx.trDEmaO.t          stocks 1.00  p10/50/90 14503.2 / 14530.7 / 14546.2  zero 0.00  distinct 258
+    zzvx.trDEmaO.wgt        stocks 1.00  p10/50/90 1.46198 / 2.47361 / 2.79636  zero 0.00  distinct 300
+    zzvx.trEmaD.sum         stocks 1.00  p10/50/90 0.247341 / 1.43817 / 9.44789  zero 0.00  distinct 300
+    zzvx.trEmaD.t           stocks 1.00  p10/50/90 14503.2 / 14530.7 / 14546.2  zero 0.00  distinct 258
+    zzvx.trEmaD.wgt         stocks 1.00  p10/50/90 1.46198 / 2.47361 / 2.79636  zero 0.00  distinct 300
+    zzvx.trEmaO.sum         stocks 1.00  p10/50/90 0.247341 / 1.43817 / 9.44789  zero 0.00  distinct 300
+    zzvx.trEmaO.t           stocks 1.00  p10/50/90 14503.2 / 14530.7 / 14546.2  zero 0.00  distinct 258
+    zzvx.trEmaO.wgt         stocks 1.00  p10/50/90 1.46198 / 2.47361 / 2.79636  zero 0.00  distinct 300

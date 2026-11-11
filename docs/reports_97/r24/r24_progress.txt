@@ -1,0 +1,15 @@
+# r24.txt on 97 as read from the terminal (partial; full file when R24 finishes)
+[23:12:08] 1 engine state for 1109 / 1110
+-rw-r--r-- 1 root root 13406430 Nov 11 09:29 data/engine/marks_20261109.parquet
+-rw-r--r-- 1 root root 13259707 Nov 11 09:30 data/engine/marks_20261110.parquet
+[23:12:08] 2 calibration A/B on R17: pooled CDF vs each day's own generation
+[23:13:51]   20260430: pooled 0.3105, own generation 0.3107
+[23:15:36]   20261109: pooled 0.5366, own generation 0.5357
+[23:17:21]   20261110: pooled 0.7024, own generation 0.6958
+20260430: model generation 1b13fa3f (202604): training-CDF points for 130 features
+20261109: model generation 55f31009 (202611): training-CDF points for 138 features
+20261110: model generation 55f31009 (202611): training-CDF points for 138 features
+training CDF by generation: 1 generation(s) ['1b13fa3f'], 130 features
+training CDF by generation: 1 generation(s) ['55f31009'], 138 features
+[23:17:21] 3 scan on 1104-1106: the columns open at R17 + the family-lock drops, in class
+  open at R17: 107
