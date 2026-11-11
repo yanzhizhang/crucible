@@ -363,3 +363,4 @@
 - Steps 0-5 relayed; step 6 (25 variants x 3 days) running.
 - ~00:50 user (going to sleep): "check dcp", control granted, run it. Plan: after R25 step 6, paste fake_seed.py 118e40ca, run fake_seed A (true D-1) and B (newest sod link at 09:00), gen_flags; relay; keep looping with crucible within the standing limits.
 - 2.23 jz links: only HS300/sod/p1_intrading_dcp, 47 links, every D -> previous trading day; links often created late (1105 at 11-09 08:45, 1106 at 11-10 21:13, 1109-1111 at 11-11 08:45).
+- Queued tonight (crucible): R27 0287b2e (r27.sh 79b1acd5, r27_pick d13ab887, r27_adds ad7baa5f), R28 6dbca44 (r28.sh 7877215d, engine/export.py 6a878b1a, engine/run_cpp.py a542e01a). Mac md5 verified. Order: R25 step 6 -> fake_seed A/B + gen_flags -> R27 -> R28.
