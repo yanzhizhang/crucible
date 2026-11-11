@@ -326,3 +326,6 @@
 - feitu_raw 0430 order and transaction parts present (SH+SZ, Nov 5).
 - md5 research/r22_alpha.sh on 97 = f5d69e9b... (matches).
 - crucible's 2nd check -> data/reports/r22_chk0430b.txt (28 lines), relayed verbatim. 0430: 299 alpha stocks, high_limited > 0 only 110, pre_close > 0 299; 1104: 298/298/298. Engine marks 0430 and 1104 both 72000 rows, 300 sids, 240 marks. r22_engine tail: 0430 300 stocks, 0 carry seeds exported.
+- crucible found 0430 cause: feitu 0430 snapshots high_limited = 0 for 189/299 stocks; fix 0df5788 (events falls back to pre_close +-30 %, EVENTS_VERSION 3). Pasted r22b_alpha.sh (new), bt/events.py, full_book.py to 97; md5 + lines + ast match. Backups /tmp/*.bak_r22b.
+- grep: r22_0430_r17 engine state for 300; r22_0430_r21 build read from cache, engine state for 0 -> relayed.
+- 08:26:41 R22b started (tee data/reports/r22b.txt).
