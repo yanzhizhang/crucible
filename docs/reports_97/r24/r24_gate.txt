@@ -1,0 +1,93 @@
+# r24.txt lines 265-358 on 97 (gate step), transcribed from screen; table borders dropped
+265:[23:30:41] 4 gate on 1109 against R17, in class only
+266:families with more than one quantity class: 0 of 51
+267:== gate against data/reports/stage6_r17/ic_assign.json: 82 of 117 changes kept (t >= 1.0)
+268:gated: 98 columns -> data/reports/stage6_r24_gate/ic_assign_gated.json
+269:== gate against data/reports/stage6_r17/ic_assign.json: 82 of 117 changes kept (t >= 1.0)
+270:shape: (117, 6)
+feature | old | new | gain | t | kept_new     [str str str f64 f64 bool]
+# printed rows: 83 (lines 276-358); no "..." row visible, so 34 of the 117 rows are not in the print
+zzal.f | crank:-gen.rete240 | gen.imbv1800 | NaN | NaN | true
+zzal.g | cal:crank:gen.lpek50 | null | NaN | NaN | true
+zzal.h | z:gen.lpe200 | -gen.cum_imb | NaN | NaN | true
+zzeu2 | srank:-gen.rete75 | null | NaN | NaN | true
+zzfb.b | rank:gen.lpma1800 | null | NaN | NaN | true
+zzho2 | -gen.position_in_limit_band | null | NaN | NaN | true
+zzop.a | |gen.ldl1800|*1e4 | |gen.order_price_aggressiveness_mean_60s|*1e4 | NaN | NaN | true
+zzop2.b | gen.trading_seconds_since_0930 | null | NaN | NaN | true
+zzpe.c | cal:z:gen.rete200 | z:-gen.imb1 | NaN | NaN | true
+zzpe.d | ced.stats.HBeta | null | NaN | NaN | true
+zzpp2.e | gen.microprice_minus_mid_rel*1e4 | null | NaN | NaN | true
+zzqf.q.c1 | -gen.bid_depth_weighted_distance_5lvl_rel | |gen.lpe120| | NaN | NaN | true
+zzqf.q.c2 | -gen.return_open_to_1000_log | dm:gen.lppe900 | NaN | NaN | true
+zzqf10.c3 | -gen.return_open_to_1000_log | null | NaN | NaN | true
+zzqf2.q.c1 | -gen.net_buy_amount_share_orders_under_40k_cny_300s | null | NaN | NaN | true
+zzqf4.q.c1 | -gen.net_buy_amount_share_orders_under_40k_cny_since_0930 | dm:gen.rpe1200 | NaN | NaN | true
+zzqf5.q.c1 | -gen.bid_depth_weighted_distance_5lvl_rel | null | NaN | NaN | true
+zzqf5.q.c2 | -gen.flow_lambda900 | gen.lpes3600 | NaN | NaN | true
+zzqf5.q.c4 | -gen.return_open_to_1000_log | dm:gen.lpes3600 | NaN | NaN | true
+zzqf6.q.a | |gen.rv900| | |gen.lpew3600| | NaN | NaN | true
+zzqf7.q.b | -gen.imb1 | srank:-gen.lpe14400 | NaN | NaN | true
+zzqf7.q.c1 | -gen.net_buy_amount_share_orders_under_40k_cny_since_0930 | -gen.lpew3600 | NaN | NaN | true
+zzqf7.q.c2 | gen.log_distance_to_up_limit | null | NaN | NaN | true
+zzqf8.q.c1 | gen.overnight_gap_log | null | NaN | NaN | true
+zzqf9.a | |gen.ipc_hs300| | null | NaN | NaN | true
+zzqf9.c1 | |gen.flow_lambda300| | cal:dm:gen.lpes1200 | NaN | NaN | true
+zzqo.a | cal:dm:-gen.ofi_levels2to5_norm_60s | cal:z:-gen.simbn20 | NaN | NaN | true
+zzqo.c | z:-gen.lpek50 | null | NaN | NaN | true
+zzqo.e | cal:gen.ofi_levels1to10_norm_60s*1e4 | null | NaN | NaN | true
+zzri2.a | |gen.overnight_gap_log| | null | NaN | NaN | true
+zzri2.f | -gen.flow_small_imb60 | cal:srank:-gen.net_buy_amount_share_orders_under_40k_cny_120s | NaN | NaN | true
+zzro.a | -gen.lpes7200 | |gen.ret1800| | NaN | NaN | true
+zzro2.b | dm:gen.lpma120 | null | NaN | NaN | true
+zzsa.a | cal:|gen.lpd1| | null | NaN | NaN | true
+zzwa.a | |gen.zr60| | null | NaN | NaN | true
+zzwa.d | rank:gen.lpma60 | null | NaN | NaN | true
+zzwa.f | gen.microprice_minus_mid_rel | cal:-gen.lpe5 | NaN | NaN | true
+zzwa.g | -gen.rete10 | cal:-gen.lmie5 | NaN | NaN | true
+zzwa.h | ced.ret4 | rank:gen.lpe40 | NaN | NaN | true
+zzwj.b | -gen.log_distance_to_down_limit | null | NaN | NaN | true
+zzwj.c | gen.flow_big_imb300 | dm:gen.flow_refill_imb300 | NaN | NaN | true
+zzwj.d | gen.flow_big_imb60 | crank:gen.flow_refill_imb60 | NaN | NaN | true
+zzxu.b | (px - zzxu.a) / zzxu.last | null | NaN | NaN | true
+zzyg2.0.b | z:gen.imb1 | null | NaN | NaN | true
+zzzl2.d | crank:-gen.rete120 | -gen.lpes900 | NaN | NaN | true
+zzzl2.e | gen.microprice_minus_mid_rel | null | NaN | NaN | true
+zzzl2.f | cal:dm:-gen.lpd1 | null | NaN | NaN | true
+zzzl2.g | gen.overnight_gap_log | null | NaN | NaN | true
+zzpe.e | null | cal:z:-gen.imb1 | 0.0147 | 22.4019 | true
+zzbo.c | null | z:-gen.imb1 | 0.0071 | 18.3083 | true
+zzqo.d | null | cal:gen.imba300 | 0.0034 | 16.1114 | true
+zzmo | null | cal:dm:gen.imb1 | 0.0010 | 15.7482 | true
+zzav | null | gen.lee300_600*1e4 | 0.0021 | 14.4197 | true
+zzie4.c | null | dm:-gen.simbv120 | 0.0007 | 13.6928 | true
+zzro2.a | null | dm:-gen.ret45 | 0.0125 | 12.6818 | true
+zzie2.c | null | -gen.imba60 | 0.0007 | 11.8002 | true
+zzrb | null | -gen.zr60 | 0.0014 | 11.7201 | true
+zzag2.f | null | cal:|gen.flow_ord_imb60|*1e4 | 0.0061 | 11.2661 | true
+zzfq.b | null | gen.simbn45 | 0.0030 | 11.2587 | true
+zzie.c | null | -gen.simbv180 | 0.0005 | 11.0106 | true
+zzyj.c | null | cal:dm:-gen.full_book_amount_imbalance | 0.0010 | 10.7519 | true
+zzyj5.b | null | rank:gen.full_book_amount_imbalance | 0.0002 | 10.7033 | true
+zzvx.a | null | cal:(zzvx.high - zzvx.rEmaD) / px | 0.0045 | 10.1365 | true
+zzhi2.b | gen.log_channel_sequence_advance_per_s_900s | null | 0.0033 | 9.5990 | true
+zzaa.a | null | cal:-gen.nam15 | 0.0045 | 9.5751 | true
+zzxc.d | null | gen.lpek10 | 0.0023 | 9.4148 | true
+zzxc.a | null | cal:srank:gen.lpek50 | 0.0013 | 8.5814 | true
+zzhi2.l | -gen.marketable_order_amount_share_60s | null | 0.0004 | 7.2545 | true
+zzhi2.h | -gen.marketable_order_net_amount_share_60s | null | 0.0016 | 6.8811 | true
+zzhi.b | |gen.log_channel_sequence_advance_per_s_60s| | null | 0.0028 | 6.6641 | true
+zzhi.h | -gen.flow_ord_imb300 | null | 0.0006 | 6.3851 | true
+zzko | null | gen.lmie10*1e4 | 0.0008 | 5.5225 | true
+zzwf | null | z:-gen.rete150 | 0.0007 | 5.4770 | true
+zzqf8.q.c2 | gen.lpes3600 | null | 0.0003 | 5.1905 | true
+zzqf.q.c3 | null | |gen.lpe900| | 0.0002 | 4.3759 | true
+zzuc.f | null | cal:gen.lpd5 | 0.0006 | 3.4869 | true
+zzbs2.b | null | dm:gen.lpd1 | 0.0006 | 3.3902 | true
+zzyj4.a | null | srank:-gen.full_book_amount_imbalance | 0.0000 | 2.2016 | true
+zzxt3 | null | cal:-ced.lr.amt300.ZZTS.q@0 | 0.0000 | 1.9682 | true
+zzyj4.c | null | gen.full_book_amount_imbalance | 0.0000 | 1.8173 | true
+zzxt2 | null | srank:ced.lr.vol300.ZZXC.q@0 | 0.0000 | 1.6797 | true
+zzal.c | null | dm:-gen.imbn300 | 0.0001 | 1.3280 | true
+zzuc.c | null | cal:gen.ldl60*1e4 (read as "1d160" on screen; likely ldl60) | 0.0001 | 0.7288 | false
+359:[23:31:44] 5 held out: R17 / R24 / R24 gated on 1110 and 0430 (own-generation CDF)
