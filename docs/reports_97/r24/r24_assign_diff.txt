@@ -1,0 +1,43 @@
+# assign_diff.py (e8c7536) on 97, 2026-11-11 23:53; extract (full files: data/reports/r24_assign_diff.txt 122 lines, r24_assign_diff_r17_r24.txt 121 lines)
+files: stage6_r17 (102)  stage6_r24 (116)  stage6_r24_gate (98)
+118 of 157 columns differ; '-' = not assigned
+-- rows where R17 has a formula and the gated file lacks one (r17 | r24 | gated); all 32 are also '-' in r24
+zzal.g      cal:crank:gen.lpek50 | - | -
+zzeu2       srank:-gen.rete75 | - | -
+zzfb.b      rank:gen.lpma1800 | - | -
+zzhi.b      |gen.log_channel_sequence_advance_per_s_60s| | - | -
+zzhi.h      -gen.flow_ord_imb300 | - | -
+zzhi2.b     gen.log_channel_sequence_advance_per_s_900s | - | -
+zzhi2.h     -gen.marketable_order_net_amount_share_60s | - | -
+zzhi2.l     -gen.marketable_order_amount_share_60s | - | -
+zzho2       -gen.position_in_limit_band | - | -
+zzop2.b     gen.trading_seconds_since_0930 | - | -
+zzpe.d      ced.stats.HBeta | - | -
+zzpp2.e     gen.microprice_minus_mid_rel*1e4 | - | -
+zzqf10.c3   -gen.return_open_to_1000_log | - | -
+zzqf2.q.c1  -gen.net_buy_amount_share_orders_under_40k_cny_300s | - | -
+zzqf5.q.c1  -gen.bid_depth_weighted_distance_5lvl_rel | - | -
+zzqf7.q.c2  gen.log_distance_to_up_limit | - | -
+zzqf8.q.c1  gen.overnight_gap_log | - | -
+zzqf8.q.c2  gen.lpes3600 | - | -
+zzqf9.a     |gen.ipc_hs300| | - | -
+zzqo.c      z:-gen.lpek50 | - | -
+zzqo.e      cal:gen.ofi_levels1to10_norm_60s*1e4 | - | -
+zzri2.a     |gen.overnight_gap_log| | - | -
+zzro2.b     dm:gen.lpma120 | - | -
+zzsa.a      cal:|gen.lpd1| | - | -
+zzwa.a      |gen.zr60| | - | -
+zzwa.d      rank:gen.lpma60 | - | -
+zzwj.b      -gen.log_distance_to_down_limit | - | -
+zzxu.b      (px - zzxu.a) / zzxu.last | - | -
+zzyg2.0.b   z:gen.imb1 | - | -
+zzzl2.e     gen.microprice_minus_mid_rel | - | -
+zzzl2.f     cal:dm:-gen.lpd1 | - | -
+zzzl2.g     gen.overnight_gap_log | - | -
+-- last 2 lines:
+stage6_r24 vs stage6_r17: 55 newly assigned, 41 dropped: zzyg2.0.b zzfb.b zzpe.d zzwa.d zzqf2.q.c1 zzht zzro2.b zzeu2 zzfe zzjx3.b zzzl2.g zzzl2.e zzzl2.f zzgh2.b zzop2.b zzqf9.a zzri2.a zzhi2.c zzhi2.i zzho2 zzhi2.b zzhi2.e zzqf10.c3 zzhi2.f zzhi2.h zzqf7.q.c2 zzhi2.l zzhi.h zzqf5.q.c1 zzqf8.q.c2 zzwj.b zzhi.b zzqf8.q.c1 zzxu.b zzqo.c zzpp2.e zzsa.a zzal.g zzbt2.a zzqo.e zzwa.a
+stage6_r24_gate vs stage6_r17: 28 newly assigned, 32 dropped: zzyg2.0.b zzfb.b zzpe.d zzwa.d zzqf2.q.c1 zzro2.b zzeu2 zzzl2.g zzzl2.e zzzl2.f zzop2.b zzqf9.a zzri2.a zzho2 zzhi2.b zzqf10.c3 zzhi2.h zzqf7.q.c2 zzhi2.l zzhi.h zzqf5.q.c1 zzqf8.q.c2 zzwj.b zzhi.b zzqf8.q.c1 zzxu.b zzqo.c zzpp2.e zzsa.a zzal.g zzqo.e zzwa.a
+== r17 vs r24 only:
+files: stage6_r17 (102)  stage6_r24 (116)
+118 of 157 columns differ; '-' = not assigned
+stage6_r24 vs stage6_r17: [same 55 newly / 41 dropped line as above]
