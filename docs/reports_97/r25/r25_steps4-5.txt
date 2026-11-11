@@ -1,0 +1,58 @@
+# r25.txt steps 4-5 (from /tmp/r25s4.txt extract on 97), transcribed from screen
+[00:23:15] 4 R17 on 1110 / 1111 with --dump-pred; residual breakdown; fake seed
+  20261110 R17 0.6958
+data/reports/stage6_r25_ic_20261110/pred.parquet: 56,678 rows, 1 days, 195 marks; overall IC 0.6958
+== per-mark IC by half hour (0 = 09:30-10:00, 120 = 13:00-13:30)  shape (7, 2)
+min_from_0930 | 20261110
+30  | 0.730
+60  | 0.676
+90  | 0.672
+120 | 0.741
+150 | 0.700
+180 | 0.708
+210 | 0.665
+== by board: board | rows | ic_pooled | res_var_rel
+ChiNext | 6425  | 0.603 | 1.270
+SH main | 31879 | 0.723 | 0.933
+STAR    | 3595  | 0.674 | 1.115
+SZ main | 14779 | 0.693 | 0.955
+== stock persistence: stock-day mean explains 0.214 of the residual variance, stock mean over all days 0.214; day-to-day corr of stock means n/a (one day)
+  PM's top 10 %: ours in the same tail 0.452 of the time (chance 0.100), ours median rank there +0.383
+  PM's bottom 10 %: ours in the same tail 0.501 of the time (chance 0.100), ours median rank there -0.402
+== 15 stocks with the largest mean |residual| (residual > 0: PM ranks it higher than ours explains)
+  002384 -0.247, 300413 -0.241, 600760 -0.222, 300394 -0.220, 302132 -0.211, 688082 +0.210, 603893 +0.204, 601021 +0.201, 601088 +0.199, 600000 +0.199, 002027 +0.189, 601328 +0.188, 600188 +0.185, 601868 -0.183, 600118 +0.182
+  20261111 R17 0.4589
+data/reports/stage6_r25_ic_20261111/pred.parquet: 69,236 rows, 1 days, 240 marks; overall IC 0.4589
+== per-mark IC by half hour  shape (8, 2)
+min_from_0930 | 20261111
+0   | 0.386
+30  | 0.383
+60  | 0.430
+90  | 0.428
+120 | 0.447
+150 | 0.493
+180 | 0.560
+210 | 0.521
+== by board
+ChiNext | 7881  | 0.357 | 1.166
+SH main | 38839 | 0.482 | 0.966
+STAR    | 4425  | 0.427 | 1.043
+SZ main | 18091 | 0.461 | 0.989
+== stock persistence: stock-day mean explains 0.063 of the residual variance, stock mean over all days 0.063; day-to-day corr of stock means n/a (one day)
+  PM's top 10 %: ours in the same tail 0.284 of the time (chance 0.100), ours median rank there +0.271
+  PM's bottom 10 %: ours in the same tail 0.324 of the time (chance 0.100), ours median rank there -0.308
+== 15 stocks with the largest mean |residual|
+  002241 -0.192, 601100 -0.186, 000157 -0.185, 600010 +0.172, 601919 -0.169, 601058 -0.161, 600221 +0.156, 300502 +0.150, 601868 +0.148, 601077 -0.141, 000975 -0.134, 688111 +0.131, 002920 -0.129, 601899 -0.127, 601225 -0.127
+[00:25:01]   no 224 seed file found: fake_seed skipped
+[00:25:01] 5 1111 follow-up from 2.23
+  1111 hstats families: 0
+[00:25:03]   still no PM 20261111.jz on 2.23
+[00:25:03] 6 one-change variants of R17 on 1110, 1111, 0430
+25 variants -> data/reports/r25_var: base drop_zzzl2.f drop_zzpe.c drop_zzjb.b drop_zzwa.a drop_zzpe.b drop_zzjx2.a drop_zzpe.d drop_both drop_all r17plus set_zzba_0 set_zzba_1 set_zzeg_0 set_zzeg_1 set_zzeg_2 set_zzro2.a_0 set_zzro2.a_1 set_zzro2.a_2 set_zzro2.a_3 set_zzro2.a_4 set_zzro2.c_0 set_zzro2.c_1 set_zzro2.c_2 set_zzro2.c_3
+  r17plus adds 55 columns (R24's new ones; list in r25.txt)
+  zzba: R17 has '-'; tried ['zzba.r / zzba.p', 'cal:zzba.r / zzba.p']
+  zzeg: R17 has '-'; tried ['zzpk.p / px', 'cal:zzpk.p / px', 'px / zzpk.p']
+  zzro2.a: R17 has '-'; tried ['gen.lmie14400', 'cal:gen.lmie14400', 'gen.lee60_14400', 'gen.lp_vwap', 'gen.stoch']
+  zzro2.c: R17 has 'dm:-gen.ret120'; tried ['gen.lee60_14400', 'cal:gen.lee60_14400', 'gen.lp_vwap', 'gen.lmie14400']
+variant                  1110     1111     0430
+base                   0.6958   0.4589   0.3107
