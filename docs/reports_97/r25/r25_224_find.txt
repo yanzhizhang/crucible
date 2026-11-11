@@ -1,0 +1,22 @@
+# 224 read-only probes run from 97 (2026-11-12 ~00:30); other users' names masked as <user>, NFS server IPs as <nfs>
+## data/reports/r25_224_find2.txt (79 lines)
+/tmp: listing of other users' entries (head -60 cut it before /tmp/s); zhangyanzhi entries: hsperfdata_zhangyanzhi, lemminx-temp*, ~33 preamble-*.pch (clangd)
+==  find -L /tmp /home/zhangyanzhi /data -maxdepth 6 (*.jz | *intrading* | *dcp*):
+f /home/zhangyanzhi/.cache/clangd/index/stdcpp.h.B77B1822DCC55EA9.idx ->
+f /home/zhangyanzhi/.cache/clangd/index/libstdcpp3.hpp.7CF2F2E1F4563BD5.idx ->
+f /home/zhangyanzhi/.cache/clangd/index/stdcpp3.h.9D65A9CEFC36E456.idx ->
+   (clangd index names matching *dcp*; NO .jz and no intrading_dcp anywhere)
+==  mount (nfs/share/cifs/fuse): fusectl, nfsd, rpc_pipefs, and nfs4 mounts (all ro):
+<nfs>:/exports/QModules -> /mnt/QModules_<nfs>; <nfs>:/exports/QModules_dev_syl -> /mnt/QModules_dev_syl_<nfs>; <nfs>:/exports/QModules_dev -> /mnt/QModules_dev_<nfs>
+<nfs>:/mnt/nvme2/CTA_v3.0 -> /mnt/CommonCacheRepo/CTA_v3.0; <nfs>:/mnt/nvme1/ALPHA_v3.0 -> /mnt/CommonCacheRepo/ALPHA_v3.0
+<nfs>:/volume1/Indicator_v3.1 -> /mnt/CommonCacheRepo/Indicator_v3.1; <nfs>:/volume1/ALPHA_Tick_v3.1 -> /mnt/CommonCacheRepo/ALPHA_Tick_v3.1
+   (no mount of 2.23's /data/share)
+==  grep -rIl "intrading_dcp|.jz" /tmp/zyq /home/zhangyanzhi: 3 files, all ~/.vscode-server/... js (false hits)
+
+## data/reports/r25_224_sts.txt: ls of /tmp/s/stsfile on 224 (owner <user>)
+ls: cannot open directory '/tmp/s': Permission denied   (but /tmp/s/stsfile is readable)
+/tmp/s/stsfile: ex/ index/ sid2symbol/ (all Nov 11 08:46), stats/ (Oct 26)
+index:  index-20261104.xr 2026-11-04 08:45:08, -1105 2026-11-05 09:18:15, -1106 11-06 08:45:09, -1109 11-09 08:45:08, -1110 11-10 08:45:16, -1111 11-11 08:45:09  (sizes 298909-298970)
+ex:     ex-20261104 ... ex-20261111, same times as index, all 239228 bytes
+sid2symbol: 20261105.json 11-05 09:18:31, 1106 11-06 08:45:27, 1109 11-09 08:45:23, 1110 11-10 08:45:47, 1111 11-11 08:45:28 (96833 bytes); sid2symbol.json -> 20261111.json (link, 11-11 08:45:28)
+stats/sod: 20261104.xr 11-04 08:45:28, 1105 11-05 09:18:31, 1106 11-06 08:45:27, 1109 11-09 08:45:23, 1110 11-10 09:14:02.688779636, 1111 11-11 08:45:28 (149255-149276 bytes)
