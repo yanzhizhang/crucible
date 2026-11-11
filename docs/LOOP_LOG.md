@@ -347,3 +347,9 @@
 - Chain started 23:09: seed_probe -> static_probe -> r24 -> static_probe_after_r24 -> r23_diag.
 - Relayed so far: seed_probe.txt, static_probe.txt, state_keys_r17 key blocks, state_keys_r17_groups.csv, r24 steps 1-2.
 - **Standing rule (user, 23:2x):** record every finding from 97 as plain text in this repo (docs/reports_97/<round>/ + this log), not in assistant memory. R24 transcriptions are in docs/reports_97/r24/.
+
+## R24 done, add_day 20261111 done (2026-11-12 00:03)
+- R24 chain ALL_DONE 23:52:10. Held out (IC): R17 1110 0.6958 / 0430 0.3107; R24 0.7045 / 0.2874; R24 gated 0.6675 / 0.2608.
+- assign_diff: gated drops 32 R17 columns (all also missing in R24, removed by the family lock), adds 28.
+- add_day 20261111 (new day, mixed-format logs): pm_signals parsed 2,253,132 signals; IC on 1111: R17 0.4589, R24 0.4653, R24 gated 0.4434. pm_poslog FAILED on a glued ts field. PM 1111.jz not on 2.23 yet; step 5 to re-run.
+- All transcriptions in docs/reports_97/r24/ (README, r24_*, r23_diag, add_20261111). Push still blocked; user to push or restart for the new allow rule.
