@@ -13,7 +13,6 @@ Chain: seed_probe -> static_probe -> r24 -> static_probe (after r24) -> r23_diag
 | seed_probe.txt | data/reports/seed_probe.txt (209 lines) | 2.23 table: 71 rows identical to 97's, given as one line |
 | static_probe.txt | data/reports/static_probe.txt (123 lines) | |
 | state_keys_r17_keyblocks.txt | data/reports/state_keys_r17.txt (253 lines) | only the 10 stems with state keys (crucible asked for these) |
-| state_keys_r17_groups.csv | data/reports/state_keys_r17_groups.csv (108 lines) | full; group counts / gain sums match static_probe step 4 |
 | state_keys_r17_groups.csv | data/reports/state_keys_r17_groups.csv (108 lines) | full; group counts and gain sums match static_probe step 4 |
 | r24_progress.txt | terminal | partial r24.txt while running |
 
