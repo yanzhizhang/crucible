@@ -340,3 +340,4 @@
 - crucible asked for R24: paste ic_score.py, r24.sh, seed_probe.py/.sh, static_probe.sh, state_keys.py; then run seed_probe, static_probe, r24, static_probe again.
 - Mac rebased onto 1bf13d9; all 6 md5s and line counts match; all ASCII. The 2.23 access in the scripts is read-only (ls/find/md5/rsync pull into /work).
 - Told crucible R23 never ran (Windows App disconnected 09:10 before start). Waiting for the user to be home before touching the VDI.
+- 293ba97: crucible split R23's diagnostics into r23_diag.sh (73de9e65, 33 lines; reads /data/prod, writes data/reports, no 2.23 access). Re-paste residual_breakdown.py 695d46bd; check gen_compare.py 6a22e85d on 97. Run order: seed_probe, static_probe, r24, static_probe_after_r24, r23_diag. Mac md5s all match. Still waiting for the user.
