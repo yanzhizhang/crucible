@@ -8,7 +8,7 @@ Reads every ``<dir>/YYYYMMDD.jz`` (gzip JSON {sid: {key: value}}) in date order 
 * zero   - share of values that are 0 or null (high on a cold start, before EMA sums and weights fill);
 * same   - share of (sid, key) values equal to the previous file (1.0 = a copy, not a new trading day);
 * open   - share of stocks whose ``zzpk.open`` changed from the previous file (a new trading day ~ 1.0);
-* stop   - latest ``zzba.p.t`` as local HH:MM:SS (seconds of day; the clocks carry no date).
+* stop   - latest ``zzba.p.t`` (trading clock: seconds since 09:30, lunch removed) as local HH:MM:SS; no date in it.
 
 The guess printed at the end: the first file, the first one with a full key set, and every day that looks
 copied rather than run. Clocks are seconds of day, so a copy is told only by content, not by its timestamps.
@@ -39,6 +39,7 @@ def hms(t: float | None) -> str:
     if t is None:
         return "-"
     t = int(t)
+    t = t + 9 * 3600 + 1800 if t < 7200 else t - 7200 + 13 * 3600  # trading clock (s since 09:30, lunch removed) -> local
     return f"{t // 3600:02d}:{t // 60 % 60:02d}:{t % 60:02d}"
 
 
