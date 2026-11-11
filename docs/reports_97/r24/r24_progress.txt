@@ -13,3 +13,10 @@ training CDF by generation: 1 generation(s) ['1b13fa3f'], 130 features
 training CDF by generation: 1 generation(s) ['55f31009'], 138 features
 [23:17:21] 3 scan on 1104-1106: the columns open at R17 + the family-lock drops, in class
   open at R17: 107
+  [lines 65-~140: "family lock <stem> = <shared input>: drop <col> = <formula> (<input>), rescanned in class" -- ~50 drops, full list to transcribe]
+145:IC: start 0.5913 -> end 0.6741 (t 173.62, 660 marks); 116 of 209 columns assigned -> data/reports/stage6_r24/ic_assign.json
+146:   102 -> 116
+265:[23:30:41] 4 gate on 1109 against R17, in class only
+268:gated: 98 columns -> data/reports/stage6_r24_gate/ic_assign_gated.json
+359:[23:31:44] 5 held out: R17 / R24 / R24 gated on 1110 and 0430 (own-generation CDF)
+(r24.txt was 359 lines at 23:3x; step 5 running)
