@@ -78,16 +78,7 @@ python -u research/pm_factors/pm_poslog.py --dates 20261111 > $R/daily/20261111_
 grep -E "WARNING|^==|decisions with|pos ==|executp ==|prediction vs" $R/daily/20261111_poslog.txt | cut -c1-230
 
 say "3 gen_compare flags; state_keys by base family"
-python - <<'EOF'
-import polars as pl
-d = pl.read_csv("data/reports/gen_compare.csv")
-m = d.filter(pl.col("moved"))
-print(f"  moved rows {m.height} of {d.height}; per column: months moved, max median-split shift, span ratio range")
-s = m.group_by("col", "ref_name").agg(pl.col("month").n_unique().alias("months"), pl.col("t50_shift").max(), pl.col("span_ratio").min().alias("span_min"),
-                                      pl.col("span_ratio").max().alias("span_max"), pl.col("month").min().alias("first"), pl.col("month").max().alias("last"))
-with pl.Config(tbl_rows=-1, tbl_width_chars=200, float_precision=2):
-    print(s.sort("months", descending=True))
-EOF
+python -u research/pm_factors/gen_flags.py data/reports/gen_compare.csv
 HVS=$HV; [ -d $HVS ] || HVS=/data/prod/hstats/HS300
 for tag in r17 r24; do
   A=$R/stage6_$tag/ic_assign.json
