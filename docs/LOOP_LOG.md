@@ -329,3 +329,5 @@
 - crucible found 0430 cause: feitu 0430 snapshots high_limited = 0 for 189/299 stocks; fix 0df5788 (events falls back to pre_close +-30 %, EVENTS_VERSION 3). Pasted r22b_alpha.sh (new), bt/events.py, full_book.py to 97; md5 + lines + ast match. Backups /tmp/*.bak_r22b.
 - grep: r22_0430_r17 engine state for 300; r22_0430_r21 build read from cache, engine state for 0 -> relayed.
 - 08:26:41 R22b started (tee data/reports/r22b.txt).
+- 08:52:20 R22b done (r22b.txt 100 lines, relayed). Step 2: 0430 299 stocks (189 no price limits, pre_close +-30 %). Step 3 0430: r17 0.3105, r20 0.3028, r21 0.2984, r22 0.4823 (in-sample). Step 4: dropped 0.5862->0.6119; IC 0.6119 -> 0.6344 (t 142.64), 148 -> 143. Step 5 r22b held out: 1109 0.5361, 1110 0.7047.
+- User asked for data/reports listing: 1670 files, 30G (414 parquet data 31.3GB, 1256 text 135MB). User chose model-fit text reports to transcribe into docs/reports_97/ (local only).
