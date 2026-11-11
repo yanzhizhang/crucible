@@ -1,0 +1,15 @@
+# data/reports/static_probe_after_r24.txt (128 lines on 97), step 4 only; steps 1-3 same kind as static_probe.txt
+[23:37:34] 4 open columns by where their inputs live (state / hstats / neither)
+  r17:
+20261106.jz: 300 stocks; 81 stems with an unassigned column, 10 of them with state keys -> data/reports/state_keys_r17.csv
+open columns by where their inputs can live (16 hstats families):
+  hstats     12 columns, gain 0.0345, families 5: zzwa, zzal, zzts, zzxc, zzqo
+  neither    85 columns, gain 0.3107, families 66: zzro2, zzel, zzbt, zzsf, zzop, zzzl2, zzrg, zzeg2, zzef2, zzpe, zzja, zzsa2, zzsa, zzag, zzzs, zzag2, zzaa, zzzl, zzbs2, zzpp, zzbo, zzvm2, zzhx, zzfq, zzuc, zzhk, zzpz, zzyj3, zzqf6, zzbt2
+  state      10 columns, gain 0.1002, families 10: zzgh, zzeg, zzba, zzpk, zzab2, zzmh, zzcb, zzxo, zzvm, zzvx
+  r24:
+20261106.jz: 300 stocks; 65 stems with an unassigned column, 12 of them with state keys -> data/reports/state_keys_r24.csv
+open columns by where their inputs can live (16 hstats families):
+  hstats     10 columns, gain 0.0379, families 4: zzwa, zzal, zzqo, zzxc
+  neither    71 columns, gain 0.2748, families 49: zzel, zzeu2, zzbt, zzop, zzro2, zzjx3, zzfe, zzyg2, zzqf9, zzpe, zzzl2, zzeg2, zzja, zzsa2, zzop2, zzsa, zzri2, zzag, zzzs, zzqf2, zzag2, zzzl, zzpp, zzqf5, zzht, zzpz, zzqf6, zzfq, zzbt2,
+  state      12 columns, gain 0.1346, families 12: zzgh2, zzgh, zzeg, zzba, zzpk, zzab2, zzxu, zzmh, zzcb, zzxo, zzfb, zzvm
+[23:37:37] done
