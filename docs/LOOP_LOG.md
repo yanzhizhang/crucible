@@ -325,3 +325,4 @@
 - order / transaction / quotation: alpha stocks present 299 of 299 each (rows 42,295,829 / 32,050,536 / 1,493,368); missing [].
 - feitu_raw 0430 order and transaction parts present (SH+SZ, Nov 5).
 - md5 research/r22_alpha.sh on 97 = f5d69e9b... (matches).
+- crucible's 2nd check -> data/reports/r22_chk0430b.txt (28 lines), relayed verbatim. 0430: 299 alpha stocks, high_limited > 0 only 110, pre_close > 0 299; 1104: 298/298/298. Engine marks 0430 and 1104 both 72000 rows, 300 sids, 240 marks. r22_engine tail: 0430 300 stocks, 0 carry seeds exported.
