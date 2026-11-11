@@ -353,3 +353,4 @@
 - assign_diff: gated drops 32 R17 columns (all also missing in R24, removed by the family lock), adds 28.
 - add_day 20261111 (new day, mixed-format logs): pm_signals parsed 2,253,132 signals; IC on 1111: R17 0.4589, R24 0.4653, R24 gated 0.4434. pm_poslog FAILED on a glued ts field. PM 1111.jz not on 2.23 yet; step 5 to re-run.
 - All transcriptions in docs/reports_97/r24/ (README, r24_*, r23_diag, add_20261111). Push still blocked; user to push or restart for the new allow rule.
+- 00:0x user: keep the screen and work through every direction with crucible; ask the user only when their input is needed. Told crucible to send rounds back to back; same safety limits.
