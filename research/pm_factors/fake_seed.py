@@ -46,13 +46,22 @@ def spearman(x: np.ndarray, y: np.ndarray) -> float:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--seed", type=Path, required=True)
+    ap.add_argument("--seed", type=Path, help="one seed file for every day")
+    ap.add_argument("--seed-map", default="", help="per day: D=YYYYMMDD,... (the --dcp file 224 read on D, e.g. from 2.23's sod links)")
     ap.add_argument("--dcp", type=Path, required=True)
     ap.add_argument("--pred", type=Path, nargs="+", required=True)
     ap.add_argument("--top", type=int, default=40)
     a = ap.parse_args()
-    seed = B.load_state(a.seed).rename({"pm": "seed"})
-    print(f"seed {a.seed}: {seed['sid'].n_unique()} stocks, {seed['key'].n_unique()} keys")
+    smap = dict(x.split("=") for x in a.seed_map.split(",") if x.strip())
+    if not a.seed and not smap:
+        sys.exit("--seed or --seed-map")
+    seeds: dict[str, pl.DataFrame] = {}
+
+    def seed_of(d: str) -> tuple[str, pl.DataFrame]:
+        src = str(a.dcp / f"{smap[d]}.jz") if d in smap else str(a.seed)
+        if src not in seeds:
+            seeds[src] = B.load_state(Path(src)).rename({"pm": "seed"})
+        return src, seeds[src]
     res = pl.concat([residuals(pl.read_parquet(p)) for p in a.pred], how="vertical_relaxed").unique(["date", "sid"], keep="last")
     days = sorted(str(x) for x in res["date"].unique().to_list())
     files = sorted(p.stem for p in a.dcp.glob("*.jz") if re.fullmatch(r"\d{8}", p.stem))
@@ -63,9 +72,13 @@ def main() -> None:
             print(f"{d}: no true previous state in {a.dcp}")
             continue
         true = B.load_state(a.dcp / f"{prev[-1]}.jz").rename({"pm": "true"})
+        if d not in smap and not a.seed:
+            print(f"{d}: no seed in --seed-map, skipped")
+            continue
+        src, seed = seed_of(d)
         j = seed.join(true, on=["sid", "key"], how="inner")
         same = (j["seed"] == j["true"]).mean()
-        print(f"{d}: true previous {prev[-1]}; seed == true previous for {same:.3f} of {j.height:,} values")
+        print(f"{d}: seed {Path(src).name}, true previous {prev[-1]}; seed == true previous for {same:.3f} of {j.height:,} values")
         j = j.with_columns(pl.when((pl.col("seed") > 0) & (pl.col("true") > 0)).then((pl.col("seed") / pl.col("true")).log())
                            .otherwise((pl.col("seed") - pl.col("true")) / (pl.col("true").abs() + 1e-12)).alias("stale"))
         r = res.filter(pl.col("date").cast(pl.String) == d)
