@@ -1,0 +1,36 @@
+# add_day.sh 20261111 on 97, terminal at 23:58 (partial; full file data/reports/add_20261111.txt to follow)
+[23:53:15] 0 daily_pm 20261111
+[23:53:15] 1 logs: 224 /tmp/zyq/sht-logs -> /work/crucible_data/chrono_logs
+  log files for 20261111: 4
+[23:53:49] 2 position log + base positions: 224 /tmp/o/executor/20261111
+  files: 7
+[23:53:50] 3 pm_signals
+  ... [lines above not captured yet]
+    2,253,132 signals, 300 stocks, per stock p10/p50/p90 6907/7706/7809; prediction == 0 0.000
+    -> /work/crucible_data/pm_signals/date=20261111.parquet (114s)
+[23:55:45] 4 DataYesSharesL2 20261111 -> dysl2_raw, catalog_dysl2
+  quotes [(20261111, 21903233, 5225)]
+[23:57:18] 5 decisions + position log
+[23:57:20]   pm_poslog FAILED
+  == 20261111: 257,137 scored snapshots, 732,247 decisions; decision columns: sid, src_epoch, fa, kind, aIdx, pos, pp, executp, asq, lthr, hs, liid, winsdQty, asf
+    per stock over time (731,947 consecutive pairs): pos unchanged 0.999; on a change: dpos == previous executp 0.042, sign(dpos) == sign(fa) 0.543, from 0 0.005, to 0 0.005; dpos p1/p10/p50/p90/p99 -48[cut]
+[23:57:20] 6 orders: does runS send now (base position pushed from 1110)
+  2026-11-11_09-18-51-304.log: nullptr 0, ORD 0, SEND 0, REJ 0, TRD 0
+  2026-11-11_09-22-28-916.log: nullptr 29602, ORD 1100, SEND 1100, REJ 0, TRD 297
+  2026-11-11_10-18-28-206.log: nullptr 702645, ORD 435, SEND 342, REJ 93, TRD 104
+  2026-11-11_16-55-04-891.log: nullptr 0, ORD 0, SEND 0, REJ 0, TRD 0
+  REJ      93 reason='leg
+[23:57:23] done 20261111
+[23:57:23] 1 2.23: hstats 20261111, stsfile, PM state files
+  20261111: 0 families with samplerS.nc
+  stsfile 20261106.xr
+  stsfile 20261109.xr
+  stsfile 20261111.xr
+  PM state: D-1 = 20261110 , no 20261111.jz yet
+[23:57:26] 2 target
+  target rows 2253140 stocks 300
+[23:57:26] 3 full_book + engine state for 20261111
+  catalog_dysl2 quotes on 20261111: 21903233
+  -rw-r--r-- 1 root root 15842101 Nov 11 23:58 /work/crucible_data/store/pm_factors/full_book_dysl2/date=20261111.parquet
+  -rw-r--r-- 1 root root 13438426 Nov 11 23:58 data/engine/marks_20261111.parquet
+[23:58:33] 4 R17 / R24 / R24 gated on 20261111
