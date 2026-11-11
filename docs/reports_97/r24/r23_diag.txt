@@ -1,0 +1,213 @@
+[23:37:37] 1 model generations: does each column mean the same in every generation
+17 months x 209 columns, fit livev1_fit1, reference 202612 -> data/reports/gen_compare.csv
+  202509: renamed 0, moved 10; split-count rank corr with 202612 +0.993
+  202510: renamed 0, moved 10; split-count rank corr with 202612 +0.993
+  202511: renamed 0, moved 10; split-count rank corr with 202612 +0.993
+  202512: renamed 0, moved 10; split-count rank corr with 202612 +0.993
+  202601: renamed 0, moved 10; split-count rank corr with 202612 +0.993
+  202601.updated: renamed 0, moved 13; split-count rank corr with 202612 +0.994
+[23:37:43] 3 implied values of the 15 open columns with the most gain (R17), plus the residual breakdown
+20261104: 300 stocks x 240 marks, 1 models, engine state for 0, profiles for 0 (30s)
+20261105: 300 stocks x 240 marks, 1 models, engine state for 0, profiles for 0 (58s)
+20261106: 300 stocks x 240 marks, 1 models, engine state for 0, profiles for 0 (85s)
+IC: start 0.6725 -> end 0.6725 (t 164.28, 660 marks); 102 of 209 columns assigned -> data/reports/stage6_r23_implied/ic_assign.json
+20261109: 300 stocks x 240 marks, 1 models, engine state for 0, profiles for 0 (31s)
+20261110: 300 stocks x 240 marks, 1 models, engine state for 0, profiles for 0 (59s)
+IC: start 0.6175 -> end 0.6175 (t 87.79, 380 marks); 102 of 209 columns assigned -> data/reports/stage6_r23_implied_224/ic_assign.json
+  -- data/reports/r23_implied.txt
+== implied values (30,000 rows, PM pred mapped as 1.417 x + 2.85e-03; 4658 plain candidates, 4212 distinct, 1664 distinct by rank)
+/opt/anaconda3/envs/crucible/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py:3036: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[:, None]
+/opt/anaconda3/envs/crucible/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py:3037: RuntimeWarning: invalid value encountered in divide
+  c /= stddev[None, :]
+  residual (PM beyond ours, per-mark ranks) closest: gen.resting_volume_placed_last_60s_imbalance +0.12, gen.resting_volume_placed_last_300s_imbalance +0.11, gen.full_book_depth_imbalance_within_200bp +0.10, gen.full_book_depth_imbalance_within_50bp +0.10, gen[cut at 300 chars]
+  residual (ours beyond PM, per-mark ranks) closest: gen.lpe240 -0.39, gen.rpe240 -0.39, gen.lpe200 -0.39, gen.rpe200 -0.39, gen.lpe300 -0.39, gen.rpe300 -0.39
+  agreement on these rows 0.655; carrier probe: the top 6 residual groups (18 candidates) tried in each open column, against constants (below / inside / above its split points, missing)
+  zzro2.a response up (+0.75; -5.7e-04/-9.5e-05/+0.0e+00/-4.5e-05/+3.6e-04); split together with zzwj.a 210, zzel.a 111, zzbt2.h 90; implied vs current formula +nan
+  zzro2.a (now -): informative 0.33; implied p10/p50/p90 -0.007042/-0.0009616/0.006876; variance explained by stock-day 0.13, by mark 0.08; closest: gen.xr300_hs300 +0.23, gen.zpe600 +0.23, gen.xr300_own +0.22, gen.microprice_minus_mid_rel -0.22
+  zzro2.a level match (0.12 bounded; in interval / lift over chance): gen.lee30_600 0.18/+0.05, gen.lee120_1200 0.18/+0.05, gen.lpe600 0.18/+0.05, gen.lmie900 0.17/+0.05
+  zzro2.a carrier: const mid +0.0000; gen.full_book_depth_imbalance_within_50bp -0.0164 (-0.0164), gen.full_book_depth_imbalance_within_50bp*1e4 -0.0169 (-0.0169), gen.flow_ord_imb60 -0.0173 (-0.0173)
+  zzro2.c response up (+0.96; -2.2e-04/-1.9e-04/-2.4e-05/+1.2e-04/+1.9e-04); split together with zzal.d 159, zzqf6.q.c1 138, zzro.e 129, zzpk 81; implied vs current formula -0.16
+  zzro2.c (now dm:-gen.ret120): informative 0.26; implied p10/p50/p90 -0.003785/-0.0002613/0.007737; variance explained by stock-day 0.17, by mark 0.09; closest: gen.microprice_minus_mid_rel -0.22, gen.imb1 -0.21, gen.rete90 +0.18, gen.rete75 +0.18
+  zzro2.c level match (0.17 bounded; in interval / lift over chance): gen.lppe1800 0.18/+0.03, gen.xr300_zz1000 0.18/+0.03, gen.lpew3600 0.17/+0.03, gen.xr900_zz1000 0.17/+0.03
+  zzro2.c carrier: const mid -0.0047; gen.full_book_depth_imbalance_within_50bp -0.0059 (-0.0012), gen.full_book_depth_imbalance_within_50bp*1e4 -0.0060 (-0.0013), gen.resting_volume_placed_last_60s_imbalance -0.0064 (-0.0017)
+  zzgh2.b response hump (-0.47; -6.6e-05/+2.1e-05/+1.1e-05/+1.2e-05/-2.2e-05); split together with zzfb2.a 78, zzeg 75, zzxu.b 69, zzpk 69; implied vs current formula +0.01
+  zzgh2.b (now rank:gen.rete150): informative 0.04; implied p10/p50/p90 -0.001/137/1041; variance explained by stock-day 0.41, by mark 0.44; closest: gen.ofi_level1_norm_60s +0.19, gen.ofi_levels1to2_norm_60s +0.18, gen.ofi_levels1to3_norm_60s +0.16, gen.ofi_l[cut]
+  zzgh2.b level match (0.03 bounded; in interval / lift over chance): |gen.lpd2|*1e4 0.25/+0.04, |gen.lpd1|*1e4 0.25/+0.04, gen.flow_lambda300*1e4 0.24/+0.04, -gen.xpc_own 0.14/+0.04
+  zzgh2.b carrier: const nan -0.0013; gen.full_book_depth_imbalance_within_200bp +0.0011 (+0.0024), gen.resting_volume_placed_last_300s_imbalance +0.0006 (+0.0019), gen.resting_volume_placed_last_60s_imbalance +0.0004 (+0.0018)
+  zzgh.b response hump (+0.18; +0.0e+00/+5.3e-05/+8.9e-05/+3.7e-05/+2.6e-05); split together with zzfb2.a 87, zzzl2.i 81, zzmh 72, zzzl2.e 69; implied vs current formula +nan
+  zzgh.b (now -): informative 0.06; implied p10/p50/p90 61/160.5/625; variance explained by stock-day 0.36, by mark 0.33; closest: gen.rete300 -0.12, gen.lmie300 -0.12, gen.lpek100 -0.12, gen.lmie240 -0.12
+  zzgh.b level match (0.04 bounded; in interval / lift over chance): gen.lpek600*1e4 0.07/+0.04, |gen.lp_vwap|*1e4 0.14/+0.03, |gen.lppe10800|*1e4 0.12/+0.03, gen.lmie7200*1e4 0.08/+0.03
+  zzgh.b carrier: const nan +0.0000; gen.resting_volume_placed_last_60s_imbalance +0.0000 (+0.0000), gen.passive_order_net_amount_share_at_or_inside_best_60s +0.0000 (+0.0000), gen.full_book_depth_imbalance_within_50bp +0.0000 (+0.0000)
+  zzel.a response mixed (-0.60; +0.0e+00/-7.2e-05/-7.0e-05/-4.7e-05/-6.8e-04); split together with zzop.j 231, zzro2.a 153, zzop.i 144; implied vs current formula +nan
+  zzel.a (now -): informative 0.25; implied p10/p50/p90 0.0003033/0.001218/0.001835; variance explained by stock-day 0.15, by mark 0.11; closest: gen.xr60_hs300 -0.34, gen.xr60_own -0.33, gen.zpe60 -0.33, gen.rete45 -0.32
+  zzel.a level match (0.15 bounded; in interval / lift over chance): gen.spm30 0.09/+0.02, gen.spm60 0.10/+0.02, ced.tick_size_over_close 0.07/+0.02, gen.spm900 0.10/+0.01
+  zzel.a carrier: const nan +0.0000; -gen.full_book_depth_imbalance_within_50bp -0.0116 (-0.0116), -gen.full_book_depth_imbalance_within_200bp -0.0171 (-0.0171), -gen.resting_volume_placed_last_300s_imbalance -0.0182 (-0.0182)
+  zzwa.j response up (+0.72; -4.2e-05/+4.5e-05/+5.4e-05/+1.4e-04/+2.3e-04); split together with zzwj.a 222, zzro2.a 117, zzup 105, zzop.i 102; implied vs current formula +0.04
+  zzwa.j (now cal:|gen.lpe40|): informative 0.16; implied p10/p50/p90 0.001184/0.004246/0.01023; variance explained by stock-day 0.20, by mark 0.13; closest: gen.simba120 +0.13, gen.simbv120 +0.13, gen.imba120 +0.12, gen.imbv120 +0.12
+  zzwa.j level match (0.11 bounded; in interval / lift over chance): |gen.ld1900| 0.16/+0.02, gen.pret120 0.06/+0.02, gen.spm60 0.06/+0.02, |gen.lpe14400| 0.17/+0.02
+  zzwa.j carrier: const mid -0.0012; gen.full_book_depth_imbalance_within_200bp +0.0005 (+0.0017), gen.full_book_depth_imbalance_within_200bp*1e4 +0.0005 (+0.0017), gen.full_book_depth_imbalance_within_50bp -0.0016 (-0.0004)
+  zzeg response mixed (-0.51; +0.0e+00/-7.1e-04/-6.2e-04/-7.4e-04/-2.5e-03); split together with zzpe.c 222, zzop.i 183, zzzl2.i 165, zzop.j 150; implied vs current formula +nan
+  zzeg (now -): informative 0.37; implied p10/p50/p90 0.9833/0.9833/1.018; variance explained by stock-day 0.17, by mark 0.09; closest: gen.rete75 -0.57, gen.rete90 -0.57, gen.lpe75 -0.57, gen.rpe75 -0.57
+  zzeg level match (0.14 bounded; in interval / lift over chance): ced.r.spm300_msr 0.06/+0.01, ced.stats.PBeta 0.01/+0.00, ced.r.sp_msr 0.04/+0.00, ced.r.spm900_msr 0.06/+0.00
+  zzeg carrier: const lo +0.0000; gen.flow_ord_imb60 +0.0001 (+0.0001), -gen.full_book_depth_imbalance_within_50bp +0.0000 (+0.0000), -gen.resting_volume_placed_last_300s_imbalance +0.0000 (+0.0000)
+  zzzl2.c response down (-0.86; +1.3e-03/+2.3e-04/+1.0e-04/-1.7e-04/+6.9e-05); split together with zzeg 195, zzvm 129, zzxu.b 111, zzpe.a 111; implied vs current formula -0.09
+  zzzl2.c (now gen.lpes1800): informative 0.26; implied p10/p50/p90 -0.07052/-0.01462/0.03179; variance explained by stock-day 0.17, by mark 0.09; closest: gen.microprice_minus_mid_rel +0.31, gen.imb1 +0.29, gen.depth_imbalance_levels1to2 +0.21, gen.imbn30 +0.[cut]
+  zzzl2.c level match (0.20 bounded; in interval / lift over chance): ced.ret4 0.15/+0.03, ced.ret5 0.15/+0.02, -ced.lca3 0.15/+0.02, ced.ret3 0.15/+0.02
+  zzzl2.c carrier: const mid -0.0070; -gen.full_book_depth_imbalance_within_50bp -0.0628 (-0.0558), gen.flow_ord_imb60 -0.0685 (-0.0615), -gen.full_book_depth_imbalance_within_200bp -0.0745 (-0.0675)
+  zzsf.c response down (-0.76; +6.5e-05/-5.5e-05/-7.1e-05/-6.9e-05/-3.3e-04); split together with zzfb2.a 75, zzpe.a 75, zzpe.c 75, zzfb.b 69; implied vs current formula -0.05
+  zzsf.c (now gen.lee30_14400): informative 0.22; implied p10/p50/p90 0.003402/0.02097/0.04153; variance explained by stock-day 0.18, by mark 0.11; closest: gen.lp_open -0.20, gen.return_open_to_1000_log -0.20, |gen.return_open_to_1000_log| -0.19, gen.micropri[cut]
+  zzsf.c level match (0.12 bounded; in interval / lift over chance): gen.rete14400 0.06/+0.02, gen.rete7200 0.06/+0.01, gen.rete10800 0.06/+0.01, gen.rete5400 0.05/+0.01
+  zzsf.c carrier: const mid -0.0009; -gen.full_book_depth_imbalance_within_200bp +0.0021 (+0.0030), -gen.full_book_depth_imbalance_within_50bp +0.0007 (+0.0016), -gen.resting_volume_placed_last_300s_imbalance -0.0010 (-0.0001)
+  zzba response down (-0.73; +0.0e+00/-1.8e-07/+8.5e-06/-2.5e-05/-2.4e-04); split together with zzpe.a 105, zzfb2.a 99, zzzl2.b 99, zzzl2.c 90; implied vs current formula +nan
+  zzba (now -): informative 0.18; implied p10/p50/p90 0.02994/0.03815/0.06993; variance explained by stock-day 0.17, by mark 0.12; closest: gen.imbv30 +0.09, gen.imba30 +0.09, gen.simba20 +0.08, gen.simbv20 +0.08
+  zzba level match (0.14 bounded; in interval / lift over chance): |gen.net_buy_amount_share_orders_over_200k_cny_since_0930| 0.14/+0.01, -gen.net_buy_amount_share_orders_40k_to_200k_cny_since_0930 0.09/+0.01, gen.net_buy_amount_share_orders_200k_to_1m_cny_600[cut]
+  zzba carrier: const nan +0.0000; -gen.resting_volume_placed_last_60s_imbalance +0.0006 (+0.0006), -gen.flow_ord_imb60 -0.0003 (-0.0003), -gen.passive_order_net_amount_share_at_or_inside_best_60s -0.0006 (-0.0006)
+  zzbt.b response mixed (-0.42; +0.0e+00/+3.6e-04/+1.0e-04/+1.2e-04/+3.3e-04); split together with zzhj 69, zzxu.a 63, zzmh 60, zzrg 30; implied vs current formula +nan
+  zzbt.b (now -): informative 0.15; implied p10/p50/p90 0.001191/0.02593/0.04353; variance explained by stock-day 0.18, by mark 0.16; closest: gen.ofi_level1_norm_60s +0.42, gen.ofi_levels1to2_norm_60s +0.42, gen.ofi_levels1to3_norm_60s +0.41, gen.rete60 +0.41
+  zzbt.b level match (0.11 bounded; in interval / lift over chance): ced.range4 0.33/+0.05, ced.range3 0.33/+0.04, ced.range8 0.34/+0.03, ced.range7 0.34/+0.02
+  zzbt.b carrier: const lo +0.0000; gen.resting_volume_placed_last_60s_imbalance +0.0014 (+0.0014), gen.passive_order_net_amount_share_at_or_inside_best_60s -0.0003 (-0.0003), gen.flow_ord_imb60*1e4 -0.0007 (-0.0007)
+  zzfb2.a response down (-0.96; +3.5e-04/+3.7e-04/+1.1e-05/-2.0e-04/-4.2e-04); split together with zzzl2.b 192, zzgh.b 153, zzpe.c 150, zzgh2.b 147; implied vs current formula +0.01
+  zzfb2.a (now rank:gen.rpe75): informative 0.29; implied p10/p50/p90 0.05188/0.264/8.189; variance explained by stock-day 0.17, by mark 0.08; closest: gen.book_slope_log_ratio_bid_over_ask_5lvl +0.32, gen.imb5 +0.32, gen.depth_imbalance_levels1to4 +0.31, gen.[cut]
+  zzfb2.a level match (0.18 bounded; in interval / lift over chance): ced.range3 0.08/+0.03, |gen.lpd1| 0.05/+0.03, ced.range9 0.07/+0.02, gen.lpd2 0.04/+0.02
+  zzfb2.a carrier: const nan -0.0207; -gen.full_book_depth_imbalance_within_50bp -0.0141 (+0.0065), -gen.full_book_depth_imbalance_within_200bp -0.0181 (+0.0026), gen.flow_ord_imb60 -0.0284 (-0.0078)
+  zzxu.a response mixed (-0.28; -2.6e-07/+2.5e-05/+2.5e-05/-1.7e-05/+3.5e-04); split together with zzfb2.a 132, zzeg 129, zzzl2.b 114, zzpe.c 108; implied vs current formula -0.02
+  zzxu.a (now zzxu.a / zzxu.low): informative 0.27; implied p10/p50/p90 0.2568/0.3069/0.3776; variance explained by stock-day 0.14, by mark 0.08; closest: gen.book_slope_log_ratio_bid_over_ask_5lvl -0.15, gen.microprice_minus_mid_rel -0.15, gen.imb5 -0.15, gen[cut]
+  zzxu.a level match (0.20 bounded; in interval / lift over chance): gen.toxicity_abs_imb_1min_mean_1800s 0.18/+0.01, |gen.imbv15| 0.06/+0.01, -gen.simbv45 0.03/+0.01, ced.ZZWA.aq@0 0.14/+0.01
+  zzxu.a carrier: const nan -0.0000; gen.flow_ord_imb60 -0.0011 (-0.0011), gen.resting_volume_placed_last_60s_imbalance -0.0017 (-0.0016), gen.resting_volume_placed_last_300s_imbalance -0.0018 (-0.0018)
+  zzsf.d response up (+0.77; +0.0e+00/-6.7e-05/+1.6e-05/-9.4e-06/+9.2e-05); split together with zzpe.c 81, zzop.j 81, zzup 78, zzaa.a 78; implied vs current formula +nan
+  zzsf.d (now -): informative 0.08; implied p10/p50/p90 0.003414/0.01391/0.04587; variance explained by stock-day 0.33, by mark 0.28; closest: gen.lpes2400 +0.13, gen.lpes3600 +0.13, gen.lee30_7200 +0.13, gen.lee30_14400 +0.13
+  zzsf.d level match (0.05 bounded; in interval / lift over chance): |gen.lee120_14400| 0.18/+0.05, |gen.lee120_3600| 0.16/+0.04, |gen.lee60_7200| 0.17/+0.04, |gen.lee60_3600| 0.17/+0.04
+  zzsf.d carrier: const lo +0.0000; gen.full_book_depth_imbalance_within_200bp*1e4 -0.0005 (-0.0005), gen.full_book_depth_imbalance_within_200bp -0.0007 (-0.0007), gen.resting_volume_placed_last_300s_imbalance -0.0020 (-0.0020)
+  zzop.i response down (-0.91; +0.0e+00/-1.7e-04/-3.4e-04/-6.7e-04/-1.6e-03); split together with zzel.b 210, zzpe.c 195, zzop.j 183, zzxu.b 171; implied vs current formula +nan
+  zzop.i (now -): informative 0.37; implied p10/p50/p90 84.82/461.8/1287; variance explained by stock-day 0.17, by mark 0.10; closest: gen.microprice_minus_mid_rel +0.30, gen.imb1 +0.29, gen.xr300_hs300 -0.28, gen.xr300_own -0.27
+  zzop.i level match (0.25 bounded; in interval / lift over chance): gen.tsz1800 0.19/+0.02, gen.tsz90 0.19/+0.02, |gen.nn3600| 0.10/+0.01, gen.bid_resting_volume_share_placed_last_300s*1e4 0.19/+0.01
+  zzop.i carrier: const nan +0.0000; gen.resting_volume_placed_last_300s_imbalance +0.0000 (+0.0000), gen.full_book_depth_imbalance_within_50bp +0.0000 (+0.0000), -gen.resting_volume_placed_last_300s_imbalance +0.0000 (+0.0000)
+  carrier best overall (gain over the column's best constant; raw gain), column <- candidate: zzfb2.a<--gen.full_book_depth_imbalance_within_50bp +0.0065 (-0.0141), zzsf.c<--gen.full_book_depth_imbalance_within_200bp +0.0030 (+0.0021), zzfb2.a<--gen.full_book_[cut]
+  assigned columns (95), the best replacement (residual candidate, constants, missing) over the current formula [a candidate's margin over the best constant]: zzeu2<-const_lo +0.0058 [+0.0000] (now srank:-gen.rete75), zzsa.a<-gen.resting_volume_placed_last_60s[cut]
+  assigned columns worth least (agreement lost when missing): zzzl2.f -0.0030 (cal:dm:-gen.lpd1), zzpe.c -0.0028 (cal:z:gen.rete200), zzhi2.h -0.0002 (-gen.marketable_order_net_amount_share_60s), zzro.b -0.0002 (cal:|gen.ret1800|), zzsa2.b -0.0001 (cal:-gen.rv[cut]
+  -- data/reports/r23_implied_224.txt
+== implied values (30,000 rows, PM pred mapped as 1.893 x + 2.94e-03; 4658 plain candidates, 4210 distinct, 1660 distinct by rank)
+  [numpy RuntimeWarning lines (3036 / 3037, invalid value encountered in divide) as above]
+  residual (PM beyond ours, per-mark ranks) closest: gen.stoch +0.23, gen.lp_vwap +0.21, gen.lmie14400 +0.21, gen.lmie10800 +0.21, gen.lmie7200 +0.21, gen.lmie5400 +0.21
+  residual (ours beyond PM, per-mark ranks) closest: gen.lpe1800 -0.51, gen.rpe1800 -0.51, gen.lpe1200 -0.51, gen.rpe1200 -0.51, gen.lpek600 -0.51, gen.lpew3600 -0.51
+  agreement on these rows 0.606; carrier probe: the top 6 residual groups (18 candidates) tried in each open column, against constants (below / inside / above its split points, missing)
+  zzro2.a response up (+0.75; -6.1e-04/-9.5e-05/+0.0e+00/-3.8e-05/+3.5e-04); split together with zzwj.a 140, zzel.a 74, zzbt2.h 60; implied vs current formula +nan
+  zzro2.a (now -): informative 0.35; implied p10/p50/p90 -0.007042/-0.001064/0.006876; variance explained by stock-day 0.10, by mark 0.04; closest: gen.zpe600 +0.31, gen.zpe200 +0.30, gen.rpe600 +0.29, gen.lpe600 +0.29
+  zzro2.a level match (0.14 bounded; in interval / lift over chance): gen.lmie5400 0.21/+0.05, gen.lmie1800 0.20/+0.05, gen.lpek600 0.20/+0.05, gen.lee30_1800 0.20/+0.05
+  zzro2.a carrier: const hi +0.0025; gen.lmie14400 +0.0144 (+0.0120), gen.lmie10800 +0.0143 (+0.0119), gen.lee60_7200 +0.0136 (+0.0111)
+  zzro2.c response up (+0.96; -2.0e-04/-1.9e-04/-1.2e-05/+1.3e-04/+2.0e-04); split together with zzal.d 106, zzqf6.q.c1 92, zzro.e 86, zzpk 54; implied vs current formula -0.17
+  zzro2.c (now dm:-gen.ret120): informative 0.27; implied p10/p50/p90 -0.004164/0.0001381/0.007737; variance explained by stock-day 0.12, by mark 0.05; closest: gen.lpek50 +0.24, gen.rete150 +0.24, gen.lpe150 +0.23, gen.rpe150 +0.23
+  zzro2.c level match (0.19 bounded; in interval / lift over chance): gen.lpek600 0.18/+0.03, gen.lpek2400 0.19/+0.03, gen.lee30_3600 0.18/+0.03, gen.lpew3600 0.18/+0.03
+  zzro2.c carrier: const mid -0.0040; gen.lee60_14400 +0.0086 (+0.0126), gen.lee60_7200 +0.0084 (+0.0124), gen.lp_vwap +0.0078 (+0.0117)
+  zzgh2.b response hump (+0.38; -6.7e-05/+1.5e-05/+4.6e-05/+4.6e-05/+1.2e-05); split together with zzfb2.a 52, zzeg 50, zzxu.b 46, zzpk 46; implied vs current formula -0.04
+  zzgh2.b (now rank:gen.rete150): informative 0.05; implied p10/p50/p90 -0.001/137/900; variance explained by stock-day 0.37, by mark 0.28; closest: |gen.imbn120| +0.15, |gen.imbv180| +0.13, |gen.imba180| +0.13, |gen.imbn90| +0.13
+  zzgh2.b level match (0.03 bounded; in interval / lift over chance): gen.tsz90 0.19/+0.04, gen.tsz300 0.20/+0.04, |gen.net_buy_amount_share_orders_over_1m_cny_1800s|*1e4 0.15/+0.04, gen.tsz180 0.19/+0.03
+  zzgh2.b carrier: const nan +0.0015; gen.lp_vwap*1e4 +0.0055 (+0.0040), gen.lee60_14400*1e4 +0.0052 (+0.0038), gen.lee60_7200*1e4 +0.0051 (+0.0037)
+  zzgh.b response hump (+0.16; +0.0e+00/-5.4e-05/+8.5e-05/+3.5e-05/+2.4e-05); split together with zzfb2.a 58, zzzl2.i 54, zzmh 48, zzzl2.e 46; implied vs current formula +nan
+  zzgh.b (now -): informative 0.05; implied p10/p50/p90 66.5/200.5/650; variance explained by stock-day 0.36, by mark 0.22; closest: gen.rete60 -0.15, gen.rete90 -0.15, gen.rete75 -0.15, gen.rete50 -0.15
+  zzgh.b level match (0.04 bounded; in interval / lift over chance): |gen.lp_pc|*1e4 0.16/+0.03, |gen.return_open_to_1000_log|*1e4 0.15/+0.03, |gen.lpes7200|*1e4 0.14/+0.03, |gen.ldl1800|*1e4 0.07/+0.03
+  zzgh.b carrier: const nan +0.0000; gen.lee60_7200*1e4 +0.0008 (+0.0008), gen.lee60_14400*1e4 +0.0008 (+0.0008), gen.lmie14400*1e4 +0.0007 (+0.0007)
+  zzel.a response mixed (-0.58; +0.0e+00/-8.8e-05/-9.0e-05/-5.2e-05/-6.4e-04); split together with zzop.j 154, zzro2.a 102, zzop.i 96; implied vs current formula +nan
+  zzel.a (now -): informative 0.24; implied p10/p50/p90 0.0002848/0.001218/0.001835; variance explained by stock-day 0.11, by mark 0.06; closest: gen.lpe75 -0.40, gen.rpe75 -0.40, gen.lpe90 -0.40, gen.rpe90 -0.40
+  zzel.a level match (0.15 bounded; in interval / lift over chance): |gen.lpew200| 0.10/+0.02, |gen.lpek100| 0.10/+0.02, -gen.lpe450 0.07/+0.02, |gen.lmie300| 0.09/+0.01
+  zzel.a carrier: const nan +0.0000; -gen.lee60_7200 +0.0068 (+0.0068), -gen.lee60_14400 +0.0060 (+0.0060), -gen.lmie10800 +0.0046 (+0.0046)
+  zzwa.j response up (+0.75; -4.7e-05/+4.7e-05/+5.8e-05/+1.5e-04/+2.4e-04); split together with zzwj.a 148, zzro2.a 78, zzup 70, zzop.i 68; implied vs current formula +0.04
+  zzwa.j (now cal:|gen.lpe40|): informative 0.17; implied p10/p50/p90 0.001184/0.004246/0.01023; variance explained by stock-day 0.14, by mark 0.08; closest: gen.simba120 +0.17, gen.simbv120 +0.17, gen.imba120 +0.17, gen.imbv120 +0.17
+  zzwa.j level match (0.12 bounded; in interval / lift over chance): -gen.ld1300 0.10/+0.02, |gen.ret1800| 0.18/+0.02, |gen.ld1300| 0.10/+0.02, |gen.ld11800| 0.17/+0.02
+  zzwa.j carrier: const lo -0.0000; gen.lp_vwap*1e4 +0.0104 (+0.0105), gen.lee60_7200*1e4 +0.0104 (+0.0104), gen.lee60_14400*1e4 +0.0102 (+0.0102)
+  zzeg response mixed (-0.49; +0.0e+00/-6.9e-04/-6.0e-04/-7.2e-04/-2.5e-03); split together with zzpe.c 148, zzop.i 122, zzzl2.i 110, zzop.j 100; implied vs current formula +nan
+  zzeg (now -): informative 0.36; implied p10/p50/p90 0.9833/0.9833/1.015; variance explained by stock-day 0.18, by mark 0.07; closest: gen.rete75 -0.62, gen.rete90 -0.62, gen.lpe75 -0.61, gen.lpe90 -0.61
+  zzeg level match (0.13 bounded; in interval / lift over chance): gen.simbv15 0.00/+0.00, ced.stats.HBeta 0.01/+0.00, |gen.zpe14400| 0.01/+0.00, -gen.zpe3600 0.01/+0.00
+  zzeg carrier: const nan +0.0000; gen.lp_vwap +0.0000 (+0.0000), gen.lmie14400 +0.0000 (+0.0000), gen.lmie10800 +0.0000 (+0.0000)
+  zzzl2.c response down (-0.84; +1.3e-03/+2.2e-04/+8.8e-05/-1.5e-04/+1.0e-04); split together with zzeg 130, zzvm 86, zzxu.b 74, zzpe.a 74; implied vs current formula -0.15
+  zzzl2.c (now gen.lpes1800): informative 0.25; implied p10/p50/p90 -0.07052/-0.01566/0.03406; variance explained by stock-day 0.12, by mark 0.06; closest: gen.microprice_minus_mid_rel +0.35, gen.imb1 +0.32, gen.depth_imbalance_levels1to2 +0.27, gen.depth_imba[cut]
+  zzzl2.c level match (0.19 bounded; in interval / lift over chance): -gen.net_buy_amount_share_orders_200k_to_1m_cny_since_0930 0.12/+0.02, |gen.lpd20| 0.12/+0.02, ced.ret6 0.14/+0.02, -gen.lpev60 0.07/+0.02
+  zzzl2.c carrier: const nan +0.0090; -gen.lp_vwap +0.0185 (+0.0095), -gen.lee60_14400 +0.0171 (+0.0081), -gen.lee60_7200 +0.0170 (+0.0080)
+  zzsf.c response down (-0.75; +2.4e-05/-6.4e-05/-7.3e-05/-7.2e-05/-2.7e-04); split together with zzfb2.a 50, zzpe.a 50, zzpe.c 50, zzfb.b 46; implied vs current formula -0.07
+  zzsf.c (now gen.lee30_14400): informative 0.18; implied p10/p50/p90 0.003402/0.02097/0.03273; variance explained by stock-day 0.16, by mark 0.08; closest: gen.microprice_minus_mid_rel +0.20, gen.imb1 +0.17, gen.lpes7200 -0.12, gen.lpes14400 -0.12
+  zzsf.c level match (0.10 bounded; in interval / lift over chance): gen.bid_resting_volume_share_placed_last_300s 0.12/+0.02, ced.vol4 0.17/+0.02, -gen.net_buy_amount_share_orders_over_1m_cny_since_0930 0.09/+0.02, |gen.xpc_zz1000| 0.16/+0.02
+  zzsf.c carrier: const lo +0.0038; -gen.lp_vwap +0.0101 (+0.0063), -gen.lmie14400 +0.0084 (+0.0046), -gen.lee60_14400 +0.0083 (+0.0045)
+  zzba response down (-0.74; +0.0e+00/-1.8e-07/+8.4e-06/-3.0e-05/-2.3e-04); split together with zzpe.a 70, zzfb2.a 66, zzzl2.b 66, zzzl2.c 60; implied vs current formula +nan
+  zzba (now -): informative 0.18; implied p10/p50/p90 0.02994/0.03815/0.06422; variance explained by stock-day 0.12, by mark 0.07; closest: gen.imbv15 +0.08, gen.imba15 +0.08, gen.imbn30 +0.08, gen.imbn20 +0.07
+  zzba level match (0.15 bounded; in interval / lift over chance): ced.pmw.SH50 0.08/+0.02, |gen.rete2400|*1e4 0.12/+0.01, |gen.cum_imbn| 0.11/+0.01, |gen.rete14400|*1e4 0.13/+0.01
+  zzba carrier: const nan +0.0000; gen.lmie10800 +0.0001 (+0.0001), gen.lmie14400 +0.0001 (+0.0001), gen.lee60_7200 +0.0000 (+0.0000)
+  zzbt.b response mixed (-0.47; +0.0e+00/+3.5e-04/+8.9e-05/+9.8e-05/+3.1e-04); split together with zzhj 46, zzxu.a 42, zzmh 40, zzrg 20; implied vs current formula +nan
+  zzbt.b (now -): informative 0.15; implied p10/p50/p90 0.001191/0.02729/0.04353; variance explained by stock-day 0.14, by mark 0.09; closest: gen.zpe60 +0.45, gen.lpe75 +0.44, gen.rpe75 +0.44, gen.rete75 +0.44
+  zzbt.b level match (0.11 bounded; in interval / lift over chance): ced.range7 0.32/+0.03, ced.range9 0.33/+0.03, ced.range10 0.33/+0.03, ced.range8 0.32/+0.02
+  zzbt.b carrier: const nan +0.0000; gen.lp_vwap +0.0034 (+0.0034), gen.lee60_14400 +0.0031 (+0.0031), gen.lee60_7200 +0.0029 (+0.0029)
+  zzfb2.a response down (-0.96; +3.9e-04/+3.8e-04/-4.7e-06/-2.1e-04/-4.1e-04); split together with zzzl2.b 128, zzgh.b 102, zzpe.c 100, zzgh2.b 98; implied vs current formula -0.00
+  zzfb2.a (now rank:gen.rpe75): informative 0.31; implied p10/p50/p90 0.04919/0.2571/8.189; variance explained by stock-day 0.14, by mark 0.05; closest: gen.imb5 +0.40, gen.book_slope_log_ratio_bid_over_ask_5lvl +0.39, gen.depth_imbalance_levels1to4 +0.38, gen[cut]
+  zzfb2.a level match (0.20 bounded; in interval / lift over chance): -gen.zpe14400 0.08/+0.02, |gen.mean_resting_order_size_bid_over_ask_log| 0.16/+0.02, gen.full_book_depth_imbalance_within_50bp 0.09/+0.02, gen.depth_imbalance_levels1to3 0.09/+0.02
+  zzfb2.a carrier: const hi -0.0292; -gen.lp_vwap -0.0307 (-0.0015), -gen.lee60_14400 -0.0308 (-0.0015), -gen.lmie14400 -0.0308 (-0.0016)
+  zzxu.a response mixed (-0.33; -2.0e-09/+2.1e-05/+2.0e-05/-2.2e-05/+3.5e-04); split together with zzfb2.a 88, zzeg 86, zzzl2.b 76, zzpe.c 72; implied vs current formula -0.03
+  zzxu.a (now zzxu.a / zzxu.low): informative 0.29; implied p10/p50/p90 0.2568/0.3069/0.3776; variance explained by stock-day 0.09, by mark 0.05; closest: gen.microprice_minus_mid_rel -0.20, gen.depth_imbalance_levels1to4 -0.20, gen.depth_imbalance_levels1to3[cut]
+  zzxu.a level match (0.21 bounded; in interval / lift over chance): |gen.depth_imbalance_level4| 0.06/+0.01, |gen.flow_cxl_imb900| 0.08/+0.01, |gen.marketable_order_net_amount_share_60s| 0.06/+0.01, gen.toxicity_abs_imb_1min_mean_1800s 0.15/+0.01
+  zzxu.a carrier: const nan -0.0000; gen.lp_vwap*1e4 +0.0010 (+0.0010), -gen.stoch -0.0000 (+0.0000), gen.lp_vwap -0.0000 (+0.0000)
+  zzsf.d response up (+0.80; +0.0e+00/-6.3e-05/+2.4e-05/-4.8e-06/+1.3e-04); split together with zzpe.c 54, zzop.j 54, zzup 52, zzaa.a 52; implied vs current formula +nan
+  zzsf.d (now -): informative 0.09; implied p10/p50/p90 0.003414/0.01461/0.04587; variance explained by stock-day 0.24, by mark 0.15; closest: |gen.lpev3600| -0.14, |gen.lpev14400| -0.14, |gen.lppe7200| -0.13, |gen.lppe5400| -0.13
+  zzsf.d level match (0.05 bounded; in interval / lift over chance): -gen.lpek600 0.11/+0.04, -gen.lmie2400 0.10/+0.04, -gen.lpe1800 0.11/+0.03, -gen.lee600_7200 0.11/+0.03
+  zzsf.d carrier: const lo +0.0000; -gen.stoch -0.0000 (-0.0000), gen.lp_vwap*1e4 -0.0022 (-0.0022), gen.lee60_14400*1e4 -0.0022 (-0.0022)
+  zzop.i response down (-0.90; +0.0e+00/-1.4e-04/-3.0e-04/-6.3e-04/-1.5e-03); split together with zzel.b 140, zzpe.c 130, zzop.j 122, zzxu.b 114; implied vs current formula +nan
+  zzop.i (now -): informative 0.34; implied p10/p50/p90 89.85/480/1162; variance explained by stock-day 0.19, by mark 0.05; closest: gen.lpew3600 -0.36, gen.lpek600 -0.36, gen.rpe1800 -0.36, gen.lpe1800 -0.36
+  zzop.i level match (0.24 bounded; in interval / lift over chance): |gen.net_buy_amount_share_orders_200k_to_1m_cny_since_0930|*1e4 0.19/+0.02, gen.tsz900 0.21/+0.02, gen.ask_depth_weighted_distance_full_book_rel*1e4 0.29/+0.02, gen.tsz600 0.20/+0.02
+  zzop.i carrier: const lo +0.0000; gen.lee60_14400 +0.0000 (+0.0000), -gen.stoch +0.0000 (+0.0000), gen.stoch +0.0000 (-0.0000)
+  carrier best overall (gain over the column's best constant; raw gain), column <- candidate: zzro2.c<-gen.lee60_14400 +0.0126 (+0.0086), zzro2.c<-gen.lee60_7200 +0.0124 (+0.0084), zzro2.a<-gen.lmie14400 +0.0120 (+0.0144), zzro2.a<-gen.lmie10800 +0.0119 (+0.01[cut]
+  assigned columns (95), the best replacement (residual candidate, constants, missing) over the current formula [a candidate's margin over the best constant]: zzjb.b<-const_lo +0.0208 [+0.0000] (now -gen.lee30_14400), zzro.e<-gen.lee60_7200 +0.0176 [+0.0170] ([cut]
+  assigned columns worth least (agreement lost when missing): zzjb.b -0.0060 (-gen.lee30_14400), zzwa.a -0.0055 (|gen.zr60|), zzpe.b -0.0048 (z:-gen.imb5), zzjx2.a -0.0040 (-gen.lpe10800), zzpe.d -0.0040 (ced.stats.HBeta), zzzl2.f -0.0029 (cal:dm:-gen.lpd1), z[cut]
+data/reports/stage6_r23_implied/pred.parquet: 187,452 rows, 3 days, 681 marks; overall IC nan
+
+== per-mark IC by half hour of the trading clock (0 = 09:30-10:00, 120 = 13:00-13:30)
+shape: (8, 4)
+min_from_0930 | 20261104 | 20261105 | 20261106
+0   | NaN   | 0.569 | 0.627
+30  | NaN   | 0.604 | 0.676
+60  | 0.615 | 0.675 | 0.748
+90  | 0.596 | 0.725 | 0.709
+120 | 0.625 | 0.772 | 0.751
+150 | 0.693 | 0.749 | 0.732
+180 | 0.678 | 0.735 | 0.726
+210 | 0.557 | 0.708 | 0.703
+
+== by board (IC pooled over the board's rows; residual variance relative to all rows)
+shape: (4, 4)
+board | rows | ic_pooled | res_var_rel
+ChiNext | 21162 | 0.621 | NaN
+SH main | 106627 | 0.711 | NaN
+STAR | 11777 | 0.593 | NaN
+SZ main | 47886 | 0.671 | NaN
+
+== stock persistence: stock-day mean explains nan of the residual variance, stock mean over all days nan; day-to-day corr of stock means +nan, +nan, +0.52
+  PM's top 10 %: ours in the same tail 0.444 of the time (chance 0.100), ours median rank there +0.377
+  PM's bottom 10 %: ours in the same tail 0.478 of the time (chance 0.100), ours median rank there -0.394
+
+== 15 stocks with the largest mean |residual| (residual > 0: PM ranks it higher than ours explains)
+  600584 +nan, 600085 +nan, 603019 +nan, 600066 +nan, 000002 +nan, 688072 +0.107, 002353 +0.212, 300033 -0.097, 688082 +0.204, 300413 -0.187, 002371 +0.186, 688981 -0.010, 002241 -0.028, 300059 +0.052[cut]
+data/reports/stage6_r23_implied_224/pred.parquet: 110,908 rows, 2 days, 380 marks; overall IC 0.6175
+
+== per-mark IC by half hour of the trading clock (0 = 09:30-10:00, 120 = 13:00-13:30)
+shape: (8, 3)
+min_from_0930 | 20261109 | 20261110
+0   | 0.360 | null
+30  | 0.347 | 0.729
+60  | 0.524 | 0.676
+90  | 0.517 | 0.672
+120 | null  | 0.740
+150 | 0.654 | 0.700
+180 | 0.679 | 0.709
+210 | 0.689 | 0.665
+
+== by board (IC pooled over the board's rows; residual variance relative to all rows)
+board | rows | ic_pooled | res_var_rel
+ChiNext | 12605 | 0.514 | 1.258
+SH main | 62344 | 0.646 | 0.952
+STAR | 7044 | 0.590 | 1.124
+SZ main | 28915 | 0.618 | 0.929
+
+== stock persistence: stock-day mean explains 0.146 of the residual variance, stock mean over all days 0.108; day-to-day corr of stock means +0.48
+  PM's top 10 %: ours in the same tail 0.400 of the time (chance 0.100), ours median rank there +0.359
+  PM's bottom 10 %: ours in the same tail 0.465 of the time (chance 0.100), ours median rank there -0.389
+
+== 15 stocks with the largest mean |residual| (residual > 0: PM ranks it higher than ours explains)
+  601939 +0.215, 601088 +0.173, 300394 -0.171, 002384 -0.079, 601988 +0.167, 000001 +0.165, 601012 -0.160, 600221 -0.023, 600000 +0.155, 302132 -0.153, 002027 +0.152, 600188 +0.152, 600019 +0.151, 600[cut by the script's own cut -c1-200]
+[23:52:10] done
