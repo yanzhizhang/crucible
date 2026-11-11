@@ -368,3 +368,10 @@
 - 02:25 VDI Windows Update dialog: "We'll restart and install this update at 2:30 AM" (Restart now / Another time / OK). Not touched: postponing an update is a system-setting change and the user is asleep. After the restart, reconnecting needs the user's login. R27 was in step 3/4 on 97 (VS Code remote terminal, should keep running server-side). R28/R29 verified on the Mac, not yet pasted. Loop paused until the user is back.
 - Resume plan from crucible (for when the user is back): (1) check r27.txt ends with "done", else rerun r27.sh (cache); (2) relay R27 step 3 pick table + step 4 final table; (3) paste R28 (r28.sh 7877215d, engine/export.py 6a878b1a, engine/run_cpp.py a542e01a) and R29 (r29.sh 235eb63f, r29_moved.py 728bfe04), verify, run R28 then R29; (4) rerun add_day.sh 20261111 (1111 hstats / .jz should have landed).
 - 02:3x Windows App: 'Your session was disconnected ... the remote PC is restarting' (0x1a). Not reconnecting (needs the user's login). Full-screen control released. Waiting for the user.
+
+## 2026-11-12 06:43 — resumed after VDI restart
+- User logged back into the VDI; VS Code reconnected to 97.
+- R27 had finished at 02:45:21 (before the 02:30 restart window took effect on the session). Steps 3-4 transcribed to
+  docs/reports_97/r27/r27_steps3-4.txt. Final: both (103 cols) 20260430 0.3756 vs R17 0.3107; 1110 0.7173 vs 0.6958;
+  1111 0.4535 vs 0.4589 (1111 is held out, slightly below R17).
+- Next: paste R28/R29, run R28 then R29, then add_day 20261111.

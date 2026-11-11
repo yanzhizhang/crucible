@@ -1,0 +1,58 @@
+# R27 steps 3-4, transcribed from data/reports/r27.txt on 97 (lines 38-94), screen zoom 2026-11-12 06:43
+# R27 itself finished at 02:45:21 before the VDI restart; no rerun needed.
+# Lines 39-41 were hidden behind the editor's sticky header; going by the table below they are the
+# add_zzpe.e / add_zzbo.c / add_zzqo.d formula lines (formulas are in the change column).
+[01:41:59] 3 R17 + one of R24's new formulas, on the selection days
+  add_zzmo: cal:dm:gen.imb1
+  add_zzav: gen.lee300_600*1e4
+  add_zzie4.c: dm:-gen.simbv120
+  add_zzro2.a: dm:-gen.ret45
+  add_zzie2.c: -gen.imba60
+  add_zzrb: -gen.zr60
+  add_zzag2.f: cal:|gen.flow_ord_imb60|*1e4
+  add_zzfq.b: gen.simbn45
+  add_zzie.c: -gen.simbv180
+  add_zzyj.c: cal:dm:-gen.full_book_amount_imbalance
+  add_zzyj5.b: rank:gen.full_book_amount_imbalance
+  add_zzvx.a: cal:(zzvx.high - zzvx.rEmaD) / px
+  add_zzaa.a: cal:-gen.nam15
+  add_zzxc.d: gen.lpek10
+  add_zzxc.a: cal:srank:gen.lpek50
+  add_zzko: gen.lmie10*1e4
+  add_zzwf: z:-gen.rete150
+20 variants -> data/reports/r27_add
+base (102 columns): 20260430 0.3107  20261110 0.6958
+variant          20260430  20261110   mean  picked  change
+add_zzro2.a       +0.0259   -0.0012 +0.0124         zzro2.a=dm:-gen.ret45
+add_zzaa.a        +0.0069   +0.0008 +0.0039  yes    zzaa.a=cal:-gen.nam15
+add_zzmo          +0.0057   -0.0006 +0.0026         zzmo=cal:dm:gen.imb1
+add_zzfq.b        +0.0004   +0.0027 +0.0016  yes    zzfq.b=gen.simbn45
+add_zzrb          +0.0029   +0.0002 +0.0015  yes    zzrb=-gen.zr60
+add_zzie.c        +0.0020   +0.0002 +0.0011  yes    zzie.c=-gen.simbv180
+add_zzqo.d        +0.0005   +0.0007 +0.0006  yes    zzqo.d=cal:gen.imba300
+add_zzko          +0.0006   +0.0003 +0.0005         zzko=gen.lmie10*1e4
+add_zzwf          +0.0001   +0.0003 +0.0002         zzwf=z:-gen.rete150
+add_zzie2.c       -0.0001   +0.0003 +0.0001         zzie2.c=-gen.imba60
+add_zzie4.c       +0.0000   +0.0001 +0.0000         zzie4.c=dm:-gen.simbv120
+add_zzyj5.b       +0.0000   +0.0000 +0.0000         zzyj5.b=rank:gen.full_book_amount_imbalance
+add_zzag2.f       +0.0010   -0.0012 -0.0001         zzag2.f=cal:|gen.flow_ord_imb60|*1e4
+add_zzav          -0.0002   -0.0003 -0.0002         zzav=gen.lee300_600*1e4
+add_zzxc.a        -0.0003   -0.0004 -0.0003         zzxc.a=cal:srank:gen.lpek50
+add_zzyj.c        +0.0001   -0.0008 -0.0003         zzyj.c=cal:dm:-gen.full_book_amount_imbalance
+add_zzxc.d        -0.0049   +0.0011 -0.0019         zzxc.d=gen.lpek10
+add_zzpe.e        -0.0051   -0.0022 -0.0036         zzpe.e=cal:z:-gen.imb1
+add_zzbo.c        -0.0049   -0.0028 -0.0038         zzbo.c=z:-gen.imb1
+add_zzvx.a        -0.0253   +0.0018 -0.0117         zzvx.a=cal:(zzvx.high - zzvx.rEmaD) / px
+picked 5: add_zzaa.a add_zzfq.b add_zzrb add_zzie.c add_zzqo.d
+-> data/reports/r27_pick_add.json (107 columns)
+[02:18:39] 4 R17 / R25 picks / additions / both, every day
+  r17 102, r25 picks 98, additions 107, both 103 columns
+day        tgt    r17     r25pick  addpick  both
+20261104   224    0.5980  0.5993   0.5910   0.5945
+20261105   224    0.7015  0.6997   0.6982   0.7002
+20261106   224    0.7131  0.7051   0.7116   0.7084
+20261109   224    0.5357  0.5570   0.5522   0.5712
+20261110   224    0.6958  0.7137   0.6980   0.7173
+20261111   224    0.4589  0.4503   0.4599   0.4535
+20260430   prod   0.3107  0.3656   0.3229   0.3756
+[02:45:21] done
