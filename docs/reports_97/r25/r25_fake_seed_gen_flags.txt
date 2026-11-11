@@ -1,0 +1,102 @@
+# fake_seed A / B (fake_seed.py 118e40ca), gen_flags, zzeg grep; run on 97 2026-11-12 01:35-01:36:38; transcribed from screen
+##### r25_fake_seed_A.txt (6 lines)
+20261104: seed 20261103.jz, true previous 20261103; seed == true previous for 1.000 of 471,900 values
+20261105: seed 20261104.jz, true previous 20261104; seed == true previous for 1.000 of 471,900 values
+20261106: seed 20261105.jz, true previous 20261105; seed == true previous for 1.000 of 471,900 values
+20261109: seed 20261106.jz, true previous 20261106; seed == true previous for 1.000 of 471,900 values
+20261110: seed 20261109.jz, true previous 20261109; seed == true previous for 1.000 of 471,900 values
+20261111: seed 20261110.jz, true previous 20261110; seed == true previous for 1.000 of 471,900 values
+##### r25_fake_seed_B.txt (86 lines)
+20261104: seed 20260914.jz, true previous 20261103; seed == true previous for 0.001 of 470,326 values
+20261105: seed 20261030.jz, true previous 20261104; seed == true previous for 0.002 of 470,326 values
+20261106: seed 20261102.jz, true previous 20261105; seed == true previous for 0.002 of 471,900 values
+20261109: seed 20261104.jz, true previous 20261106; seed == true previous for 0.002 of 471,900 values
+20261110: seed 20261104.jz, true previous 20261109; seed == true previous for 0.002 of 471,900 values
+20261111: seed 20261110.jz, true previous 20261110; seed == true previous for 1.000 of 471,900 values
+
+== state keys whose staleness tracks the residual (mean over 6 days, top 40 by |rho_day|)
+key               rho_day  rho_1h  rho_day_min rho_day_max stale_med days stem
+zzgh.nb           -0.154  -0.056  -0.248  -0.026  1.402  5  zzgh
+zzgh2.nb          -0.151  -0.055  -0.250  -0.015  1.416  5  zzgh2
+zzmh.r.sum         0.149   0.060  -0.092   0.443  2.328  5  zzmh
+zzeg.c.span        0.131   0.285  -0.116   0.413  0.020  5  zzeg
+zzeg.c.low         0.127   0.261  -0.083   0.318  0.019  5  zzeg
+zzcb.r.sum        -0.124  -0.043  -0.349   0.049  0.373  5  zzcb
+zzeg.c.high        0.110   0.259  -0.170   0.462  0.024  5  zzeg
+zzvx.trEmaO.sum   -0.104  -0.098  -0.169  -0.040  0.372  5  zzvx
+zzvx.trEmaD.sum   -0.104  -0.098  -0.169  -0.040  0.372  5  zzvx
+zzvx.trDEmaO.sum  -0.104  -0.097  -0.168  -0.041  0.372  5  zzvx
+zzvx.trDEmaD.sum  -0.104  -0.097  -0.168  -0.041  0.372  5  zzvx
+zzxo.last         -0.103   0.123  -0.277   0.112  0.037  5  zzxo
+zzui.r.8          -0.103   0.126  -0.272   0.105  0.037  5  zzui
+zzxo.r.28         -0.103   0.126  -0.272   0.105  0.037  5  zzxo
+zzxo.r.18         -0.103   0.124  -0.276   0.108  0.036  5  zzxo
+zzxo.r.15         -0.102   0.124  -0.277   0.111  0.037  5  zzxo
+zzxu.a.sum        -0.102  -0.078  -0.169  -0.045  0.357  5  zzxu
+zzxo.r.8          -0.102   0.124  -0.271   0.109  0.037  5  zzxo
+zzxo.r.24         -0.102   0.124  -0.274   0.109  0.037  5  zzxo
+zzui.r.4          -0.102   0.124  -0.274   0.109  0.037  5  zzui
+zzxo.r.5          -0.102   0.124  -0.275   0.109  0.037  5  zzxo
+zzxo.r.13         -0.101   0.123  -0.277   0.115  0.037  5  zzxo
+zzxo.r.19         -0.101   0.124  -0.273   0.111  0.037  5  zzxo
+zzxu.last         -0.101   0.126  -0.277   0.112  0.037  5  zzxu
+zzxo.r.3          -0.101   0.124  -0.273   0.110  0.036  5  zzxo
+zzxo.r.29         -0.101   0.126  -0.271   0.109  0.037  5  zzxo
+zzui.r.9          -0.101   0.126  -0.271   0.109  0.037  5  zzui
+zzxo.r.4          -0.100   0.125  -0.274   0.105  0.037  5  zzxo
+zzxo.r.23         -0.100   0.127  -0.275   0.112  0.037  5  zzxo
+zzui.r.3          -0.100   0.127  -0.275   0.112  0.037  5  zzui
+zzxo.r.20         -0.100   0.124  -0.273   0.111  0.037  5  zzxo
+zzui.r.0          -0.100   0.124  -0.273   0.111  0.037  5  zzui
+zzxo.r.6          -0.100   0.125  -0.273   0.112  0.037  5  zzxo
+zzxo.r.2          -0.100   0.124  -0.276   0.105  0.037  5  zzxo
+zzxo.r.9          -0.100   0.124  -0.272   0.108  0.037  5  zzxo
+zzxo.r.0          -0.100   0.124  -0.273   0.106  0.036  5  zzxo
+zzxo.r.11         -0.100   0.123  -0.273   0.111  0.037  5  zzxo
+zzxo.r.16         -0.100   0.124  -0.276   0.114  0.037  5  zzxo
+zzxo.r.7          -0.100   0.124  -0.275   0.115  0.037  5  zzxo
+zzxo.r.27         -0.100   0.127  -0.272   0.109  0.037  5  zzxo
+== per family: strongest key
+stem   max_abs_rho_day  max_abs_rho_1h  keys
+zzgh   0.154  0.056  1
+zzgh2  0.151  0.055  1
+zzmh   0.149  0.160  4
+zzeg   0.131  0.285  6
+zzcb   0.124  0.043  3
+zzvx   0.104  0.218  20
+zzxo   0.103  0.128  31
+zzui   0.103  0.128  15
+zzxu   0.102  0.218  12
+zzfb   0.089  0.099  1407
+zzqj   0.086  0.094  5
+zzvm   0.086  0.094  5
+zzpk   0.072  0.221  6
+zzup   0.071  0.120  6
+zzhj   0.070  0.039  3
+zzba   0.068  0.059  6
+zzab2  0.060  0.111  3
+zzbd   0.047  0.079  14
+zztx   0.044  0.035  3
+zzeb   0.034  0.076  6
+|rho_day| over all 1557 keys: median 0.023, p90 0.060 (about 0.06 would be noise for 300 stocks)
+##### r25_gen_flags.txt (22 lines)
+moved rows 145 of 3553; months ['202509', '202510', '202511', '202512', '202601', '202601.updated', '202602', '202603', '202604', '202605', '202606', '202607', '202608', '202609', '202610', '202611', '202612']
+shape: (14, 8)
+col | ref_name | months | t50_shift | span_min | span_max | first | last
+71  | Column_71  | 13 | 0.00 | 0.00 | 0.44 | 202509 | 202608
+110 | Column_110 | 13 | 0.00 | 0.32 | 0.46 | 202509 | 202608
+91  | Column_91  | 13 | 1.11 | 1.00 | 1.00 | 202509 | 202608
+37  | Column_37  | 13 | 0.00 | 0.12 | 0.43 | 202509 | 202608
+101 | Column_101 | 13 | 0.40 | 0.98 | 1.03 | 202509 | 202608
+191 | Column_191 | 13 | 0.00 | 0.01 | 0.01 | 202509 | 202608
+99  | Column_99  | 13 | 1.70 | 0.96 | 1.00 | 202509 | 202608
+78  | Column_78  | 13 | 0.00 | 0.25 | 0.28 | 202509 | 202608
+66  | Column_66  | 13 | 0.98 | 1.00 | 1.00 | 202509 | 202608
+140 | Column_140 | 8  | 0.00 | 3.83 | 3.83 | 202509 | 202604
+34  | Column_34  | 5  | 0.00 | 0.45 | 0.45 | 202601.updated | 202608
+89  | Column_89  | 5  | 0.33 | 0.99 | 0.99 | 202601.updated | 202608
+38  | Column_38  | 5  | 0.00 | 0.39 | 0.39 | 202601.updated | 202608
+125 | Column_125 | 5  | 0.00 | 2.26 | 2.26 | 202601.updated | 202608
+##### r25_zzeg_grep.txt
+14:drop zzeg = zzpk.p / px: 0 distinct values on a positive feature
+134:IC: start 0.3107 -> end 0.3107 (t 55.90, 240 marks); 101 of 209 columns assigned -> data/reports/stage6_r25v_set_zzeg_0_20260430/ic_assign.json
