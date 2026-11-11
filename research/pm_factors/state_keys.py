@@ -6,6 +6,11 @@ its keys in a day's state file with the value distribution that hints at the qua
 10 / 50 / 90 % points, share of zeros, whether every value is an integer (a count / a clock) and the number of distinct
 values. Columns of the stem and whether each is assigned are printed above its keys.
 
+With ``--hstats`` it also sorts every unassigned column into one group by where its family's inputs can live: ``state``
+(keys in the .jz, maybe hstats too), ``hstats`` (an hstats family, no state keys) or ``neither`` (no state, no hstats:
+stateless from ticks, or a static input outside both -- stsfile, CED, neutralisation); per group the columns and their
+gain, written to ``<out stem>_groups.csv``.
+
     python research/pm_factors/state_keys.py --state /data/prod/h/HS300/p1_intrading_dcp/20261106.jz --assign data/reports/stage6_r17/ic_assign.json
 """
 
@@ -31,6 +36,7 @@ def main() -> None:
     ap.add_argument("--assign", type=Path, required=True)
     ap.add_argument("--fingerprint", type=Path, default=Path("data/reports/stage5/fingerprint.parquet"))
     ap.add_argument("--out", type=Path, default=Path("data/reports/state_keys.csv"))
+    ap.add_argument("--hstats", type=Path, help="hstats/<universe> dir; its family directories split the open columns into groups")
     ap.add_argument("--max-keys", type=int, default=40, help="keys printed per stem (all are in --out)")
     a = ap.parse_args()
     assign = json.loads(a.assign.read_text())
@@ -72,6 +78,19 @@ def main() -> None:
         for r in g.head(a.max_keys).iter_rows(named=True):
             print(f"    {r['key']:<28} stocks {r['stocks']:.2f}  p10/50/90 {r['p10']:.6g} / {r['p50']:.6g} / {r['p90']:.6g}  "
                   f"zero {r['zero']:.2f}{'  integer' if r['integer'] else ''}  distinct {r['distinct']}")
+
+    if a.hstats:
+        hs = {d.name.lower() for d in a.hstats.iterdir() if d.is_dir()}
+        grp = pl.DataFrame([{"feature": f, "stem": s, "gain": gain.get(f, 0.0),
+                             "group": "state" if s in have else ("hstats" if s.lower() in hs else "neither")}
+                            for s, fs in open_stems.items() for f in fs if f not in assign],
+                           schema={"feature": pl.String, "stem": pl.String, "gain": pl.Float64, "group": pl.String})
+        grp = grp.sort("group", "gain", descending=[False, True])
+        grp.write_csv(a.out.with_name(a.out.stem + "_groups.csv"))
+        print(f"\nopen columns by where their inputs can live ({len(hs)} hstats families):")
+        for (name,), g in grp.group_by("group", maintain_order=True):
+            print(f"  {name:<8} {g.height:4d} columns, gain {g['gain'].sum():.4f}, families {g['stem'].n_unique()}: "
+                  f"{', '.join(g['stem'].unique(maintain_order=True).to_list()[:30])}")
 
 
 if __name__ == "__main__":
