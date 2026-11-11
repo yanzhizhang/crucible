@@ -1,0 +1,56 @@
+# r27.txt on 97 (0287b2e; md5s verified), started 01:41:58 2026-11-12; steps 0-3 header, transcribed from screen
+[01:41:58] 0 PM production predictions on 2.23 (livev1)
+2026-11-10 04:09 19938668 /data/share/data/prod/h/HS300/livev1/rec10_p/20260430/alpha.parquet
+==
+total 16  [ls /data/share/data/prod/h/HS300/livev1: ., .., rec10 (Sep 8 16:47), rec10_p (Sep 22 14:26)]
+  production target days (besides 0430):
+[01:41:59] 1 R17: production target vs 224 target
+[01:41:59] 2 pick R25's variants (1110, 0430)
+base (102 columns): 20261110 0.6958  20260430 0.3107
+variant          20261110 20260430   mean  picked  change
+drop_zzzl2.f     +0.0058  +0.0159  +0.0109  yes  zzzl2.f=-
+set_zzro2.a_4    +0.0042  +0.0171  +0.0106  yes  zzro2.a=gen.stoch
+drop_zzpe.c      +0.0018  +0.0091  +0.0055  yes  zzpe.c=-
+drop_zzpe.b      +0.0011  +0.0091  +0.0051  yes  zzpe.b=-
+drop_zzwa.a      +0.0022  +0.0057  +0.0040  yes  zzwa.a=-
+drop_zzpe.d      +0.0040  +0.0002  +0.0021  yes  zzpe.d=-
+drop_zzjx2.a     +0.0018  -0.0007  +0.0006       zzjx2.a=-
+set_zzeg_0       +0.0000  +0.0000  +0.0000       zzeg=zzpk.p / px
+set_zzeg_1       +0.0000  +0.0000  +0.0000       zzeg=cal:zzpk.p / px
+set_zzeg_2       +0.0000  +0.0000  +0.0000       zzeg=px / zzpk.p
+drop_zzjb.b      +0.0014  -0.0080  -0.0033       zzjb.b=-
+set_zzro2.c_1    +0.0009  -0.0133  -0.0062       zzro2.c=cal:gen.lee60_14400
+set_zzro2.c_0    +0.0019  -0.0144  -0.0062       zzro2.c=gen.lee60_14400
+set_zzro2.c_2    +0.0003  -0.0183  -0.0090       zzro2.c=gen.lp_vwap
+set_zzro2.a_1    -0.0005  -0.0180  -0.0092       zzro2.a=cal:gen.lmie14400
+set_zzro2.c_3    -0.0008  -0.0179  -0.0093       zzro2.c=gen.lmie14400
+r17plus          -0.0009  -0.0180  -0.0094       zzwf=z:-gen.rete150, zzlf=cal:gen.full_book_depth_imbalance_within_50bp, zzie2.c=-gen.imba[cut]
+set_zzba_0       -0.0023  -0.0256  -0.0139       zzba=zzba.r / zzba.p
+set_zzba_1       -0.0023  -0.0256  -0.0139       zzba=cal:zzba.r / zzba.p
+set_zzro2.a_3    +0.0003  -0.0972  -0.0484       zzro2.a=gen.lp_vwap
+set_zzro2.a_2    +0.0000  -0.0972  -0.0486       zzro2.a=gen.lee60_14400
+set_zzro2.a_0    -0.0008  -0.1023  -0.0515       zzro2.a=gen.lmie14400
+picked 6: drop_zzzl2.f set_zzro2.a_4 drop_zzpe.c drop_zzpe.b drop_zzwa.a drop_zzpe.d
+-> data/reports/r27_pick_r25.json (98 columns)
+[01:41:59] 3 R17 + one of R24's new formulas, on the selection days
+  add_zzpe.e: cal:z:-gen.imb1 | add_zzbo.c: z:-gen.imb1 | add_zzqo.d: cal:gen.imba300 | add_zzmo: cal:dm:gen.imb1 | add_zzav: gen.lee300_600*1e4
+  add_zzie4.c: dm:-gen.simbv120 | add_zzro2.a: dm:-gen.ret45 | add_zzie2.c: -gen.imba60 | add_zzrb: -gen.zr60 | add_zzag2.f: cal:|gen.flow_ord_imb60|*1e4
+  add_zzfq.b: gen.simbn45 | add_zzie.c: -gen.simbv180 | add_zzyj.c: cal:dm:-gen.full_book_amount_imbalance | add_zzyj5.b: rank:gen.full_book_amount_imbalance
+  add_zzvx.a: cal:(zzvx.high - zzvx.rEmaD) / px | add_zzaa.a: cal:-gen.nam15 | add_zzxc.d: gen.lpek10 | add_zzxc.a: cal:srank:gen.lpek50 | add_zzko: gen.lmie10*1e4 | add_zzwf: z:-gen.rete150
+20 variants -> data/reports/r27_add
+
+# gen_flags column names (data/reports/r25_gen_flag_names.txt) and R17 formulas
+34 zzup   R17 "zzup.pf / zzup.ps"
+37 zzdw   R17 "z:gen.rete150"
+38 zzcb   R17 -
+66 zzal.a R17 -
+71 zzhi2.c R17 "|gen.net_buy_amount_share_orders_over_200k_cny_1800s|"
+78 zzrg   R17 -
+89 zzal.e R17 "dm:-gen.imbn10"
+91 zzqf5.q.c4 R17 "-gen.return_open_to_1000_log"
+99 zzhk.d R17 -
+101 zzal.b R17 -
+110 zzal.f R17 "crank:-gen.rete240"
+125 zzbs.b R17 -
+140 zzqo.a R17 "cal:dm:-gen.ofi_levels2to5_norm_60s"
+191 zzxc.d R17 -
