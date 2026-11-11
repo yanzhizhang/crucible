@@ -426,6 +426,60 @@ def family(expr: str) -> str:
     return re.sub(r"\d+", "#", re.sub(r"gen\.[mp]?ret", "gen.ret", expr))
 
 
+# quantity classes of gen.* bases, first full match wins: horizons, windows, price flavours and index tags are variants of one class
+CORE_CLASSES = (
+    ("ret", r"[mp]?ret\d*|rete\d*|zr\d*|xr\d*_\w+|ir\d*\w*"),
+    ("ema_dev", r"lpp?e[swkv]?\d*|rpe\d*|zpe\d*|lee\d*|lmie\d*"),
+    ("ma_dev", r"[lr]pma\d*"),
+    ("ref_px", r"lp_\w+|xpc_\w+|ipc_\w+|lpd\w*|ld[hl]\d*|stoch\w*|spm\d*"),
+    ("imb", r"s?imb\w*|timb\w*|s?cum_imb\w*|buy\w*"),
+    ("volat", r"rv\d*|rng\d*"),
+    ("activity", r"s?l?amt\d*|s?l?vol\d*|lcum_\w+|nam\d*|nn\d*|tick\w*|tsz\d*|vfrac\w*"),
+)
+
+
+def core(expr: str) -> str:
+    """The quantity class an expression measures: sign, |.|, scale and every transform prefix dropped (--family-lock)."""
+    m = re.search(r"\b(gen|ced)\.([A-Za-z_0-9.]+)", expr)
+    if not m:  # a stateful stem's own atoms: the expression shape without the stem and its digits
+        return "state:" + re.sub(r"\d+", "#", re.sub(r"\bzz[a-z0-9]+\.", "", re.sub(r"^(cal:|dm:|z:|s?rank:|crank:|-)+", "", expr)))
+    src, b = m.group(1), m.group(2)
+    if src == "ced":
+        parts = b.split(".")
+        return "ced." + (parts[0] if len(parts) > 1 else re.sub(r"\d+", "#", b))
+    for name, rx in CORE_CLASSES:
+        if re.fullmatch(rx, b):
+            return name
+    return "gen." + re.sub(r"\d+", "#", b)
+
+
+def pm_family(feat: str) -> str:
+    """PM's family of a model column: zzro2.a and zzro.e are both zzro."""
+    return re.match(r"[a-z]+", feat)[0]
+
+
+def model_files(root: Path, date: str, fits: list[str]) -> list[Path]:
+    """Every sub-model file of the fits in the month folder load_models picks for the day."""
+    months = sorted(p.name for p in root.iterdir() if re.fullmatch(r"\d{6}", p.name) and p.name <= date[:6])
+    return sorted(f for fit in fits for f in (root / months[-1] / "lgb" / fit).glob("model_s*.txt")) if months else []
+
+
+def generation_cdf(files: list[Path], names: list[str]) -> dict[str, tuple[np.ndarray, np.ndarray]]:
+    """Root-split training-CDF points of one model generation (pm_models_probe's parser), features with >= 8 exact points."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    import pm_models_probe as PP  # noqa: PLC0415 -- LightGBM text parser
+
+    roots = pl.concat([PP.parse_model(f)[3] for f in files])
+    if names:  # Column_i -> the feature csv's name i
+        roots = roots.with_columns(pl.col("feature").map_elements(
+            lambda c: names[int(c[7:])] if c.startswith("Column_") and int(c[7:]) < len(names) else c, return_dtype=pl.String))
+    out = {}
+    for g in roots.filter(pl.col("nan_left") == 0).partition_by("feature"):  # NaN rows sit on the right: left share is exact
+        if g.height >= 8:
+            out[g["feature"][0]] = (g["t"].to_numpy(), g["p"].to_numpy())
+    return out
+
+
 def stem_frames(frames: list[pl.DataFrame], stem: str) -> list[tuple[np.ndarray, dict[str, np.ndarray]]]:
     """Per mark: (sids, atoms) -- the stem's state quantities; expressions are evaluated on demand (``FM.evaluate``)."""
     return [FM.atom_columns(FM.atoms(fr, stem)) for fr in frames]
@@ -679,6 +733,12 @@ def main() -> None:
                     help="an assignment to gate this run's against, on this run's days: each column that differs keeps the new formula "
                          "only when it beats the old one (paired over marks, t >= --gate-t); writes ic_gate.parquet + ic_assign_gated.json")
     ap.add_argument("--gate-t", type=float, default=1.0)
+    ap.add_argument("--cdf-by-generation", action=argparse.BooleanOptionalAction, default=True,
+                    help="training-CDF points from each day's own model files (cal: per generation, gates on the run's generations); "
+                         "--no-cdf-by-generation reads --cdf")
+    ap.add_argument("--family-lock", action="store_true",
+                    help="every column of one PM family (zzro, zzro2 ...) uses one quantity class (core): off-class start picks are dropped "
+                         "and rescanned, the scan and the gate only take in-class formulas")
     ap.add_argument("--dump-pred", action="store_true", help="write <out>/pred.parquet: date, sid, mark, our prediction, PM's, per row")
     ap.add_argument("--min-t", type=float, default=2.0, help="keep a candidate when its paired IC gain over marks has t >= this")
     ap.add_argument("--min-in-range", type=float, default=0.95, help="a candidate must sit inside the feature's training range this often")
@@ -768,6 +828,8 @@ def main() -> None:
     stem_parts: list[list[dict[str, pl.DataFrame]]] = []  # per block, per mark: stem -> its state rows
     empty_st = pl.DataFrame(schema={"sid": pl.Int64, "key": pl.String, "pm": pl.Float64})
     blocks = []  # per day: (models, frames per mark, sids per mark, forward returns per mark)
+    gen_cdf: dict[str, dict[str, tuple[np.ndarray, np.ndarray]]] = {}  # model generation -> its training-CDF points
+    block_gen: list[str] = []  # per day: its model generation ("" = none found)
     for d in [x.strip() for x in args.dates.split(",") if x.strip()]:
         f = args.dcp_dir / f"{d}.jz"
         if not f.exists() and args.state_fallback:  # the state file only gives the stock list and the stop time: an earlier day's will do
@@ -930,6 +992,13 @@ def main() -> None:
         state_stems |= set(long["key"].str.extract(r"^([^.]+)\.", 1).drop_nulls().unique().to_list()) - {"gen", "ced"}
         models = load_models(args.models, d, args.fits.split(","), args.subs.split(","))
         blocks.append((d, models, frames, rets))
+        if args.cdf_by_generation:  # identical model files = one generation (202510..202604 reuse 202509's models)
+            mf = model_files(args.models, d, args.fits.split(","))
+            key = hashlib.md5(b"".join(hashlib.md5(f.read_bytes()).digest() for f in mf)).hexdigest()[:8] if mf else ""
+            if key and key not in gen_cdf:
+                gen_cdf[key] = generation_cdf(mf, names)
+                print(f"{d}: model generation {key} ({mf[0].parent.parent.parent.name}): training-CDF points for {len(gen_cdf[key])} features")
+            block_gen.append(key)
         print(f"{d}: {len(rets)} stocks x {MARKS.size} marks, {len(models)} models, engine state for {len(eng)}, "
               f"profiles for {len(prof)} ({time.perf_counter() - t0:.0f}s)")
         print(f"time build_{d} {time.perf_counter() - t_day:.0f}s")
@@ -1063,7 +1132,13 @@ def main() -> None:
     def column(feature: str, expr: str) -> np.ndarray:
         """One model column filled with expression ``expr`` of the feature's stem (``cal:`` = quantile-mapped onto PM's training CDF)."""
         if expr.startswith(CAL):
-            return calibrate(column(feature, expr[len(CAL):]), cdf.get(feature))
+            raw = column(feature, expr[len(CAL):])
+            if not gen_rows:
+                return calibrate(raw, cdf.get(feature))
+            out = np.full(raw.size, np.nan)
+            for k, rows in gen_rows.items():  # each generation's days ranked among themselves, mapped through its own CDF
+                out[rows] = calibrate(raw[rows], gen_cdf[k].get(feature))
+            return out
         stem = feature.split(".")[0]
         if stem not in state_stems:
             x = pool_col(expr)
@@ -1090,6 +1165,17 @@ def main() -> None:
         return base_ic[base]
 
     brows = [np.flatnonzero(blk == b).astype(np.int64) for b in range(len(blocks))]
+    gen_rows: dict[str, np.ndarray] = {}  # generation -> the panel rows of its days
+    if args.cdf_by_generation and gen_cdf:
+        for b, k in enumerate(block_gen):
+            if k:
+                gen_rows[k] = np.concatenate([gen_rows[k], brows[b]]) if k in gen_rows else brows[b]
+        pooled: dict[str, list] = {}
+        for k in gen_rows:  # the gates see the run's generations pooled (one generation: exactly its points)
+            for f_, (t_, p_) in gen_cdf[k].items():
+                pooled.setdefault(f_, []).append((t_, p_))
+        cdf = {f_: (np.concatenate([x[0] for x in v]), np.concatenate([x[1] for x in v])) for f_, v in pooled.items()}
+        print(f"training CDF by generation: {len(gen_rows)} generation(s) {sorted(gen_rows)}, {len(cdf)} features")
     flat = all(hasattr(ms[0], "trees_of") for _, ms, _, _ in blocks)
 
     def panel(Xm: np.ndarray) -> np.ndarray:
@@ -1159,6 +1245,26 @@ def main() -> None:
             X[:, col[f]] = column(f, e)
             assign[f] = e
         print(f"override all {len(ovr)}: IC {ic_a[0]:.4f} -> {summary(score(X))[0]:.4f}")
+    lock: dict[str, str] = {}  # PM family -> the one quantity class its columns may use
+    relock: list[str] = []
+    if args.family_lock:  # anchor = the class with the most gain behind it (strong x3, fits x2 by the start's evidence); the rest is rescanned
+        gsh = dict(zip(fp["feature"].to_list(), fp["gain_share"].to_list(), strict=False))
+        evp = args.assign.parent / "ic_evidence.parquet" if args.assign else None
+        grd = dict(pl.read_parquet(evp).select("feature", "grade").iter_rows()) if evp is not None and evp.exists() else {}
+        wt: dict[str, Counter] = {}
+        for f, e in assign.items():
+            if f in col and e:
+                wt.setdefault(pm_family(f), Counter())[core(e)] += gsh.get(f, 0.0) * {"strong": 3, "fits": 2}.get(grd.get(f), 1)
+        for fam_, w in wt.items():
+            lock[fam_] = w.most_common(1)[0][0]
+            for f, e in list(assign.items()):
+                if f in col and e and pm_family(f) == fam_ and core(e) != lock[fam_]:
+                    print(f"family lock {fam_} = {lock[fam_]}: drop {f} = {e} ({core(e)}), rescanned in class")
+                    X[:, col[f]] = np.nan
+                    del assign[f]
+                    relock.append(f)
+        print(f"family lock: {len(lock)} families anchored, {len(relock)} columns dropped to rescan: "
+              + ", ".join(f"{k}={v}" for k, v in sorted(lock.items())))
     print(f"time panel {time.perf_counter() - t_st:.0f}s")
     t_st = time.perf_counter()
     pred0 = panel(X)
@@ -1199,6 +1305,7 @@ def main() -> None:
         base_f = feats if args.scan_feats else []  # without --scan-feats, feats is still the top --max-features list here
         feats = base_f + [f for f in names if f in col and re.search(args.scan_match, f) and f not in base_f]
         print(f"scan: {feats}")
+    feats += [f for f in relock if f not in feats]  # --family-lock drops are always rescanned
     frozen: set[str] = set()
     if args.freeze_strong and ev0 is not None:  # a formula graded strong last time and still assigned is settled: not scanned again
         frozen = {f for f, e, g in ev0.select("feature", "formula", "grade").iter_rows() if g == "strong" and assign.get(f) == e}
@@ -1272,6 +1379,11 @@ def main() -> None:
                 short = list(dict.fromkeys(short + [c for c in passes if family(c) in sib and c != assign.get(feat)]))
             if args.scan_include:  # every gate-passing candidate the pattern names (other families the scan should try too)
                 short = list(dict.fromkeys(short + [c for c in passes if re.search(args.scan_include, c) and c != assign.get(feat)]))
+            fam_ = pm_family(feat)
+            if fam_ in lock:  # --family-lock: in-class candidates only, topped up with the class's best-fitting ones
+                in_cls = lambda c, k=lock[fam_]: core(c) == k  # noqa: E731
+                short = list(dict.fromkeys([c for c in short if in_cls(c)] + [c for c in passes if in_cls(c)][: args.shortlist]))
+                passes = [c for c in passes if in_cls(c)]
             if args.calibrate and feat in cdf:  # the same candidates on PM's scale: right information, wrong units (zzzl2 a = 3-17)
                 c0 = assign.get(feat)
                 extra = [] if not c0 else [c0[len(CAL):]] if c0.startswith(CAL) else [CAL + c0]  # the pick itself, the other way
@@ -1304,7 +1416,8 @@ def main() -> None:
                 if np.isfinite(t_gain) and t_gain >= args.min_t and summary(v)[0] > best[0]:
                     best = (summary(v)[0], expr, t_gain)
             # accept by the training CDF: the closest candidate within --accept-cdf, its sign picked by IC, unless IC drops significantly
-            plain = [r for r in ranked if not r["candidate"].startswith(XS) and in_scale(r)]  # a z / rank shape names no variable
+            plain = [r for r in ranked if not r["candidate"].startswith(XS) and in_scale(r)  # a z / rank shape names no variable
+                     and (fam_ not in lock or core(r["candidate"]) == lock[fam_])]
             if feat in cdf and best[1] == cur and plain and plain[0]["score"] <= args.accept_cdf and cur is None:
                 top = plain[0]["candidate"]
                 # the other sign only when it fits too: negating a one-sided quantity (volatility, amount) moves its whole CDF
@@ -1324,6 +1437,9 @@ def main() -> None:
             if best[1] != cur and best[1] is not None:
                 assign[feat] = best[1]
                 cur_pred = sw.pred_with(column(feat, best[1]))
+                if args.family_lock and fam_ not in lock:  # the family's first pick (scanned by gain) sets its class
+                    lock[fam_] = core(best[1])
+                    print(f"  family lock {fam_} = {lock[fam_]} (from {feat})")
             else:
                 X[:, j] = keep_col
             tried.sort(key=lambda t: -t[2] if np.isfinite(t[2]) else 1e9)
@@ -1332,6 +1448,13 @@ def main() -> None:
             print(f"pass {ps} {feat}: kept {assign.get(feat)} IC {best[0]:.4f} t_gain {best[2]:.1f} ({time.perf_counter() - t0:.0f}s)")
         print(f"pass {ps} time: fingerprint ranking {tm['rank']:.0f}s, candidate columns {tm['column']:.0f}s, model + IC {tm['score']:.0f}s")
     print(f"time scan {time.perf_counter() - t_st:.0f}s")
+    fam_cores: dict[str, Counter] = {}
+    for f, e in assign.items():
+        if f in col and e:
+            fam_cores.setdefault(pm_family(f), Counter())[core(e)] += 1
+    mixed = {k: v for k, v in fam_cores.items() if len(v) > 1}
+    print(f"families with more than one quantity class: {len(mixed)} of {len(fam_cores)}"
+          + "".join(f"\n  {k}: " + ", ".join(f"{c} x{n}" for c, n in v.most_common()) for k, v in sorted(mixed.items())))
     t_st = time.perf_counter()
     full_pred = panel(X)
     final = summary(ic_vec(full_pred, ret, grp))
@@ -1368,6 +1491,13 @@ def main() -> None:
         for feat in sorted(set(assign) | set(gb)):
             new_e, old_e = assign.get(feat), gb.get(feat)
             if new_e == old_e or feat not in col:
+                continue
+            if args.family_lock and old_e and pm_family(feat) in lock and core(old_e) != lock[pm_family(feat)]:  # off-class: never restored
+                if new_e:
+                    gated[feat] = new_e
+                else:
+                    gated.pop(feat, None)
+                grow.append({"feature": feat, "old": old_e, "new": new_e, "gain": np.nan, "t": np.nan, "kept_new": True})
                 continue
             j = col[feat]
             keep_col = X[:, j].copy()
