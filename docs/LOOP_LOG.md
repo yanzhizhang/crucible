@@ -365,3 +365,4 @@
 - 2.23 jz links: only HS300/sod/p1_intrading_dcp, 47 links, every D -> previous trading day; links often created late (1105 at 11-09 08:45, 1106 at 11-10 21:13, 1109-1111 at 11-11 08:45).
 - Queued tonight (crucible): R27 0287b2e (r27.sh 79b1acd5, r27_pick d13ab887, r27_adds ad7baa5f), R28 6dbca44 (r28.sh 7877215d, engine/export.py 6a878b1a, engine/run_cpp.py a542e01a). Mac md5 verified. Order: R25 step 6 -> fake_seed A/B + gen_flags -> R27 -> R28.
 - R29 92e3d88 queued (r29.sh 235eb63f, r29_moved.py 728bfe04). Order: R27 -> R28 -> R29.
+- 02:25 VDI Windows Update dialog: "We'll restart and install this update at 2:30 AM" (Restart now / Another time / OK). Not touched: postponing an update is a system-setting change and the user is asleep. After the restart, reconnecting needs the user's login. R27 was in step 3/4 on 97 (VS Code remote terminal, should keep running server-side). R28/R29 verified on the Mac, not yet pasted. Loop paused until the user is back.
