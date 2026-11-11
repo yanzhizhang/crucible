@@ -673,6 +673,13 @@ def main() -> None:
     ap.add_argument("--assign", type=Path, help="json feature -> expression to start from (default: KNOWN)")
     ap.add_argument("--shortlist", type=int, default=10)
     ap.add_argument("--passes", type=int, default=1)
+    ap.add_argument("--siblings", action="store_true",
+                    help="also try every gate-passing candidate of the families its stem siblings are assigned (same formula, other parameters)")
+    ap.add_argument("--gate-against", type=Path, default=None,
+                    help="an assignment to gate this run's against, on this run's days: each column that differs keeps the new formula "
+                         "only when it beats the old one (paired over marks, t >= --gate-t); writes ic_gate.parquet + ic_assign_gated.json")
+    ap.add_argument("--gate-t", type=float, default=1.0)
+    ap.add_argument("--dump-pred", action="store_true", help="write <out>/pred.parquet: date, sid, mark, our prediction, PM's, per row")
     ap.add_argument("--min-t", type=float, default=2.0, help="keep a candidate when its paired IC gain over marks has t >= this")
     ap.add_argument("--min-in-range", type=float, default=0.95, help="a candidate must sit inside the feature's training range this often")
     ap.add_argument("--max-score", type=float, default=1.5, help="and its p10 / median / p90 within this distance of the fingerprint's")
@@ -1260,6 +1267,9 @@ def main() -> None:
             if assign.get(feat):  # refine: every gate-passing neighbour of the current pick (other horizons / windows, mid / micro / last price)
                 fam = family(assign[feat])
                 short = list(dict.fromkeys(short + [c for c in passes if family(c) == fam and c != assign[feat]]))
+            if args.siblings:  # the stem's siblings' formulas with other windows / levels: siblings often share one formula
+                sib = {family(e) for g_, e in assign.items() if e and g_ != feat and g_.split(".")[0] == stem}
+                short = list(dict.fromkeys(short + [c for c in passes if family(c) in sib and c != assign.get(feat)]))
             if args.scan_include:  # every gate-passing candidate the pattern names (other families the scan should try too)
                 short = list(dict.fromkeys(short + [c for c in passes if re.search(args.scan_include, c) and c != assign.get(feat)]))
             if args.calibrate and feat in cdf:  # the same candidates on PM's scale: right information, wrong units (zzzl2 a = 3-17)
@@ -1348,6 +1358,41 @@ def main() -> None:
         evid.append({"feature": feat, "formula": expr, "source": src, "cdf_gap": gap, "ic_loss": loss, "t_loss": t_loss, "grade": grade})
     args.out.mkdir(parents=True, exist_ok=True)
     (args.out / "ic_assign.json").write_text(json.dumps(assign, indent=1))
+    if args.dump_pred:  # per row: our prediction with the final assignment and PM's, for residual breakdowns
+        days_ = np.array([int(blocks[b][0]) for b in range(len(blocks))])
+        pl.DataFrame({"date": days_[blk], "sid": sid_a, "mark": MARKS[mk], "ours": full_pred, "pm": ret}).write_parquet(args.out / "pred.parquet")
+        print(f"rows -> {args.out / 'pred.parquet'}")
+    if args.gate_against is not None:  # each changed column, new formula against the old one on these days
+        gb = json.loads(args.gate_against.read_text())
+        gated, grow = dict(gb), []
+        for feat in sorted(set(assign) | set(gb)):
+            new_e, old_e = assign.get(feat), gb.get(feat)
+            if new_e == old_e or feat not in col:
+                continue
+            j = col[feat]
+            keep_col = X[:, j].copy()
+            try:
+                alt = column(feat, old_e) if old_e else np.full(sid_a.size, np.nan)
+            except Exception:  # noqa: BLE001 -- an old formula this run's pool cannot build: compare with missing
+                alt = np.full(sid_a.size, np.nan)
+            v_alt = np.nan_to_num(Swap(j, full_pred).score(alt), nan=0.0)
+            X[:, j] = keep_col
+            gain, t_g, _ = summary(full_v - v_alt)
+            ok = bool(np.isfinite(t_g) and t_g >= args.gate_t)
+            if ok:
+                if new_e:
+                    gated[feat] = new_e
+                else:
+                    gated.pop(feat, None)
+            grow.append({"feature": feat, "old": old_e, "new": new_e, "gain": gain, "t": t_g, "kept_new": ok})
+        if grow:
+            gt = pl.DataFrame(grow).sort("t", descending=True)
+            gt.write_parquet(args.out / "ic_gate.parquet")
+            with pl.Config(tbl_rows=120, tbl_cols=6, tbl_width_chars=230, fmt_str_lengths=70, float_precision=4):
+                print(f"\n== gate against {args.gate_against}: {gt['kept_new'].sum()} of {gt.height} changes kept (t >= {args.gate_t})")
+                print(gt)
+        (args.out / "ic_assign_gated.json").write_text(json.dumps(gated, indent=1))
+        print(f"gated: {len(gated)} columns -> {args.out / 'ic_assign_gated.json'}")
     if evid:
         ev = pl.DataFrame(evid).sort("grade", "t_loss", descending=[False, True])
         ev.write_parquet(args.out / "ic_evidence.parquet")
