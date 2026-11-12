@@ -410,3 +410,4 @@
 - R30 started ~21:52 in the left terminal.
 - R30 done 22:04: s1 best in every half hour on 0430 and 1110 (docs/reports_97/r30/r30.txt).
 - R31 done 22:46: by-time dispatch far below s1-only on all 7 days (docs/reports_97/r31/r31.txt).
+- add_day 1111 rerun done 23:22 (docs/reports_97/add_day/add_20261111b.txt): IC unchanged; PM 1111.jz now matched (engine = PM on all checked keys). add_day 1112 started 23:35 (DataYes 1112 package present, 15:50).
