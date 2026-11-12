@@ -1,0 +1,11 @@
+# r27_both scored on 20261112 (crucible's command, ic_score 0871dcde? -> 97's current ic_score af8f88ad), 2026-11-12 ~23:50 on 97
+IC: start 0.7234 -> end 0.7234 (t 163.76, 240 marks); 103 of 209 columns assigned -> data/reports/stage6_r27both_20261112/ic_assign.json
+residual_breakdown: pred.parquet 70,397 rows, 1 day, 240 marks; overall IC 0.7234
+per-mark IC by half hour: 0=0.624 30=0.670 60=0.740 90=0.749 120=0.798 150=0.741 180=0.741 210=0.718
+by board (rows / ic_pooled / res_var_rel): ChiNext 7988 0.602 1.460; SH main 39464 0.753 0.873; STAR 4555 0.693 1.263; SZ main 18390 0.716 1.000
+stock persistence: stock-day mean explains 0.145 of the residual variance (one day)
+  PM's top 10 %: ours in the same tail 0.491 (chance 0.100), our median rank there +0.396
+  PM's bottom 10 %: ours in the same tail 0.486 (chance 0.100), our median rank there -0.397
+15 largest mean |residual| (first 10 read): 300413 -0.508, 002463 +0.270, 002916 +0.258, 300502 +0.235, 300251 -0.211,
+  600176 +0.204, 002384 +0.189, 601689 -0.189, 002050 -0.167, 300308 +0.165, ...
+Note: target is 224's pm_signals; the user (via crucible, 11-13) now regards every 224 signal as unreliable.
