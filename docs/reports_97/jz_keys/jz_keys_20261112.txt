@@ -1,0 +1,67 @@
+# jz_keys.py (6407511d, verified on 97) run 2026-11-12 21:05 on 97, transcribed from screen.
+# cmd: python -u research/pm_factors/jz_keys.py --dcp /work/crucible_data/seed_probe/HS300 --from 20261103 --to 20261111
+#      --assign data/reports/r27_both.json --out data/reports/jz_keys   (578 lines; raw on 97 data/reports/jz_keys.txt + jz_keys/*.csv)
+6 state files: 20261103 20261104 20261105 20261106 20261109 20261110 (no 1111.jz in seed_probe yet)
+300 stocks in every file; 7498 distinct keys; keys a stock on 20261110: median 7498, max 7498
+
+== 1 keys by family and kind, model columns and gain
+stem   keys scalar ema clock list  bin  same_prev_max rho_prev_median model_cols gain  assigned cols
+zzgh2  1423  1     0   0     0     1422 0.000         0.058           1          0.024 1        zzgh2.b
+zzgh    949  1     0   0     0      948 0.000         0.059           1          0.022 0        zzgh.b
+zzxu     12  6     4   2     0        0 0.803         0.976           2          0.020 2        zzxu.a zzxu.b(?)
+zzeg      6  3     2   1     0        0 0.533         0.999           1          0.014 0        zzeg
+zzba      6  0     4   2     0        0 0.005         0.877           1          0.013 0        zzba
+zzup      6  0     4   2     0        0 0.005         0.789           1          0.010 1        zzup
+zzpk      6  3     2   1     0        0 0.030         0.999           1          0.009 0        zzpk
+zzab2     3  0     2   1     0        0 0.005         0.777           1          0.009 0        zzab2
+zzmh      4  1     2   1     0        0 0.027         0.520           1          0.008 0        zzmh
+zzcb      3  0     2   1     0        0 0.005         0.757           1          0.007 0        zzcb
+zzxo     31  1     0   0    30        0 0.026         1.000           1          0.007 0        zzxo
+zzfb   2133  0     0   0  1422      711 0.000         1.000           1          0.007 1        zzfb.b
+zzhj    478  0     3   1     0      474 1.000         0.584           1          0.007 1        zzhj
+zzvm      5  2     2   1     0        0 0.001         0.960           1          0.007 0        zzvm
+zzjb    948  0     0   0     0      948 null          null            1          0.005 1        zzjb.b
+zzvx     20  2    12   6     0        0 0.030         0.757           1          0.005 0        zzvx.a
+zzjb2  1422  0     0   0     0     1422 null          null            1          0.002 0        zzjb2.b
+zzbd     14  2     8   4     0        0 0.005         0.875           0          0.000 0
+zzeb      6  0     4   2     0        0 0.005         0.763           0          0.000 0
+zzqj      5  2     2   1     0        0 0.001         0.957           0          0.000 0
+zztx      3  0     2   1     0        0 0.001         0.871           0          0.000 0
+zzui     15  2     2   1    10        0 0.111         1.000           0          0.000 0
+model families with NO state keys (99): zzro2 zzwa zzzl2 zzpe zzal zzeu zzsf zzel zzop zzag2 zzbt zzqo zzpp zzeu2 zzfb2
+  zzjx3 zzsa2 zzro zzqf9 zzqf zzqf6 zzef zzsa zzuc zzqf5 zzri2 zzfe zzyg2 zzrg zzhi2 zzaa zzie3 zzeg2 zzho zzbo zzzl zzef2
+  zzja zzfq zzpz zzag zzwj zzop2 zzqf7 zzri zzxc zzdw zzyg zzts zzbt2 zzzs zzpp2 zzqf2 zzbs2 zzjx2 zzow2 zzvm2 zzhx zzht zzqf8
+  zzhk zzqf4 zzyj3 zzjx zzfe2 zzqf3 zzhi zzab zzqf10 zzho2 zzkp zzlk2 zzxt3 zzlf zzwf zzko zzso zzlk zzyj5 zzlk3 zzie2 zzmo zzrb
+  zzyj2 zzie4 zzor zzxt2 zzie5 zzav2 zzoe zzyj4 zzxt zzyj ... zzie zzxt6 zzor2 zzxt5 zzav zzbs   (fold seams read from screen; exact list on 97)
+
+== 2 carry: non-bin keys identical to the previous day for >= 5 % of stocks
+key           stem kind   stocks p50     zero  integer same_prev rho_prev
+zzhj.r.wgt    zzhj ema    1.000  0.000   1.000 true    1.000     1.000
+zzxu.dir      zzxu scalar 1.000  1.000   0.000 true    0.803     0.599
+zzeg.c.high   zzeg scalar 1.000  24.755  0.000 false   0.533     1.000
+zzeg.c.low    zzeg scalar 1.000  23.265  0.000 false   0.421     1.000
+zzeg.c.span   zzeg scalar 1.000  23.988  0.000 false   0.146     1.000
+zzui.er       zzui scalar 1.000  0.200   0.263 false   0.111     0.109
+
+== 3 histograms / profiles per family: total mass today / yesterday per day pair, shape corr with yesterday
+family bins mass_p50_last     mass_ratio_by_day               shape_corr_prev integer_mass
+zzfb   711  264680093802.500  0.918 1.246 0.748 0.782 0.901   0.985           true
+zzgh   948  1806.000          0.943 0.956 0.991 0.971 0.985   0.004           true
+zzgh2  1422 2732.500          0.948 0.954 0.996 0.970 0.988   0.002           true
+zzhj   474  381.570           1.005 1.015 0.993 0.998 0.998   1.000           false
+zzjb   948  3792.000          1.000 1.000 1.000 1.000 1.000   1.000           true
+zzjb2  1422 5688.000          1.000 1.000 1.000 1.000 1.000   1.000           true
+
+== 4 every key of zzui (15)
+zzui.er      scalar p50 0.200   zero 0.263 same_prev 0.111 rho_prev 0.109
+zzui.k       scalar p50 23.700  zero 0     same_prev 0.000 rho_prev 1.000
+zzui.r.0..9  list   p50 23.69..23.71       same_prev 0.015-0.023 rho_prev 1.000
+zzui.r.sum   ema    p50 47.929             same_prev 0.000 rho_prev 0.998
+zzui.r.t     clock  p50 14211.523          same_prev 0.003 rho_prev 0.227
+zzui.r.wgt   ema    p50 2.022              same_prev 0.000 rho_prev 0.139
+== 4 every key of zzhj (478)
+zzhj.p.sum   ema    p50 24787030.492       same_prev 0.000 rho_prev 0.889
+zzhj.p.t     clock  p50 14191.100          same_prev 0.003 rho_prev 0.279
+zzhj.p.wgt   ema    p50 14.933             same_prev 0.000 rho_prev 0.085
+zzhj.r.wgt   ema    p50 0.000 zero 1.000   same_prev 1.000 rho_prev 1.000   (always 0)
+zzhj.c.0..473 (474 bins): e.g. c.0 p50 23.970 same_prev 0.017; c.1 23.910; c.10 23.865; c.100 p50 0.000 zero 1.000 (unused slot)

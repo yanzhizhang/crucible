@@ -389,3 +389,9 @@
 - crucible (20:40): 1112 used "yesterday's soft link" = sod/20261111.jz -> 1110.jz, so 1112's seed was 1110 (1 day stale).
   1112 is NOT a clean-seed day; the seed maps get 1112 -> 20261110. add_day 20261112 still runs (first unified-log day,
   pm_signals check). The rule "224 uses the newest sod link present at 09:00" stands.
+
+## 2026-11-12 21:05 — jz_keys probe (crucible, 6407511d) on 97
+- docs/reports_97/jz_keys/jz_keys_20261112.txt. 7498 keys/stock on 1103-1110 (6 files), 22 stems; 99 model families have no state keys.
+- Carry (non-bin, same as yesterday >= 5 %): only zzxu.dir (0.80), zzeg.c.high/low/span (0.53/0.42/0.15), zzui.er (0.11), zzhj.r.wgt (always 0).
+- Profiles: zzjb/zzjb2 mass constant, shape corr 1.0; zzgh/zzgh2 mass ~0.95-0.99 of yesterday, shape corr ~0 (re-filled daily);
+  zzfb shape 0.985, mass varies; zzhj shape 1.0 (price level).
