@@ -1,0 +1,16 @@
+# R37b = R37 rerun with the 1/NaN-dummies fix (ic_score 5f591e2d), BASE = r34g_baseline.json; ~04:09 -> 04:35:39 on 97.
+# (stage6_r37* overwritten; the first R37's assign is kept on 97 as data/reports/r37a_assign.json)
+IC: start 0.6148 -> end 0.6244 (t 94.35, 240 marks); 143 of 209 columns assigned
+31 of 154 columns differ; 19 newly assigned, 11 dropped (zzbo.a zzsf.c zzzl2.g zzzl2.c zzop.j zzqf9.a zzhi2.f zzef zzpp.b zzie.c zzts)
+neu: / dmi: picks in the scan: zzwa.j dmi:gen.microprice_minus_mid_rel (others in the picks list are dm / z / rank, as in R37)
+gate against r34g_baseline.json: 27 of 35 changes kept (t >= 1.0) -> 141 columns (stage6_r37_gate/ic_assign_gated.json)
+ neu / dmi rows of the gate table (old -> new, gain, t, kept):
+  zzwa.j  null -> dmi:gen.microprice_minus_mid_rel                .0008  10.33  true
+  zzwa.k  null -> cal:dmi:gen.microprice_minus_mid_rel            .0006   7.63  true
+  zzab    null -> cal:neu:-gen.depth_weighted_price_5lvl_minus_mid_rel .0008 7.28 true
+  zzro2.b dm:gen.lpma120 -> neu:gen.ret90                         .0056   7.17  true
+  zzyj5.a null -> dmi:-gen.best_level_order_count_imbalance       .0003   4.42  true
+  zzyj5.b null -> dmi:-gen.best_level_order_count_imbalance       .0002   4.32  true
+  zzie5.c null -> neu:-gen.simba60                               -.0000  -1.67  false
+[04:32:29] 3 base / R37b / R37b gated on 0430 grid 7: base 0.6080, r37 0.6215, r37g 0.6277   (first R37: .6264 / .6256)
+[04:35:39] done
