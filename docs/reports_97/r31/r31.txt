@@ -1,0 +1,22 @@
+# R31 (r31.sh 17ff01cd, ic_score.py af8f88ad), run 2026-11-12 ~22:16 -> 22:46:43 done on 97; from 97 data/reports/r31_short.txt
+# r27_both scored with s1 at every mark vs by time of day (s1:600, s2:1800, s3:12600, s4:14220 s on the trading clock).
+day        s1_only  by_time
+20260430   0.3756   0.2807
+20261110   0.7173   0.3102
+20261109   0.5712   0.2480
+20261104   0.5945   0.2582
+20261105   0.7002   0.3279
+20261106   0.7084   0.2496
+20261111   0.4535   0.1958
+per-mark IC by half hour (minutes from 09:30):
+20260430 s1:  0=0.193 30=0.321 60=0.355 90=0.389 120=0.383 150=0.443 180=0.455
+20260430 seg: 0=0.023 30=0.296 60=0.349 90=0.338 120=0.336 150=0.345 180=0.363
+20261110 s1:  30=0.725 60=0.702 90=0.696 120=0.746 150=0.719 180=0.732 210=0.707
+20261110 seg: 30=0.424 60=0.362 90=0.310 120=0.436 150=0.298 180=0.292 210=0.122
+20261109 s1:  0=0.389 30=0.403 60=0.564 90=0.562 150=0.678 180=0.712 210=0.716
+20261109 seg: 0=0.226 30=0.190 60=0.298 90=0.303 150=0.264 180=0.307 210=0.140
+log: "sub-models by time of day s1:600,s2:1800,s3:12600,s4:14220 (202604 / 202611, fits ['livev1_fit1'])" -- dispatch ran
+(no tree_kernel ImportError seen in the visible tail).
+Reading: the by-time half hours reproduce R30's per-sub values (0430 seg 30..180 = R30 s3; 1110 seg 210 = R30 s4 0.122), so
+the dispatch works; PM's live alpha matches s1 at every time of day on all 7 days -- the by-time hypothesis is rejected
+for the live signal (or our columns are s1-specific; the gap, e.g. 1110 0.72 vs 0.31, is large for that alone).
