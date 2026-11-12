@@ -382,3 +382,7 @@
   r29.sh e6c5bdee, pm_factors/r29_moved.py 728bfe04. data/reports/r27_both.json present (02:18).
 - Read for remote writes: writes stay under /work; r29 step 0 is a read-only `find` on 2.23 over ssh.
 - 20:07 started `bash research/r28.sh 2>&1 | tee data/reports/r28.txt` in the left terminal.
+
+## 2026-11-12 20:35 — 2.23 /data/share new-file scan (user request, read-only)
+- See docs/reports_97/share23/new_since_1111_1530.md. Key point: 1111.jz was written 11-12 11:07 and the sod links for
+  1110/1111/1112 were made 11-12 11:26. So 224's 1112 seed at 09:00 cannot have been 1111.jz. /data/share/s has no 1112 drop.
