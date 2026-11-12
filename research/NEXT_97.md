@@ -1,32 +1,32 @@
-# Next on 97 (handoff, 2026-11-12)
+# Next on 97 (handoff, 2026-11-13)
 
-The baseline is now R27's `data/reports/r27_both.json` (103 columns). R17 = 102.
+Done since the last handoff:
+- R28: seeding the engine EMAs changes nothing.
+- R29: the generation-moved columns explain little, except zzup.
+- R30/R31: PM's alpha follows s1 at every time of day, so keep s1.
+- add_day 1111 and 1112: day-end state matches PM 1.0000. From 1112 the logs are unified and pm_signals is fixed.
 
-| day | target | R17 | R27 both |
-|---|---|---|---|
-| 0430 | production (true seed) | 0.3107 | 0.3756 |
-| 1109 | 224 | 0.5357 | 0.5712 |
-| 1110 | 224 | 0.6958 | 0.7173 |
-| 1104 / 1105 / 1106 / 1111 | 224 (stale seed) | 0.598 / 0.702 / 0.713 / 0.459 | -0.004 / -0.001 / -0.005 / -0.005 |
+The baseline is still `data/reports/r27_both.json`.
 
-The rounds below are in order. All files are on feat/pm-repro. Paste them by hand and check the LF md5. They are pure ASCII.
+The user picked two tracks: translate runS, and rescan on cleaner days with a soft family lock. Asking PM for data is skipped. All files are on feat/pm-repro and are pure ASCII. Check the LF md5 after pasting.
 
-1. **R28**: every engine EMA is seeded from a `.jz`. The configs compared are zero / true D-1 / 224's stale seed (by the 2.23 sod link times). It scores r27_both.
-   - `research/r28.sh` fe033c18eec8a7f3066ebfe924afa637 (59 lines)
-   - `research/engine/export.py` 6a878b1a1d01fc36409588d79698506c (107)
-   - `research/engine/run_cpp.py` a542e01ae07e502db2336dd3e11093a1 (145)
-   - `bash research/r28.sh 2>&1 | tee data/reports/r28.txt`
-2. **R29**: gen_flags' moved columns are dropped from r27_both. Scored on 0430 (gen A) and on 1110 (gen C). Also lists 2.23 livev1/rec10.
-   - `research/r29.sh` e6c5bdeeb6d2f3531ec9f11e2c58c9b4 (44)
-   - `research/pm_factors/r29_moved.py` 728bfe04bfcd63330e974fc859a3bb0d (34)
-   - `bash research/r29.sh 2>&1 | tee data/reports/r29.txt`
-3. `bash research/add_day.sh 20261111 2>&1 | tee data/reports/add_20261111b.txt`. 1111's hstats and `.jz` should be on 2.23 by now.
-4. `bash research/add_day.sh 20261112 2>&1 | tee data/reports/add_20261112.txt`. This needs the DataYes package on 97 (1111's was there about 23:50). If it stops with "no DataYes ticks", rerun later.
-   - 1112 is the first clean 224 day. Its seed was 1111.jz, the correct D-1.
-   - From 1112 on, the strategy logs go fully through chrono's logger in one format.
-   - Bring back pm_signals' "factor lines" / "order match check" / "factor program ... corr" lines. 1110 had 0.9887 / 0.99. 1111 was broken at 0.55 / 0.03.
+0. Score r27_both on 1112. It is a single run; the builds are cached.
 
-Bring back:
-- R28: the day x config table, the half-hour tables, and the "carry seeds exported" lines.
-- R29: step 0's listing and both pick tables.
-- add_day: the step 4 IC lines and the tail of step 5.
+       CRUCIBLE_SOURCE=dysl2 python -u research/pm_factors/ic_score.py --dates 20261112 --assign data/reports/r27_both.json --no-drop-harmful --max-features 0 --implied 0 --full-book /work/crucible_data/store/pm_factors/full_book_dysl2 --models /data/prod/models/tk5m --marks rand:240 --target /work/crucible_data/pm_target_r22 --target-stale 4 --drop-gap 1 --max-cdf 1 --max-score 99 --state-fallback --hstats /work/crucible_data/hstats_view/HS300 --dump-pred --out data/reports/stage6_r27both_20261112 > data/reports/r27both_20261112.txt 2>&1
+
+   Bring back the `IC: start` line and the residual_breakdown output of its pred.parquet.
+
+1. **R33: runS on 1112.** Quick.
+   - Files:
+     - `research/r33.sh` 6c7162d702af61106c79ad5731a408ed (29 lines)
+     - `research/pm_factors/pm_orders.py` 9e61c5cdda0f80fc1a2d13351ff945d0 (280). Plugin lines now come through chrono's logger; the old version skipped them.
+   - Run: `bash research/r33.sh 20261112 2>&1 | tee data/reports/r33.txt`
+   - Bring back r33.txt in full. If it is too long, send pm_orders' census and sections 2-5 first.
+2. **R32: rescan.** About 2 h.
+   - Files:
+     - `research/r32.sh` eb25b00af4923212d778164c0a1a66c3 (52)
+     - `research/pm_factors/ic_score.py` 6e15d6a6f6d25b2a479244dc629f6ed9 (1879). Adds `--family-lock-soft`.
+   - Run: `bash research/r32.sh 2>&1 | tee data/reports/r32.txt`
+   - What it does: from r27_both, it scans the open columns plus the soft-lock rescans on 1110 + 1112. It then gates on 0430 and tests on 1109, 1111 and 1104-1106.
+   - Bring back the family-lock lines, the assign_diff, the gate table and the held-out table.
+3. For future days: `research/add_day.sh` 402770117a9a68f8405997df5f9ae6f0 (79). It also scores r27_both.
