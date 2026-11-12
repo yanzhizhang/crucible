@@ -386,3 +386,6 @@
 ## 2026-11-12 20:35 — 2.23 /data/share new-file scan (user request, read-only)
 - See docs/reports_97/share23/new_since_1111_1530.md. Key point: 1111.jz was written 11-12 11:07 and the sod links for
   1110/1111/1112 were made 11-12 11:26. So 224's 1112 seed at 09:00 cannot have been 1111.jz. /data/share/s has no 1112 drop.
+- crucible (20:40): 1112 used "yesterday's soft link" = sod/20261111.jz -> 1110.jz, so 1112's seed was 1110 (1 day stale).
+  1112 is NOT a clean-seed day; the seed maps get 1112 -> 20261110. add_day 20261112 still runs (first unified-log day,
+  pm_signals check). The rule "224 uses the newest sod link present at 09:00" stands.
