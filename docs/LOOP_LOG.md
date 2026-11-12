@@ -420,3 +420,4 @@
 - 01:46 pasted ic_score 997917b1, static_resid, xs_screen, r35, r36, r37; started chained R35 -> R35b (R34 gated) -> R36 (BASE=R34 gated) -> R37 (BASE=R34 gated) in the left terminal, md5-gated. caffeinate 10 h running.
 - 01:48 r34g_baseline.json copied on 97 (md5 ...9d3290be238943526e, = stage6_r34_gate/ic_assign_gated.json, 135 cols); new candidate baseline.
 - 01:52 r38.sh 38d759da pasted on 97 (not run). Queued after R37: paste ic_score c5f30ed2 (adds --sid-mod), then bash research/r38.sh | tee data/reports/r38.txt.
+- 02:25 pasted r39.sh becd01fa, r39_vars.py cadc0f35, static_resid e09140ef (superseded). crucible 1a094fb: ic_score 5f591e2d + static_resid 4ac7c568 fix 1/NaN industry dummies (dmi:/neu: were empty). Plan after R37: paste both, R38 -> R39 -> R37b (BASE=r34g_baseline, keep r37a_assign.json) -> static reruns.
