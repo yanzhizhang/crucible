@@ -1,0 +1,29 @@
+# add_day.sh 20261112 (eb096318), 2026-11-12 23:35:51 -> 23:45:08 done on 97; from data/reports/add_20261112_short.txt
+# DataYesSharesL2/20261112 present on 97 (15:50, ReadyFlag 15:50). 1112's 224 seed was 1110 (one day stale; crucible 20:40).
+[23:35:51] 0 daily_pm 20261112
+[23:35:51] 1 logs: 224 /tmp/zyq/sht-logs -> /work/crucible_data/chrono_logs   (log files for 20261112: 6)
+[23:35:51] 2 position log + base positions: 224 /tmp/o/executor/20261112   (files: 7)
+[23:35:52] 3 pm_signals
+   factor lines: 1,368,232 matched (1,368,232 by order, not by epoch), 13,296 alg lines without their catchRun line
+   order match check: 0.9903 of rows on their sidIdx's main sid; book->epoch - srcEpoch (ms) p1/p50/p99 27.4/535.5/1662.0
+   factor program: 1,368,232 scored snapshots, 1,368,186 also in SIG (|prediction - fa| max 4.2e-03, corr 0.993202), 787,920 trade decisions
+[23:37:23] 4 DataYesSharesL2 20261112 -> dysl2_raw, catalog_dysl2
+[23:38:35] 5 decisions + position log
+   pos == (exact / within 100 / corr): qty 0.000/0.047/r +0.198; yesterday_qty 0.000/0.072/r -0.139; sellable_qty 0.000/0.406/r +0.116; base_qty 0.000/0.060/r -0.153; gap 0.008/0.497/r ...
+   executp == (exact / within 100 / corr): qty 0.020/0.170/r +0.029; yesterday_qty 0.007/0.040/r -0.087; sellable_qty 0.088/0.486/r -0.010; base_qty 0.000/0.050/r -0.096; gap 0.004/0.724/r ...
+   prediction vs holding gap: corr(fa, base - qty) -0.003; corr(fa, pos) +0.004; rows with base - qty != 0 0.992
+[23:38:39] 6 orders: does runS send now (base position pushed from 1110)
+[23:38:40] done 20261112 (daily_pm)
+[23:38:40] 1 2.23: hstats 20261112, stsfile, PM state files
+[23:38:43] 2 target
+[23:38:43] 3 full_book + engine state for 20261112
+[23:39:53] 4 R17 / R24 / R24 gated on 20261112
+[23:42:56]   r17 (102 columns): 20261112 0.6928
+[23:44:01]   r24 (116 columns): 20261112 0.7010
+[23:45:05]   r24g (98 columns): 20261112 0.6778
+20261112: model generation 55f31009 (202611): training-CDF points for 138 features
+[23:45:05] 5 day-end state against PM's 20261112.jz (present on 2.23 the same evening)
+   share matching PM: zzqj.v, zzui.r.*, zzvm.c.tpv/v, zzvx.high/low, zzxo.last, zzxo.r.*, zzxu.high/last/low all 1.0000
+   median relative error: clock.fast ~ *.t -0.0010 s; zzgh.nb 0.0048; zzmh.hm, zzpk.high/low/open, zzqj.tpv/v, zzui.r.*,
+   zzvm.c.*, zzvx.*, zzxo.*, zzxu.* all 0.0000
+[23:45:08] done 20261112
