@@ -1,0 +1,15 @@
+# static_resid.py e09140ef (NaN dropped before sort) on stage6_r35_20260430/pred.parquet (r27_both), 2026-11-13 ~02:20 on 97.
+20260430: 299 stocks with a residual, 299 with daily candidates, 111 candidates
+== daily candidates vs per-stock residual (top 40 by |rho_day|; ~0.1 is noise for ~300 stocks): rho_day / rho_30m / rho_1h (finite 1.0 all)
+adv20 .210/.308/.346; ladv20 .210/.308/.346; lfcap .209/.237/.262; ret2 -.202/-.159/-.167; lca1 .194/.127/.120; stats.SRet -.188/-.131/-.091;
+avgvol20 .164/.033/.087; stats.Ret -.161/-.073/-.042; ret1 -.161/-.073/-.042; stats.Capt .155/.160/.185; lmcap .152/.178/.207;
+exp.SIZE .149/.162/.190; exp.MIDCAP -.149/-.161/-.188; lca2 .144/.082/.068; exp.LIQUIDTY .142/.204/.249; ret3 -.133/-.081/-.061;
+ret4 -.129/-.082/-.062; ret5 -.118/-.099/-.069; lca3 .097/.043/.022; band .097/.070/.110; exp.GROWTH .086/.120/.154;
+freeshare .082/-.094/-.073; vol2 -.081/-.017/-.037; turn20 .080/.171/.206; exp.LTREVRSL -.078/-.152/-.157; stats.HBeta .077/.211/.234;
+exp.BETA .076/.210/.234; stats.PBeta .072/.195/.221; exp.PROFIT .071/.104/.062; range2 -.071/.005/.008; exp.STREVRSL -.063/-.082/-.087;
+exp.INDMOM -.058/-.026/-.041; exp.SEASON -.055/.102/.048; lca5 .055/-.012/-.035; ret6 -.053/-.007/.010; range3 -.047/.024/.044;
+exp.DIVYILD -.047/-.141/-.178; exp.BTOP -.045/-.208/-.208; ret8 -.041/-.030/-.006; stats.Yield -.040/-.126/-.154
+== top by |rho_30m| (the open): adv20 .308, ladv20 .308, log_close_price .259, tick_size_over_close -.259, stats.Close .259, lfcap .237,
+stats.HBeta .211, exp.BETA .210, exp.BTOP -.208, exp.LIQUIDTY .204, stats.PBeta .195, lmcap .178, turn20 .171, exp.SIZE .162, exp.MIDCAP -.161
+NO dummies table printed: the exp.<industry> columns are 1 / NaN (finite share = industry weight), not 0 / 1, so the "outside" group
+(x == 0) is empty and every dummy is skipped. Needs NaN -> 0 for those columns.
