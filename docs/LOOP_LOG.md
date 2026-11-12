@@ -402,3 +402,9 @@
 - lgb_label_probe (docs/reports_97/lgb_label/): label is a return in decimal units (PM alpha std 3.4e-4, model pred std
   0.6-1.8e-4). s1..s4 scale s1 > s2 > s4 > s3 in every generation (not monotone -> not horizons; looks like time-of-day
   segments with the open most volatile). Within a generation the same fit1 file sits in every month folder.
+
+## 2026-11-12 21:55 — R29 done; seg_probe; R30 running
+- R29 picks: 0430 drop zzhi2.c/zzqo.a/zzal.e/zzdw; 1110 drop zzal.e/zzhi2.c/zzqf5.q.c4/zzal.f (docs/reports_97/r29/r29.txt).
+- seg_probe (docs/reports_97/seg_probe/): s1..s4 maxima of zzqf5.q.c4 / zzal.a in ratio 1:3:21:23.7 = 600:1800:12600:14220 s
+  -> candidate s1 09:30-09:40, s2 -10:00, s3 -14:30, s4 -14:57; PM alpha spread steps at 9:40 and 10:00.
+- R30 started ~21:52 in the left terminal.

@@ -1,0 +1,40 @@
+# seg_probe.py (60519dbb, verified on 97), run 2026-11-12 ~21:55 on 97; transcribed from screen.
+# raw on 97: data/reports/seg_probe_202604.txt (288 lines), seg_probe_202611.txt (40 lines)
+== 1 pm_lgb_meta.csv, livev1_fit1, training [lo, hi] per sub-model (top of the spread ranking)
+202604 (gen A)              s1                 s2                 s3                  s4
+  zzqf5.q.c4 (col 91)       [0, 999]           [0, 2999]          [0, 20997]          [0, 23696]
+  zzal.a     (col 66)       [0, 1499]          [0, 4499]          [0, 31494]          [0, 35545]
+  zzal.e     (col 89)       [0, 1247.88]       [0, 2302.85]       [0, 16539.5]        [0, 18588]
+  zzal.b     (col 101)      [0, 1315.1]        [0, 2261.85]       [0, 15970.2]        [0, 18838.7]
+  zzhk.d     (col 99)       [53.66, 1252.83]   [137.79, 2230.86]  [433.99, 16511.7]   [644.19, 18302]
+  zzwa.h / zzwa.k / zzcb    same pattern: hi grows s1 < s2 < s3 < s4
+  others in the top 30: zzaa.a zzag.c zzgh.b zzsa.b zzie2.c zzag2.e zzzs.a zzqf9.a zzhi2.c zzrg zzjb2.b zzho2 zzal.f zzzl2.e
+     zzeu zzkp zzgh2.b zzjx2.a zzhi2.l zzxc.d zzhx.d zzsa2.a (ranges differ but not monotone)
+  columns with ranges disjoint between some two sub-models: 0
+202611 (gen C)
+  zzhk.d     (col 99)       [41.54, 1235.65]   [207.34, 2123.7]   [458.43, 15829.7]   [2058.38, 17909.9]   <- s1 vs s4 disjoint
+  zzqf5.q.c4                [0, 999]           [0, 2999]          [0, 20994]          [0, 23699]
+  zzal.a                    [0, 1499]          [0, 4498]          [0, 31494]          [0, 35545]
+  zzal.e [0,1250.15] [0,2263.38] [0,16788] [0,18613.2]; zzal.b [0,1282.18] [0,2114.69] [0,16722.2] [0,18295.3]
+  columns with ranges disjoint between some two sub-models: 1
+
+== 2 PM alpha 20260430, per local minute (xs_std = cross-sectional std; ~108-111 stocks a minute)
+flagged (|std jump| > 15 %): 9:31 9:40 10:00 10:21 10:56 13:00 13:17 14:00 14:34 14:40 14:52 14:55
+ 9:30 xs_std 0.001096  9:31 0.000856  9:32 0.000738  9:33 0.000685  9:35 0.000618  9:38 0.000550
+ 9:39 0.000503  9:40 0.000401 (-20 %)  9:41-9:59 flat 0.00036-0.00041
+ 9:59 0.000394  10:00 0.000330 (-16 %)  10:01-10:20 0.00027-0.00034
+10:20 0.000338  10:21 0.000276 (-18 %)  10:22 0.000285 (one-minute dip)
+10:55 0.000267  10:56 0.000309 (+16 %)  10:57 0.000279 (one-minute spike)
+11:29 0.000276  11:30 0.000273 (3 s, 74 stocks)  13:00 0.000382 (+40 %)  13:01 0.000327  13:03 0.000323 ... 13:13 0.000249
+13:16 0.000277  13:17 0.000323 (+17 %)  13:18 0.000322  13:19 0.000331
+14:00 0.000246 (+15 %, single)  14:29 0.000292  14:30 0.000311  14:31 0.000319  14:32 0.000339  14:33 0.000333
+14:34 0.000276 (-17 %)  14:39 0.000224  14:40 0.000262 (+17 %)
+14:50 0.000309  14:51 0.000355  14:52 0.000467 (+31 %)  14:53 0.000476  14:54 0.000467  14:55 0.000340 (-27 %)  14:56 0.000346
+
+== Reading (supervisor's arithmetic, for crucible to check)
+The maxima of zzqf5.q.c4 and zzal.a stand in the SAME ratio in both generations: 999 : 2999 : 20997 : 23696
+= 1 : 3.0 : 21.0 : 23.7, and 1499 : 4499 : 31494 : 35545 = 1 : 3.0 : 21.0 : 23.7. On the trading clock 600 s : 1800 s :
+12600 s : 14220 s = 1 : 3 : 21 : 23.7 exactly, i.e. 09:40, 10:00, 14:30 and the end of the continuous session (14:57).
+Candidate segments: s1 09:30-09:40, s2 09:40-10:00, s3 10:00-14:30, s4 14:30-14:57. The alpha spread steps down at 9:40
+(-20 %) and 10:00 (-16 %) and moves around 14:30-14:34, consistent with a hard switch at those times. The min of 0 in every
+sub-model means these columns can be 0 at any time (or the sub-models were trained on cumulative windows) -- open.
