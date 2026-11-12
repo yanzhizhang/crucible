@@ -200,6 +200,67 @@ def load_seg_models(root: Path, date: str, fits: list[str], spec: str) -> list:
     return out
 
 
+SEED_KEYS = ("zzeg.c.high", "zzeg.c.low", "zzeg.c.span", "zzeg.c.rEma.sum", "zzeg.c.rEma.wgt", "zzxu.last", "zzpk.high", "zzpk.low",
+             "zzpk.open", "zzxo.r.29", "zzxo.r.0", "zzui.r.9", "zzmh.hm")
+
+
+def seed_state(args, d: str) -> dict[int, dict[str, float]]:
+    """--seed-dir: the .jz PM started day d from (--seed-map D=YYYYMMDD, else the latest file before d): sid -> SEED_KEYS."""
+    if not args.seed_dir:
+        return {}
+    import gzip
+
+    mp = dict(x.split("=") for x in args.seed_map.split(",") if x.strip())
+    if d in mp:
+        f = args.seed_dir / f"{mp[d]}.jz"
+    else:
+        fs = sorted(p for p in args.seed_dir.glob("2*.jz") if p.stem < d)
+        f = fs[-1] if fs else None
+    if f is None or not f.exists():
+        print(f"{d}: no seed state in {args.seed_dir}")
+        return {}
+    with gzip.open(f) as fh:
+        raw = json.loads(fh.read())
+    out = {int(k): {x: float(kv[x]) for x in SEED_KEYS if isinstance(kv.get(x), (int, float))} for k, kv in raw.items()}
+    print(f"{d}: seed state from {f.name} for {len(out)} stocks")
+    return out
+
+
+def seed_feats(sd: dict[str, float], a: dict[str, np.ndarray]) -> dict[str, np.ndarray]:
+    """gen.sd_*: the zzeg channel (c.high / c.low carried across days, widened by today's range so far), its EMA, and
+    yesterday's late prices, each against the price at the mark."""
+    t, px = a["t_local"], a["price"]
+    ok = np.isfinite(px) & (px > 0)
+    if ok.sum() < 3:
+        return {}
+    t, px = t[ok], px[ok]
+    p0 = FI.at_marks(t, px, MARKS)
+    hi_d = FI.at_marks(t, np.maximum.accumulate(px), MARKS)
+    lo_d = FI.at_marks(t, np.minimum.accumulate(px), MARKS)
+    out: dict[str, np.ndarray] = {}
+    with np.errstate(divide="ignore", invalid="ignore"):
+        hi, lo, sp = sd.get("zzeg.c.high", np.nan), sd.get("zzeg.c.low", np.nan), sd.get("zzeg.c.span", np.nan)
+        if np.isfinite(hi) and np.isfinite(lo):
+            hit, lot = np.fmax(hi_d, hi), np.fmin(lo_d, lo)
+            out.update({"sd_eg_pos": (p0 - lo) / (hi - lo), "sd_eg_px_hi": p0 / hi, "sd_eg_px_lo": p0 / lo, "sd_eg_hi_px": hi / p0,
+                        "sd_eg_lo_px": lo / p0, "sd_eg_posw": (p0 - lot) / (hit - lot), "sd_eg_px_hiw": p0 / hit, "sd_eg_px_low": p0 / lot,
+                        "sd_eg_rng": (hi - lo) / p0, "sd_eg_rngw": (hit - lot) / p0})
+        if np.isfinite(sp):
+            out["sd_eg_span_px"] = sp / p0
+            out["sd_eg_px_span"] = p0 / sp
+        w = sd.get("zzeg.c.rEma.wgt", np.nan)
+        if np.isfinite(w) and w > 0:
+            em = sd.get("zzeg.c.rEma.sum", np.nan) / w
+            out["sd_eg_ema_px"] = em / p0
+            out["sd_eg_px_ema"] = p0 / em
+        for k, nm in (("zzxu.last", "last"), ("zzxo.r.29", "xo29"), ("zzxo.r.0", "xo0"), ("zzui.r.9", "ui9"), ("zzpk.high", "pkhi"),
+                      ("zzpk.low", "pklo"), ("zzpk.open", "pkop"), ("zzmh.hm", "hm")):
+            v = sd.get(k, np.nan)
+            if np.isfinite(v) and v > 0:
+                out[f"sd_lp_{nm}"] = np.log(p0 / v)
+    return {k: np.asarray(v, float) for k, v in out.items()}
+
+
 def predict(models: list, X: np.ndarray) -> np.ndarray:
     """Mean prediction of the models."""
     return np.mean([m.predict(X) for m in models], axis=0)
@@ -432,8 +493,8 @@ def build_dir(args, d: str, state: Path, target: Path | None) -> Path | None:
     import tick_flow
 
     mods = [B, E, FI, same_gap, ic_kernel, lit_factors] + ([ced_match] if args.ced else []) + ([tick_flow] if args.order_flow else [])
-    code = [inspect.getsource(m) for m in mods] + [inspect.getsource(fn) for fn in (generic, index_relative, index_series, pm_daily, profile_marks)]
-    parts = [BUILD_REV, HORIZON, MARKS.tolist(), args.profiles, str(args.hstats), str(args.pm_cache), str(args.pm_stsfile), args.pm_sts_day, STS_MAP.get(d), args.ced,
+    code = [inspect.getsource(m) for m in mods] + [inspect.getsource(fn) for fn in (generic, index_relative, index_series, pm_daily, profile_marks, seed_state, seed_feats)]
+    parts = [BUILD_REV, HORIZON, MARKS.tolist(), args.profiles, str(args.hstats), str(args.pm_cache), str(args.pm_stsfile), args.pm_sts_day, STS_MAP.get(d), str(args.seed_dir), args.seed_map, args.ced,
              str(args.ced_xr), args.target_stale, stamp(args.engine_dir / f"marks_{d}.parquet"), args.order_flow]
     if args.full_book is not None:  # whole-book factors: their file is part of the build
         parts.append(stamp(args.full_book / f"date={d}.parquet"))
@@ -774,6 +835,8 @@ def main() -> None:
     ap.add_argument("--feature-csv", type=Path, default=Path("/data/prod/models/lgb_fn_v1_209_cte.csv"))
     ap.add_argument("--fingerprint", type=Path, default=Path("data/reports/stage5/fingerprint.parquet"))
     ap.add_argument("--fits", default="livev1_fit1")
+    ap.add_argument("--seed-dir", type=Path, help="dir of PM .jz files: yesterday's carried state as gen.sd_* candidates (zzeg channel ...)")
+    ap.add_argument("--seed-map", default="", help="--seed-dir: D=YYYYMMDD,... the file day D started from (default: the latest before D)")
     ap.add_argument("--sub-by-time", default="", help='sub-model per time of day, "s1:600,s2:1800,s3:12600,s4:14220" = segment ends '
                     "on the trading clock (s); the last runs to the close; overrides --subs")
     ap.add_argument("--subs", default="s1", help="sub-models to average (s1,s2,s3,s4 for all; each costs a predict per candidate)")
@@ -936,6 +999,7 @@ def main() -> None:
             lca_c = [c for c in (dc.columns if dc is not None else []) if c.startswith("lca")]  # multi-day close EMAs over yesterday's close (log)
             danch = {r["sid"]: r for r in dc.select("sid", *lca_c).fill_null(np.nan).iter_rows(named=True)} if lca_c else {}
             pmd = pm_daily(args.pm_stsfile, d, sids, args.pm_sts_day, STS_MAP.get(d)) if args.pm_stsfile.exists() else None
+            seed = seed_state(args, d)
             pmsm = {}
             if pmd is not None:  # PM's daily inputs join the CED table as ced.pm.* / ced.pmw.* / ced.pmx.*
                 dc = pmd if dc is None else dc.join(pmd.with_columns(pl.col("sid").cast(dc.schema["sid"])), on="sid", how="left")
@@ -1018,6 +1082,8 @@ def main() -> None:
                                 add(sid, f"ced.r.spm{w}_msr", gen[f"spm{w}"] / (2 * msr))
                         add(sid, "ced.r.ldep_mb", np.log(dep / mb))
                         add(sid, "ced.r.dep_mb", dep / mb)
+                if sid in seed and gf is not None and gf.height > 2:  # yesterday's carried state (zzeg channel, closes) against today's price
+                    gen.update(seed_feats(seed[sid], E.arrays(gf, "fast")))
                 for k, v in gen.items():
                     add(sid, f"gen.{k}", v.astype(float))
                 for k, v in prof.get(sid, {}).items():
