@@ -1,0 +1,39 @@
+# R35b: crucible's one-liner on stage6_r34_gate/ic_assign_gated.json (= 97 data/reports/r34g_baseline.json), 0430 grid 0,
+# --implied 15, then residual_breakdown + static_resid; ran ~01:54-01:59 on 97. Implied block OCR draft: r35b_implied_ocr_draft.txt
+# (lines ~70-88 not captured).
+IC: start 0.6101 -> end 0.6101 (t 85.69, 240 marks); 134 of 209 columns assigned
+== implied values (30,000 rows, PM pred mapped as 1.619 x + 2.03e-03; 4208 plain candidates, 3774 distinct, 1465 distinct by rank)
+ residual (PM beyond ours) closest: gen.resting_volume_placed_last_60s_imbalance +0.10, gen.flow_ord_imb60 +0.10, gen.simbn20 +0.10,
+   gen.simbn15 +0.10, gen.simbn30 +0.10, gen.net_buy_amount_share_orders_under_40k_cny_120s +0.09
+ residual (ours beyond PM) closest: gen.imb1 +0.42, gen.microprice_minus_mid_rel +0.41, gen.rete60 -0.40, gen.lpek20 -0.40, gen.lpe60 -0.40, gen.rete75 -0.40
+ agreement on these rows 0.609
+ per column (response; informative; implied p10/p50/p90; var stock-day/mark; carrier best):
+  zzro2.a (now gen.stoch): mixed +0.10; 0.27; -0.0040/0.0012/0.0041; 0.07/0.04; carrier net_buy_amount_share_orders_under_40k_cny_120s -0.0353, simbn20*1e4 -0.0375
+  zzro2.c (now dm:-gen.ret120): up +0.86; 0.36; -0.0049/0.0055/0.0102; 0.06/0.05; carrier net_buy_..._120s -0.0408, simbn20*1e4 -0.0420
+  zzeu (now -): up +0.92; 0.10; -0.986/0.020/0.979; 0.11/0.08; closest imb1 -0.32, microprice_minus_mid_rel -0.30
+  zzgh2.b (now rank:gen.rete150): hump -0.52; 0.16; 101.5/739/1263; closest imba30 +0.19; carrier resting_volume_placed_last_60s_imbalance -0.0011 (+0.0020)
+  zzgh.b (now -): hump -0.19; 0.07; 43.5/215/784; 0.16/0.11; closest microprice_minus_mid_rel +0.24, imb1 +0.22
+  zzel.a (now -): mixed -0.69; 0.29; 0.00022/0.00146/0.00222; carrier -simbn15 -0.0190
+  zzwa.j (now -): up +0.77; 0.18; 0.00026/0.00275/0.00678; closest |rete30| +0.13
+  zzeg (now -): mixed -0.56; 0.45; 0.984/0.984/1.01; 0.06/0.10; closest gen.imb1 +0.48
+  zzba (now -): down -0.75; 0.28; 0.0282/0.0419/0.0647; closest imb1 +0.29; carrier -simbn15 -0.0460
+  zzbt.b (now -): up +0.93; 0.27; 0.00077/0.0191/0.0685; closest lpe30 +0.22; level |gen.lpd10| 0.26
+  zzxu.a (now zzxu.a / zzxu.low): mixed -0.68; 0.30; 0.245/0.306/0.353; closest imb1 +0.19; carrier -flow_ord_imb60 -0.0691
+  zzsf.d (now -): up +0.29; 0.10; 0.0131/0.0330/0.0394; 0.14/0.09
+  zzop.i (now -): down -0.79; 0.30; 33.9/714.2/1568; closest microprice_minus_mid_rel +0.30, imb1 +0.29
+ carrier best overall: zzgh2.b <- resting_volume_placed_last_60s_imbalance +0.0020, zzgh2.b <- flow_ord_imb60 +0.0019, zzgh2.b <- simbn20 +0.0018,
+   zzeg <- -gen.imba45 +0.0002 -- all tiny: no open column is carried by the residual groups any more
+ assigned columns (128), best replacement: zzhi2.f <- gen.resting_volume_placed_last_60s_imbalance +0.0033 [+0.0024]
+   (now |gen.net_buy_amount_share_orders_over_200k_cny_1800s|), zzwj.a ...
+ assigned worth least: zzie.c -0.0008 (-gen.simbv180), zzsa2.b -0.0005 (cal:-gen.rv60), zzts -0.0005 (srank:-depth_imbalance_levels1to1),
+   zzop.j -0.0004, zzko -0.0004 (cal:srank:-gen.rete50), zzzl2.g -0.0003
+== residual_breakdown: 70,624 rows, 1 day, 240 marks; overall IC 0.6101
+ half hour: 0=0.378 30=0.564 60=0.634 90=0.640 120=0.637 150=0.674 180=0.683 210=0.670
+ by board (rows / ic / res_var_rel): ChiNext 8187 0.533 1.052; SH main 40308 0.655 0.918; STAR 4413 0.465 1.413; SZ main 17716 0.573 1.059
+ stock persistence: stock-day mean explains 0.045 of the residual variance
+  PM top 10 %: ours in the same tail 0.436 (chance 0.100), median rank +0.371; bottom 10 %: 0.410, -0.365
+ 15 largest |residual|: 000063 +0.163, 000100 +0.144, 600905 +0.135, 601138 -0.132, 600111 -0.130, 605117 -0.122, 002493 -0.113,
+  601628 +0.112, 002460 -0.111, 600089 +0.107, 603501 +0.107, 601236 -0.106, 600482 +0.102, 600795 +0.099, 601766 +0.099
+== static_resid: 299 stocks, 111 candidates. Same NaN-first sort as R35 (weekday_mon0 + every exp.<industry> dummy NaN). Real values
+ (rho_day / 30m / 1h): exp.MOMENTUM -0.182/-0.027/-0.095; ret2 -0.126/-0.097/-0.121; exp.RESVOL -0.115/-0.084/-0.120;
+ range3 -0.111/-0.076/-0.102; range2 -0.110/-0.089/-0.129; lca1 0.102/0.074/0.095  (all near the ~0.1 noise level)
