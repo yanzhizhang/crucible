@@ -1,0 +1,38 @@
+# R34 (r34.sh 582e6195, ic_score 6e15d6a6), 2026-11-13 00:42:40 -> 01:03:51 done on 97; transcribed from screen
+# (97 data/reports/r34_fold.txt, 396 lines). Scan on 0430 grid 0 (rand:240), gate + test on 0430 grid 7 (rand:240:7).
+[00:42:40] 0 grid rand:240:7 for 0430: full_book_m7/date=20260430.parquet 15,984,479 B; engine_m7/marks_20260430.parquet 13,290,932 B
+[00:43:49] 1 scan on 0430 grid 0 from r27_both, soft family lock; open at r27_both: 106
+  family lock lines (rescans kept unless beaten), e.g.:
+   zzfb=ema_dev: zzfb.b=rank:gen.lpma1800; zzyg=imb: zzyg.0.a=ced.stats.SRet; zzeu=gen.flow_ord_imb#: zzeu2=srank:-gen.rete75;
+   zzro=ret: zzro2.b=dm:gen.lpma120, zzro.a=-gen.lpes7200, zzro2.a=gen.stoch; zzqf=ema_dev (13 leaves: zzqf6.q.a |gen.rv900|,
+   zzqf2.q.c1 net_buy_amount_share_orders_under_40k_cny_300s, zzqf5.q.c4/zzqf10.c3/zzqf.q.c2 -gen.return_open_to_1000_log,
+   zzqf5.q.c2 -gen.flow_lambda900, zzqf7.q.c2 gen.log_distance_to_up_limit, zzqf5.q.c1/zzqf.q.c1 -bid_depth_weighted_distance_5lvl_rel,
+   zzqf9.c1 |gen.flow_lambda300|, zzqf4/7.q.c1 -net_buy_amount_share_orders_under_40k_cny_since_0930, zzqf8.q.c1 gen.overnight_gap_log,
+   zzqf7.q.b -gen.imb1); zzwa=ema_dev (zzwa.d rank:gen.lpma60, zzwa.f microprice_minus_mid_rel, zzwa.h ced.ret4, zzwa.g -gen.rete10);
+   zzop (zzop.a |gen.ldl1800|*1e4, zzop2.b gen.trading_seconds_since_0930); zzzl (zzzl2.d crank:-gen.rete120, zzzl2.g overnight_gap_log,
+   zzzl2.e microprice_minus_mid_rel); zzal=imb (zzal.h z:gen.lpe200, zzal.f crank:-gen.rete240, zzal.g cal:crank:gen.lpek50);
+   zzri (zzri2.a |overnight_gap_log|, zzri2.f -flow_small_imb60); zzhi (7 leaves: ofi_levels1to5_norm_10s, log_channel_sequence_advance,
+   rank:-gen.rete45, -marketable_order_net_amount_share_60s, -marketable_order_amount_share_60s, -flow_ord_imb300, ...);
+   zzho -position_in_limit_band; zzwj (-log_distance_to_down_limit, flow_big_imb300, flow_big_imb60); zzxu=state:a/low:
+   zzxu.b=(px - zzxu.a)/zzxu.last; zzsa=volat: zzsa.a=cal:|gen.lpd1|; zzqo=ema_dev (zzqo.a/e ofi_levels#to#_norm, f -simba120,
+   b imba10, d imba300); zzpp=ret: zzpp2.e microprice_minus_mid_rel*1e4
+  family lock: 37 families anchored, 53 columns dropped to rescan (zzaa=activity, zzag=gen.flow_ord_imb#, zzal=imb, zzbo=imb,
+   zzbt=gen.downside_var_share_#s, zzdw=ret, zzef=ema_dev, zzeu=gen.flow_ord_imb#, zzfb=ema_dev, zzfe=imb, zzfq=imb, ...)
+   + zzrg=gen.return_open_to_#_log, zzcb=ema_dev, zzeg=ema_dev, zzja=microprice_minus_mid_rel, zzvx=state:trDEmaD/px, zzts=depth_imbalance
+  assign_diff r27_both (103) -> stage6_r34 (143): 105 of 165 columns differ (full list on 97 r34_fold.txt lines 83-160)
+[00:50:19] 2 gate on 0430 grid 7 against r27_both: 82 of 106 changes kept (t >= 1.0) -> 135 columns (ic_assign_gated.json)
+  top kept (feature: old -> new, gain, t): zzzl2.d crank:-gen.rete120 -> null .0103 15.49; zzef2 null -> cal:gen.lmie5*1e4 .0104 14.72;
+   zzpz.a -> cal:crank:gen.microprice_minus_mid_rel .0104 13.80; zzhk.d -> cal:dm:gen.rpma60 .0109 13.49; zzag2.e -> cal:|gen.flow_ord_imb300|*1e4
+   .0099 12.93; zzeg2 -> cal:|gen.rpe20| .0088 12.63; zzeu srank:-gen.flow_ord_imb60 -> null .0067 12.60; zzlk -> dm:-gen.flow_ord_imb60 .0036 12.08;
+   zzlk2 -> dm:gen.flow_ord_imb60 .0027 11.65; zzqo.e -> cal:srank:-gen.rpe25 .0054 11.08; zzrg -> z:-gen.return_open_to_1000_log .0065 10.09;
+   zzzl2.b -> -gen.lpes2400 .0078 9.69; zzhi2.c -> null .0030 9.48; zzro.a -gen.lpes7200 -> cal:gen.mret1800 .0042 9.24;
+   zzyg.0.a ced.stats.SRet -> cal:z:gen.simba180 .0040 9.24; ... down to zzfq.e dm:-gen.imb5 .0001 1.13
+  dropped (t < 1): zzie5.c, zzpp.b, zzqf9.a (NaN), zzab .95, zzhi2.e .84, zzsa2.b .75, zzpe.e .66, zzop.i .44, zzal.h .23, zzxt6, zzqo.d,
+   zzwa.k, zzyj.c, zzyj4.a, zzbs2.b, zzyj.d, zzuc.f, zzpe.b, zzie2.c, zzqo.b, zzro.e, zzcb, zzhi2.f, zzhi.h (-4.04)
+[00:54:39] 3 r27_both / R34 / R34 gated: 0430 grid 7 (held-out marks); 1110 / 1112 = 224, reference only
+day              r27both   r34      r34g
+20260430 grid7   0.3768    0.6079   0.6081
+20261110 grid0   0.7173    0.5368   0.5814
+20261112 grid0   0.7234    0.5604   0.5807
+[01:03:51] done
+Caveat: grid 7 is the same day (0430) as the scan, only different marks; the jump 0.38 -> 0.61 is in-day, and the 224 days fall.

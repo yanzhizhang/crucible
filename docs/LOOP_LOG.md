@@ -416,3 +416,4 @@
 - 00:35 R33 done (docs/reports_97/r33/): pos == qty - base (ngap) 0.999; asf 0.8; winsdQty = 3/17 emsMktVol; runS loaded stsfile 20261109 on 1112; pm_orders decision parser saw 0 decisions (pm_decisions saw 787,920).
 - 00:45-00:50 R33b done (docs/reports_97/r33/r33b_20261112.txt), run beside R34.
 - ~01:05 Mac screen locked (loginwindow); VDI control paused. R34 still running on 97. Queued after R34: paste ic_score 997917b1 + static_resid fbe7a839 + xs_screen 250c406e + r35 8f0110b1 + r36 44c89452 + r37 35b319bd, then R35 -> R36 -> R37 (all verified on the Mac).
+- 01:03 R34 done (docs/reports_97/r34/r34.txt): 0430 grid7 r27both 0.3768 -> R34 0.6079 / gated 0.6081 (82 of 106 kept, 135 cols); 1110 0.7173 -> 0.5814, 1112 0.7234 -> 0.5807. ~01:10 Mac locked, Windows App stuck; reconnected 01:41; caffeinate restarted.
