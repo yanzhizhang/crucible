@@ -789,6 +789,8 @@ def main() -> None:
     ap.add_argument("--cdf-by-generation", action=argparse.BooleanOptionalAction, default=True,
                     help="training-CDF points from each day's own model files (cal: per generation, gates on the run's generations); "
                          "--no-cdf-by-generation reads --cdf")
+    ap.add_argument("--family-lock-soft", action="store_true",
+                    help="with --family-lock: off-class formulas are rescanned in class but kept unless beaten, and the gate treats them as any change")
     ap.add_argument("--family-lock", action="store_true",
                     help="every column of one PM family (zzro, zzro2 ...) uses one quantity class (core): off-class start picks are dropped "
                          "and rescanned, the scan and the gate only take in-class formulas")
@@ -1321,9 +1323,12 @@ def main() -> None:
             lock[fam_] = w.most_common(1)[0][0]
             for f, e in list(assign.items()):
                 if f in col and e and pm_family(f) == fam_ and core(e) != lock[fam_]:
-                    print(f"family lock {fam_} = {lock[fam_]}: drop {f} = {e} ({core(e)}), rescanned in class")
-                    X[:, col[f]] = np.nan
-                    del assign[f]
+                    if args.family_lock_soft:  # kept as the baseline: replaced only by an in-class formula that scores better
+                        print(f"family lock {fam_} = {lock[fam_]}: rescan {f} = {e} ({core(e)}) in class, kept unless beaten")
+                    else:
+                        print(f"family lock {fam_} = {lock[fam_]}: drop {f} = {e} ({core(e)}), rescanned in class")
+                        X[:, col[f]] = np.nan
+                        del assign[f]
                     relock.append(f)
         print(f"family lock: {len(lock)} families anchored, {len(relock)} columns dropped to rescan: "
               + ", ".join(f"{k}={v}" for k, v in sorted(lock.items())))
@@ -1554,7 +1559,7 @@ def main() -> None:
             new_e, old_e = assign.get(feat), gb.get(feat)
             if new_e == old_e or feat not in col:
                 continue
-            if args.family_lock and old_e and pm_family(feat) in lock and core(old_e) != lock[pm_family(feat)]:  # off-class: never restored
+            if args.family_lock and not args.family_lock_soft and old_e and pm_family(feat) in lock and core(old_e) != lock[pm_family(feat)]:  # off-class: never restored
                 if new_e:
                     gated[feat] = new_e
                 else:
