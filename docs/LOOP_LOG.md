@@ -408,3 +408,4 @@
 - seg_probe (docs/reports_97/seg_probe/): s1..s4 maxima of zzqf5.q.c4 / zzal.a in ratio 1:3:21:23.7 = 600:1800:12600:14220 s
   -> candidate s1 09:30-09:40, s2 -10:00, s3 -14:30, s4 -14:57; PM alpha spread steps at 9:40 and 10:00.
 - R30 started ~21:52 in the left terminal.
+- R30 done 22:04: s1 best in every half hour on 0430 and 1110 (docs/reports_97/r30/r30.txt).
