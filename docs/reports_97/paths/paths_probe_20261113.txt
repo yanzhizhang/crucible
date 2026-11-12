@@ -1,0 +1,39 @@
+# paths_probe.sh (769d9011, verified) + a read-only follow-up (ls / md5sum only), 2026-11-13 ~00:55 on 97.
+# Owner user names masked as <userA> (owner of /tmp/s), <userB>, <me>.
+== 224: /tmp/o and /tmp/s
+/tmp/o: ls: Permission denied; /tmp/s: ls: Permission denied
+/tmp/s/stsfile/: 4 entries: ex index sid2symbol stats
+/tmp/s/stsfile/ex/: 25 entries, ex-20261008.xr .. ex-20261111.xr
+/tmp/s/stsfile/index/: 25 entries, index-20261008.xr .. index-20261111.xr
+/tmp/s/stsfile/sid2symbol/: 14 entries, 20261026.json .. 20261111.json + sid2symbol.json (-> 20261111.json, link made 11-11 10:22)
+/tmp/s/stsfile/stats/: 1 entry, sod
+  stats/sod tail: 20261106.xr (11-06 08:45), 20261109.xr (11-09 08:45), 20261110.xr (11-10 09:14), 20261111.xr (11-11 08:45)
+  ex / index tails: 1106, 1109, 1110, 1111, all written 08:45 of their own day (owner <userA>)
+None of /tmp/s/{h,prod,data,models,hstats,dcp,sod,o,s} exists (or is visible).
+/tmp/o/* globbing fails (not listable), but /tmp/o/executor is listable: 20261110 20261111 20261112 20261113 chmod.sh
+/tmp/o/executor/20261112 (owner <me>, dir 11-12 09:21):
+  base_position_v1_{hs300,zz1000,zz500}.csv, base_position_v2_{hs300,zz1000,zz500}.csv (11-11 17:45)
+  chrono_logs/ (11-12 18:18), portfolio/ (11-12 09:18), position_log/ (owner <userB>, 11-12 09:21), qx_trade_info/ (09:21),
+  run_s.json5 (11-11 17:21), sod.csv 308056 B (11-12 08:25), xtp_log/ (09:21)
+paths named under /tmp/o or /tmp/s in the latest 224 log (count):
+  2 /tmp/s/stsfile/index/index-20261112.xr     <- requested by name, but NO such file exists on 224 or 2.23
+  2 /tmp/o/executor/20261112/xtp_log
+  2 /tmp/o/executor/20261112/run_s.json5
+  2 /tmp/o/executor/20261112/position_log/run_s_position_log.csv
+  2 /tmp/o/executor/20261112/portfolio/csv/strategy_orders_20261112.csv
+  1 /tmp/o/executor/20261112/sod.csv
+  1 /tmp/o/executor/20261112/qx_trade_info/tradeinfo_20261112.csv
+  1 /tmp/o/executor/20261112/portfolio/csv/analytics_20261112.csv
+  1 /tmp/o/executor/20261112/chrono_logs/chrono_20261112_181802.log
+  1 /tmp/o/executor/20261112/base_position_v1_hs300.csv
+== 2.23: /data/share/o and /data/share/s (depth 3)
+/data/share/o (12K): executor/ (0 entries), sig/ (0 entries), both 10-26 16:15, mode rwxrwxrwx
+/data/share/s (21M): ex/ 25 entries ex-20261008 .. ex-20261111; index/ 25 entries index-20261008 .. index-20261111;
+  sid2symbol/ 14 entries 20261026.json .. sid2symbol.json; stats/sod/ 41 entries 20260901.xr .. 20261111.xr
+  stats/sod tail: 20261105.xr (11-05 09:18), 20261106 (11-06 08:45), 20261109 (11-09 08:45), 20261111 (11-11 08:45) -- no 20261110
+md5 index-20261111.xr 50e20aaa166052a024785b711661473e and ex-20261111.xr f0ddbedecb416fc386c1e61df337386c: IDENTICAL on 224 and 2.23
+Reading:
+- 224 /tmp/s/stsfile is a byte-identical mirror of 2.23 /data/share/s (same files, same 08:45 mtimes); 224's copy additionally has
+  stats/sod/20261110.xr (written 09:14, late) which 2.23 lacks. 2.23 /data/share/o is an empty skeleton of 224's /tmp/o
+  (executor/ sig/), so 224's /tmp/o/executor (the user's own chrono run dirs) has no counterpart content on 2.23.
+- Neither machine got a 1112 drop at 08:45 on 1112; runS asked for index-20261112.xr, did not find it, and (R33) loaded 20261109.
