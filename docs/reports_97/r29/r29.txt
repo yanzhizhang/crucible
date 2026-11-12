@@ -16,3 +16,26 @@ f 2026-11-10 04:09 19938668 /data/share/data/prod/h/HS300/livev1/rec10_p/2026043
   drop_zzal.f: now crank:-gen.rete240
   drop_zzqo.a: now cal:dm:-gen.ofi_levels2to5_norm_60s
 8 variants -> data/reports/r29_var; moved columns not assigned: ['zzcb', 'zzal.a', 'zzrg', 'zzhk.d', 'zzal.b', 'zzbs.b', 'zzxc.d']
+base (103 columns): 20260430 0.3756
+variant          20260430  mean    picked change
+drop_zzhi2.c     +0.0048  +0.0048  yes   zzhi2.c=-
+drop_zzqo.a      +0.0031  +0.0031  yes   zzqo.a=-
+drop_zzal.e      +0.0000  +0.0000  yes   zzal.e=-
+drop_zzdw        +0.0000  +0.0000  yes   zzdw=-
+drop_zzqf5.q.c4  -0.0005  -0.0005        zzqf5.q.c4=-
+drop_zzal.f      -0.0010  -0.0010        zzal.f=-
+drop_moved       -0.0612  -0.0612        zzdw=-, zzal.e=-, zzqo.a=- ...
+drop_zzup        -0.0692  -0.0692        zzup=-
+picked 4: drop_zzhi2.c drop_zzqo.a drop_zzal.e drop_zzdw -> data/reports/r29_pick_0430.json (99 columns)
+  (same changes on 1110, generation C):
+base (103 columns): 20261110 0.7173
+drop_zzal.e      +0.0007  +0.0007  yes   zzal.e=-
+drop_zzhi2.c     +0.0005  +0.0005  yes   zzhi2.c=-
+drop_zzqf5.q.c4  +0.0005  +0.0005  yes   zzqf5.q.c4=-
+drop_zzal.f      +0.0000  +0.0000  yes   zzal.f=-
+drop_zzdw        -0.0001  -0.0001        zzdw=-
+drop_zzqo.a      -0.0007  -0.0007        zzqo.a=-
+drop_zzup        -0.0225  -0.0225        zzup=-
+drop_moved       -0.0239  -0.0239        zzal.e=-, zzal.f=-, zzhi2.c=- ...
+picked 4: drop_zzal.e drop_zzhi2.c drop_zzqf5.q.c4 drop_zzal.f -> data/reports/r29_pick_1110.json (99 columns)
+[21:48:45] done
