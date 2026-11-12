@@ -1,0 +1,26 @@
+# R39 (r39.sh becd01fa, r39_vars.py cadc0f35, ic_score 5f591e2d), base = r34g_baseline.json (135 cols), 0430 grid 7, ~02:47 -> 04:09 on 97.
+r39_vars: 37 columns use short-term imbalance / reversal bases (each dropped alone, plus drop_all_hits):
+ zzfb2.a rank:gen.rpe75; zzyg2.0.b z:gen.imb1; zzfb.b rank:-gen.lpe50; zzbo.a -gen.imb1; zzwa.f cal:gen.microprice_minus_mid_rel;
+ zzeu2 srank:-gen.rete75; zzzl2.e gen.microprice_minus_mid_rel; zzhi2.e rank:-gen.rete45; zzqf7.q.b -gen.imb1; zzro.e cal:dm:-gen.rete30;
+ zzqo.c z:-gen.lpek50; zzwa.h rank:gen.microprice_minus_mid_rel; zzqo.e cal:srank:-gen.rpe25; zzwa.g z:gen.lpe50; zzav2 cal:srank:gen.lpe50;
+ zzeg2 cal:|gen.rpe20|; zzfe2 crank:gen.imb1; zzhx.d cal:rank:gen.best_level_order_count_imbalance; zzja cal:rank:-gen.microprice_minus_mid_rel;
+ zzko cal:srank:-gen.rete50; zzlf crank:-gen.microprice_minus_mid_rel; zzmo srank:-gen.rete50; zzor.a crank:-gen.rete50; zzpe.c cal:srank:gen.imb1;
+ zzpz.a cal:crank:gen.microprice_minus_mid_rel; zzpz.b srank:-...; zzpz.c rank:...; zzpz.d z:...; zzqf.q.c3 z:-gen.rpe50;
+ zzts srank:-gen.depth_imbalance_levels1to1; zzuc.d crank:-gen.microprice_minus_mid_rel; zzvm2 cal:rank:...; zzxc.b crank:gen.best_level_order_count_imbalance;
+ zzxt3 crank:gen.lpe50; zzyj2.c dm:-gen.best_level...; zzyj3.c cal:srank:-gen.best_level...; zzyj4.c rank:gen.best_level...
+base (135 columns): h0 0.6034  h1 0.6089
+variant           h0       h1       mean     picked
+drop_zzko         +.0005   +.0010   +.0007   yes
+drop_zzav2        +.0001   +.0007   +.0004   yes
+drop_zzbo.a       +.0003   +.0003   +.0003
+drop_zzor.a       +.0003   +.0002   +.0002
+drop_zzts         +.0002   +.0003   +.0002
+drop_zzqo.c / zzzl2.e   0 / 0;  drop_zzwa.f 0 / -.0001
+drop_zzqf7.q.b -.0001/0; zzyj2.c -.0002/-.0001; zzyj4.c -.0002/-.0001; zzpz.c -.0002/-.0002; zzro.e -.0003/-.0001; zzhi2.e -.0001/-.0005;
+zzmo -.0004/-.0004; zzfe2 -.0005/-.0005; zzlf -.0003/-.0007; zzpz.b -.0003/-.0011; zzyj3.c -.0007/-.0007; zzvm2 -.0013/-.0006;
+zzxt3 -.0011/-.0009; zzqo.e -.0012/-.0013; zzhx.d -.0018/-.0011; zzuc.d -.0019/-.0020; zzfb.b -.0015/-.0025; zzja -.0025/-.0015;
+zzpe.c -.0015/-.0025; zzwa.g -.0019/-.0021; zzpz.d -.0035/-.0032; zzxc.b -.0034/-.0034; zzqf.q.c3 -.0033/-.0043; zzeg2 -.0051/-.0046;
+zzeu2 -.0056/-.0058; zzyg2.0.b -.0056/-.0058; zzwa.h -.0061/-.0070; zzpz.a -.0102/-.0151; zzfb2.a -.0357/-.0311
+picked 2: drop_zzko drop_zzav2 -> data/reports/r39_pick.json (133 columns)
+drop_all_hits (97 of 209 assigned): h0 IC 0.3180 (t 53.91); h1 IC 0.3218 (t 46.82)   (vs base .6034 / .6089)
+(picked uses "loses on neither half"; zzbo.a / zzor.a / zzts also gained on both halves but were not picked -- min-gain threshold?)
