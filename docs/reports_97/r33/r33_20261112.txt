@@ -1,0 +1,80 @@
+# R33 (r33.sh 6c7162d7, pm_orders 9e61c5cd, pm_decisions f060e538, pm_poslog bbc4a8ba), 2026-11-13 00:33:26 -> 00:35:24 on 97
+# transcribed from 97 data/reports/r33_fold.txt / r33_b.txt (folded at 150 cols; long example columns cut)
+[00:33:26] 1 pm_orders 20261112
+==== 20261112: 0 scored snapshots, 0 decisions, RPT 8568, ORD 4285, SEND 4285, CXL 3792, TRD 545, CLOCK 356, POS 300, BHOLD 296,
+     STRAT 1, BSNAP 1, BASSET 1, ACCT 1, SCASH 1, INS_RSP 1
+-- 1 strategy line shapes (count, source, keys | example):
+  1,381,605 catchRun.cpp:71   srcEpoch recEpoch sid               | srcEpoch: 1794447000, recEpoch: 1794447000.2176902, sid: 688506, name: alpha.1
+  1,381,528 alg.cpp:169       sidIdx aIdx fa book->epoch emsOurVol emsMktVol | sidIdx = 297, aIdx = 0, fa = -0.000729..., book->epoch = 1794447000.2176902, ems...
+  1,381,528 alg.cpp:213       mp fa vpen vr poscst cpos asq hs     | mp: 254.295, fa: -0.000729..., vpen: 1e-07, vr: 1.01372..., p...
+    787,920 alg.cpp:257       aIdx sid fa pos pp_ this->executp asq lthr hs liid winsdQty asf | aIdx = 0, sid = 600176, fa = 0.000563, pos = -32, pp_ = 0, this->executp = 24
+    785,939 alg.cpp:258       order is nullptr : true
+      4,829 es.cpp:172        sid exOid cumQty                     | OnEOM sid: 600436, exOid: 1, cumQty: 0, fPrc0.
+      4,285 es.cpp:399        nowTs                                | Po nowTs:20261112 09:30:00.454699SO,1794447000.450950,0,1,101,600436,129.99,100
+      4,285 catchRun.cpp:205  symbol volume price                  | place_order symbol = 600436.SH, volume = 100, price = 129.99, side = sell
+      3,792 es.cpp:73         sid exOid                            | cxl ords, sid: 600436, exOid: 1
+      3,792 es.cpp:493        sid exOid prc exSoQ                  | cancelExOrd, sid: 600436, exOid: 1, prc: 129.990000, exSoQ: 100
+      3,792 es.cpp:83         sid exOid cq                         | OnECM sid: 600436, exOid: 1, cq: 100
+      3,792 es.cpp:132        OnECM N N:N:N.N, ExOid N, OrderId N  | OnECM 20261112 09:30:06.514521, ExOid 1, OrderId 1
+      3,792 es.cpp:135        sid exOid                            | OnECM erase order sid: 600436, exOid: 1
+      1,981 alg.cpp:258       order is nullptr : false
+        545 es.cpp:216        OnEOM N N:N:N.N, ExOid N, N, N.N, {.Nf}, N.N | OnEOM 20261112 09:30:00.871663, ExOid 2, 200, 220.9700, {.6f}, 1794447000.8716633
+        492 es.cpp:235        sid exOid exFq exCq exSoQ            | OnEOM erase order, sid: 688111, exOid: 2, ExCond: None, exFq: 200, exCq: 0, exSoQ: 200, be
+        300 catchRun.cpp:185  yesterday_qty sellable_qty           | symbol 000001.SZ p.total_qty() = 3800, p.yesterday_qty = 3800, p.sellable_qty = 3800
+          5 catchRun.hpp:24   runS constructor
+          2 catchRun.cpp:75   runS initialize, waiting for attach
+          2 trd.cpp:45        Loading data from /tmp/s/stsfile/index/index-N.xr | .../index/index-20261109.xr
+          2 catchRun.cpp:77   runS initialize, waiting for attach
+          1 trd.cpp:50        Loading data from /tmp/s/stsfile/ex/ex-N.xr       | .../ex/ex-20261109.xr
+          1 trd.cpp:54        Loading data from /tmp/s/stsfile/sidNsymbol/N.json | .../sid2symbol/20261109.json
+          1 trd.cpp:59        Loading data from /tmp/s/stsfile/stats/sod/N.xr   | .../stats/sod/20261109.xr
+          1 trd.cpp:94        alg to es
+(pm_orders' own sections 2-5 printed nothing beyond the census: "0 scored snapshots, 0 decisions" -- its decision parser did
+ not pick up the alg.cpp lines; pm_decisions below did.)
+NOTE: on 1112 runS loaded stsfile 20261109 (index / ex / sid2symbol / stats/sod), 3 trading days stale.
+[00:35:21] 2 pm_decisions 20261112
+== 20261112: 1,368,232 scored snapshots, 787,920 decisions; decision columns: sid, src_epoch, fa, kind, cpp, aIdx, pos, pp, executp, asq, lthr, hs, liid, winsdQty, asf
+  share of snapshots with a decision 1.000; |fa| with p0/p1/p10/p50 1.291e-10/3.911e-06/3.965e-05/0.0002235, without p50/p90/p99/p100 -
+  asf: values 0.8 x787920
+  liid: values 0 x785725, 3 x2195
+  lthr: p1/p10/p50/p90/p99 -0.0009428/-0.0005364/-0.0002465/0/0; share == 0 0.131
+  hs: p1/p10/p50/p90/p99 2.232e-05/8.549e-05/0.0002685/0.0009588/0.00198; share == 0 0.000
+  winsdQty: p1/p10/p50/p90/p99 9725/3.216e+04/1.462e+05/6.086e+05/1.849e+06; share == 0 0.000
+  asq: p1/p10/p50/p90/p99 0/0/100/3900/1.04e+04; share == 0 0.444
+  pos: p1/p10/p50/p90/p99 -3946/-493/-25/60/2042; share == 0 0.008
+  pp: p1/p10/p50/p90/p99 0/0/0/0/0; share == 0 0.995
+  executp: p1/p10/p50/p90/p99 -932.4/-1.01/-0.07039/0.5968/698.7; share == 0 0.086
+  executp == -asq 0.082 (fa < 0 among them 0.002), == +asq 0.088 (fa > 0 among them 1.000); sign(executp) == sign(fa) 0.504; integer executp 0.109, multiple of 100 0.093
+  non-zero only: executp 0.914 of rows, pos 0.992, both 0.910, executp without pos 0.004, pos without executp 0.082
+  pos != 0: sign(pos) == sign(fa) 0.460; executp == pos 0.002, == pos - pp 0.002, == clip(pos, +-asq) 0.083; executp / pos p1/p10/p50/p90/p99 -18.23/-0/0.004058/0.09879/10.09; pos multiple of 100 0.000; pos / winsdQty p1/p10/p50/p ...
+  pos > 0 (273,550): fa p10/p50/p90 -0.0005938/-7.98e-05/0.0004233; fa - hs -0.001597/-0.0006027/-4.871e-05; fa + lthr -0.0009685/-0.0003845/0.0001456; fa - lthr -0.0004673/0.0002356/0.0008479; asq > 0 1.000
+  pos < 0 (508,277): fa p10/p50/p90 -0.0003614/5.191e-06/0.0005358; fa - hs -0.0008209/-0.0002274/0.0003194; fa + lthr -0.0006884/-0.0002512/0.000408; fa - lthr -0.0001357/0.0002753/0.0007901; asq > 0 0.312
+  pos == 0 (6,093): fa p10/p50/p90 -0.0004478/0.0002155/0.0006719; fa - hs -0.0006507/6.095e-05/0.0005419; fa + lthr -0.000595/-5.92e-05/0.0005996; fa - lthr -0.0003718/0.0004447/0.0008631; asq > 0 1.000
+  executp != 0 and asq > 0 (435,177): |executp| == asq 0.011, |executp| < asq 0.973; sign(executp) == sign(fa) 0.551
+  per stock over time (787,620 consecutive pairs): pos unchanged 0.999; on a change: dpos == previous executp 0.036, sign(dpos) == sign(fa) 0.576, from 0 0.000, to 0 0.002; dpos p1/p10/p50/p90/p99 -3053/-800/-100/800/2604
+  pos changes by HHMM (top 8): 0930 x58, 0931 x36, 0932 x18, 1300 x14, 0943 x13, 0934 x12, 0936 x11, 0935 x9; second of minute == 0 0.036
+  executp / winsdQty p1/p10/p50/p90/p99 -0.005353/-1.582e-05/-5.958e-07/3.722e-06/0.002807
+  fa > 0, no cap: 303,013 rows
+    executp ~ 0.01891 fa_w: R^2 0.0012
+    executp ~ 0.01796 fa_m_hs_w: R^2 0.0017
+    executp ~ -0.002393 fa_p_hs_w: R^2 -0.0001
+    executp ~ 0.03073 fa_w + -0.0034 asq + 0.3292 pp + 0.1549 pos + 10.63 one: R^2 0.2018
+    executp ~ 0.02121 fa_w + 0.03161 fa_m_hs_w + 0.0108 fa_p_hs_w + -0.001674 asq + 0.3262 pp + 0.154 pos + 9.668 one: R^2 0.2040
+  fa < 0, no cap: 415,690 rows
+    executp ~ 0.1677 fa_w: R^2 0.0185
+    executp ~ 0.04767 fa_m_hs_w: R^2 0.0054
+    executp ~ 0.07342 fa_p_hs_w: R^2 0.0082
+    executp ~ 0.1541 fa_w + -0.002977 asq + 0.7711 pp + 0.1232 pos + 8.415 one: R^2 0.1355
+    executp ~ 0.09117 fa_w + 0.0164 fa_m_hs_w + 0.1659 fa_p_hs_w + -0.01479 asq + 0.7497 pp + 0.1262 pos + 12.2 one: R^2 0.1495
+  winsdQty / emsMktVol over 778,620 rows: p1/p50/p99 0.1713/0.1765/0.1765 (3/17 = 0.176471)
+[00:35:23] 3 pm_poslog 20261112
+== 20261112: 207,600 position-log rows from 1 file(s), 300 stocks, 692 dumps; qty != 0 0.822, base_qty != 0 1.000
+  stocks whose qty changes during the day 0.660; share of rows with qty == base_qty 0.006
+  decisions with a log row at or before them: 787,920 of 787,920
+  pos == (exact / within 100 / corr): qty 0.000/0.047/r +0.198; yesterday_qty 0.000/0.072/r -0.139; sellable_qty 0.000/0.406/r +0.116; base_qty 0.000/0.060/r -0.153; gap 0.008/0.497/r -0.999; ngap 0.999/0.999/r +0.999
+  executp == (exact / within 100 / corr): qty 0.020/0.170/r +0.029; yesterday_qty 0.007/0.040/r -0.087; sellable_qty 0.088/0.486/r -0.010; base_qty 0.000/0.050/r -0.096; gap 0.004/0.724/r -0.357; ngap 0.006/0.739/r +0.357
+  executp == pos with sells capped at sellable_qty 0.086; on executp != 0: sign(executp) == sign(base - qty) 0.048, == sign(fa) 0.551
+  prediction vs holding gap: corr(fa, base - qty) -0.003; corr(fa, pos) +0.004; rows with base - qty != 0 0.992
+[00:35:24] done
+Key reading: pos == ngap (= qty - base) for 0.999 of decisions (r +0.999) -> PM's "pos" is the holding minus the base target;
+asf = 0.8 constant; winsdQty = emsMktVol x 3/17; on 1112 runS loaded stsfile from 20261109.
