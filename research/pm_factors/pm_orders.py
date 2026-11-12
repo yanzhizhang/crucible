@@ -49,6 +49,7 @@ def parse_day(files: list[str]) -> tuple[pl.DataFrame, pl.DataFrame, pl.DataFram
     census: dict[tuple[str, str], list] = {}
     for f in files:
         last: dict[str, float] = {}
+        ev: dict[str, float] = {}  # the snapshot's alg.cpp evaluation line (mp ... hs), folded into its decision
         pending: dict | None = None  # the last decision, waiting for its alg.cpp:252 line
         with open(f, encoding="utf-8", errors="replace") as fh:
             for line in (part for raw in fh for part in GLUE.split(raw) if part.strip()):  # tee can glue two writers' lines
@@ -73,27 +74,30 @@ def parse_day(files: list[str]) -> tuple[pl.DataFrame, pl.DataFrame, pl.DataFram
                 c = census.setdefault(shape, [0, rest[:160]])
                 c[0] += 1
                 kv = {k.replace("this->", "").replace("book->", "book_").rstrip("_"): float(v) for k, v in NUM.findall(rest)}
-                if where.endswith("catchRun.cpp:69") and "srcEpoch" in kv:
-                    last = kv
-                elif where.endswith("alg.cpp:169") and last:
+                fname = where.rsplit(":", 1)[0].rsplit("/", 1)[-1]  # matched by file and keys: the line numbers move between plugin builds
+                if fname == "catchRun.cpp" and "srcEpoch" in kv:
+                    last, ev = kv, {}
+                elif fname == "alg.cpp" and "emsMktVol" in kv and last:
                     snaps.append({"sid": int(last.get("sid", -1)), "src_epoch": round(last["srcEpoch"] * 1e9), "fa": kv.get("fa"),
                                   "ems_our_vol": kv.get("emsOurVol"), "ems_mkt_vol": kv.get("emsMktVol")})
-                elif where.endswith("alg.cpp:251"):
-                    pending = {"src_epoch": round(last["srcEpoch"] * 1e9) if "srcEpoch" in last else None, **kv}
+                elif fname == "alg.cpp" and "vpen" in kv:  # from 1112: mp fa vpen vr poscst cpos asq hs, just before the decision
+                    ev = {f"ev_{k}": v for k, v in kv.items()}
+                elif fname == "alg.cpp" and "executp" in kv:
+                    pending = {"src_epoch": round(last["srcEpoch"] * 1e9) if "srcEpoch" in last else None, **ev, **kv}
                     pending["sid"] = int(kv.get("sid", last.get("sid", -1)))
                     decs.append(pending)
                 elif "OnPosM" in rest or where.endswith("catchRun.cpp:180"):
                     posm.append({"where": where, **{k.removeprefix("p.").replace("()", "").replace(".", "_"): float(v) for k, v in re.findall(r"([\w.()]+)\s*[:=]\s*(-?\d+(?:\.\d+)?)", rest)}})
-                elif where.endswith("es.cpp:401") and "nowTs:" in rest:  # Po = the strategy places an order
+                elif fname == "es.cpp" and "nowTs:" in rest:  # Po = the strategy places an order
                     f_ = rest.split("nowTs:", 1)[1].split(",")
                     try:
                         pos_.append({"po_ts": round(float(f_[1]) * 1e9), "f2": int(float(f_[2])), "f3": int(float(f_[3])), "f4": int(float(f_[4])),
                                      "sid": int(float(f_[5])), "px": float(f_[6]), "qty": float(f_[7].split()[0]), "stamp": f_[0][-2:]})
                     except (IndexError, ValueError):
                         pass
-                elif where.endswith("alg.cpp:252") and pending is not None:
-                    mn = re.search(r"nullptr\s*:\s*(\d+)", rest)  # tee can glue the next line onto this one
-                    pending["nullptr"] = float(mn.group(1)) if mn else None
+                elif fname == "alg.cpp" and "nullptr" in rest and pending is not None:
+                    mn = re.search(r"nullptr\s*:\s*(\d+|true|false)", rest)  # 0 / 1 before 1112, false / true from 1112
+                    pending["nullptr"] = (1.0 if mn.group(1) == "true" else 0.0 if mn.group(1) == "false" else float(mn.group(1))) if mn else None
                     pending = None
     def frame(rows: list[dict]) -> pl.DataFrame:
         return pl.DataFrame(rows, infer_schema_length=None) if rows else pl.DataFrame()
