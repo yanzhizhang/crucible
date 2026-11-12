@@ -1,0 +1,4 @@
+# R28 day x config table, partial (screen transcription 2026-11-12 ~20:45)
+day        zero    A_c0    B_c0    B_c600
+20261104   0.5945  0.5939  0.5908  0.5918
+20261105   0.7002  0.6999  0.6984  0.6992
