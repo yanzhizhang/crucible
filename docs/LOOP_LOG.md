@@ -412,3 +412,4 @@
 - R31 done 22:46: by-time dispatch far below s1-only on all 7 days (docs/reports_97/r31/r31.txt).
 - add_day 1111 rerun done 23:22 (docs/reports_97/add_day/add_20261111b.txt): IC unchanged; PM 1111.jz now matched (engine = PM on all checked keys). add_day 1112 started 23:35 (DataYes 1112 package present, 15:50).
 - add_day 1112 done 23:45 (docs/reports_97/add_day/add_20261112.txt): unified logs fixed pm_signals (factor lines 1,368,232, order match 0.9903, corr 0.9932). IC r17 0.6928 / r24 0.7010 / r24g 0.6778. Engine day-end state = PM 1112.jz.
+- 00:31 prod23_probe (docs/reports_97/prod23/): 2.23 production has only p1_intrading_dcp .jz (75 days, 2023-01/02 + 0429 + 0901..1112) and the single 0430 alpha.parquet.
