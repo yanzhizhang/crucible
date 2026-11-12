@@ -423,3 +423,4 @@
 - 02:25 pasted r39.sh becd01fa, r39_vars.py cadc0f35, static_resid e09140ef (superseded). crucible 1a094fb: ic_score 5f591e2d + static_resid 4ac7c568 fix 1/NaN industry dummies (dmi:/neu: were empty). Plan after R37: paste both, R38 -> R39 -> R37b (BASE=r34g_baseline, keep r37a_assign.json) -> static reruns.
 - 04:35 chain2 done: R38 (held-out stocks .370 -> .598), R39 (2 drops: zzko zzav2; drop_all .318/.322), R37b (fixed dummies: gated .6277, 141 cols).
 - 04:44 R40 started (r40.sh 2e239825, base r40_base 139 cols, rescan 21 cols). Summary for the user: docs/reports_97/SUMMARY_20261113.md.
+- 05:05 R40 done (docs/reports_97/r40/r40.txt): r40g .6288 / .6209 (odd / even sids); 3 of 17 changes kept. 97 idle.

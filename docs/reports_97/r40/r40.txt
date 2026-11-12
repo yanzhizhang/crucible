@@ -1,0 +1,40 @@
+# R40 (r40.sh 2e239825, ic_score 5f591e2d), 2026-11-13 04:44:29 -> 05:05:23 on 97; transcribed from the terminal.
+[04:44:29] 0 base = R37b gated minus zzko, zzav2 -> r40_base: 139 columns
+[04:44:29] 1 rescan zzfb2.a,zzpz.a,zzwa.h,zzyg2.0.b,zzeu2,zzeg2,zzqf.q.c3,zzxc.b,zzpz.d,zzwa.g,zzpe.c,zzja,zzfb.b,zzuc.d,zzhx.d,zzqo.e,
+   zzxt3,zzvm2,zzyj3.c,zzpz.b,zzlf: even sids x grid 0
+IC: start 0.6203 -> end 0.6251 (t 86.66, 240 marks); 126 of 209 columns assigned -> stage6_r40/ic_assign.json
+assign_diff r40_base (139) vs stage6_r40 (126): 17 of 139 differ
+  zzag2.c rank:gen.flow_ord_imb60 | -        zzav cal:|gen.lpe5|*1e4 | -           zzfe2 crank:gen.imb1 | -
+  zzpe.a -gen.simba10 | -                     zzqf.q.c1 -gen.bid_depth_weighted_distance_5lvl_rel | -
+  zzqf.q.c3 z:-gen.rpe50 | z:-gen.rpe5        zzqf10.c3 -gen.return_open_to_1000_log | -
+  zzqf3.q.c1 gen.lpes3600 | -                 zzqf4.q.c2 dm:gen.rpe14400 | -       zzqf5.q.c4 gen.lpes14400 | -
+  zzqf7.q.b srank:gen.lmie10 | -              zzqf9.a |gen.ipc_hs300| | -          zzwa.g z:gen.lpe50 | z:-gen.rete60
+  zzwj.a gen.flow_refill_imb60 | -            zzwj.c crank:-gen.flow_refill_imb300 | -
+  zzxt3 crank:gen.lpe50 | crank:gen.lpe25     zzyg2.0.b z:gen.imb1 | srank:gen.microprice_minus_mid_rel
+  (0 newly assigned, 13 dropped: zzpe.a zzqf9.a zzqf5.q.c4 zzqf10.c3 zzwj.a zzqf4.q.c2 zzqf3.q.c1 zzwj.c zzqf.q.c1 zzqf7.q.b zzag2.c zzav zzfe2)
+[04:55:38] 2 gate: odd sids x grid 7: 3 of 17 changes kept (t >= 1.0) -> 139 columns (stage6_r40_gate/ic_assign_gated.json)
+feature     old                                        new                                    gain     t       kept
+zzqf9.a     |gen.ipc_hs300|                            null                                   .0000    NaN     false
+zzxt3       crank:gen.lpe50                            crank:gen.lpe25                        .0005    2.0874  true
+zzyg2.0.b   z:gen.imb1                                 srank:gen.microprice_minus_mid_rel     .0014    2.0535  true
+zzqf.q.c3   z:-gen.rpe50                               z:-gen.rpe5                            .0002    1.8766  true
+zzqf4.q.c2  dm:gen.rpe14400                            null                                   .0002    0.7277  false
+zzqf.q.c1   -gen.bid_depth_weighted_distance_5lvl_rel  null                                   .0000    0.4389  false
+zzwj.a      gen.flow_refill_imb60                      null                                   .0003    0.3987  false
+zzwa.g      z:gen.lpe50                                z:-gen.rete60                         -.0001   -0.2904  false
+zzav        cal:|gen.lpe5|*1e4                         null                                  -.0001   -0.8613  false
+zzqf3.q.c1  gen.lpes3600                               null                                  -.0001   -0.9593  false
+zzag2.c     rank:gen.flow_ord_imb60                    null                                  -.0005   -1.2914  false
+zzpe.a      -gen.simba10                               null                                  -.0009   -2.0675  false
+zzqf10.c3   -gen.return_open_to_1000_log               null                                  -.0006   -2.5006  false
+zzqf7.q.b   srank:gen.lmie10                           null                                  -.0001   -2.5467  false
+zzqf5.q.c4  gen.lpes14400                              null                                  -.0010   -2.9844  false
+zzwj.c      crank:-gen.flow_refill_imb300              null                                  -.0003   -3.3326  false
+zzfe2       crank:gen.imb1                             null                                  -.0006   -4.2866  false
+[04:56:45] 3 grid 7, both halves
+stocks     r34g     r40base  r40      r40g
+sid%2:1    0.6089   0.6281   0.6287   0.6288
+sid%2:0    0.6034   0.6194   0.6281   0.6209
+[05:05:23] done   (r40g kept on 97 as data/reports/r40g_baseline.json)
+Reading: the rescan of the 21 heavy short-term columns found only 3 small in-family swaps that pass the odd-sid gate; on the
+held-out odd sids r40g = .6288 vs r40base .6281 (+.0007). The 13 drops the even-sid scan wanted all failed the gate.
