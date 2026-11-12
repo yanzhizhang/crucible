@@ -1,0 +1,46 @@
+# R35 (r35.sh 8f0110b1, ic_score 997917b1, static_resid fbe7a839), r27_both on 0430 grid 0; 2026-11-13 01:46:55 -> 01:53:54 on 97.
+# Hand transcription of the summary lines; the per-column implied block (lines 14-130 of 97 data/reports/r35_fold.txt) is in
+# r35_implied_ocr_draft.txt (OCR draft, 0/8 confusions possible; lines ~67-74 not captured).
+IC: start 0.3756 -> end 0.3756 (t 55.66, 240 marks); 102 of 209 columns assigned
+== implied values (30,000 rows, PM pred mapped as 0.844 x + 1.48e-03; 4208 plain candidates, 3774 distinct, 1465 distinct by rank)
+ residual (PM beyond ours, per-mark ranks) closest: gen.microprice_minus_mid_rel +0.23, gen.best_level_order_count_imbalance +0.22,
+   gen.imb1 +0.21, gen.imba10 +0.17, gen.imbv10 +0.17, gen.rpe25 -0.16
+ residual (ours beyond PM) closest: gen.imb1 +0.37, gen.microprice_minus_mid_rel +0.35, gen.rete90 -0.27, gen.rete100 -0.27, gen.rete75 -0.27, gen.lpe90 -0.27
+ agreement on these rows 0.374; carrier probe: top 6 residual groups (18 candidates) in each open column vs constants
+ per column (response; informative; implied p10/p50/p90; var expl stock-day / mark; carrier best):
+  zzro2.a (now gen.stoch): mixed +0.51; inf 0.36; -0.00404/-0.00120/0.00255; 0.10/0.03; carrier gen.best_level_order_count_imbalance +0.0249 (+0.0230)
+  zzro2.c (now dm:-gen.ret120): up +0.88; inf 0.34; -0.0116/-0.0023/0.0064; 0.07/0.03; carrier best_level_order_count_imbalance +0.0218 (+0.0285)
+  zzeu (now srank:-gen.flow_ord_imb60): up +0.94; inf 0.08; -0.986/0.0067/0.966; 0.15/0.11; carrier microprice_minus_mid_rel*1e4 +0.0287 (+0.0110)
+  zzgh2.b (now rank:gen.rete150): hump -0.05; inf 0.13; 148.5/636.5/1237; 0.09/0.10; closest zpe60 +0.38
+  zzgh.b (now -): hump +0.27; inf 0.07; 76.5/562.5/738; 0.15/0.11; closest lmie50 -0.17
+  zzel.a (now -): mixed -0.52; inf 0.31; 0.00023/0.00146/0.00222; 0.08/0.02; carrier -gen.imb1 +0.0311 (+0.0236)
+  zzwa.j (now cal:|gen.lpe40|): mixed -0.11; inf 0.13; 0.0016/0.0031/0.0090; 0.09/0.07; carrier best_level_order_count_imbalance +0.0119
+  zzeg (now -): mixed -0.59; inf 0.35; 0.984/0.984/1.007; 0.10/0.14; closest gen.rete75 -0.46
+  zzzl2.c (now gen.lpes1800): inf 0.34; -0.0446/0.0210/0.0556; 0.09/0.04; carrier -best_level_order_count_imbalance +0.0300 (+0.0190)
+  zzsf.c (now gen.lee30_14400): down -0.76; inf 0.22; 0.0098/0.0218/0.0366; 0.05/0.04; carrier -gen.imb1 +0.0262 (+0.0085)
+  zzba (now -): mixed -0.42; inf 0.30; 0.0300/0.0516/0.0647; 0.08/0.04; closest gen.imb1 +0.31
+  zzeu2 (now srank:-gen.rete75): up +0.86; inf 0.43; -0.907/-0.342/-0.032; 0.09/0.07; carrier microprice_minus_mid_rel*1e4 +0.0059
+  zzbt.b (now -): up +0.92; inf 0.23; 0.00077/0.0191/0.216; 0.06/0.05; carrier best_level_order_count_imbalance +0.0207
+  zzxu.a (now zzxu.a / zzxu.low): mixed -0.53; inf 0.31; 0.251/0.317/0.353; 0.06/0.04; carrier -gen.imb1 +0.0267 (+0.0291)
+  zzsf.d (now -): down -0.91; inf 0.12; 0.0044/0.0169/0.0394; 0.10/0.07; carrier -best_level_order_count_imbalance +0.0280 (+0.0111)
+ carrier best overall: zzxu.a <- -gen.imb1 +0.0291 (+0.0267), zzro2.c <- -gen.best_level_order_count_imbalance +0.0285 (+0.0218),
+   zzro2.c <- best_level_order_count_imbalance*1e4 +0.0285, zzel.a <- -gen.imb1 +0.0236 (+0.0311)
+ assigned columns (93), best replacement over the current formula: zzhi2.c <- -gen.imb1 +0.0445 [+0.0293]
+   (now |gen.net_buy_amount_share_orders_over_200k_cny_1800s|), zzjx3.b <- -gen.best_level_order_count_imbala... (cut)
+ assigned columns worth least (agreement lost when missing): zzwa.i -0.0093 (crank:-gen.lpek10), zzzl2.d -0.0085 (crank:-gen.rete120),
+   zzhj -0.0074 (gen.ofi_level1_norm_60s), zzqf7.q.c1 -0.0072 (-gen.net_buy_amount_share_orders_under_40k_cny_since_0930), zzqo.e -0.0057
+== residual_breakdown: pred.parquet 70,624 rows, 1 day, 240 marks; overall IC 0.3756
+ half hour: 0=0.193 30=0.321 60=0.355 90=0.389 120=0.383 150=0.443 180=0.455 210=0.456
+ by board (rows / ic_pooled / res_var_rel): ChiNext 8187 0.310 0.968; SH main 40308 0.403 0.984; STAR 4413 0.274 1.208; SZ main 17716 0.363 0.999
+ stock persistence: stock-day mean explains 0.050 of the residual variance
+  PM top 10 %: ours in the same tail 0.249 (chance 0.100), median rank +0.237; bottom 10 %: 0.253, -0.261
+ 15 largest mean |residual|: 000858 +0.238, 600795 +0.216, 600905 +0.210, 600111 -0.204, 600482 +0.156, 601628 +0.153, 300502 +0.150,
+  605117 -0.138, 601138 -0.136, 600039 -0.135, 600089 +0.128, 601766 +0.124, 603392 -0.123, 603501 +0.120, 601236 -0.115
+[01:53:53] 2 per-stock residual against daily candidates: 299 stocks with a residual, 299 with daily candidates, 111 candidates
+ (top 40 by |rho_day|; ~0.1 is noise for ~300 stocks) -- NaN rho sorts first: weekday_mon0 and every exp.<industry> dummy show
+ rho_day/30m/1h = NaN (finite = industry share, e.g. HDWRSE 0.194, DIVFINAN 0.094, BANKS 0.084, HEALTH 0.077, COUNTRY 1.000);
+ the real values: adv20 0.210/0.308/0.346; ladv20 0.210/0.308/0.346; lfcap 0.209/0.237/0.262; ret2 -0.202/-0.159/-0.167;
+ lca1 0.194/0.127/0.120; stats.SRet -0.188/-0.131/-0.091   (rho_day / rho_30m / rho_1h)
+ == top by |rho_30m| (the open): again NaN rows first (weekday_mon0, exp.*) -- the NaN sort hides the ranking; industry rho needs
+ a non-rank method (0/1 dummies). Flag for crucible.
+[01:53:54] done
