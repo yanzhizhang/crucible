@@ -629,7 +629,7 @@ def profile_marks(hstats: Path, cache: Path, fams: list[str], d: str, marks: np.
 
 
 XS = ("z:", "rank:", "crank:", "srank:")  # srank = rank in [-1, 1]; cross-sectional transforms within a mark: each has the same CDF whatever it transforms
-DM = ("dm:", "dmi:")  # minus the mark's cross-sectional mean / its Barra industry's mean: units kept (peer-relative, ZZQF)
+DM = ("dm:", "dmi:", "neu:")  # neu: = residual on that day's Barra exposures (industries + styles), per mark  # minus the mark's cross-sectional mean / its Barra industry's mean: units kept (peer-relative, ZZQF)
 
 
 def parse(expr: str) -> tuple[str, bool, bool, float, str]:
@@ -679,6 +679,21 @@ def calibrate(v: np.ndarray, pts: tuple[np.ndarray, np.ndarray] | None) -> np.nd
     return out
 
 
+def neutralize(v: np.ndarray, E: np.ndarray) -> np.ndarray:
+    """v minus its least-squares fit on [1, E] over the rows where v and every exposure are finite (NaN elsewhere)."""
+    out = np.full(v.size, np.nan)
+    if E.size == 0:
+        return out
+    f = np.isfinite(v) & np.isfinite(E).all(axis=1)
+    k = E.shape[1] + 1
+    if f.sum() < k + 10:
+        return out
+    X = np.column_stack([np.ones(f.sum()), E[f]])
+    b, *_ = np.linalg.lstsq(X, v[f], rcond=None)
+    out[f] = v[f] - X @ b
+    return out
+
+
 def demean(v: np.ndarray, g: np.ndarray) -> np.ndarray:
     """v minus its group's mean over finite values (groups of fewer than 3, and group -1, give NaN)."""
     f = np.isfinite(v) & (g >= 0)
@@ -702,8 +717,10 @@ class Pool:
     cross-sectional transforms cost no memory.
     """
 
-    def __init__(self, xs_on: bool) -> None:
+    def __init__(self, xs_on: bool, neu_on: bool = False) -> None:
         self.xs_on = xs_on
+        self.neu_on = neu_on
+        self.expo: list[np.ndarray] = []  # per block: each CED row's Barra exposures (industries + styles), for neu:
         self.sids: list[list[np.ndarray]] = []  # per block, per mark
         self.base: list[list[dict[str, np.ndarray]]] = []
         self.daily: list[tuple[np.ndarray, dict[str, np.ndarray]]] = []  # per block: CED sids, CED columns
@@ -730,6 +747,8 @@ class Pool:
         self.daily.append((dsid, dcol))
         dummies = [v for k, v in dcol.items() if k.startswith("ced.exp.") and np.isin(v[np.isfinite(v)], (0.0, 1.0)).all()
                    and 0 < np.nanmean(v) < 0.5]  # industry dummies (the country factor is 1 everywhere)
+        ek = sorted(k for k in dcol if k.startswith("ced.exp.") and np.nanstd(dcol[k]) > 0)
+        self.expo.append(np.column_stack([dcol[k] for k in ek]) if ek else np.zeros((dsid.size, 0)))
         if len(dummies) >= 5:
             st = np.nan_to_num(np.stack(dummies))
             self.ind.append(np.where(st.max(axis=0) == 1, st.argmax(axis=0), -1))
@@ -751,7 +770,7 @@ class Pool:
             if self.xs_on:
                 out += [f"{p}{s}{c}" for p in XS for s in ("", "-")]
             if c.startswith("gen."):
-                out += [f"{p}{s}{c}" for p in DM for s in ("", "-")]
+                out += [f"{p}{s}{c}" for p in DM if p != "neu:" or self.neu_on for s in ("", "-")]
         return out
 
     def raw(self, b: int, m: int, base: str) -> np.ndarray | None:
@@ -772,6 +791,10 @@ class Pool:
             return None
         v = np.abs(v) if ab else v
         v = (-v if neg else v) * scale
+        if pre == "neu:":
+            i = self.didx[b][m]
+            E = np.where((i >= 0)[:, None], self.expo[b][np.clip(i, 0, None)], np.nan) if self.expo[b].shape[1] else np.zeros((v.size, 0))
+            return neutralize(v, E)
         if pre in DM:
             i = self.didx[b][m]
             g = np.where(i >= 0, self.ind[b][np.clip(i, 0, None)], -1) if pre == "dmi:" and self.ind[b].size else np.zeros(v.size, int)
@@ -871,6 +894,7 @@ def main() -> None:
     ap.add_argument("--ced", action=argparse.BooleanOptionalAction, default=True,
                     help="also CED daily fields and intraday amount / volume over daily baselines (ced_match.daily_candidates)")
     ap.add_argument("--ced-xr", type=Path, help="read shtcommon's CED files from this directory instead of the crucible store")
+    ap.add_argument("--neutral", action="store_true", help="also neu:<base>: each tick base's residual on that day's Barra industry + style exposures, per mark")
     ap.add_argument("--xs", action=argparse.BooleanOptionalAction, default=True,
                     help="also each stateless candidate cross-sectionally z-scored / ranked within its mark")
     ap.add_argument("--max-worsen", type=float, default=None,
@@ -947,7 +971,7 @@ def main() -> None:
         if args.ced_xr:
             CM.S = CM.XRStore(args.ced_xr)
         print(f"CED candidates from {CM.S.STORE}")
-    pool = Pool(args.xs)
+    pool = Pool(args.xs, args.neutral)
     state_stems: set[str] = set()
     stem_parts: list[list[dict[str, pl.DataFrame]]] = []  # per block, per mark: stem -> its state rows
     empty_st = pl.DataFrame(schema={"sid": pl.Int64, "key": pl.String, "pm": pl.Float64})
@@ -1200,6 +1224,16 @@ def main() -> None:
                 ok = ix >= 0
                 ind_panel[ix[ok]] = iv[ok]
     n_ind = int(ind_panel.max()) + 1 if (ind_panel >= 0).any() else 1
+    n_exp = max((e.shape[1] for e in pool.expo), default=0)
+    exp_panel = np.full((sid_a.size, n_exp), np.nan)  # each panel row's Barra exposures (for neu:), the day's own file
+    if n_exp:
+        for b in range(len(pool.sids)):
+            if pool.expo[b].shape[1] != n_exp:
+                continue
+            for m in range(len(pool.sids[b])):
+                ix, i = pidx[b][m], pool.didx[b][m]
+                ok = (ix >= 0) & (i >= 0)
+                exp_panel[ix[ok]] = pool.expo[b][i[ok]]
     zeros_sub = np.zeros(sid_a.size, np.int64)
     base_vec: dict[str, np.ndarray | None] = {}
 
@@ -1237,6 +1271,11 @@ def main() -> None:
             return K.seg_demean(v, zeros_sub, seg_st, seg_en, 1)
         if pre == "dmi:":
             return K.seg_demean(v, ind_panel, seg_st, seg_en, n_ind)
+        if pre == "neu:":
+            out = np.full(v.size, np.nan)
+            for a_, e_ in zip(seg_st, seg_en, strict=True):
+                out[a_:e_] = neutralize(v[a_:e_], exp_panel[a_:e_])
+            return out
         return v
 
     samples_cache: dict[str, np.ndarray] = {}
