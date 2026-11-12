@@ -8,5 +8,5 @@ cd /work/crucible
 D=${1:-20261112}
 python -u research/pm_factors/pm_orders.py --logs /work/crucible_data/chrono_logs --dates $D --out /work/crucible_data/pm_orders > data/reports/r33b_orders_$D.txt 2>&1 \
   || echo "pm_orders FAILED: $(tail -3 data/reports/r33b_orders_$D.txt)"
-sed -n '/^2\|^== 2\|snapshot -> decision/,$p' data/reports/r33b_orders_$D.txt | cut -c1-230 | head -200
+cut -c1-230 data/reports/r33b_orders_$D.txt | head -300
 python -u research/pm_factors/runs_sample.py --orders /work/crucible_data/pm_orders --date $D 2>&1 | cut -c1-250
