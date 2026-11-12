@@ -1,0 +1,12 @@
+# R38 (r38.sh 38d759da, ic_score 5f591e2d), 2026-11-13 02:31:02 -> 02:47:13 on 97. Redo of R34 from r27_both with disjoint stock halves.
+[02:31:02] 1 scan on 0430 grid 0, even sids only, from r27_both (soft family lock)
+--sid-mod 2:0: IC over 38,308 of 72,000 panel rows
+IC: start 0.4600 -> end 0.6039 (t 82.44, 240 marks); 139 of 209 columns assigned -> stage6_r38/ic_assign.json
+[02:37:21] 2 gate on 0430 grid 7, odd sids only: 82 of 103 changes kept (t >= 1.0) -> 135 columns (stage6_r38_gate)
+[02:39:24] 3 base / scan / gated / R34 gated, on grid 7: odd sids (held out twice) and even sids
+stocks     base     r38      r38g     r34g
+sid%2:1    0.3702   0.5912   0.5981   0.6089
+sid%2:0    0.3794   0.5970   0.5961   0.6034
+[02:47:13] done
+Reading: on stocks never used for the scan (odd sids, also held-out marks) the even-sid scan lifts 0.370 -> 0.598 (gated), the
+same size as on the scan stocks -- R34's gain is not a fit to particular stocks.
