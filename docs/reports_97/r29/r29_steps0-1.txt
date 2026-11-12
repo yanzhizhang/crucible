@@ -1,0 +1,18 @@
+# R29 (r29.sh e6c5bdee, r29_moved.py 728bfe04), started 2026-11-12 ~21:33 on 97; transcribed from screen.
+== 0 2.23 livev1/rec10 (top line cut off by `clear`; full list in 97 data/reports/r29_livev1.txt)
+d 2026-09-22 14:26 4096 /data/share/data/prod/h/HS300/livev1
+d 2026-09-08 16:47 4096 /data/share/data/prod/h/HS300/livev1/rec10
+d 2026-10-13 17:53 4096 /data/share/data/prod/h/HS300/livev1/rec10/20260430
+d 2026-09-22 14:26 4096 /data/share/data/prod/h/HS300/livev1/rec10_p
+d 2026-11-09 15:34 4096 /data/share/data/prod/h/HS300/livev1/rec10_p/20260430
+f 2026-11-10 04:09 19938668 /data/share/data/prod/h/HS300/livev1/rec10_p/20260430/alpha.parquet
+-> nothing for the November days in livev1 (only 20260430).
+[21:33:16] 1 moved columns dropped from R27's picks, on 0430 (gen A) and 1110 (gen C)
+  drop_zzup: now zzup.pf / zzup.ps
+  drop_zzdw: now z:gen.rete150
+  drop_zzhi2.c: now |gen.net_buy_amount_share_orders_over_200k_cny_1800s|
+  drop_zzal.e: now dm:-gen.imbn10
+  drop_zzqf5.q.c4: now -gen.return_open_to_1000_log
+  drop_zzal.f: now crank:-gen.rete240
+  drop_zzqo.a: now cal:dm:-gen.ofi_levels2to5_norm_60s
+8 variants -> data/reports/r29_var; moved columns not assigned: ['zzcb', 'zzal.a', 'zzrg', 'zzhk.d', 'zzal.b', 'zzbs.b', 'zzxc.d']
