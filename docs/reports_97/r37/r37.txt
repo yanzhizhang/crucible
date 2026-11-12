@@ -1,0 +1,38 @@
+# R37 (r37.sh 35b319bd, ic_score 997917b1, xs_screen 250c406e), BASE = R34 gated; 2026-11-13 02:10:56 -> 02:25:59 on 97.
+# NOTE (crucible): with 1/NaN industry dummies this run's neu: / dmi: candidates were empty/degenerate; z/rank/dm picks valid.
+# R37b reruns it with the fix (ic_score 5f591e2d). This run's assign kept as data/reports/r37a_assign.json on 97.
+[02:10:56] 0 xs_screen on stage6_r34_gate/ic_assign_gated.json
+ guesses over all columns (guess cols gain assigned): raw 62 .3903 35; demeaned? 66 .3527 45; rank_pm1 48 .1249 29; z-like 28 .1053 24; rank01 5 .0267 2
+ assigned columns whose range looks cross-sectional (100 rows; feature guess lo hi q_med gain assigned), top:
+  zzro2.a demeaned? -.2335 .2022 .0000 .0528 gen.stoch | zzro2.c demeaned? -.2335 .2022 .0001 .0487 dm:-gen.ret120
+  zzzl2.c demeaned? -.3362 1.0898 -.0012 .0135 gen.lpes1800 | zzsf.c demeaned? -.1725 .2631 .0071 .0133 gen.lee30_14400
+  zzeu2 rank_pm1 -1 1 -.0035 .0128 srank:-gen.rete75 | zzpe.c z-like -3.892 3.151 -.4265 .0094 cal:srank:gen.imb1
+  zzro2.b demeaned? .0094 dm:gen.lpma120 | zzef z-like -7.74 7.74 .0000 .0093 dm:-gen.lpev14400 | zzzl2.b demeaned? .0087 -gen.lpes2400
+  zzfe z-like .0085 cal:gen.imbn90 | zzzl2.i demeaned? .0085 -gen.lpes1200 | zzyg2.0.b z-like .0081 z:gen.imb1 | zzpe.a z-like .0080 -gen.simba10
+  zzie3.c rank_pm1 .0076 cal:gen.imbn10 | zzzl2.e demeaned? .0076 gen.microprice_minus_mid_rel | zzro.e demeaned? .0067 cal:dm:-gen.rete30
+  zzef2 z-like .0065 cal:gen.lmie5*1e4 | zzwa.d rank01 0 1 .2457 .0062 rank:gen.lpma60 | ... (full table on 97 r37_fold.txt lines 22-121)
+ scan order: 74 columns, screened first
+[02:10:56] 1 scan on 0430 grid 0 with neutralised candidates
+ IC: start 0.6148 -> end 0.6300 (t 89.45, 240 marks); 144 of 209 assigned -> stage6_r37/ic_assign.json
+ stage6_r34_gate (135) vs stage6_r37 (144): 36 of 155 differ; 20 newly assigned, 11 dropped
+  (zzbo.a zzsf.c zzzl2.g zzzl2.c zzop.j zzqf9.a zzhi2.f zzef zzpp.b zzie.c zzts)
+  new incl.: zzab cal:neu:-gen.depth_weighted_price_5lvl_minus_mid_rel; zzag.a dm:-gen.flow_ord_imb60; zzal.c -gen.buy300;
+   zzcb rank:-gen.best_level_order_count_imbalance; zzho cal:gen.position_in_limit_band; zzie2.c cal:crank:gen.imb1; zzie5.c neu:-gen.simbn30;
+   zzpe.b z:-gen.scum_imb; zzpp.e rank:-gen.rete50; zzpp2.e z:-gen.rete50; zzsf.d |gen.lee120_7200|; zzso dm:gen.ofi_levels1to3_norm_10s;
+   zzwa.i |gen.microprice_minus_mid_rel|; zzwa.j dm:gen.microprice_minus_mid_rel; zzwa.k cal:z:gen.microprice_minus_mid_rel;
+   zzyj.c srank:-gen.best_level_order_count_imbalance; zzyj.d cal:|...|; zzyj4.a dm:gen.best_level...; zzyj5.b dm:-gen.best_level...; zzzl2.d gen.lpes600
+  changed: zzhi2.e rank:-gen.rete45 -> rank:gen.ofi_levels1to7_norm_30s; zzqf10.c3 -return_open_to_1000_log -> gen.lppe1200;
+   zzqo.d cal:gen.imba300 -> crank:gen.lpe50; zzro2.b dm:gen.lpma120 -> neu:gen.ret60; zzwj.c gen.flow_big_imb300 -> crank:-gen.flow_refill_imb300
+ neu / dmi / dm / z / rank picks: 60 listed (zzfb2.a rank:gen.rpe75, zzyg2.0.b z:gen.imb1, zzfb.b rank:-gen.lpe50, zzro2.c dm:-gen.ret120, ...;
+  only neu: picks seen in the list's changes: zzab, zzro2.b, zzie5.c)
+[02:17:23] 2 gate on 0430 grid 7 vs R34 gated: 25 of 37 changes kept (t >= 1.0) -> 139 columns (stage6_r37_gate)
+ kept (gain, t): zzwa.k .0007 9.54; zzwa.j .0007 9.00; zzhi2.f->null .0010 7.51; zzie.c->null .0009 7.41; zzsf.c->null .0048 7.24;
+  zzhi2.e ->rank:gen.ofi_levels1to7_norm_30s .0026 7.11; zzpp.e .0006 6.92; zzab cal:neu:-depth_weighted_price_5lvl_minus_mid_rel .0008 6.70;
+  zzal.c -gen.buy300 .0022 6.10; zzzl2.c->null .0033 5.68; zzzl2.g->null .0007 5.30; zzyj5.b .0003 5.21; zzpp2.e .0005 5.12; zzyj.c .0003 5.06;
+  zzro2.b ->neu:gen.ret60 .0037 4.70; zzie2.c .0002 4.56; zzqo.d ->crank:gen.lpe50 .0004 4.17; zzzl2.d gen.lpes600 .0004 3.19;
+  zzyj.d .0002 3.02; zzpp.b->null .0002 2.80; zzts->null .0003 2.74; zzwj.c .0010 2.68; zzwa.i .0000 2.64; zzal.h z:gen.lpe200->z:gen.imb1 .0002 2.50;
+  zzop.j->null .0001 1.24
+ dropped: zzqf9.a (NaN); zzag.a .97; zzyj4.a .87; zzcb .74; zzho .71; zzbo.a -.40; zzqf10.c3 -.42; zzsf.d -.44; zzso -.45; zzef -.62;
+  zzpe.b -.83; zzie5.c neu:-gen.simbn30 -1.05
+[02:22:45] 3 base / R37 / R37 gated on 0430 grid 7: base 0.6080, r37 0.6264, r37g 0.6256
+[02:25:59] done
