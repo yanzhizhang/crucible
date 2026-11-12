@@ -13,3 +13,25 @@ exp.DIVYILD -.047/-.141/-.178; exp.BTOP -.045/-.208/-.208; ret8 -.041/-.030/-.00
 stats.HBeta .211, exp.BETA .210, exp.BTOP -.208, exp.LIQUIDTY .204, stats.PBeta .195, lmcap .178, turn20 .171, exp.SIZE .162, exp.MIDCAP -.161
 NO dummies table printed: the exp.<industry> columns are 1 / NaN (finite share = industry weight), not 0 / 1, so the "outside" group
 (x == 0) is empty and every dummy is skipped. Needs NaN -> 0 for those columns.
+
+# rerun with static_resid 4ac7c568 (1/NaN dummies fixed), ~02:30: rho tables unchanged; dummies table (22 industries) now printed:
+== r35 (r27_both) dummies: stocks / res_in / res_out / Welch t (|t| > 2.5 worth a look)
+CONSDUR 4 -.029 .000 -4.459; OTHRCHEM 9 -.042 .001 -3.260; HDWRSE 58 .014 -.004 1.999; AEROSPCE 5 -.044 .001 -1.964; AIRLINES 7 .017 -.001 1.814;
+ENERGY 11 -.019 .000 -1.448; SOFTWARE 10 .012 -.001 1.353; MTLMIN 14 -.022 .001 -1.309; UTILITY 13 .031 -.002 1.268; DIVFINAN 28 -.013 .001 -1.242;
+MEDIA 4 -.035 .000 -1.080; CNSTENG 9 .021 -.001 .911; CHEMICAL 7 -.021 .000 -.869; FOODPROD 8 -.012 .000 -.817; HEALTH 23 -.006 .000 -.666;
+REALEST 4 .008 -.000 .491; AUTOCOMP 11 .006 -.000 .456; RDRLTRAN 8 -.007 -.000 -.434; BEVTOB 9 .010 -.001 .340; MACHINRY 12 .006 -.001 .292;
+ELECEQP 13 -.002 -.000 -.105; BANKS 25 .001 -.000 .090
+== r35b (R34 gated) static2
+top by |rho_day|: exp.MOMENTUM -.182/-.027/-.095; ret2 -.126/-.097/-.121; exp.RESVOL -.115/-.084/-.120; range3 -.111/-.076/-.102;
+range2 -.110/-.089/-.129; lca1 .102/.074/.095; range10 -.098/-.013/-.049; vol2 -.098/-.065/-.126; range20 -.097/.004/-.042;
+range4 -.096; range9 -.092; range8 -.090; range7 -.086; range6 -.083; vol10 -.081; stats.SRisk -.080; exp.LIQUIDTY .079/.125/.151;
+stats.Ret -.078; ret1 -.078; stats.HBeta .077/.126/.128; exp.BETA .076/.125/.127; lca2 .072; exp.STREVRSL -.071; vol9 -.069; exp.PROFIT .068;
+ret5 -.067; ret4 -.066; vol3 -.063; vol8 -.063; stats.SRet -.061; exp.DIVYILD -.059; vol6 -.057; vol60 -.055; vol20 -.055; totshare -.055;
+vol7 -.054; exp.GROWTH .047; lca3 .047; ret3 -.046; stats.Yield -.045   (all inside the ~0.1 noise band except MOMENTUM / ret2 / RESVOL / range2-3)
+top by |rho_30m|: adv20 .216, ladv20 .216, lfcap .199, log_close_price .172, tick_size_over_close -.172, stats.Close .172, exp.LTREVRSL -.168,
+lmcap .151, exp.SIZE .131, exp.MIDCAP -.130, stats.HBeta .126, exp.BETA .125, exp.LIQUIDTY .125, stats.Capt .123, exp.BTOP -.110
+dummies: OTHRCHEM 9 -.034 .001 -2.608; MTLMIN 14 -.031 .002 -2.579; UTILITY 13 .024 -.001 1.563; RDRLTRAN 8 -.017 .000 -1.557;
+CONSDUR 4 -.018 .000 -1.529; CNSTENG 9 .020 -.001 1.515; AIRLINES 7 .010 -.000 1.458; HDWRSE 58 .009 -.002 1.391; MEDIA 4 -.023 .000 -1.089;
+REALEST 4 .021 -.000 1.085; BANKS 25 -.007 .001 -.988; CHEMICAL 7 -.024 .001 -.937; AEROSPCE 5 -.018 .000 -.817; ELECEQP 13 -.012 .001 -.709;
+SOFTWARE 10 .009 -.000 .661; DIVFINAN 28 .005 -.001 .571; HEALTH 23 .003 -.000 .491; ENERGY 11 -.006 .000 -.395; FOODPROD 8 -.005 .000 -.349;
+BEVTOB 9 .005 -.000 .300; AUTOCOMP 11 .004 -.000 .298; MACHINRY 12 .000 -.000 .008
