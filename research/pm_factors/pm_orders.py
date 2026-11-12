@@ -36,6 +36,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from pm_signals import NUM, log_files, repair, trading_clock
 
 SRC = re.compile(r"\[(?:/[^\]]*/)?([\w./]+\.(?:cpp|h|hpp):\d+)\]\s*(.*)$")  # [/work/sht-strategy/src/sol/alg.cpp:251] rest
+PLUGIN = re.compile(r"\[(?:[^\]]*/)?(?:sol|qlive)/[^\]]*\]|\[(?:catchRun|alg|es|trd)\.(?:cpp|h|hpp):\d+\]")  # the strategy plugin's sources
 TRK = re.compile(r"\btrk (\w+) (.*)$")
 KV = re.compile(r"(\w+)=('([^']*)'|(\S*))")
 GLUE = re.compile(r"(?=\[(?:INFO|WARN|WARNING|ERROR|DEBUG)\] \[/)|(?=\[20\d\d-\d\d-\d\d )")  # where one log line starts
@@ -61,10 +62,10 @@ def parse_day(files: list[str]) -> tuple[pl.DataFrame, pl.DataFrame, pl.DataFram
                     else:
                         trk.append({"kind": m.group(1), **kv})
                     continue
-                if line.startswith("[20"):  # chrono's own timestamped lines other than trk
-                    continue
                 s = SRC.search(line)
                 if not s:
+                    continue
+                if line.startswith("[20") and not PLUGIN.search(line):  # chrono's own lines; from 1112 the plugin logs through chrono too
                     continue
                 where, rest = s.group(1), s.group(2)
                 keys = tuple(k for k, _ in NUM.findall(rest))
