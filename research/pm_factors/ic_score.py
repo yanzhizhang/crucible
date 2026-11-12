@@ -733,6 +733,10 @@ class Pool:
         sids, base, didx = [], [], []
         dsid = dc["sid"].to_numpy() if dc is not None else np.array([], int)
         dcol = {f"ced.{c}": dc[c].to_numpy().astype(float) for c in dc.columns if c != "sid"} if dc is not None else {}
+        for k, v in dcol.items():  # Barra industry dummies come as 1 / NaN (NaN = not in it): make them 0 / 1, or dmi: / neu: see none
+            fv = v[np.isfinite(v)]
+            if k.startswith("ced.exp.") and fv.size and np.isin(fv, (0.0, 1.0)).all():
+                dcol[k] = np.nan_to_num(v, nan=0.0)
         for fr in frames:
             g = (fr.filter(pl.col("key").str.starts_with("gen.") | pl.col("key").str.starts_with("ced."))
                  .pivot(on="key", index="sid", values="pm", aggregate_function="first").sort("sid"))

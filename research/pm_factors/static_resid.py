@@ -54,7 +54,8 @@ def main() -> None:
                 continue
             x = j[c].to_numpy().astype(float)
             fx = x[np.isfinite(x)]
-            if fx.size and np.isin(fx, (0.0, 1.0)).all():  # a 0 / 1 dummy (industry): mean residual inside minus outside, as a t
+            if fx.size and np.isin(fx, (0.0, 1.0)).all():  # a 0 / 1 dummy (industry, stored 1 / NaN): mean residual inside minus outside, as a t
+                x = np.nan_to_num(x, nan=0.0)
                 r = j["res_day"].to_numpy()
                 ins, out = r[(x == 1) & np.isfinite(r)], r[(x == 0) & np.isfinite(r)]
                 if ins.size >= 3 and out.size >= 3:
