@@ -375,3 +375,10 @@
   docs/reports_97/r27/r27_steps3-4.txt. Final: both (103 cols) 20260430 0.3756 vs R17 0.3107; 1110 0.7173 vs 0.6958;
   1111 0.4535 vs 0.4589 (1111 is held out, slightly below R17).
 - Next: paste R28/R29, run R28 then R29, then add_day 20261111.
+
+## 2026-11-12 20:06 — R28/R29 pasted (new versions), R28 started
+- Pulled 9381b62 (research/NEXT_97.md). Baseline is now r27_both.json (103 cols).
+- Pasted on 97, md5 verified: r28.sh fe033c18, engine/export.py 6a878b1a, engine/run_cpp.py a542e01a,
+  r29.sh e6c5bdee, pm_factors/r29_moved.py 728bfe04. data/reports/r27_both.json present (02:18).
+- Read for remote writes: writes stay under /work; r29 step 0 is a read-only `find` on 2.23 over ssh.
+- 20:07 started `bash research/r28.sh 2>&1 | tee data/reports/r28.txt` in the left terminal.
