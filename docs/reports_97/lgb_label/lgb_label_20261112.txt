@@ -1,0 +1,47 @@
+# lgb_label_probe.py (9b8e1ead, verified on 97), run 2026-11-12 ~21:30 on 97; transcribed from screen.
+# raw on 97: data/reports/lgb_label.txt, data/reports/lgb_label/models.csv
+== objective / parameters (distinct values over all files)
+objective regression; boosting gbdt; learning_rate 0.03; num_iterations 3000; boost_from_average 1; metric custom;
+label_column "" ; weight_column ""; fair_c 1; alpha 0.9; tweedie_variance_power 1.5; num_class 1; max_bin 128; linear_tree 0
+
+== per file (fit1 only), 68 rows: every file 2000 trees, shrinkage 0.03, rest_mean ~0 (all of the mean is in tree 0).
+Within a generation the fit1 file md5 is THE SAME in every month folder:
+  gen 3 (A, 202509..202604 incl. 202601): s1 b7d2adc9  s2 1d8d4f70  s3 2b630779  s4 26c756d8
+  gen 2 (B, 202601.updated, 202605..202608): s1 5458fda9  s2 45b54abd  s3 2c5cab07  s4 540a6754
+  gen 1 (C, 202609..): s1 1419d468  s2 9a80d44b  (s3/s4 not read off screen)
+  gen 3 rows: s1 tree0 -0.000084 pred_std 0.000170 leaf|p50| 0.000011 p99 0.000241; s2 -0.000017 0.000108 0.000005 0.000151;
+              s3 -0.000005 0.000065 0.000001 0.000058; s4 -0.000021 0.000085 0.000002 0.000094
+  gen 2 rows: s1 -0.000104 0.000171 0.000012 0.000245; s2 -0.000013 0.000108 0.000006 0.000148;
+              s3 -0.000006 0.000065 0.000002 0.000061; s4 -0.000019 0.000085 0.000002 0.000094
+
+== scale by s within each generation (median over months and fits)
+gen s  first          last    tree0_mean pred_mean pred_std_indep leaf_abs_p99
+1   s1 202609         202612  -0.000123  -0.000123 0.000178       0.000299
+1   s2 202609         202612  -0.000028  -0.000028 0.000104       0.000137
+1   s3 202609         202612  -0.000006  -0.000006 0.000061       0.000065
+1   s4 202609         202612  -0.000032  -0.000032 0.000073       0.000063
+2   s1 202601.updated 202608  -0.000112  -0.000112 0.000173       0.000279
+2   s2 202601.updated 202608  -0.000029  -0.000029 0.000102       0.000124
+2   s3 202601.updated 202608  -0.000007  -0.000007 0.000065       0.000063
+2   s4 202601.updated 202608  -0.000024  -0.000024 0.000077       0.000061
+3   s1 202509         202604  -0.000092  -0.000092 0.000171       0.000276
+3   s2 202509         202604  -0.000031  -0.000031 0.000102       0.000122
+3   s3 202509         202604  -0.000006  -0.000006 0.000065       0.000062
+3   s4 202509         202604  -0.000026  -0.000026 0.000077       0.000061
+
+== fits within a month (std of pred_std_indep across fits), first 40 rows (202509..202605) all the same pattern:
+s1 std 0.000001 mean 0.000171(2); s2 0.000004 0.000104; s3 0.000000 0.000065; s4 0.000004(5) 0.000079
+
+== PM alpha 20260430 (rec10_p): 1,386,204 rows, columns sid date src_epoch rec_epoch alpha
+quantiles p1/p10/p50/p90/p99: -0.000901341 / -0.000361559 / -1.62374e-05 / 0.000332902 / 0.000940034; mean -1.34973e-05 std 0.00034051
+cross-sectional std per half hour (local minute of day), median over snapshots:
+min   xs        stocks seconds
+570   0.000419  109    1799
+600   0.000301  109    1800
+630   0.000283  109    1800
+660   0.000291  110    1800
+690   0.000273  74     3
+780   0.000292  110    1799
+810   0.000266  110    1800
+840   0.000271  108    1800
+870   0.000286  107    1620

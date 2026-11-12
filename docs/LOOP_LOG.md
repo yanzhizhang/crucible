@@ -395,3 +395,10 @@
 - Carry (non-bin, same as yesterday >= 5 %): only zzxu.dir (0.80), zzeg.c.high/low/span (0.53/0.42/0.15), zzui.er (0.11), zzhj.r.wgt (always 0).
 - Profiles: zzjb/zzjb2 mass constant, shape corr 1.0; zzgh/zzgh2 mass ~0.95-0.99 of yesterday, shape corr ~0 (re-filled daily);
   zzfb shape 0.985, mass varies; zzhj shape 1.0 (price level).
+
+## 2026-11-12 21:26-21:35 — R28 done; lgb label probe
+- R28 (docs/reports_97/r28/r28.txt): seeding EMAs changes daily IC by <= 0.004; only the 09:30-10:00 half hour moves
+  (0430 0.194 -> 0.180). Right terminal hung on a `code` of a missing file; work moved to the left terminal.
+- lgb_label_probe (docs/reports_97/lgb_label/): label is a return in decimal units (PM alpha std 3.4e-4, model pred std
+  0.6-1.8e-4). s1..s4 scale s1 > s2 > s4 > s3 in every generation (not monotone -> not horizons; looks like time-of-day
+  segments with the open most volatile). Within a generation the same fit1 file sits in every month folder.
