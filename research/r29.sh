@@ -28,7 +28,7 @@ ssh -p $P23 -o BatchMode=yes $H23 'find /data/share/data/prod/h/HS300/livev1 -ma
 cut -c1-200 $R/r29_livev1.txt
 
 say "1 moved columns dropped from R27's picks, on 0430 (gen A) and 1110 (gen C)"
-python -u research/pm_factors/r29_moved.py --base $R/r27_pick_r25.json --out $R/r29_var
+python -u research/pm_factors/r29_moved.py --base ${BASE:-$R/r27_both.json} --out $R/r29_var
 for v in $(ls $R/r29_var/*.json | xargs -n1 basename | sed 's/\.json$//'); do
   for d in 20260430 20261110; do
     CRUCIBLE_SOURCE=$(src $d) python -u research/pm_factors/ic_score.py --dates $d --assign $R/r29_var/$v.json $SCORE --full-book $(fb $d) $M \

@@ -14,7 +14,7 @@ TGT=$DATA/pm_target_r22
 HV=$DATA/hstats_view/HS300
 FBF=$DATA/store/pm_factors/full_book
 FBD=$DATA/store/pm_factors/full_book_dysl2
-R17=$R/stage6_r17/ic_assign.json
+R17=${ASSIGN:-$R/r27_both.json}  # R27 "both" (R25 picks + additions), the new baseline; ASSIGN= to override
 say() { echo "[$(date +%T)] $*"; }
 ic() { grep -E "IC: start" "$1" 2>/dev/null | tail -1 | sed -E 's/.*IC: start ([0-9.]+) -> end ([0-9.]+).*/\1/'; }
 M="--models /data/prod/models/tk5m --marks rand:240 --target $TGT --target-stale 4 --drop-gap 1 --max-cdf 1 --max-score 99 --state-fallback --hstats $HV"
