@@ -1,0 +1,28 @@
+# R36 (r36.sh 44c89452, ic_score 997917b1), BASE = stage6_r34_gate/ic_assign_gated.json; 2026-11-13 01:59:21 -> 02:10:56 on 97.
+[01:59:21] 1 scan zzeg,zzgh.b,zzba,zzpk,zzab2,zzmh,zzcb,zzxo,zzhj,zzvm,zzvx.a,zzeg2,zzab on 0430 grid 0 with seed candidates
+20260430: seed state from 20260429.jz for 300 stocks
+IC: start 0.6149 -> end 0.6163 (t 91.16, 240 marks); 125 of 209 columns assigned -> stage6_r36/ic_assign.json
+pass 0: zzeg, zzgh.b, zzba, zzpk, zzab2, zzmh, zzcb, zzhj, zzvm: kept None (IC 0.6149, t_gain 0.0); zzxo: no candidate passes the
+  fingerprint gate; zzvx.a: kept zzvx.trDEmaD / px (0.0); zzeg2: kept cal:|gen.rpe20| (0.0); zzab: kept gen.lppe20 IC 0.6163 t_gain 6.6
+files: stage6_r34_gate (135) stage6_r36 (125); 12 of 136 columns differ
+  zzab - | gen.lppe20; dropped: zzbo.a -gen.imb1, zzef dm:-gen.lpev14400, zzhi2.f |net_buy_amount_share_orders_over_200k_cny_1800s|,
+  zzie.c -gen.simbv180, zzop.j |order_price_aggressiveness_mean_900s|*1e4, zzpp.b rank:gen.rete200, zzqf9.a |gen.ipc_hs300|,
+  zzsf.c gen.lee30_14400, zzts srank:-gen.depth_imbalance_levels1to1, zzzl2.c gen.lpes1800, zzzl2.g gen.overnight_gap_log
+  (stage6_r36 vs stage6_r34_gate: 1 newly assigned, 11 dropped)
+[02:04:20] 2 gate on 0430 grid 7 against the base: 6 of 12 changes kept (t >= 1.0) -> 131 columns (stage6_r36_gate)
+  feature   old                                            new          gain    t        kept
+  zzqf9.a   |gen.ipc_hs300|                                null         0.0000  NaN      false
+  zzhi2.f   |gen.net_buy_amount_share_orders_over_200k_cny_1800s| null  0.0013  8.7875   true
+  zzab      null                                           gen.lppe20   0.0013  6.1764   true
+  zzpp.b    rank:gen.rete200                               null         0.0002  2.9464   true
+  zzsf.c    gen.lee30_14400                                null         0.0013  1.8870   true
+  zzbo.a    -gen.imb1                                      null         0.0002  1.6665   true
+  zzop.j    |gen.order_price_aggressiveness_mean_900s|*1e4 null         0.0002  1.5482   true
+  zzzl2.c   gen.lpes1800                                   null         0.0004  0.7633   false
+  zzts      srank:-gen.depth_imbalance_levels1to1          null         0.0002  0.7031   false
+  zzef      dm:-gen.lpev14400                              null        -0.0000 -0.2327   false
+  zzie.c    -gen.simbv180                                  null        -0.0001 -0.4797   false
+  zzzl2.g   gen.overnight_gap_log                          null        -0.0001 -0.5704   false
+[02:07:46] 3 base / R36 / R36 gated on 0430 grid 7: base 0.6080, r36 0.6140, r36g 0.6128
+[02:10:56] done
+Reading: no seed (gen.sd_*) candidate was picked for any stateful column; the gain is from dropping 6 columns and adding zzab=gen.lppe20.
