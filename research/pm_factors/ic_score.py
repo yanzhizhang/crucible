@@ -154,6 +154,52 @@ def load_models(root: Path, date: str, fits: list[str], subs: list[str]) -> list
         return [TreeModel(f) for f in files]
 
 
+ROW_T = np.zeros(0)  # --sub-by-time: each panel row's mark on the trading clock (set once the panel is built)
+
+
+class _JKey(dict):
+    """trees_of of a SegModel: every column maps to itself, each sub-model looks its own trees up."""
+
+    def get(self, k, default=None):  # noqa: ARG002 -- signature of dict.get
+        return ("col", k)
+
+
+class SegModel:
+    """PM's sub-models as time-of-day segments: row r is scored by the sub-model whose (lo, hi] holds ROW_T[r]."""
+
+    def __init__(self, segs: list[tuple[float, float, object]]):
+        self.segs = segs
+        self.trees_of = _JKey()
+
+    def predict(self, X: np.ndarray, rows: np.ndarray, trees=None) -> np.ndarray:
+        t = ROW_T[rows]
+        out = np.full(rows.size, np.nan)
+        for lo, hi, m in self.segs:
+            sel = np.flatnonzero((t > lo) & (t <= hi))
+            if sel.size:
+                tr = None if trees is None else m.trees_of.get(trees[1], np.zeros(0, np.int64))
+                out[sel] = m.predict(X, rows[sel], tr)
+        return out
+
+
+def load_seg_models(root: Path, date: str, fits: list[str], spec: str) -> list:
+    """--sub-by-time "s1:600,s2:1800,s3:12600,s4:14220": per fit one SegModel, segment k = (end of k-1, end of k] seconds."""
+    from tree_kernel import FlatModel  # the segment dispatch needs the row-indexed walker
+
+    months = sorted(p.name for p in root.iterdir() if re.fullmatch(r"\d{6}", p.name) and p.name <= date[:6])
+    out, lo = [], -np.inf
+    parts = [(x.split(":")[0], float(x.split(":")[1])) for x in spec.split(",") if x]
+    for f in fits:
+        segs, lo = [], -np.inf
+        for s_, hi in parts:
+            fn = root / months[-1] / "lgb" / f / f"model_{s_}.txt"
+            segs.append((lo, hi if hi < parts[-1][1] else np.inf, FlatModel.from_file(fn)))
+            lo = hi
+        out.append(SegModel(segs))
+    print(f"{date}: sub-models by time of day {spec} ({months[-1]}, fits {fits})")
+    return out
+
+
 def predict(models: list, X: np.ndarray) -> np.ndarray:
     """Mean prediction of the models."""
     return np.mean([m.predict(X) for m in models], axis=0)
@@ -728,6 +774,8 @@ def main() -> None:
     ap.add_argument("--feature-csv", type=Path, default=Path("/data/prod/models/lgb_fn_v1_209_cte.csv"))
     ap.add_argument("--fingerprint", type=Path, default=Path("data/reports/stage5/fingerprint.parquet"))
     ap.add_argument("--fits", default="livev1_fit1")
+    ap.add_argument("--sub-by-time", default="", help='sub-model per time of day, "s1:600,s2:1800,s3:12600,s4:14220" = segment ends '
+                    "on the trading clock (s); the last runs to the close; overrides --subs")
     ap.add_argument("--subs", default="s1", help="sub-models to average (s1,s2,s3,s4 for all; each costs a predict per candidate)")
     ap.add_argument("--assign", type=Path, help="json feature -> expression to start from (default: KNOWN)")
     ap.add_argument("--shortlist", type=int, default=10)
@@ -1001,7 +1049,8 @@ def main() -> None:
                            for fr in frames])  # per mark, the state rows split by stem once (not one full-frame filter per stem)
         pool.add_block(frames, dc)
         state_stems |= set(long["key"].str.extract(r"^([^.]+)\.", 1).drop_nulls().unique().to_list()) - {"gen", "ced"}
-        models = load_models(args.models, d, args.fits.split(","), args.subs.split(","))
+        models = (load_seg_models(args.models, d, args.fits.split(","), args.sub_by_time) if args.sub_by_time
+                  else load_models(args.models, d, args.fits.split(","), args.subs.split(",")))
         blocks.append((d, models, frames, rets))
         if args.cdf_by_generation:  # identical model files = one generation (202510..202604 reuse 202509's models)
             mf = model_files(args.models, d, args.fits.split(","))
@@ -1028,6 +1077,8 @@ def main() -> None:
                 rows_blk.append(bi)
                 rows_mark.append(mi)
     sid_a, grp, ret, blk, mk = (np.array(x) for x in (rows_sid, rows_grp, rows_ret, rows_blk, rows_mark))
+    global ROW_T
+    ROW_T = MARKS[mk].astype(float) if mk.size else np.zeros(0)
     X = np.full((sid_a.size, len(names)), np.nan)
     pos = {(b, m, s): i for i, (b, m, s) in enumerate(zip(blk, mk, sid_a, strict=True))}
     cache: dict[str, list] = {}  # stateful stem -> per block, per mark: (sids, candidates)
