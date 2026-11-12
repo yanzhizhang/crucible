@@ -894,6 +894,7 @@ def main() -> None:
     ap.add_argument("--ced", action=argparse.BooleanOptionalAction, default=True,
                     help="also CED daily fields and intraday amount / volume over daily baselines (ced_match.daily_candidates)")
     ap.add_argument("--ced-xr", type=Path, help="read shtcommon's CED files from this directory instead of the crucible store")
+    ap.add_argument("--sid-mod", default="", help="n:k = score the IC only over stocks with sid %% n == k; features still use every stock (a stock split for out-of-sample checks)")
     ap.add_argument("--neutral", action="store_true", help="also neu:<base>: each tick base's residual on that day's Barra industry + style exposures, per mark")
     ap.add_argument("--xs", action=argparse.BooleanOptionalAction, default=True,
                     help="also each stateless candidate cross-sectionally z-scored / ranked within its mark")
@@ -1171,6 +1172,10 @@ def main() -> None:
     sid_a, grp, ret, blk, mk = (np.array(x) for x in (rows_sid, rows_grp, rows_ret, rows_blk, rows_mark))
     global ROW_T
     ROW_T = MARKS[mk].astype(float) if mk.size else np.zeros(0)
+    if args.sid_mod:  # a stock split: features over the whole cross-section, the IC only over sid % n == k (others' targets NaN)
+        n_, k_ = (int(x) for x in args.sid_mod.split(":"))
+        ret = np.where(sid_a % n_ == k_, ret, np.nan)
+        print(f"--sid-mod {args.sid_mod}: IC over {int(np.isfinite(ret).sum()):,} of {ret.size:,} panel rows")
     X = np.full((sid_a.size, len(names)), np.nan)
     pos = {(b, m, s): i for i, (b, m, s) in enumerate(zip(blk, mk, sid_a, strict=True))}
     cache: dict[str, list] = {}  # stateful stem -> per block, per mark: (sids, candidates)

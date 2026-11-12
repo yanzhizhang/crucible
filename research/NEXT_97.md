@@ -46,3 +46,4 @@ The user picked two tracks: translate runS, and rescan on cleaner days with a so
 4. R36 `research/r36.sh` 44c894522bafedcfbf1267ae6172e67d (47): seed-state candidates (zzeg channel ...) from 0429.jz, stateful open columns.
 5. R37 `research/r37.sh` 35b319bd111fc1dc2554d3dfe0263b1e (55): xs_screen + neu: (daily Barra industry + style neutralisation) scan.
 runS is paused until 224 runs cleanly (user).
+6. R38 `research/r38.sh` (after R37; needs ic_score with --sid-mod, see below): R34 redone on disjoint stock halves (scan even sids grid 0, gate odd sids grid 7) -- how much of 0.377 -> 0.608 survives held-out stocks.
