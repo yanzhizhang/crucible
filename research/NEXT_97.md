@@ -8,6 +8,14 @@ Done since the last handoff:
 
 The baseline is still `data/reports/r27_both.json`.
 
+**2026-11-13 update from the user:** EVERY 224 signal is unreliable. Only PM's production on 2.23 is correct: its `.jz` files plus `livev1/rec10_p/*/alpha.parquet`, which so far exists for 0430 only. So run this first:
+
+- `research/prod23_probe.sh` cdb5abe4b8f4836e8071de4bc3889a21 (22 lines). It is read-only on 2.23 and prints only. It lists what production writes: the dirs under prod/h/HS300, the p1..p10 and livev1 trees, and any alpha / pred / feature files.
+- Run: `bash research/prod23_probe.sh 2>&1 | tee data/reports/prod23_probe.txt`
+- Bring back all of its output.
+
+Hold R32 (it scans against 224 targets). R33 (runS rules) is still fine.
+
 The user picked two tracks: translate runS, and rescan on cleaner days with a soft family lock. Asking PM for data is skipped. All files are on feat/pm-repro and are pure ASCII. Check the LF md5 after pasting.
 
 0. Score r27_both on 1112. It is a single run; the builds are cached.
