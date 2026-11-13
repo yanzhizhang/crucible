@@ -424,3 +424,8 @@
 - 04:35 chain2 done: R38 (held-out stocks .370 -> .598), R39 (2 drops: zzko zzav2; drop_all .318/.322), R37b (fixed dummies: gated .6277, 141 cols).
 - 04:44 R40 started (r40.sh 2e239825, base r40_base 139 cols, rescan 21 cols). Summary for the user: docs/reports_97/SUMMARY_20261113.md.
 - 05:05 R40 done (docs/reports_97/r40/r40.txt): r40g .6288 / .6209 (odd / even sids); 3 of 17 changes kept. 97 idle.
+
+- 08:31 R41 started on 97 (r41.sh 1e3ca9ab, audit.py df2b0d8a, ic_score.py b84e6a92; md5 OK). Paste note: the `type` action pasted the PREVIOUS clipboard into Windows App; use clip.sh then ctrl+v.
+- 08:33 R41 step 0 done (r40g audit: idle 49 / shape 24 / units 20 / nocdf 26 / proxy 19; tails top .455 bottom .411); sent to crucible. Step 1 running.
+- 08:44 R41 step 1 done: strict rescan; gate keeps 3/20 (zzpz.b neu:gen.vfrac10, zzpz.a -gen.lpev60, zzja |log_new_order_count_60s|). Step 2 running.
+- ~09:17 Windows App: "session was disconnected because another connection was made to the remote PC" (0x5). Not reconnecting (would kick the other session). R41 step 2 was running in the left VS Code terminal (r41.txt via tee); steps 2-5 not yet read.

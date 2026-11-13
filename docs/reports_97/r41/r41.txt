@@ -1,0 +1,300 @@
+R41 on 97 (r41.sh 1e3ca9ab, audit.py df2b0d8a, ic_score.py b84e6a92; md5 OK), started 08:31:52.
+Transcribed from screen zooms (data/reports/r41.txt, folded at 170 into r41_s0.txt etc.).
+
+== step 0: audit of r40g_baseline.json (all stocks, grid 7)
+[08:31:52] 0 audit data/reports/r40g_baseline.json: all stocks, grid 7
+IC: start 0.6263 -> end 0.6263 (t 94.90, 240 marks); 138 of 209 columns assigned -> data/reports/stage6_r41_audit/ic_assign.json
+== 138 assigned columns by tier (gap <= 0.05; gain = share of the model's total split gain)
+tier   columns  gain    sum_ic_loss
+idle   49       0.1687  -0.0077
+shape  24       0.1469  0.1466
+units  20       0.1304  0.1174
+nocdf  26       0.1192  0.0709
+proxy  19       0.0532  0.0811
+open: 71 columns, gain 0.3817; assigned gain 0.6183
+  by source: gen 48 cols gain 0.211, xs 37 cols gain 0.141, gen cal 18 cols gain 0.073, dm:-gen 9 cols gain 0.073, xs cal 9 cols gain 0.036,
+  state 4 cols gain 0.035, dmi:gen 1 cols gain 0.015, neu:gen 1 cols gain 0.009, dm:gen 4 c[...cut by fold/print width]
+
+== tier proxy: 19 columns
+feature    formula                                        source       gain    raw_gap  shape_gap  ic_loss  t_loss
+zzro.e     cal:dm:-gen.rete30                             dm:-gen cal  0.0067  0.4105   0.1352     0.0008   6.2934
+zzef2      cal:gen.lmie5*1e4                              gen cal      0.0065  0.0558   0.0776     0.0043   5.4354
+zzja       cal:rank:-gen.microprice_minus_mid_rel         xs cal       0.0063  0.7255   0.0502     0.0020   5.1744
+zzsa2.b    cal:-gen.rv60                                  gen cal      0.0052  0.6758   0.0778     0.0017   4.1957
+zzvm2      cal:rank:gen.microprice_minus_mid_rel          xs cal       0.0036  0.2518   0.2564     0.0026   10.9249
+zzwa.h     rank:gen.microprice_minus_mid_rel              xs           0.0033  0.3904   0.1095     0.0031   6.2953
+zzpz.a     cal:crank:gen.microprice_minus_mid_rel         xs cal       0.0031  0.0752   0.0928     0.0046   5.0161
+zzpp2.e    z:-gen.rete50                                  xs           0.0024  0.2645   0.1043     0.0009   6.9770
+zzqo.e     cal:srank:-gen.rpe25                           xs cal       0.0023  0.1809   0.1558     0.0046   13.5138
+zzxc.b     crank:gen.best_level_order_count_imbalance     xs           0.0021  0.2521   0.1288     0.0044   9.4390
+zzwa.k     cal:dmi:gen.microprice_minus_mid_rel           dmi:gen cal  0.0020  0.3774   0.0669     0.0002   3.6482
+zzxt3      crank:gen.lpe25                                xs           0.0019  0.4539   NaN        0.0068   14.8530
+zzhi2.i    cal:gen.ofi_levels1to5_norm_10s                gen cal      0.0015  0.0869   0.1242     0.0087   11.6257
+zzro.b     cal:|gen.ret1800|                              gen cal      0.0012  0.0801   0.0624     0.0045   6.1035
+zzpz.c     rank:gen.microprice_minus_mid_rel              xs           0.0012  0.4690   0.0699     0.0023   10.2718
+zzrb       -gen.zr60                                      gen          0.0011  0.1187   0.1114     0.0031   10.8088
+zzhi.b     |gen.log_channel_sequence_advance_per_s_60s|   gen          0.0011  0.5756   0.0632     0.0215   21.2626
+zzhi2.e    rank:gen.ofi_levels1to6_norm_30s               xs           0.0011  0.2919   0.0544     0.0046   10.4659
+zzpz.b     srank:-gen.microprice_minus_mid_rel            xs           0.0007  0.0579   0.0601     0.0005   2.0094
+
+== tier shape: 24 columns
+feature    formula                                        source       gain    raw_gap  shape_gap  ic_loss  t_loss
+zzro2.a    gen.stoch                                      gen          0.0528  0.5130   0.0399     0.0208   20.3875
+zzwa.j     dmi:gen.microprice_minus_mid_rel               dmi:gen      0.0153  0.4486   0.0338     0.0008   7.1647
+zzup       zzup.pf / zzup.ps                              state        0.0097  0.0655   0.0173     0.0497   32.2534
+zzpe.c     cal:srank:gen.imb1                             xs cal       0.0094  0.0731   0.0360     0.0044   12.4592
+zzyg2.0.b  srank:gen.microprice_minus_mid_rel             xs           0.0081  0.1303   0.0174     0.0073   12.5502
+zzho       cal:gen.position_in_limit_band                 gen cal      0.0071  0.2245   0.0500     0.0002   3.7109
+zzjb.b     -gen.lee30_14400                               gen          0.0052  0.1354   0.0011     0.0021   4.9858
+zzwa.f     cal:gen.microprice_minus_mid_rel               gen cal      0.0051  0.1413   0.0449     0.0001   2.2238
+zzqf2.q.c1 -gen.net_buy_amount_share_orders_under_40k_cny_300s gen 0.0045 0.2881   0.0061     0.0041   8.1072
+zzpp.e     rank:-gen.rete50                               xs           0.0042  0.5992   0.0174     0.0006   6.9418
+zzag2.e    cal:|gen.flow_ord_imb300|*1e4                  gen cal      0.0037  0.0987   0.0018     0.0108   11.6050
+zzhx.d     cal:rank:gen.best_level_order_count_imbalance  xs cal       0.0035  0.7942   0.0267     0.0018   9.7900
+zzyj3.c    cal:srank:-gen.best_level_order_count_imbalance xs cal      0.0030  0.2284   0.0218     0.0007   5.9289
+zzpp2.d    z:-gen.zr60                                    xs           0.0023  0.7683   0.0000     0.0031   12.4757
+zzho2      -gen.position_in_limit_band                    gen          0.0022  0.0613   0.0000     0.0005   2.8329
+zzkp       gen.order_price_aggressiveness_mean_900s       gen          0.0021  0.1355   0.0093     0.0001   3.7881
+zzhi.h     -gen.flow_ord_imb300                           gen          0.0014  0.1085   0.0332     0.0009   8.1013
+zzlk       dm:-gen.flow_ord_imb60                         dm:-gen      0.0013  0.3206   0.0195     0.0020   5.5661
+zzqo.f     srank:-gen.rpe10                               xs           0.0013  0.0914   0.0094     0.0051   13.7802
+zzie2.c    cal:crank:gen.imb1                             xs cal       0.0012  0.0800   0.0331     0.0003   6.6669
+zzpz.d     z:gen.microprice_minus_mid_rel                 xs           0.0012  0.0637   0.0243     0.0062   12.6737
+zzhi2.b    gen.log_channel_sequence_advance_per_s_900s    gen          0.0008  0.5723   0.0465     0.0235   22.7528
+zzqf7.q.c2 gen.log_distance_to_up_limit                   gen          0.0007  0.8707   0.0001     0.0012   4.1557
+zzhi2.h    gen.net_buy_amount_share_orders_over_200k_cny_120s gen      0.0006  0.0633   0.0380     0.0004   2.0355
+
+== tier nocdf: 26 columns (raw_gap / shape_gap NaN for all)
+feature    formula                                        source       gain    ic_loss  t_loss
+zzgh2.b    rank:gen.rete150                               xs           0.0240  0.0014   4.1373
+zzxu.a     zzxu.a / zzxu.low                              state        0.0115  0.0088   13.6561
+zzzl2.b    -gen.lpes2400                                  gen          0.0087  0.0050   5.5329
+zzxu.b     (px - zzxu.a) / zzxu.last                      state        0.0087  0.0115   17.2442
+zzrg       z:-gen.return_open_to_1000_log                 xs           0.0079  0.0190   23.7441
+zzzl2.e    gen.microprice_minus_mid_rel                   gen          0.0076  0.0000   2.3744
+zzqf6.q.a  |gen.lpes2400|                                 gen          0.0069  0.0033   8.0077
+zzwa.d     rank:gen.lpma60                                xs           0.0062  0.0048   9.9902
+zzzl.d     gen.lpes14400                                  gen          0.0042  0.0019   4.2982
+zzwa.e     rank:gen.lpe100                                xs           0.0039  0.0013   6.0650
+zzag2.a    |gen.flow_ord_imb60|*1e4                       gen          0.0039  0.0021   5.9177
+zzbo.c     gen.imba600                                    gen          0.0037  0.0003   2.4744
+zzfq.b     gen.simbn45                                    gen          0.0032  0.0005   3.5814
+zzfq.e     dm:-gen.imb5                                   dm:-gen      0.0030  0.0011   6.1949
+zzal.c     -gen.buy300                                    gen          0.0028  0.0027   7.2765
+zzfe2      crank:gen.imb1                                 xs           0.0028  0.0004   4.2892
+zzzl2.d    gen.lpes600                                    gen          0.0021  0.0006   4.9712
+zzqf8.q.c1 gen.overnight_gap_log                          gen          0.0017  0.0001   5.0735
+zzal.f     dm:-gen.imbn120                                dm:-gen      0.0013  0.0003   4.8096
+zzqf.q.c3  z:-gen.rpe5                                    xs           0.0011  0.0018   3.6327
+zzwj.d     gen.flow_big_imb60                             gen          0.0010  0.0005   3.6915
+zzor.a     crank:-gen.rete50                              xs           0.0010  0.0024   13.4660
+zzqf.q.c2  -gen.lpes2400                                  gen          0.0007  0.0004   2.7504
+zzyj2.c    dm:-gen.best_level_order_count_imbalance       dm:-gen      0.0005  0.0004   6.1558
+zzyj.c     srank:-gen.best_level_order_count_imbalance    xs           0.0005  0.0004   7.3077
+zzxt5      crank:gen.rpe10                                xs           0.0004  0.0000   2.4907
+
+== tier idle: 49 columns
+feature    formula                                        source       gain    raw_gap  shape_gap  ic_loss  t_loss
+zzef       dm:-gen.lpev14400                              dm:-gen      0.0093  0.0255   0.0377     -0.0001  -0.4796
+zzal.d     gen.imbv30                                     gen          0.0092  0.1626   0.0062     -0.0007  -1.1024
+zzfe       cal:gen.imbn90                                 gen cal      0.0085  0.0555   0.0168     -0.0007  -2.2033
+zzzl2.i    -gen.lpes1200                                  gen          0.0085  NaN      NaN        0.0005   1.2151
+zzop.j     |gen.order_price_aggressiveness_mean_900s|*1e4 gen          0.0082  NaN      NaN        0.0001   1.3307
+zzpe.a     -gen.simba10                                   gen          0.0080  0.0260   0.0213     -0.0006  -1.8902
+zzie3.c    cal:gen.imbn10                                 gen cal      0.0076  0.0518   0.0165     0.0001   0.5968
+zzzl2.f    gen.lpes28800                                  gen          0.0060  NaN      NaN        0.0007   1.8506
+zzri.f     -gen.net_buy_amount_share_orders_under_40k_cny_120s gen     0.0053  0.2366   0.0381     0.0000   0.2646
+zzdw       z:gen.rete150                                  xs           0.0051  0.1122   0.0632     0.0007   1.6168
+zzvx.a     zzvx.trDEmaD / px                              state        0.0051  0.0063   0.8737     0.0002   1.7295
+zzqo.c     z:-gen.lpek50                                  xs           0.0048  0.2146   0.1225     0.0000   0.2580
+zzzs.a     dm:-gen.flow_refill_imb60                      dm:-gen      0.0047  0.0033   0.0037     -0.0002  -0.2010
+zzaa.a     cal:-gen.nam15                                 gen cal      0.0045  0.1613   0.3390     -0.0007  -1.2031
+zzag2.c    rank:gen.flow_ord_imb60                        xs           0.0043  NaN      NaN        -0.0003  -1.1219
+zzop.a     |gen.ldl1800|*1e4                              gen          0.0040  NaN      NaN        -0.0000  -0.1286
+zzow2      -gen.imba30                                    gen          0.0039  0.1313   0.0189     -0.0011  -3.1688
+zzqf5.q.c1 -gen.bid_depth_weighted_distance_5lvl_rel      gen          0.0039  0.1581   0.1013     -0.0001  -0.9528
+zzyg.0.a   cal:z:gen.simba180                             xs cal       0.0036  0.0584   0.0137     -0.0001  -0.4225
+zzht       dm:gen.simba10                                 dm:gen       0.0034  0.0362   0.0335     0.0003   1.3535
+zzuc.d     crank:-gen.microprice_minus_mid_rel            xs           0.0032  0.3271   0.0450     0.0003   0.6869
+zzwa.g     z:gen.lpe50                                    xs           0.0029  0.1481   0.0835     -0.0014  -4.0938
+zzwj.a     gen.flow_refill_imb60                          gen          0.0029  NaN      NaN        -0.0031  -6.0101
+zzro.a     cal:gen.mret1800                               gen cal      0.0029  0.0640   0.0303     0.0004   1.8940
+zzal.e     dm:-gen.imbn10                                 dm:-gen      0.0028  NaN      NaN        0.0002   1.5642
+zzqf5.q.c4 gen.lpes14400                                  gen          0.0027  0.0204   0.0207     -0.0009  -4.7934
+zzjx3.a    dm:gen.rpe5400                                 dm:gen       0.0026  NaN      NaN        0.0001   0.5039
+zzal.h     z:gen.lpe200                                   xs           0.0026  NaN      NaN        0.0001   1.1101
+zzqf7.q.b  srank:gen.lmie10                               xs           0.0025  NaN      NaN        0.0000   1.8702
+zzqf3.q.c1 gen.lpes3600                                   gen          0.0025  NaN      NaN        -0.0005  -5.4948
+zzqf.q.c1  -gen.bid_depth_weighted_distance_5lvl_rel      gen          0.0025  0.1013   0.0931     0.0000   0.0442
+zzqf10.c3  -gen.return_open_to_1000_log                   gen          0.0024  0.0351   0.0105     0.0002   1.1386
+zzqf5.q.c2 gen.lpes28800                                  gen          0.0023  NaN      NaN        0.0001   0.8268
+zzbt.a     cal:gen.amount_share_orders_over_200k_cny_since_0930 gen cal 0.0021 0.1431  0.1520     -0.0001  -0.2361
+zzwa.i     |gen.microprice_minus_mid_rel|                 gen          0.0015  0.3551   0.0723     0.0000   1.2432
+zzqf8.q.c2 gen.lpes3600                                   gen          0.0015  NaN      NaN        0.0001   0.6115
+zzyg.1.a   z:gen.simba10                                  xs           0.0015  0.0561   0.0544     -0.0001  -3.4489
+zzwj.b     -gen.flow_refill_imb300                        gen          0.0013  NaN      NaN        0.0000   0.7424
+zzhi2.l    -gen.marketable_order_amount_share_60s         gen          0.0011  0.2579   0.1192     -0.0001  -0.8242
+zzie4.c    dm:-gen.simbv120                               dm:-gen      0.0011  0.0055   0.0032     -0.0000  -1.1007
+zzqf4.q.c2 dm:gen.rpe14400                                dm:gen       0.0010  NaN      NaN        -0.0013  -7.1027
+zzoe       cal:dm:gen.lpev3600                            dm:gen cal   0.0009  0.0312   0.0306     -0.0001  -0.4839
+zzal.g     gen.imbv10                                     gen          0.0009  NaN      NaN        0.0005   1.4754
+zzwj.c     crank:-gen.flow_refill_imb300                  xs           0.0008  NaN      NaN        -0.0001  -2.6806
+zzqo.d     crank:gen.lpe50                                xs           0.0006  0.3003   0.1115     -0.0001  -0.6241
+zzyj5.b    dmi:-gen.best_level_order_count_imbalance      dmi:-gen     0.0005  0.0017   0.0000     0.0001   1.1245
+zzyj5.a    dmi:-gen.best_level_order_count_imbalance      dmi:-gen     0.0004  NaN      NaN        0.0001   1.4439
+zzav       cal:|gen.lpe5|*1e4                             gen cal      0.0003  0.0016   0.9524     -0.0001  -0.6838
+zzyj4.c    rank:gen.best_level_order_count_imbalance      xs           0.0003  0.0158   0.0021     0.0000   0.5254
+
+== tier units: 20 columns
+feature    formula                                        source       gain    raw_gap  shape_gap  ic_loss  t_loss
+zzro2.c    dm:-gen.ret120                                 dm:-gen      0.0487  0.0437   0.0452     0.0027   6.1110
+zzeu2      srank:-gen.rete75                              xs           0.0128  0.0143   0.0053     0.0108   17.2766
+zzfb2.a    rank:gen.rpe75                                 xs           0.0118  0.0165   0.0192     0.0505   26.0416
+zzro2.b    neu:gen.ret90                                  neu:gen      0.0094  0.0472   0.0521     0.0055   11.8967
+zzeg2      cal:|gen.rpe20|                                gen cal      0.0071  0.0493   0.0533     0.0168   17.4130
+zzfb.b     rank:-gen.lpe50                                xs           0.0068  0.0191   0.0006     0.0018   4.3748
+zzop2.b    gen.trading_seconds_since_0930                 gen          0.0056  0.0245   0.0019     0.0131   18.3794
+zzhk.d     cal:dm:gen.rpma60                              dm:gen cal   0.0032  0.0259   0.0000     0.0020   2.0972
+zzqf6.q.c1 cal:gen.lpes1800                               gen cal      0.0030  0.0465   0.0186     0.0007   2.7095
+zzqf9.c1   cal:gen.lpew1800                               gen cal      0.0028  0.0462   0.0071     0.0003   2.5425
+zzab       cal:neu:-gen.depth_weighted_price_5lvl_minus_mid_rel neu:-gen cal 0.0025 0.0021 0.0031 0.0012  8.9261
+zzqo.a     cal:gen.lmie30*1e4                             gen cal      0.0024  0.0398   0.0518     0.0009   4.6486
+zzqf4.q.c1 -gen.lpes3600                                  gen          0.0022  0.0113   0.0089     0.0005   2.4332
+zzqo.b     gen.imba10                                     gen          0.0022  0.0366   0.0145     0.0006   3.8718
+zzqf7.q.c1 gen.lpew14400                                  gen          0.0021  0.0165   0.0095     0.0009   5.6877
+zzlk2      dm:gen.flow_ord_imb60                          dm:gen       0.0020  0.0203   0.0201     0.0012   5.1063
+zzlf       crank:-gen.microprice_minus_mid_rel            xs           0.0019  0.0400   0.0058     0.0008   6.7602
+zzwf       cal:-gen.ofi_levels2to5_norm_10s               gen cal      0.0016  0.0314   0.0851     0.0052   10.3957
+zzag.c     gen.flow_ord_imb60                             gen          0.0012  0.0438   0.0082     0.0008   3.9805
+zzmo       srank:-gen.rete50                              xs           0.0012  0.0114   0.0047     0.0015   9.7768
+
+== open columns by gain (fingerprint columns available: ['family', 'gain_share', 'n_thr', 'distinct', 'half_int', 'at_zero', 'bins'])
+shape: (71, 11)
+feature    gain    kind      lo           hi           t_p10      t_med      t_p90      q_p10      q_med      q_p90
+zzeu       0.0259  signed    -1.0000      1.0000       -0.8934    0.0000     0.8714     -0.8132    0.0154     0.8359
+zzgh.b     0.0225  count     0.0000       23699.0000   1260.5000  20585.5000 23313.5000 2903.0000  6887.5000  10913.5000
+zzel.a     0.0160  unit      0.0000       0.0066       0.0003     0.0005     0.0017     0.0002     0.0004     0.0011
+zzeg       0.0135  positive  0.7540       1.1183       0.9943     1.0000     1.0191     0.9988     1.0000     1.0015
+zzzl2.c    0.0135  signed    -0.3362      1.0898       -0.0425    0.0073     0.0634     -0.0223    -0.0012    0.0230
+zzsf.c     0.0133  signed    -0.1725      0.2631       0.0065     0.0139     0.0272     0.0040     0.0071     0.0143
+zzba       0.0128  unit      0.0000       0.4332       0.0274     0.0558     0.1057     0.0140     0.0255     0.0482
+zzbt.b     0.0126  unit      0.0000       1.0000       0.0139     0.0904     0.5935     0.0223     0.0957     0.4043
+zzsf.d     0.0113  signed    -0.2606      0.2269       0.0056     0.0112     0.0222     0.0037     0.0062     0.0115
+zzop.i     0.0105  positive  0.0000       12808.9336   100.0775   235.6221   568.0251   126.9411   292.4252   732.9332
+zzpk       0.0092  signed    -1.1535      0.9978       0.0746     0.1563     0.2336     0.0393     0.0705     0.1377
+zzjx3.b    0.0092  signed    -0.2237      0.1831       -0.0432    -0.0043    0.0454     -0.0151    -0.0003    0.0174
+zzab2      0.0088  signed    -0.1971      0.2038       -0.0146    0.0005     0.0167     -0.0041    -0.0000    0.0045
+zzel.b     0.0081  positive  0.0000       110.1049     25.8205    43.8639    62.1367    18.2742    28.3977    44.8121
+zzqf9.a    0.0079  unit      0.0000       0.3283       0.0074     0.0181     0.0359     0.0036     0.0091     0.0180
+zzpe.d     0.0076  signed    -2.5830      4.0930       -0.1145    1.0895     2.2095     -0.5025    0.5965     1.8855
+zzmh       0.0075  positive  0.0000       1.1177       0.0062     0.0497     0.1153     0.0046     0.0198     0.0558
+zzcb       0.0072  positive  0.0000       175327.3281  0.3392     1.7889     51.9567    0.8386     3.7019     35.2893
+zzxo       0.0070  positive  -30.0000     -14.7015     -15.5324   -15.5015   -15.4645   -15.5128   -15.5000   -15.4877
+zzpe.b     0.0068  signed    -2.9780      2.9910       -0.8905    0.2275     1.7605     -1.1285    -0.2312    1.0690
+zzhj       0.0067  signed    -3800.7434   203695.4219  -1.2502    0.0515     2.8896     -0.7764    -0.0109    1.0430
+zzvm       0.0066  positive  0.8649       1.0559       0.9983     1.0002     1.0042     0.9994     1.0000     1.0007
+zzwa.c     0.0065  positive  0.0000       732.8395     0.4444     1.9991     5.6251     0.3477     0.8018     1.8895
+zzpe.e     0.0064  signed    -3.5910      2.6990       -1.4945    -0.8055    0.2565     -1.3230    -0.4185    0.7665
+zzsa2.a    0.0061  signed    -1.0000      0.3385       0.0098     0.0267     0.0585     0.0048     0.0122     0.0287
+zzqf.q.a   0.0059  unit      0.0000       0.2950       0.0092     0.0175     0.0298     0.0054     0.0098     0.0159
+zzal.a     0.0058  signed    -0.0312      0.2991       0.0206     0.0613     0.1137     0.0312     0.0501     0.0879
+zzsa.b     0.0054  signed    -1.0000      0.0026       -0.0617    -0.0241    -0.0035    -0.0288    -0.0091    -0.0021
+zzzl2.g    0.0054  signed    -0.5236      1.0651       -0.0501    0.0345     0.1211     -0.0392    -0.0013    0.0423
+zzpp.b     0.0050  positive  0.0000       26.2964      6.5124     10.4091    22.7496    10.8782    13.5154    16.8650
+zzts       0.0050  signed    -1.0000      12233.1279   -0.9965    -0.9679    -0.5655    -0.9982    -0.9886    -0.9144
+zzri2.a    0.0048  unit      0.0000       0.3302       0.0223     0.0537     0.0993     0.0282     0.0440     0.0712
+zzag.a     0.0048  signed    -1.0000      1.0000       -0.8399    -0.2286    0.4430     -0.6828    -0.3978    -0.0274
+zzag2.f    0.0046  signed    -0.0000      9774.3730    127.8735   631.6345   6982.2910  724.0930   1585.5541  3584.7936
+zzwa.a     0.0042  positive  0.0000       4945.8745    0.0913     0.2910     0.7169     0.2701     0.5931     1.2072
+zzbs2.b    0.0042  signed    -0.2570      0.2107       -0.0258    0.0013     0.0279     -0.0082    -0.0000    0.0095
+zzri2.f    0.0041  signed    -1.0000      1.0000       -0.7116    -0.2238    0.3710     -0.5882    -0.3343    -0.0271
+zzjx2.a    0.0040  signed    -0.2247      0.1833       -0.0502    0.0033     0.0690     -0.0225    0.0006     0.0260
+zzsa.a     0.0039  signed    -1.0000      0.3404       0.0054     0.0219     0.0597     0.0034     0.0117     0.0288
+zzpp.a     0.0037  positive  0.0000       26.2449      6.7129     10.7928    22.5706    10.7517    13.3484    16.5910
+zzwa.b     0.0034  positive  0.0000       1970.2054    0.0585     0.2861     1.4966     0.2617     0.6255     1.6927
+zzaa.b     0.0034  count     -370776.0000 275270.0000  -1250.5000 222.5000   2860.0000  -790.5000  56.2500    1242.5000
+zzbo.a     0.0033  signed    -3.9339      5.7799       0.1925     0.7056     1.5511     0.2018     0.4427     0.9449
+zzal.b     0.0032  signed    -0.8689      0.1521       -0.0194    0.0067     0.0459     0.0010     0.0142     0.0333
+zzuc.c     0.0032  signed    -54.3799     99.5440      -11.9506   -3.9966    9.2808     -8.4733    -2.6375    8.1010
+zzbt2.h    0.0029  signed    -0.1792      0.1076       -0.0107    -0.0020    0.0000     -0.0050    -0.0013    -0.0002
+zzjx.a     0.0028  signed    -0.2247      0.1833       -0.0552    0.0040     0.0769     -0.0233    -0.0000    0.0272
+zzzl.f     0.0027  signed    -0.4890      1.0755       -0.0480    0.0202     0.0950     -0.0321    -0.0002    0.0405
+zzuc.f     0.0026  signed    -2.4103      10.0000      -0.1131    -0.0096    0.1776     -0.0829    -0.0076    0.0994
+zzhi2.c    0.0019  positive  0.0000       10.0000      0.4087     0.9380     2.0248     0.6112     0.9891     1.5839
+zzbt2.a    0.0019  unit      0.0000       0.9997       0.1994     0.6001     0.8948     0.2483     0.6128     0.8491
+zzjb2.b    0.0016  signed    -0.2013      0.2011       -0.0467    0.0020     0.0697     -0.0287    -0.0002    0.0367
+zzko       0.0014  signed    -5431.1543   10742.6777   -9.3197    -0.0141    20.9114    -6.8881    -0.0630    7.4369
+zzso       0.0013  signed    -5.0000      5.0000       -2.3131    0.0041     3.6667     -1.8899    0.0167     1.9660
+zzxc.a     0.0013  count     -9932.0000   8430.0000    -17.5000   3.5000     65.5000    -21.5000   9.7500     69.0000
+zzlk3      0.0013  signed    -1.0000      1.0000       -0.5364    -0.1511    0.2369     -0.5187    -0.2380    0.1051
+zzxc.c     0.0011  signed    -1.0000      1.0000       -0.7644    0.4801     0.9216     -0.7898    0.1824     0.8688
+zzxt2      0.0009  signed    -1.0000      1.0000       -0.6438    -0.3571    0.0324     -0.6361    -0.3640    -0.0448
+zzie5.c    0.0009  signed    -1.0000      1.0000       -0.5263    0.0441     0.5982     -0.5182    0.0339     0.5614
+zzhi2.f    0.0009  positive  0.0000       10.0000      0.5005     0.9232     1.6667     0.6001     1.0000     1.6552
+zzav2      0.0009  signed    -8461.3613   12659.1768   -43.3956   2.5527     56.9993    -23.2840   0.1186     20.8569
+zzxt       0.0008  signed    -1.0000      1.0000       -0.6469    -0.3725    0.0000     -0.6456    -0.3842    -0.0553
+zzxc.d     0.0007  signed    -0.0034      0.0038       -0.0000    0.0000     0.0000     -0.0000    0.0000     0.0000
+zzyj4.a    0.0005  signed    -1.0000      1.0000       -0.9912    -0.3368    0.8971     -0.9335    0.0353     0.9040
+zzyj2.a    0.0005  signed    -1.0000      1.0000       -0.9788    -0.3120    0.8456     -0.8734    0.0000     0.8576
+zzie.c     0.0005  signed    -1.0000      1.0000       -0.4768    0.0250     0.5163     -0.4826    0.0182     0.5002
+zzxt6      0.0004  signed    -1.0000      1.0000       -0.5986    -0.0952    0.4007     -0.5236    -0.0779    0.4089
+zzyj5.c    0.0004  signed    -1.0000      1.0000       -0.9653    -0.4263    0.8604     -0.8992    -0.0266    0.8846
+zzor2.a    0.0004  signed    -1.0000      1.0000       -0.6214    -0.0958    0.4294     -0.5236    -0.0706    0.4509
+zzyj.d     0.0002  signed    -1.0000      1.0000       -0.9912    -0.1387    0.9684     -0.9469    -0.0167    0.9401
+zzbs.b     0.0000  signed    -0.2510      0.1968       -0.0219    0.0091     0.0262     0.0001     0.0080     0.0224
+
+== tails over 240 marks, decile = 10% (random: overlap 0.10, our rank 0.50)
+  PM's top decile:    0.455 of it is in our top decile; our mean rank of its stocks 0.803
+  PM's bottom decile: 0.411 of it is in our bottom decile; our mean rank of its stocks 0.215
+  same side of the median: 0.729
+
+-> data/reports/r41_audit.json
+[08:33:01] 1 strict rescan of the top 40 proxy columns (CDF gates on, no cal:): even sids x grid 0
+
+== step 1: strict rescan of the proxies (CDF gates on, no cal:), even sids x grid 0; gate on odd sids x grid 7
+  proxies: zzro.e,zzef2,zzja,zzsa2.b,zzvm2,zzwa.h,zzpz.a,zzpp2.e,zzqo.e,zzxc.b,zzwa.k,zzxt3,zzhi2.i,zzro.b,zzpz.c,zzrb,zzhi.b,zzhi2.e,zzpz.b
+pass 0 zzro.e: kept dmi:-gen.rete1200 IC 0.5329 t_gain 3.8 (577s)
+pass 0 zzef2: kept z:gen.depth_imbalance_level9 IC 0.5345 t_gain 2.3 (580s)
+pass 0 zzja: kept |gen.log_new_order_count_per_s_60s|*1e4 IC 0.5410 t_gain 8.0 (581s)
+pass 0 zzsa2.b: kept None IC 0.5410 t_gain 0.0 (581s)
+pass 0 zzvm2: kept gen.rpe5 IC 0.5424 t_gain 3.7 (582s)
+pass 0 zzwa.h: no candidate passes the fingerprint gate (583s)
+pass 0 zzpz.a: kept -gen.lpev60 IC 0.5471 t_gain 3.3 (585s)
+pass 0 zzpp2.e: no candidate passes the fingerprint gate (586s)
+pass 0 zzqo.e: kept None IC 0.5471 t_gain 0.0 (587s)
+pass 0 zzxc.b: kept None IC 0.5471 t_gain 0.0 (589s)
+pass 0 zzwa.k: kept -ced.ret2 IC 0.5483 t_gain 3.7 (591s)
+pass 0 zzxt3: kept |gen.lpe20| IC 0.5486 t_gain 4.8 (592s)
+pass 0 zzhi2.i: kept crank:gen.imb1 IC 0.5587 t_gain 11.2 (602s)
+pass 0 zzro.b: kept -gen.lpes7200 IC 0.5581 t_gain -1.1 (603s)
+pass 0 zzpz.c: kept z:gen.lpe200 IC 0.5595 t_gain 3.4 (605s)
+pass 0 zzrb: kept dmi:-gen.zpe1800 IC 0.5636 t_gain 13.8 (608s)
+pass 0 zzhi.b: kept |gen.sd_eg_pos| IC 0.5642 t_gain 2.1 (609s)
+pass 0 zzhi2.e: no candidate passes the fingerprint gate (609s)
+pass 0 zzpz.b: kept neu:gen.vfrac10 IC 0.5677 t_gain 7.8 (612s)
+pass 0 time: fingerprint ranking 18s, candidate columns 8s, model + IC 5s
+IC: start 0.5320 -> end 0.5677 (t 75.70, 240 marks); 132 of 209 columns assigned -> data/reports/stage6_r41b/ic_assign.json
+== gate against data/reports/r40g_baseline.json: 3 of 20 changes kept (t >= 1.0)
+feature  old                                          new                                     gain     t         kept_new
+zzqf9.a  |gen.ipc_hs300|                              null                                    0.0000   NaN       false
+zzpz.b   srank:-gen.microprice_minus_mid_rel          neu:gen.vfrac10                         0.0022   4.2544    true
+zzpz.a   cal:crank:gen.microprice_minus_mid_rel       -gen.lpev60                             0.0060   3.8500    true
+zzja     cal:rank:-gen.microprice_minus_mid_rel       |gen.log_new_order_count_per_s_60s|*1e4 0.0016   3.3496    true
+zzpz.c   rank:gen.microprice_minus_mid_rel            z:gen.lpe200                            -0.0004  -0.9049   false
+zzwa.k   cal:dmi:gen.microprice_minus_mid_rel         -ced.ret2                               -0.0003  -0.9291   false
+zzro.b   cal:|gen.ret1800|                            -gen.lpes7200                           -0.0023  -1.6333   false
+zzrb     -gen.zr60                                    dmi:-gen.zpe1800                        -0.0007  -1.8985   false
+zzsa2.b  cal:-gen.rv60                                null                                    -0.0012  -2.2439   false
+zzpp2.e  z:-gen.rete50                                null                                    -0.0004  -2.2559   false
+zzxt3    crank:gen.lpe25                              |gen.lpe20|                             -0.0014  -2.4621   false
+zzro.e   cal:dm:-gen.rete30                           dmi:-gen.rete1200                       -0.0007  -2.9358   false
+zzqo.e   cal:srank:-gen.rpe25                         null                                    -0.0014  -3.1494   false
+zzvm2    cal:rank:gen.microprice_minus_mid_rel        gen.rpe5                                -0.0011  -3.4898   false
+zzhi2.i  cal:gen.ofi_levels1to5_norm_10s              crank:gen.imb1                          -0.0056  -3.6705   false
+zzhi.b   |gen.log_channel_sequence_advance_per_s_60s| |gen.sd_eg_pos|                         -0.0037  -5.4424   false
+zzef2    cal:gen.lmie5*1e4                            z:gen.depth_imbalance_level9            -0.0070  -5.9705   false
+zzwa.h   rank:gen.microprice_minus_mid_rel            null                                    -0.0055  -7.0694   false
+zzxc.b   crank:gen.best_level_order_count_imbalance   null                                    -0.0051  -8.0480   false
+zzhi2.e  rank:gen.ofi_levels1to6_norm_30s             null                                    -0.0067  -12.6381  false
+gated: 139 columns -> data/reports/stage6_r41b_gate/ic_assign_gated.json
+[08:44:35] 2 stateful columns with the shared pool + the top 40 open columns: even sids x grid 0, from data/reports/stage6_r41b_gate/ic_assign_gated[.json]
