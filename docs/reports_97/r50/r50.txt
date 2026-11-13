@@ -1,0 +1,14 @@
+# R50 on 97 (r50.sh 17a87e31; md5 OK), 2026-11-14 ~03:59 -> 04:24:10; scores per forced model generation
+symlinks models_gen/{A,B,C}/202501 -> tk5m/{202512,202604,202611}
+day set genA genB genC
+0430 r41c .6282 .6282 .4561
+0430 r27both .3767 .3767 .5180
+1110 r41c .6470 .6470 .5075
+1110 r27both .5052 .5052 .7173
+1112 r41c .6558 .6558 .4915
+1112 r27both .5153 .5153 .7234
+1106 r41c .5690 .5690 .4513
+1106 r27both .4775 .4775 .7084
+model generations seen: 1b13fa3f (130 features with CDF) and 55f31009 (138) -- genA == genB everywhere.
+r41c fwd rank IC genA/B vs genC: 0430 .1230/.0850, 1110 .0989/.0943, 1112 .1079/.1062, 1106 .1178/.1049
+Full blocks as sent to crucible ~04:30.
