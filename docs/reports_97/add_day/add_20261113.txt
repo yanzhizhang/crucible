@@ -1,0 +1,39 @@
+# add_day.sh 20261113 (40277011, re-pasted on 97: it was eb096318), 2026-11-13 23:26:37 -> 23:36:58 done on 97;
+# from data/reports/add_20261113_short.txt + add_20261113_x.txt. daily_pm.sh 34cfbff4. DataYesSharesL2/20261113 present.
+[23:26:37] 0 daily_pm 20261113
+[23:26:37] 1 logs: 224 /tmp/zyq/sht-logs -> /work/crucible_data/chrono_logs   (log files for 20261113: 2)
+[23:26:37] 2 position log + base positions: 224 /tmp/o/executor/20261113   (files: 10)
+[23:26:38] 3 pm_signals
+   factor lines: 1,350,087 matched (1,350,087 by order, not by epoch), 23,075 alg lines without their catchRun line
+   order match check: 0.9829 of rows on their sidIdx's main sid; book->epoch - srcEpoch (ms) p1/p50/p99 33.7/539.3/1635.2
+   factor program: 1,350,087 scored snapshots, 1,349,733 also in SIG (|prediction - fa| max 9.7e-03, corr 0.982653), 761,279 trade decisions
+[23:28:08] 4 DataYesSharesL2 20261113 -> dysl2_raw, catalog_dysl2
+[23:29:44] 5 decisions + position log
+   per stock over time (760,979 consecutive pairs): pos unchanged 0.999; on a change: dpos == previous executp 0.187, sign(dpos) == sign(fa) 0.533, from 0 0.316, to ...
+   pos == (exact / within 100 / corr): qty 0.000/0.081/r +0.205; yesterday_qty 0.031/0.095/r -0.166; sellable_qty 0.373/0.437/r +0.093; base_qty 0.034/0.081/r -0.16...
+   executp == (exact / within 100 / corr): qty 0.011/0.162/r +0.063; yesterday_qty 0.005/0.061/r -0.072; sellable_qty 0.324/0.488/r +0.001; base_qty 0.003/0.055/r -...
+   executp == pos with sells capped at sellable_qty 0.591; on executp != 0: sign(executp) == sign(base - qty) 0.014, == sign(fa) 0.617
+   prediction vs holding gap: corr(fa, base - qty) +0.005; corr(fa, pos) -0.004; rows with base - qty != 0 0.374
+[23:29:47] 6 orders: does runS send now (base position pushed from 1110)
+   2026-11-13_09-00-01-400.log: nullptr 0, ORD 0, SEND 0, REJ 0, TRD 0
+   2026-11-13_09-18-16-560.log: nullptr 761279, ORD 5948, SEND 5855, REJ 93, TRD 651
+   REJ  93 reason='leg
+[23:29:49] done 20261113
+[23:29:49] 1 2.23: hstats 20261113, stsfile, PM state files
+   20261113: 13 families with samplerS.nc; stsfile 20261109.xr, 20261111.xr, 20261113.xr; PM state: D-1 = 20261112, 20261113.jz present
+[23:29:52] 2 target: target rows 1374800 stocks 300
+[23:29:52] 3 full_book + engine state for 20261113   (catalog_dysl2 quotes on 20261113: 22105004)
+[23:30:59] 4 R17 / R24 / R24 gated on 20261113
+[23:33:59]   r17 (102 columns): 20261113 0.6969
+[23:34:51]   r27both (103 columns): 20261113 0.7134
+[23:35:53]   r24 (116 columns): 20261113 0.6899
+[23:36:56]   r24g (98 columns): 20261113 0.6634
+20261113: model generation 55f31009 (202611): training-CDF points for 138 features
+[23:36:56] 5 day-end state against PM's 20261113.jz
+   share matching PM: zzqj.v, zzvm.c.tpv/v, zzvx.high/low, zzxo.last, zzxu.high/last/low 1.0000; zzui.r.* (mean) 0.9995; zzxo.r.* (mean) 0.9989
+   median relative error: clock.fast ~ *.t (mean) -0.0031 s; zzgh.nb 0.0044; zzmh.hm, zzpk.high/low/open, zzqj.tpv/v, zzui.r.*, zzvm.c.*, zzvx.*,
+   zzxo.*, zzxu.* all 0.0000
+[23:36:58] done 20261113
+# extra (same args as step 4, 224 target, reference only), ~23:38-23:40:
+r40g: IC: start 0.4544 -> end 0.4544 (t 92.00, 240 marks); 139 of 209 columns assigned
+r41c: IC: start 0.5083 -> end 0.5083 (t 129.66, 240 marks); 142 of 209 columns assigned (gated file has 144)
