@@ -1,0 +1,52 @@
+R47 (r47.sh 64811eb7, col_fwd 21b2dbe5; md5 OK)
+[03:03:05] A r41c column by column against the forward return
+ runs: 0430=stage6_r43_0430_fwd,1106..1112=stage6_r44_<d>_fwd,1113=stage6_r43_1113_fwd
+144 columns over 7 days ['0430','1106','1109','1110','1111','1112','1113']; fit days ['0430','1106','1110','1112'], test days ['1109','1111','1113']
+summed loss per day (IC against the forward return lost without each column, summed over columns): 0430 +0.0514, 1106 +0.0348, 1109 +0.0201, 1110 +0.0081, 1111 +0.0248, 1112 +0.0448, 1113 +0.0377
+== classes over all 7 days (3,3): cls columns sum_mean_loss
+ hurts (t<=-2) 15 -0.0131 | unclear 101 0.0104 | helps (t>=2) 28 0.0344
+== picked on the fit days: hurting 22 (negative on every fit day, mean t <= -1.0), helping 25
+ hurting: 22 columns, fit mean loss -0.00095, test mean loss -0.00035, share with the same sign on the test days 0.82
+ helping: 25 columns, fit mean loss +0.00148, test mean loss +0.00074, share same sign on test days 0.84
+ all    : 144 columns, fit mean loss +0.00024, test mean loss +0.00019, share same sign on test days 0.65
+== hurting columns (picked on the fit days), worst first (22,12): feature formula l_0430 l_1106 l_1109 l_1110 l_1111 l_1112 l_1113 mean t_days days_pos
+zzef2 cal:gen.lmie5*1e4 -.0012 -.0028 -.0007 -.0014 -.0013 -.0052 -.0050 -.0025 -3.5212 0
+zzzs.a dm:-gen.flow_refill_imb60 -.0020 -.0033 -.0016 -.0009 .0039 -.0023 .0055 -.0001 -0.0860 2
+zzfe cal:gen.imbn90 -.0010 -.0013 -.0008 -.0034 .0001 -.0028 -.0027 -.0017 -3.4885 1
+zzri.f -gen.net_buy_amount_share_orders_under_40k_cny_120.. -.0001 -.0003 .0004 -.0013 .0009 -.0047 -.0019 -.0010 -1.4008 2
+zzwj.a gen.flow_refill_imb60 -.0023 -.0015 -.0012 -.0019 -.0027 -.0006 -.0012 -.0016 -5.8650 0
+zzyg.0.a cal:z:gen.simba180 -.0014 -.0013 -.0006 -.0021 -.0012 -.0009 -.0002 -.0011 -4.7703 0
+zzpz.c rank:gen.microprice_minus_mid_rel -.0002 -.0001 -.0004 -.0020 .0021 -.0034 -.0042 -.0012 -1.4035 1
+zzfq.b gen.simbn45 -.0004 -.0014 -.0006 -.0018 .0004 -.0020 -.0013 -.0010 -3.1307 1
+zzxc.b crank:gen.best_level_order_count_imbalance -.0003 -.0005 -.0007 -.0028 .0003 -.0001 -.0011 -.0007 -1.8791 1
+zzqo.d crank:gen.lpe50 -.0001 -.0014 .0000 -.0013 -.0009 -.0008 -.0015 -.0008 -3.5744 1
+zzwf cal:-gen.ofi_levels2to5_norm_10s -.0004 -.0008 -.0009 -.0013 .0008 -.0006 -.0008 -.0005 -2.1365 1
+zzwa.g z:gen.lpe50 -.0014 -.0004 .0001 -.0003 .0003 -.0000 .0002 -.0002 -0.9807 3
+(rows 13-22: zzyj3.c, zzav, zzwj.d, zzbo.c, zzvm2, zzsa2.b, zzal.e, zzht, zzro.e, zzlk2; mean -.0003..-.0001)
+STEP C scoring of stage6_r47c (fwdscan), per day (mean std IR t >0):
+ 1109 fwdscan (185 marks, 293 stocks, 54,230 rows): [IC line above this view, see next part]
+  ours fwd rank IC +0.1051 0.1330 +0.790 +10.7 0.77 | PM fwd IC +0.0977 .1746 | PM fwd rank +0.1102 .1245 +.885
+  ours vs PM IC +0.4664 0.1626 +2.869 +39.0 0.99 | vs PM rank +0.4823 0.1446 +3.336 +45.4 1.00
+  ours bp +4.6207 20.4617 +0.226 +3.1 0.76 | PM bp +4.3662 21.0534 +0.207 +2.8 0.79
+ fwdscan 1111 vs PM: IC: start 0.4339 -> end 0.4339 (t 70.77, 240 marks); 164 of 209 columns assigned
+ 1111 fwdscan (240 marks, 288 stocks, 69,236 rows):
+  ours fwd IC +0.0228 0.1972 +0.116 +1.8 0.57 | fwd rank +0.0574 0.1645 +0.349 +5.4 0.64 | PM fwd IC +.0336 rank +.0478
+  vs PM IC +0.4182 0.0877 +4.767 +73.8 1.00 | vs PM rank +0.4339 0.0950 +4.568 +70.8 1.00
+  ours bp -0.2431 19.5882 -0.012 -0.2 0.59 | PM bp +1.2221 14.0981 +0.087 +1.3 0.57
+ fwdscan 1113 vs PM: IC: start 0.5911 -> end 0.5911 (t 147.48, 240 marks); 164 of 209 columns assigned
+ 1113 fwdscan (240 marks, 292 stocks, 70,292 rows):
+  ours fwd IC +0.0764 0.1545 +0.494 +7.7 0.67 | fwd rank +0.0929 0.1410 +0.659 +10.2 0.74 | PM fwd IC +.0475 .2204 +.216; rank +.0705 .1889 +.373 +5.8 .63
+  vs PM IC +0.5532 0.0781 +7.086 +109.8 1.00 | vs PM rank +0.5911 0.0621 +9.520 +147.5 1.00
+  ours bp +6.9690 19.6049 +0.355 +5.5 0.71 | PM bp +2.1509 36.0008 +0.060 +0.9 0.61
+ fwdscan 1110 vs PM: IC: start 0.5973 -> end 0.5973 (t 122.34, 195 marks); 164 of 209 columns assigned
+ 1110 fwdscan (195 marks, 290 stocks, 56,678 rows):
+  ours fwd IC +0.0881 0.1263 +0.697 +9.7 0.78 | fwd rank +0.1058 0.1088 +0.973 +13.6 0.86 | PM fwd IC +.1269 rank +.1416
+  vs PM IC +0.5887 0.0685 +8.596 +120.0 1.00 | vs PM rank +0.5973 0.0682 +8.761 +122.3 1.00
+  ours bp +6.3980 11.6873 +0.547 +7.6 0.78 | PM bp +8.3661 13.3559 +0.626 +8.7 0.81
+ fwdscan 1112 vs PM: IC: start 0.5342 -> end 0.5342 (t 110.58, 240 marks); 164 of 209 columns assigned
+ 1112 fwdscan (240 marks, 293 stocks, 70,397 rows):
+  ours fwd IC +0.0922 0.1733 +0.532 +8.2 0.73 | fwd rank +0.1095 0.1477 +0.741 +11.5 0.79 | PM fwd IC +.0522 rank +.0702
+  vs PM IC +0.4677 0.0894 +5.229 +81.0 1.00 | vs PM rank +0.5342 0.0748 +7.138 +110.6 1.00
+  ours bp +5.8254 19.2510 +0.303 +4.7 0.73 | PM bp +4.4721 19.7149 +0.227 +3.5 0.60
+[03:26:03] for comparison: r41c on the same days (= R44 lines, not repeated)
+(Full transcription as sent to crucible 2026-11-14 ~03:40: B pruned 122 cols -- 0430 vs PM .5670 (r41c base .628), fwd rank .1297 vs PM .1370; 1109 .0989, 1111 .0722, 1113 .0897 fwd rank. C fwdscan 164 cols (+20 assigned) -- 0430 vs PM .5366, fwd rank .1146; 1109 .1051, 1110 .1058, 1111 .0574, 1112 .1095, 1113 .0929. Done 03:26:03, no errors.)
