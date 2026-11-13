@@ -1,0 +1,103 @@
+R52 (r52.sh 6db46bfe, md5 OK) 04:54:47 -> ~05:50
+A [04:54:47] r41c column by column over seven target days (generation B)
+144 columns over 7 days; fit 0430,1106,1110,1112; test 1109,1111,1113
+summed loss per day: 0430 +.3914, 1106 +.2103, 1109 +.2453, 1110 +.2036, 1111 +.2232, 1... (rest cut in my view)
+classes over 7 days: hurts (t<=-2) 19 -.0251 | unclear 69 -.0070 | helps (t>=2) 56 .2884
+picked on fit days: hurting 5 (negative on every fit day, mean t <= -1.0), helping 51
+ hurting: 5 cols, fit mean loss -.00067, test -.00082, same sign on test days 1.00
+ helping: 51, fit +.00605, test +.00464, same sign 1.00
+ all: 144, fit +.00186, test +.00168, same sign .88
+hurting (5,12) (l_0430 l_1106 l_1109 l_1110 l_1111 l_1112 l_1113 | mean t_days days_pos):
+zzag2.c rank:gen.flow_ord_imb60 -.0000 -.0002 -.0013 -.0032 -.0011 -.0022 -.0046 | -.0018 -2.8589 0
+zzqf.q.c1 -gen.bid_depth_weighted_distance_5lvl_rel -.0000 -.0003 -.0007 -.0021 -.0011 -.0004 -.0010 | -.0008 -3.0780 0
+zzqf3.q.c1 gen.lpes3600 -.0002 -.0011 .0001 -.0002 .0002 -.0010 -.0013 | -.0005 -2.1216 2
+zzhi2.l -gen.marketable_order_amount_share_60s -.0003 -.0002 -.0001 -.0003 -.0000 -.0009 -.0006 | -.0003 -2.9034 0
+zzop.j |gen.order_price_aggressiveness_mean_900s|*1e4 -.0001 -.0001 -.0002 -.0001 -.0000 -.0004 -.0006 | -.0002 -3.3235 0
+the 25 that help most (first 12):
+zzfb2.a rank:gen.rpe75 .0317 .0341 .0368 .0489 .0030 .0503 .0523 | .0367 5.6998 7
+zzup zzup.pf / zzup.ps .0301 .0435 .0157 .0306 .0245 .0475 .0484 | .0344 7.2927 7
+zzeu2 srank:-gen.rete75 .0233 .0293 .0132 .0333 .0157 .0364 .0435 | .0278 6.6676 7
+zzhi.b |gen.log_channel_sequence_advance_per_s_60s| .0113 .0194 .0135 .0258 .0158 .0328 .0294 | .0212 6.7407 7
+zzhi2.b gen.log_channel_sequence_advance_per_s_900s .0192 .0249 .0070 .0199 .0183 .0219 .0214 | .0189 8.7945 7
+zzop2.b gen.trading_seconds_since_0930 .0029 .0231 .0102 .0179 .0081 .0186 .0196 | .0143 5.1673 7
+zzyg2.0.b srank:gen.microprice_minus_mid_rel .0051 .0148 .0118 .0166 .0137 .0078 .0120 | .0117 7.7525 7
+zzxu.b (px - zzxu.a) / zzxu.last .0118 .0121 .0146 .0142 .0091 .0086 .0075 | .0111 10.5356 7
+zzeg2 cal:|gen.rpe20| .0114 .0061 .0068 .0117 .0032 .0178 .0176 | .0107 4.9892 7
+zzxt3 crank:gen.lpe25 .0033 .0137 .0025 .0072 .0031 .0174 .0153 | .0089 3.6955 7
+zzro.b cal:|gen.ret1800| .0044 .0119 .0025 .0129 .0157 -.0015 .0072 | .0076 3.2349 6
+zzpz.d z:gen.microprice_minus_mid_rel .0028 .0104 .0042 .0076 .0049 .0109 .0090 | .0071 5.9166 7
+the 25 that hurt most over all days (first 12):
+zzrg z:-gen.return_open_to_1000_log .0132 -.0229 -.0105 -.0204 .0242 -.0190 .0012 | -.0049 -0.7038 3
+zzwj.a gen.flow_refill_imb60 .0004 -.0063 .0003 -.0054 -.0011 -.0084 -.0114 | -.0046 -2.6410 2
+zzwa.g z:gen.lpe50 .0008 -.0039 .0005 -.0045 -.0014 -.0063 -.0082 | -.0033 -2.5520 2
+zzgh2.b rank:gen.rete150 .0022 -.0058 .0005 -.0057 -.0065 -.0006 -.0028 | -.0027 -2.0502 2
+zzzl2.b -gen.lpes2400 .0063 -.0076 .0015 -.0033 -.0042 -.0055 -.0059 | -.0027 -1.4385 2
+zzuc.d crank:-gen.microprice_minus_mid_rel .0012 -.0042 -.0009 -.0031 -.0023 -.0048 -.0040 | -.0026 -3.2615 1
+zzhk.d cal:dm:gen.rpma60 .0156 -.0123 .0105 -.0043 .0105 -.0208 -.0140 | -.0021 -0.3904 3
+zzag2.c (above) | -.0018 -2.8589 0
+zzwa.d rank:gen.lpma60 .0045 -.0027 .0021 -.0048 -.0038 -.0028 -.0044 | -.0017 -1.2594 2
+zzow2 -gen.imba30 .0015 -.0044 .0006 -.0021 -.0025 -.0030 -.0010 | -.0016 -2.0580 2
+zzzl.d gen.lpes14400 .0033 -.0082 .0035 -.0029 -.0072 .0048 -.0039 | -.0015 -0.7526 3
+zzyg.0.a cal:z:gen.simba180 .0018 -.0053 .0024 -.0007 -.0012 -.0037 -.0029 | -.0014 -1.2876 2
+rank correlation of per-column loss between days (7x7):
+      0430  1106  1109  1110  1111  1112  1113
+0430 1.000 .0920 .6200 .0770 .3010 .0780 .1230
+1106 .0920 1.000 .1710 .8000 .6570 .6720 .7170
+1109 .6200 .1710 1.000 .4380 .1860 .2360 .2050
+1110 .0770 .8000 .4380 1.000 .5490 .6530 .7430
+1111 .3010 .6570 .1860 .5490 1.000 .2080 .4220
+1112 .0780 .6720 .2360 .6530 .2080 1.000 .8480
+1113 .1230 .7170 .2050 .7430 .4220 .8480 1.000
+hurting list: zzop.j,zzhi2.l,zzqf3.q.c1,zzqf.q.c1,zzag2.c
+wrote data/reports/r52_pruned.json: 139 of 144 columns
+B [04:54:48] r41c without the columns hurting on every fit day: test days
+ r41c itself, generation B: 1109 .6207 1111 .4727 1113 .6789 0430 .6282
+ pruned 1109 similarity .6234 | fwd rank +.1057 .1201 +.880 +12.0 .83 | bp +5.8821 15.0834 +.390 +5.3 .77
+ pruned 1111 similarity .4746 | fwd rank +.0931 .1280 +.727 +11.3 .78 | bp +4.6692 10.6099 +.440 +6.8 .73
+ pruned 1113 similarity .6867 | fwd rank +.0710 .1781 +.399 +6.2 .65 | bp +2.5774 25.8799 +.100 +1.5 .64
+ pruned 0430 similarity .6288 | fwd rank +.1229 .0778 +1.581 +24.5 .93 | bp +15.3735 131.2843 +.117 +1.8 .89
+C [04:59:08] open + stateful columns scanned on 1110 + 1112 (even sids), generation B
+ scan-state: 45 columns of 13 stateful stems
+ IC: start 0.6461 -> end 0.7405 (t 248.88, 435 marks); 168 of 209 columns assigned -> stage6_r52c/ic_assign.json
+ assign_diff stage6_r41c_gate (144) vs stage6_r52c (168): 28 of 168 differ ('-' = not assigned); 24 newly assigned, 0 dropped
+  zzaa.b - | cal:z:gen.sd_lp_ui9 ; zzag.a - | crank:gen.rpe120 ; zzal.b - | dm:-gen.sd_eg_rngw ; zzbo.a - | cal:rank:-gen.sd_lp_pkop ; zzbs2.b - | cal:dm:gen.lmie10800 ; zzbt2.h - | gen.ldl900 ; zzcb - | |gen.ldl300|*1e4 ; zzeg - | gen.rpe120 ; zzel.b - | cal:ced.lr.buy300.ZZAL.db@-1 ; zzhj - | crank:gen.lpe120 ; zzjx2.a - | cal:neu:gen.sd_lp_xo0 ; zzjx3.b - | dm:-gen.sd_eg_px_hi ; zzop.i - | |gen.ldl1800|*1e4 ; zzpe.e - | rank:-gen.sd_lp_pkop ; zzpk dmi:-gen.sd_eg_rng | |gen.sd_lp_pkop| ; zzpp.a - | |gen.lee3600_7200|*1e4 ; zzqf.q.a - | |gen.rng900| ; zzsa.a - | crank:-gen.ldh30 ; zzsa2.a - | crank:-gen.ldh30 ; zzsf.d - | dm:gen.sd_eg_px_hi ; zzts - | srank:-gen.sd_eg_hi_px ; zzvx.a zzvx.trOEmaD / px | |gen.sd_eg_px_hi| ; zzwa.a - | rank:gen.microprice_minus_mid_rel ; zzwa.c - | |gen.sd_lp_pklo| ; zzxu.a zzxu.a / zzxu.low | |gen.sd_lp_xo0| ; zzxu.b (px - zzxu.a) / zzxu.last | gen.sd_eg_hi_px ; zzzl2.c - | dm:-gen.sd_eg_px_ema ; zzzl2.g - | crank:gen.rpe120
+ [05:43:33] gate on 1113 (odd sids) against r41c: 16 of 27 changes kept (t >= 1.0)
+ (feature old new gain t kept)
+  zzvx.a zzvx.trOEmaD/px -> |gen.sd_eg_px_hi| .0022 14.4489 true
+  zzag.a null -> crank:gen.rpe120 .0059 13.0788 true
+  zzqf.q.a null -> |gen.rng900| .0027 10.8067 true
+  zzzl2.g null -> crank:gen.rpe120 .0095 10.3843 true
+  zzbs2.b null -> cal:dm:gen.lmie10800 .0020 9.9916 true
+  zzhj null -> crank:gen.lpe120 .0047 9.4453 true
+  zzbt2.h null -> gen.ldl900 .0027 7.4027 true
+  zzcb null -> |gen.ldl300|*1e4 .0054 7.0576 true
+  zzxu.b (px - zzxu.a)/zzxu.last -> gen.sd_eg_hi_px .0035 6.5590 true
+  zzxu.a zzxu.a/zzxu.low -> |gen.sd_lp_xo0| .0001 4.7449 true
+  zzwa.a null -> rank:gen.microprice_minus_mid_rel .0014 4.5119 true
+  zzeg null -> gen.rpe120 .0048 3.1435 true
+  zzop.i null -> |gen.ldl1800|*1e4 .0008 2.4379 true
+  zzsa2.a null -> crank:-gen.ldh30 .0013 2.2673 true
+  zzjx2.a null -> cal:neu:gen.sd_lp_xo0 .0004 1.9973 true
+  zzpk dmi:-gen.sd_eg_rng -> |gen.sd_lp_pkop| .0007 1.2188 true
+  zzal.b null -> dm:-gen.sd_eg_rngw -.0000 -.2453 false
+  zzwa.c null -> |gen.sd_lp_pklo| -.0001 -.4821 false
+  zzaa.b null -> cal:z:gen.sd_lp_ui9 -.0008 -1.3422 false
+  zzsa.a null -> crank:-gen.ldh30 -.0015 -3.1770 false
+  zzts null -> srank:-gen.sd_eg_hi_px -.0009 -5.6919 false
+  zzpe.e null -> rank:-gen.sd_lp_pkop -.0021 -8.6166 false
+  zzbo.a null -> cal:rank:-gen.sd_lp_pkop -.0030 -10.8503 false
+  zzpp.a null -> |gen.lee3600_7200|*1e4 -.0087 -12.6302 false
+  zzzl2.c null -> dm:-gen.sd_eg_px_ema -.0112 -13.7747 false
+  zzjx3.b null -> dm:-gen.sd_eg_px_hi -.0172 -17.4574 false
+  zzsf.d null -> dm:gen.sd_eg_px_hi -.0162 -20.3029 false
+ gated: 156 columns -> data/reports/stage6_r52c_gate/ic_assign_gated.json
+ [05:44:42] judged on days nothing was fitted on (r41c with gen B: 0430 .6282, 1106 .5690, 1109 .6207, 1111 .4727)
+  r52c 0430 similarity .5699 | fwd rank +.1272 .0958 +1.327 +20.6 .90 | bp +15.0938 131.3601 +.115 +1.8 .80
+  r52c 1106 similarity .6269 | fwd rank +.1219 .1554 +.784 +11.9 .72 | bp +9.6198 15.8572 +.607 +9.2 .76
+  r52c 1109 similarity .5964 | fwd rank +.1112 .1666 +.668 +9.1 .77 | bp +5.3195 19.7392 +.269 +3.7 .77
+  r52c 1111 similarity .4572 | fwd rank +.0969 .1796 +.540 +8.4 .73 | bp +3.6594 16.5299 +.221 +3.4 .65
+ and on the days it was fitted / gated on (r41c: 1110 .6470, 1112 .6558, 1113 .6789)
+  r52c 1110 similarity .6934 | fwd rank +.1109 .1674 +.663 +9.3 .78 | bp +6.5193 11.6334 +.560 +7.8 .81
+  r52c 1112 similarity .7126 | fwd rank +.0937 .2135 +.439 +6.8 .62 | bp +5.4383 20.2395 +.269 +4.2 .63
+  r52c 1113 similarity .7191 | fwd rank +.0833 .2052 +.406 +6.3 .63 | bp +4.1873 26.9289 +.155 +2.4 .62
+[05:50:30] done. No error lines.
