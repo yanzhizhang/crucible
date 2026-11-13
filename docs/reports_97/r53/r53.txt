@@ -1,0 +1,32 @@
+# R53 on 97 (r53.sh d805ba10; md5 OK), 2026-11-14 06:01:44 -> 06:17:07 (~16 min), no errors
+[06:01:44] 0 PM state file each day starts from
+ 0430: /data/prod/h/HS300/p1_intrading_dcp/20260429.jz 10135372 2026-08-28T14:33
+ 1106: /data/prod/h/HS300/p1_intrading_dcp/20261105.jz 9965454 2026-11-05T19:51
+ 1109: /data/prod/h/HS300/p1_intrading_dcp/20261106.jz 9938002 2026-11-06T19:55
+ 1110: /work/crucible_data/seed_probe/HS300/20261109.jz 9911883 2026-11-09T19:36
+ 1111: /work/crucible_data/seed_probe/HS300/20261110.jz 9886132 2026-11-10T20:54
+ 1112: /work/crucible_data/seed_probe/HS300/20261111.jz 9906436 2026-11-12T11:07
+ 1113: /work/crucible_data/seed_probe/HS300/20261112.jz 9934080 2026-11-12T20:00
+[06:01:44] 1 chain of gates on r52c_gate: 0430, then 1109, then 1106
+gate 1 (0430) vs r41c_gate: 3 of 16 changes kept (t >= 1.0) (feature old -> new gain t)
+ KEPT: zzsa2.a null -> crank:-gen.ldh30 .0072 17.2209 | zzpk dmi:-gen.sd_eg_rng -> |gen.sd_lp_pkop| .0033 6.1414 | zzeg null -> gen.rpe120 .0016 1.5178
+ DROPPED: zzop.i |gen.ldl1800|*1e4 -.0007 -1.8276 | zzjx2.a cal:neu:gen.sd_lp_xo0 -.0004 -2.7827 | zzvx.a |gen.sd_eg_px_hi| -.0007 -4.8951 | zzcb |gen.ldl300|*1e4 -.0043 -6.5541 | zzwa.a rank:gen.microprice_minus_mid_rel -.0013 -7.2243 | zzxu.b gen.sd_eg_hi_px -.0023 -7.4679 | zzbs2.b cal:dm:gen.lmie10800 -.0010 -8.0248 | zzxu.a |gen.sd_lp_xo0| -.0033 -8.1994 | zzbt2.h gen.ldl900 -.0035 -9.7294 | zzag.a crank:gen.rpe120 -.0028 -10.7077 | zzhj crank:gen.lpe120 -.0046 -13.9457 | zzqf.q.a |gen.rng900| -.0024 -16.2518 | zzzl2.g crank:gen.rpe120 -.0185 -22.1748
+ gated: 146 columns -> stage6_r53_g1/ic_assign_gated.json
+gate 2 (1109): 3 of 3 kept: zzsa2.a .0045 10.5019 | zzeg .0043 3.5023 | zzpk .0011 3.0840 ; gated: 146 -> stage6_r53_g2
+gate 3 (1106): 2 of 3 kept: zzeg .0301 19.3708 true | zzsa2.a .0009 1.5724 true | zzpk -.0014 -2.1324 false ; gated: 146 -> stage6_r53_g3
+assign_diff r41c_gate (144) vs r53_g3 (146): 2 of 146 differ: zzeg - | gen.rpe120 ; zzsa2.a - | crank:-gen.ldh30 ; 2 newly assigned, 0 dropped
+[06:04:59] 2 the survivor on all seven days (r41c gen B: 0430 .6282 1106 .5690 1109 .6207 1110 .6470 1111 .4727 1112 .6558 1113 .6789)
+ surv 1111 similarity .4686 | fwd rank +.0953 .1383 +.689 +10.7 .79 | bp +4.3025 12.8266 +.335 +5.2 .68
+ surv 0430 similarity .6119 | fwd rank +.1211 .0795 +1.522 +23.6 .93 | bp +15.1250 131.2450 +.115 +1.8 .86
+ surv 1109 similarity .6301 | fwd rank +.1028 .1259 +.817 +11.1 .81 | bp +4.7611 16.1826 +.294 +4.0 .81
+ surv 1106 similarity .5956 | fwd rank +.1149 .1186 +.968 +14.7 .81 | bp +8.0868 13.2597 +.610 +9.2 .81
+ surv 1110 similarity .6764 | fwd rank +.1038 .1288 +.806 +11.2 .82 | bp +6.0900 9.8895 +.616 +8.6 .80
+ surv 1112 similarity .6843 | fwd rank +.1004 .1612 +.623 +9.7 .72 | bp +6.5624 16.4017 +.400 +6.2 .68
+ surv 1113 similarity .7029 | fwd rank +.0757 .1736 +.436 +6.8 .65 | bp +2.2306 25.8705 +.086 +1.3 .63
+[06:12:44] 3 survivor without the 5 columns hurting on every fit day (R52 A)
+ dropped ['zzop.j', 'zzhi2.l', 'zzqf3.q.c1', 'zzqf.q.c1', 'zzag2.c']; 141 of 146 columns -> data/reports/r53_surv_pruned.json
+ survp 1111 similarity .4699 | fwd rank +.0951 .1411 +.674 +10.4 .80 | bp +4.2627 13.2753 +.321 +5.0 .70
+ survp 0430 similarity .6126 | fwd rank +.1213 .0800 +1.517 +23.5 .93 | bp +15.1856 131.3272 +.116 +1.8 .86
+ survp 1109 similarity .6323 | fwd rank +.1038 .1306 +.795 +10.8 .79 | bp +4.8752 16.8582 +.289 +3.9 .78
+ survp 1113 similarity .7091 | fwd rank +.0756 .1777 +.425 +6.6 .65 | bp +2.3532 26.2667 +.090 +1.4 .64
+[06:17:07] done
