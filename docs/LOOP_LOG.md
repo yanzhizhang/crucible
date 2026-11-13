@@ -438,7 +438,7 @@
 - 00:42-00:57 R43 on 97 (first try failed: 2nd terminal had no conda env). vs fwd 5-min return, rank IC: 0430 PM .137 / ours r27both .088 r34g .122 r41c .123; 1113 PM .071 / ours .057 .074 .078. docs/reports_97/r43/r43.txt.
 
 ## 2026-11-14 night batch (user: "any tasks you can set for tonight run")
-- 02:18-02:59 R44 on 97 (r44.sh 455f9f88): forward-return metrics on 1106/1109/1110/1111/1112 + r41c column check on 1113 with the 1112 seed. docs/reports_97/r44/r44.txt. r41c rank IC vs fwd beats r27both on 1106-1112 except 1106/1109 (close); PM's own fwd rank IC .103/.110/.142/.048/.070.
+- 02:18-02:59 R44 on 97 (r44.sh 455f9f88): forward-return metrics on 1106/1109/1110/1111/1112 + r41c column check on 1113 with the 1112 seed. docs/reports_97/r44/r44.txt. fwd rank IC (r27both / r41c / PM): 1106 .111/.105/.103, 1109 .102/.088/.110, 1110 .099/.094/.142, 1111 .086/.082/.048, 1112 .057/.106/.070; r41c has the highest IR every day (lower std).
 - 03:02 R45 (r45.sh bf9cdf00, pool_probe 7f48b69a): s1..s4 rows 1 : .956 : .846 : .831 -> not stock pools. docs/reports_97/r45/r45.txt.
 - 03:03 R46 (prod23_pools.sh a5a8d92d, read-only on 2.23): only HS300 pool dirs; mp/ has 20260430, 20261111, 20261112 (same zstd+msgpack layout as 97's). docs/reports_97/prod23/pools_1114.txt.
 - 03:03 R47 started (r47.sh 64811eb7, col_fwd 21b2dbe5); pasted five files by one heredoc paste in the terminal (md5 all OK) -- much faster than the editor route.
