@@ -1,0 +1,282 @@
+# R44 on 97 (r44.sh 455f9f88; md5 OK), 2026-11-14 02:18:43 -> 02:59:42; transcribed from data/reports/r44.txt
+R44 step 1, full (from r44.txt; table borders dropped)
+[02:18:43] 1 r41c column by column: 0430 against 1113 (seed 1112.jz)
+0430: 144 columns, 1113: 144; in both 144; only 0430: []; formula differs: []
+== columns by class (|t| >= 2.0; ic = summed IC lost without each column)  shape (7,4)
+cls columns ic_0430 ic_1113
+both 56 0.2144 0.4460
+helps_0430_hurts_1113 41 0.1568 -0.3730
+only_1113 17 0.0020 0.0649
+hurts_1113 14 0.0016 -0.1053
+only_0430 8 0.0185 0.0013
+hurts_0430_helps_1113 4 -0.0018 0.0091
+neither 4 0.0000 0.0003
+== by kind of formula  shape (10,6): kind columns ic_0430 ic_1113 hurt_1113 both
+plain 69 0.1701 -0.0577 30 22
+srank 11 0.0425 -0.0177 4 6
+rank 13 0.0558 -0.0130 3 8
+seed 2 0.0010 0.0006 0 1
+dmi 4 0.0014 0.0047 0 3
+state 4 0.0483 0.0205 1 1
+crank 11 0.0094 0.0206 3 4
+neu 3 0.0066 0.0209 1 2
+dm 16 0.0287 0.0278 7 4
+z 11 0.0276 0.0367 6 5
+== by kind x class (10,8): kind neither only_0430 both hurts_1113 only_1113 helps_0430_hurts_1113 hurts_0430_helps_1113
+crank 0 1 4 1 3 2 0
+dm 1 1 4 2 1 5 2
+dmi 0 0 3 0 1 0 0
+neu 0 0 2 0 0 1 0
+plain 3 3 22 7 9 23 2
+rank 0 0 8 1 2 2 0
+seed 0 1 1 0 0 0 0
+srank 0 1 6 0 0 4 0
+state 0 1 1 0 1 1 0
+z 0 0 5 3 0 3 0
+== columns that hurt on 1113 (t <= -2.0), worst first  shape (55,7): feature formula kind loss_a t_a loss_b t_b
+zzag2.e cal:|gen.flow_ord_imb300|*1e4 plain 0.0242 20.3123 -0.0371 -17.4567
+zzaa.a cal:-gen.nam15 plain 0.0031 4.9106 -0.0366 -18.2049
+zzfb.b rank:-gen.lpe50 rank 0.0026 7.2266 -0.0365 -33.5266
+zzag2.c rank:gen.flow_ord_imb60 rank -0.0000 -0.0431 -0.0314 -29.7503
+zzeg2 cal:|gen.rpe20| plain 0.0114 14.0932 -0.0277 -26.9188
+zzzs.a dm:-gen.flow_refill_imb60 dm 0.0042 5.0196 -0.0277 -18.4064
+zzqf5.q.c4 gen.lpes14400 plain -0.0001 -0.3231 -0.0223 -15.6572
+zzie3.c cal:gen.imbn10 plain 0.0004 2.7555 -0.0212 -25.5760
+zzwj.a gen.flow_refill_imb60 plain 0.0004 0.7706 -0.0184 -29.0192
+zzeu2 srank:-gen.rete75 srank 0.0233 16.9917 -0.0178 -21.8234
+zzxc.b crank:gen.best_level_order_count_imbalance crank 0.0031 8.4978 -0.0148 -23.5652
+zzyj3.c cal:srank:-gen.best_level_order_count_imbalance srank 0.0004 2.8899 -0.0125 -24.0118
+zzzl2.b -gen.lpes2400 plain 0.0063 9.0727 -0.0125 -19.3397
+zzqo.d crank:gen.lpe50 crank 0.0003 4.3319 -0.0120 -46.6892
+zzzl2.f gen.lpes28800 plain 0.0006 1.7794 -0.0119 -20.2857
+zzoe cal:dm:gen.lpev3600 dm 0.0010 4.3926 -0.0114 -34.3462
+zzef2 cal:gen.lmie5*1e4 plain 0.0086 12.5755 -0.0113 -10.3766
+zzhi2.i cal:gen.ofi_levels1to5_norm_10s plain 0.0103 14.4985 -0.0100 -26.1827
+zzpe.a -gen.simba10 plain 0.0003 0.9713 -0.0098 -12.1994
+zzja |gen.log_new_order_count_per_s_60s|*1e4 plain 0.0014 2.8209 -0.0091 -10.1735
+zzpp2.d z:-gen.zr60 z 0.0016 7.8047 -0.0072 -23.9357
+zzyg.0.a cal:z:gen.simba180 z 0.0018 6.2195 -0.0071 -14.8083
+zzfq.b gen.simbn45 plain 0.0002 2.0865 -0.0064 -14.8254
+zzhi2.b gen.log_channel_sequence_advance_per_s_900s plain 0.0192 21.4754 -0.0062 -17.0383
+zzop2.b gen.trading_seconds_since_0930 plain 0.0029 4.8873 -0.0057 -9.7257
+zzfe cal:gen.imbn90 plain 0.0011 3.4603 -0.0055 -9.7398
+zzpp.e rank:-gen.rete50 rank 0.0005 6.8271 -0.0038 -7.5612
+zzfq.e dm:-gen.imb5 dm 0.0005 3.0646 -0.0036 -17.7695
+zzow2 -gen.imba30 plain 0.0015 4.3718 -0.0035 -6.3704
+zzqf.q.c2 -gen.lpes2400 plain 0.0004 3.4488 -0.0033 -15.0827
+zzlf crank:-gen.microprice_minus_mid_rel crank 0.0002 1.6121 -0.0029 -39.5832
+zzho cal:gen.position_in_limit_band plain 0.0000 0.7916 -0.0027 -6.8728
+zzqo.f srank:-gen.rpe10 srank 0.0021 6.8486 -0.0026 -11.3510
+zzal.d gen.imbv30 plain 0.0040 6.4908 -0.0026 -2.9525
+zzzl2.d gen.lpes600 plain 0.0003 3.0019 -0.0026 -9.1653
+zzht dm:gen.simba10 dm 0.0015 7.7402 -0.0025 -25.4703
+zzpe.c cal:srank:gen.imb1 srank 0.0037 12.2978 -0.0023 -6.6944
+zzhi2.l -gen.marketable_order_amount_share_60s plain -0.0003 -2.8678 -0.0019 -14.5819
+zzwa.g z:gen.lpe50 z 0.0008 2.9054 -0.0018 -10.4463
+zzqf8.q.c1 gen.overnight_gap_log plain 0.0001 2.0939 -0.0013 -5.7605
+zzro.e cal:dm:-gen.rete30 dm 0.0003 3.4199 -0.0013 -17.3066
+zzbo.c gen.imba600 plain 0.0003 2.9385 -0.0013 -8.9592
+zzqo.b gen.imba10 plain 0.0001 0.8732 -0.0012 -6.2241
+zzie4.c dm:-gen.simbv120 dm 0.0000 0.0003 -0.0011 -18.1643
+zzhi.h -gen.flow_ord_imb300 plain 0.0007 6.4319 -0.0010 -6.1339
+zzal.h z:gen.lpe200 z 0.0000 1.1839 -0.0010 -4.8317
+zzzl.d gen.lpes14400 plain 0.0033 8.1505 -0.0007 -2.9749
+zzpz.b neu:gen.vfrac10 neu 0.0015 5.7490 -0.0007 -3.2069
+zzhi2.h gen.net_buy_amount_share_orders_over_200k_cny_120s plain 0.0007 3.7475 -0.0006 -13.7079
+zzqf9.c1 cal:gen.lpew1800 plain 0.0006 5.7365 -0.0005 -7.2527
+zzro.a cal:gen.mret1800 plain 0.0003 2.2252 -0.0004 -3.9827
+zzyg.1.a z:gen.simba10 z 0.0000 0.8119 -0.0004 -8.6762
+zzjx3.a dm:gen.rpe5400 dm 0.0003 1.8717 -0.0003 -3.7904
+zzxu.a zzxu.a / zzxu.low state 0.0064 10.1437 -0.0000 -3.5996
+zzqo.c z:-gen.lpek50 z -0.0000 -0.3351 -0.0000 -4.8250
+== columns that help on both, by the smaller t  shape (56,7): feature formula kind loss_a t_a loss_b t_b
+zzro2.a gen.stoch plain 0.0155 19.9113 0.0315 19.2895
+zzup zzup.pf / zzup.ps state 0.0301 24.0654 0.0213 16.2800
+zzhk.d cal:dm:gen.rpma60 dm 0.0156 15.4755 0.0383 29.8740
+zzhi.b |gen.log_channel_sequence_advance_per_s_60s| plain 0.0113 14.3575 0.0031 17.6315
+zzlk dm:-gen.flow_ord_imb60 dm 0.0039 13.0324 0.0034 22.1871
+zzwa.i |gen.microprice_minus_mid_rel| plain 0.0000 NaN 0.0001 12.6783
+zzwa.d rank:gen.lpma60 rank 0.0045 11.1710 0.0084 12.6132
+zzhi2.e rank:gen.ofi_levels1to6_norm_30s rank 0.0065 12.7488 0.0012 11.0379
+zzro2.b neu:gen.ret90 neu 0.0041 10.3087 0.0204 23.6986
+zzwa.e rank:gen.lpe100 rank 0.0021 10.1980 0.0088 35.0039
+zzqf6.q.a |gen.lpes2400| plain 0.0034 9.2455 0.0108 21.3049
+zzxt3 crank:gen.lpe25 crank 0.0033 8.7644 0.0200 22.5036
+zzpz.a -gen.lpev60 plain 0.0082 8.3746 0.0562 26.7031
+zzyg2.0.b srank:gen.microprice_minus_mid_rel srank 0.0051 7.9631 0.0102 9.9938
+zzab cal:neu:-gen.depth_weighted_price_5lvl_minus_mid_rel neu 0.0010 9.0251 0.0012 7.9233
+zzqf.q.c3 z:-gen.rpe5 z 0.0040 7.6193 0.0211 27.8959
+zzdw z:gen.rete150 z 0.0028 7.4353 0.0035 17.1675
+zzrb -gen.zr60 plain 0.0016 7.3525 0.0060 29.7702
+zzqo.e cal:srank:-gen.rpe25 srank 0.0021 7.2899 0.0025 15.2295
+zzvm2 cal:rank:gen.microprice_minus_mid_rel rank 0.0025 9.4089 0.0023 7.2087
+zzpe.d srank:gen.microprice_minus_mid_rel srank 0.0028 6.9553 0.0035 11.3091
+zzwa.j dmi:gen.microprice_minus_mid_rel dmi 0.0007 6.9189 0.0013 20.2624
+zzgh2.b rank:gen.rete150 rank 0.0022 6.7045 0.0055 22.7516
+zzpz.d z:gen.microprice_minus_mid_rel z 0.0028 6.5597 0.0057 30.9587
+zzro.b cal:|gen.ret1800| plain 0.0044 6.4376 0.0021 12.2016
+zzqf2.q.c1 -gen.net_buy_amount_share_orders_under_40k_cny_300s plain 0.0058 12.9805 0.0016 6.1848
+zzal.g gen.imbv10 plain 0.0022 7.1206 0.0011 5.7358
+zzpe.b dm:gen.sd_lp_pklo seed 0.0006 5.6308 0.0006 10.1068
+zzyj.c srank:-gen.best_level_order_count_imbalance srank 0.0003 5.3320 0.0003 9.7189
+zzyj5.b dmi:-gen.best_level_order_count_imbalance dmi 0.0003 5.1834 0.0009 10.4208
+zzwf cal:-gen.ofi_levels2to5_norm_10s plain 0.0022 5.1448 0.0019 6.4038
+zzie2.c cal:crank:gen.imb1 crank 0.0002 5.0709 0.0005 9.2949
+zzwa.h rank:gen.microprice_minus_mid_rel rank 0.0023 5.0573 0.0196 35.0963
+zzri2.f crank:gen.microprice_minus_mid_rel crank 0.0004 4.8213 0.0151 24.8178
+zzjb.b -gen.lee30_14400 plain 0.0018 4.8144 0.0260 13.3764
+zzrg z:-gen.return_open_to_1000_log z 0.0132 18.2958 0.0092 4.8078
+zzpp2.e z:-gen.rete50 z 0.0004 4.3515 0.0146 30.5790
+zzhx.d cal:rank:gen.best_level_order_count_imbalance rank 0.0008 4.3071 0.0026 11.0324
+zzyj5.a dmi:-gen.best_level_order_count_imbalance dmi 0.0003 4.1644 0.0004 6.8369
+zzor.a crank:-gen.rete50 crank 0.0006 4.0553 0.0042 28.6095
+zzqf6.q.c1 cal:gen.lpes1800 plain 0.0011 5.3720 0.0014 3.9826
+zzsa2.b cal:-gen.rv60 plain 0.0015 3.9681 0.0005 8.8083
+zzqf4.q.c1 -gen.lpes3600 plain 0.0006 3.7849 0.0063 12.0542
+zzkp gen.order_price_aggressiveness_mean_900s plain 0.0001 3.7033 0.0021 10.8067
+zzag2.a |gen.flow_ord_imb60|*1e4 plain 0.0012 3.5840 0.0188 22.7795
+zzal.f dm:-gen.imbn120 dm 0.0002 3.5306 0.0045 15.7900
+zzfb2.a rank:gen.rpe75 rank 0.0317 22.2484 0.0036 3.5230
+zzyj2.c dm:-gen.best_level_order_count_imbalance dm 0.0002 3.3829 0.0010 25.3967
+zzqf5.q.c2 gen.lpes28800 plain 0.0005 3.1529 0.0061 13.8358
+zzeu cal:srank:gen.imb1 srank 0.0019 4.3033 0.0008 3.0576
+zzzl2.e gen.microprice_minus_mid_rel plain 0.0000 2.9896 0.0012 12.7280
+zzal.c -gen.buy300 plain 0.0010 2.8741 0.0029 13.0518
+zzag.c gen.flow_ord_imb60 plain 0.0015 8.4500 0.0008 2.7734
+zzqf7.q.b srank:gen.lmie10 srank 0.0001 2.4713 0.0002 8.4638
+zzbt.a cal:gen.amount_share_orders_over_200k_cny_since_0930 plain 0.0005 2.3960 0.0073 16.0233
+zzqf9.a |gen.amihud_illiq_900s| plain 0.0003 2.3674 0.0030 10.1103
+== rank correlation of the per-column IC loss between the two days: 0.083
+hurt list: zzro.a,zzal.h,zzpe.c,zzho,zzqf9.c1,zzfe,zzef2,zzpe.a,zzyg.0.a,zzag2.e,zzzs.a,zzeu2,zzyj3.c,zzie3.c,zzhi2.i,zzeg2,zzfb.b,zzoe,zzal.d,zzzl.d,zzpz.b,zzxu.a,zzjx3.a,zzqo.c,zzqf8.q.c1,zzhi.h,zzqo.b,zzow2,zzpp.e,zzyg.1.a,zzbo.c,zzzl2.d,zzop2.b,zzja,zzwa.g,zzqo.f,zzhi2.h,zzhi2.l,zzfq.b,zzqf.q.c2,zzqf5.q.c4,zzhi2.b,zzro.e,zzfq.e,zzie4.c,zzaa.a,zzzl2.b,zzzl2.f,zzxc.b,zzpp2.d,zzht,zzwj.a,zzag2.c,
+== 144 assigned columns by tier (gap <= 0.05; gain = share of the model's total split gain)  shape (5,4): tier columns gain sum_ic_loss
+idle 68 0.2805 -0.4767
+shape 22 0.1230 0.1137
+nocdf 26 0.1113 0.1659
+proxy 16 0.1045 0.1444
+units 12 0.0606 0.0959
+
+R44 step 2 (format per line: mean / std / IR / t / >0)
+[02:18:44] 2 forward-return metrics on: 20261106 20261109 20261110 20261111 20261112
+[02:18:44] 20261106 forward returns (no target), seed dir /data/prod/h/HS300/p1_intrading_dcp
+20261106: seed state from 20261105.jz for 300 stocks
+IC: start 0.1074 -> end 0.1074 (t 15.39, 240 marks); 144 of 209 columns assigned -> data/reports/stage6_r44_1106_fwd/ic_assign.json
+== 1106 r27both: 230 marks, 292 stocks a mark, 67,375 rows (forward return = 5-minute log mid return)
+ ours vs fwd IC       +0.0999 0.1680 +0.594 +9.0 0.71
+ ours vs fwd rank IC  +0.1113 0.1586 +0.702 +10.6 0.74
+ PM's vs fwd IC       +0.1063 0.1519 +0.700 +10.6 0.77
+ PM's vs fwd rank IC  +0.1027 0.1330 +0.772 +11.7 0.79
+ ours vs PM IC        +0.6485 0.0694 +9.347 +141.7 1.00
+ ours vs PM rank IC   +0.7084 0.0548 +12.924 +196.0 1.00
+ ours top-bottom bp   +8.2928 21.9715 +0.377 +5.7 0.72
+ PM's top-bottom bp   +8.1309 19.4860 +0.417 +6.3 0.74
+== 1106 r34g (same rows)
+ ours vs fwd IC       +0.0990 0.1219 +0.812 +12.3 0.80
+ ours vs fwd rank IC  +0.1144 0.1109 +1.032 +15.6 0.85
+ PM's lines identical to r27both
+ ours vs PM IC        +0.4994 0.0695 +7.182 +108.9 1.00
+ ours vs PM rank IC   +0.5292 0.0658 +8.044 +122.0 1.00
+ ours top-bottom bp   +8.1353 15.2690 +0.533 +8.1 0.77
+== 1106 r41c (same rows)
+ ours vs fwd IC       +0.0909 0.1102 +0.824 +12.5 0.82
+ ours vs fwd rank IC  +0.1049 0.1094 +0.960 +14.6 0.83
+ ours vs PM IC        +0.4308 0.0916 +4.702 +71.3 1.00
+ ours vs PM rank IC   +0.4513 0.0816 +5.529 +83.9 1.00
+ ours top-bottom bp   +6.7327 11.3082 +0.595 +9.0 0.80
+[02:27:14] 20261109 forward returns (no target), seed dir /data/prod/h/HS300/p1_intrading_dcp
+20261109: seed state from 20261106.jz for 300 stocks
+IC: start 0.0884 -> end 0.0884 (t 16.49, 240 marks); 144 of 209 columns assigned -> .../stage6_r44_1109_fwd/ic_assign.json
+== 1109 r27both: 185 marks, 293 stocks a mark, 54,230 rows
+ ours vs fwd IC       +0.0882 0.1461 +0.603 +8.2 0.77
+ ours vs fwd rank IC  +0.1022 0.1401 +0.730 +9.9 0.76
+ PM's vs fwd IC       +0.0977 0.1746 +0.559 +7.6 0.74
+ PM's vs fwd rank IC  +0.1102 0.1245 +0.885 +12.0 0.85
+ ours vs PM IC        +0.5371 0.1565 +3.432 +46.7 1.00
+ ours vs PM rank IC   +0.5712 0.1445 +3.952 +53.8 1.00
+ ours top-bottom bp   +5.3829 16.3659 +0.329 +4.5 0.76
+ PM's top-bottom bp   +4.3662 21.0534 +0.207 +2.8 0.79
+== 1109 r34g
+ ours vs fwd IC       +0.0799 0.1059 +0.754 +10.3 0.78
+ ours vs fwd rank IC  +0.0912 0.0987 +0.924 +12.6 0.82
+ ours vs PM IC        +0.5128 0.1211 +4.233 +57.6 1.00
+ ours vs PM rank IC   +0.5323 0.1133 +4.696 +63.9 1.00
+ ours top-bottom bp   +4.9235 12.4941 +0.394 +5.4 0.79
+== 1109 r41c
+ ours vs fwd IC       +0.0792 0.0880 +0.900 +12.2 0.81
+ ours vs fwd rank IC  +0.0878 0.0875 +1.003 +13.6 0.83
+ ours vs PM IC        +0.4877 0.1067 +4.573 +62.2 1.00
+ ours vs PM rank IC   +0.4960 0.0922 +5.381 +73.2 1.00
+ ours top-bottom bp   +5.7026 8.7757 +0.650 +8.8 0.82
+[02:35:16] 20261110 forward returns (no target), seed dir /work/crucible_data/seed_probe/HS300
+20261110: seed state from 20261109.jz for 300 stocks
+IC: start 0.0862 -> end 0.0862 (t 16.03, 240 marks); 144 of 209 columns assigned -> .../stage6_r44_1110_fwd/ic_assign.json
+== 1110 r27both: 195 marks, 290 stocks a mark, 56,678 rows
+ ours vs fwd IC       +0.0804 0.1314 +0.612 +8.5 0.77
+ ours vs fwd rank IC  +0.0989 0.1349 +0.733 +10.2 0.80
+ PM's vs fwd IC       +0.1269 0.1538 +0.825 +11.5 0.80
+ PM's vs fwd rank IC  +0.1416 0.1263 +1.121 +15.7 0.89
+ ours vs PM IC        +0.6725 0.0537 +12.524 +174.9 1.00
+ ours vs PM rank IC   +0.7173 0.0392 +18.292 +255.4 1.00
+ ours top-bottom bp   +5.4739 9.6471 +0.567 +7.9 0.76
+ PM's top-bottom bp   +8.3661 13.3559 +0.626 +8.7 0.81
+== 1110 r34g
+ ours vs fwd IC       +0.0833 0.0930 +0.895 +12.5 0.82
+ ours vs fwd rank IC  +0.0947 0.0939 +1.008 +14.1 0.86
+ ours vs PM IC        +0.5549 0.0733 +7.566 +105.7 1.00
+ ours vs PM rank IC   +0.5814 0.0627 +9.271 +129.5 1.00
+ ours top-bottom bp   +4.9924 7.5136 +0.664 +9.3 0.79
+== 1110 r41c
+ ours vs fwd IC       +0.0866 0.0809 +1.071 +15.0 0.85
+ ours vs fwd rank IC  +0.0943 0.0825 +1.143 +16.0 0.86
+ ours vs PM IC        +0.4934 0.0877 +5.627 +78.6 1.00
+ ours vs PM rank IC   +0.5075 0.0711 +7.133 +99.6 1.00
+ ours top-bottom bp   +4.9694 6.3584 +0.782 +10.9 0.81
+[02:43:08] 20261111 forward returns (no target), seed dir /work/crucible_data/seed_probe/HS300
+20261111: seed state from 20261110.jz for 300 stocks
+IC: start 0.0824 -> end 0.0824 (t 17.71, 240 marks); 144 of 209 columns assigned -> .../stage6_r44_1111_fwd/ic_assign.json
+== 1111 r27both: 240 marks, 288 stocks a mark, 69,236 rows
+ ours vs fwd IC       +0.0521 0.1905 +0.273 +4.2 0.68
+ ours vs fwd rank IC  +0.0859 0.1755 +0.490 +7.6 0.72
+ PM's vs fwd IC       +0.0336 0.1544 +0.217 +3.4 0.56
+ PM's vs fwd rank IC  +0.0478 0.1389 +0.344 +5.3 0.62
+ ours vs PM IC        +0.4193 0.1139 +3.682 +57.0 1.00
+ ours vs PM rank IC   +0.4535 0.1261 +3.598 +55.7 1.00
+ ours top-bottom bp   +3.0605 19.4360 +0.157 +2.4 0.68
+ PM's top-bottom bp   +1.2221 14.0981 +0.087 +1.3 0.57
+== 1111 r34g
+ ours vs fwd IC       +0.0472 0.1227 +0.384 +6.0 0.75
+ ours vs fwd rank IC  +0.0751 0.1093 +0.687 +10.6 0.78
+ ours vs PM IC        +0.3837 0.1143 +3.358 +52.0 1.00
+ ours vs PM rank IC   +0.4084 0.1218 +3.355 +52.0 1.00
+ ours top-bottom bp   +2.8538 12.5837 +0.227 +3.5 0.72
+== 1111 r41c
+ ours vs fwd IC       +0.0634 0.0771 +0.822 +12.7 0.81
+ ours vs fwd rank IC  +0.0822 0.0732 +1.123 +17.4 0.89
+ ours vs PM IC        +0.3519 0.1236 +2.847 +44.1 1.00
+ ours vs PM rank IC   +0.3700 0.1248 +2.964 +45.9 1.00
+ ours top-bottom bp   +4.7281 7.1850 +0.658 +10.2 0.82
+[02:51:16] 20261112 forward returns (no target), seed dir /work/crucible_data/seed_probe/HS300
+20261112: seed state from 20261111.jz for 300 stocks
+IC: start 0.1057 -> end 0.1057 (t 19.08, 240 marks); 144 of 209 columns assigned -> .../stage6_r44_1112_fwd/ic_assign.json
+== 1112 r27both: 240 marks, 293 stocks a mark, 70,397 rows
+ ours vs fwd IC       +0.0354 0.2370 +0.149 +2.3 0.55
+ ours vs fwd rank IC  +0.0570 0.2283 +0.250 +3.9 0.58
+ PM's vs fwd IC       +0.0522 0.2214 +0.236 +3.7 0.59
+ PM's vs fwd rank IC  +0.0702 0.1964 +0.357 +5.5 0.68
+ ours vs PM IC        +0.6654 0.0861 +7.730 +119.7 1.00
+ ours vs PM rank IC   +0.7234 0.0684 +10.571 +163.8 1.00
+ ours top-bottom bp   +3.4806 20.6723 +0.168 +2.6 0.55
+ PM's top-bottom bp   +4.4721 19.7149 +0.227 +3.5 0.60
+== 1112 r34g
+ ours vs fwd IC       +0.0766 0.1443 +0.531 +8.2 0.72
+ ours vs fwd rank IC  +0.0917 0.1345 +0.682 +10.6 0.76
+ ours vs PM IC        +0.5305 0.0664 +7.990 +123.8 1.00
+ ours vs PM rank IC   +0.5807 0.0654 +8.880 +137.6 1.00
+ ours top-bottom bp   +6.3252 14.7865 +0.428 +6.6 0.74
+== 1112 r41c
+ ours vs fwd IC       +0.0941 0.0917 +1.027 +15.9 0.85
+ ours vs fwd rank IC  +0.1062 0.0862 +1.232 +19.1 0.90
+ ours vs PM IC        +0.4447 0.0805 +5.525 +85.6 1.00
+ ours vs PM rank IC   +0.4915 0.0758 +6.486 +100.5 1.00
+ ours top-bottom bp   +7.0930 9.0867 +0.781 +12.1 0.86
+(PM's lines are identical across the three tags of a day.)
+Step 3 repeats the rank IC / decile lines of r43 (0430, 1113) and r44 days; no 'skipped' line, no 'errors in' line. [02:59:42] done. Wall time 02:18:43 -> 02:59:42 = 41 min.

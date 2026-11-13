@@ -1,0 +1,1 @@
+R45 transcription: see LOOP_LOG 2026-11-14 and the message sent to crucible (s1..s4 rows ratio 1/.956/.846/.831; 3 identical-block generations 202509-202601, 202601.updated-202608, 202609-202612; per-pair medians s1-s2 59/42/63/45 ...).

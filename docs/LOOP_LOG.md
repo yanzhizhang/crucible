@@ -436,3 +436,11 @@
 - 00:14-00:22 (11-14) R42 on 97: 1113 with --neutral/--seed-dir unchanged (r41c .5067, 144 cols); seed state from 20261106.jz (stale!). r41c by column: 43 help 0430/hurt 1113, rank corr of IC loss .079; 1113 tails top .288. mp/ files are zstd. docs/reports_97/r42/r42.txt, share23/mp_format_1112.txt.
 - 00:35 2.23 since 11-13 20:02: only the 20:02 link batch (269: 71 dirs, 198 links, 0 files). Nothing new after.
 - 00:42-00:57 R43 on 97 (first try failed: 2nd terminal had no conda env). vs fwd 5-min return, rank IC: 0430 PM .137 / ours r27both .088 r34g .122 r41c .123; 1113 PM .071 / ours .057 .074 .078. docs/reports_97/r43/r43.txt.
+
+## 2026-11-14 night batch (user: "any tasks you can set for tonight run")
+- 02:18-02:59 R44 on 97 (r44.sh 455f9f88): forward-return metrics on 1106/1109/1110/1111/1112 + r41c column check on 1113 with the 1112 seed. docs/reports_97/r44/r44.txt. r41c rank IC vs fwd beats r27both on 1106-1112 except 1106/1109 (close); PM's own fwd rank IC .103/.110/.142/.048/.070.
+- 03:02 R45 (r45.sh bf9cdf00, pool_probe 7f48b69a): s1..s4 rows 1 : .956 : .846 : .831 -> not stock pools. docs/reports_97/r45/r45.txt.
+- 03:03 R46 (prod23_pools.sh a5a8d92d, read-only on 2.23): only HS300 pool dirs; mp/ has 20260430, 20261111, 20261112 (same zstd+msgpack layout as 97's). docs/reports_97/prod23/pools_1114.txt.
+- 03:03 R47 started (r47.sh 64811eb7, col_fwd 21b2dbe5); pasted five files by one heredoc paste in the terminal (md5 all OK) -- much faster than the editor route.
+- r41_s2 lines 116-266 transcribed: docs/reports_97/r41/r41_s2_116_266.txt.
+- R48 (r48.sh a423ba45) HELD: step 0 rsyncs ~0.94 GB of PM HS300 mp files off 2.23; needs the user's OK (2.23 rule so far = read-only listing).

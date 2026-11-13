@@ -1,0 +1,1 @@
+R46: see LOOP_LOG 2026-11-14; 2.23 prod/h only HS300; prod/mp 20260430 20261111 20261112; 1112 total 938M; zstd present on 2.23; msgpack fixarray 7/51/10/9 for index/snap/order/trade.
