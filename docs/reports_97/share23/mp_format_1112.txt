@@ -1,0 +1,5 @@
+# 2.23 P/mp/20261112 format check (read-only ssh from 97, 2026-11-14 ~00:16; raw on 97: data/reports/mp23_1112.txt). Nothing copied.
+ls -la: as in new_1113.md (snap/order/index/trade per SH/SZ, mtimes Nov 13 14:46-15:01).
+SH_HS300_snap.mp and SH_HS300_index.mp both start with bytes 28 b5 2f fd = Zstandard frame magic; next byte 00 (frame header
+descriptor), then 58 (window descriptor). The rest is compressed (no readable text). So .mp = zstd-compressed stream, most likely
+msgpack inside given the name; `zstd -dc <file> | head -c 256 | xxd` on 2.23 would show the inner format.
