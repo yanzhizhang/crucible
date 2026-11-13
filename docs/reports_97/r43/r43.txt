@@ -1,0 +1,64 @@
+# R43 on 97 (r43.sh 373496bc, pred_metrics.py 13969a50, ic_score b84e6a92; md5 OK), 2026-11-14 00:42:48 -> 00:57:34; from data/reports/r43.txt.
+# First attempt at 00:42:09 failed: the second VS Code terminal had no conda env ("python: command not found"); rerun after conda activate crucible.
+# No Error / Traceback in the rerun.
+[00:42:48] 20260430 forward returns (no target)
+20260430: seed state from 20260429.jz for 300 stocks
+IC: start 0.1228 -> end 0.1228 (t 24.82, 240 marks); 144 of 209 columns assigned -> data/reports/stage6_r43_0430_fwd/ic_assign.json
+== 0430 r27both: 240 marks, 293 stocks a mark, 70,559 rows (forward return = 5-minute log mid return)
+  ours vs forward return   IC      mean +0.0571  std 0.0858  IR +0.666  t +10.3  >0 0.74
+  ours vs forward return   rank IC mean +0.0876  std 0.0737  IR +1.189  t +18.4  >0 0.89
+  PM's vs forward return   IC      mean +0.1110  std 0.0918  IR +1.209  t +18.7  >0 0.88
+  PM's vs forward return   rank IC mean +0.1370  std 0.0826  IR +1.659  t +25.7  >0 0.93
+  ours vs PM's prediction  IC      mean +0.3241  std 0.0990  IR +3.274  t +50.7  >0 0.99
+  ours vs PM's prediction  rank IC mean +0.3767  std 0.0953  IR +3.954  t +61.3  >0 0.99
+  ours top - bottom decile forward return (bp) mean +5.2912  std 11.2313  IR +0.471  t +7.3  >0 0.75
+  PM's top - bottom decile forward return (bp) mean +8.0507  std 9.8027   IR +0.821  t +12.7 >0 0.87
+== 0430 r34g: 240 marks, 293 stocks a mark, 70,559 rows
+  ours vs forward return   IC      mean +0.0910  std 0.0876  IR +1.039  t +16.1  >0 0.87
+  ours vs forward return   rank IC mean +0.1223  std 0.0847  IR +1.444  t +22.4  >0 0.93
+  PM's vs forward return   IC      mean +0.1110  std 0.0918  IR +1.209  t +18.7  >0 0.88
+  PM's vs forward return   rank IC mean +0.1370  std 0.0826  IR +1.659  t +25.7  >0 0.93
+  ours vs PM's prediction  IC      mean +0.5712  std 0.1111  IR +5.139  t +79.6  >0 1.00
+  ours vs PM's prediction  rank IC mean +0.6080  std 0.1008  IR +6.034  t +93.5  >0 1.00
+  ours top - bottom decile forward return (bp) mean +6.5890  std 10.8876  IR +0.605  t +9.4  >0 0.86
+  PM's top - bottom decile forward return (bp) mean +8.0507  std 9.8027   IR +0.821  t +12.7 >0 0.87
+== 0430 r41c: 240 marks, 293 stocks a mark, 70,559 rows
+  ours vs forward return   IC      mean +0.0928  std 0.0765  IR +1.212  t +18.8  >0 0.89
+  ours vs forward return   rank IC mean +0.1230  std 0.0771  IR +1.595  t +24.7  >0 0.93
+  PM's vs forward return   IC      mean +0.1110  std 0.0918  IR +1.209  t +18.7  >0 0.88
+  PM's vs forward return   rank IC mean +0.1370  std 0.0826  IR +1.659  t +25.7  >0 0.93
+  ours vs PM's prediction  IC      mean +0.6018  std 0.1133  IR +5.310  t +82.3  >0 1.00
+  ours vs PM's prediction  rank IC mean +0.6282  std 0.1046  IR +6.008  t +93.1  >0 1.00
+  ours top - bottom decile forward return (bp) mean +6.7738  std 9.1159  IR +0.743  t +11.5  >0 0.88
+  PM's top - bottom decile forward return (bp) mean +8.0507  std 9.8027  IR +0.821  t +12.7  >0 0.87
+[00:49:19] 20261113 forward returns (no target)
+20261113: seed state from 20261112.jz for 300 stocks
+IC: start 0.0782 -> end 0.0782 (t 13.54, 240 marks); 144 of 209 columns assigned -> data/reports/stage6_r43_1113_fwd/ic_assign.json
+== 1113 r27both: 240 marks, 292 stocks a mark, 70,292 rows (forward return = 5-minute log mid return)
+  ours vs forward return   IC      mean +0.0345  std 0.2425  IR +0.142  t +2.2   >0 0.52
+  ours vs forward return   rank IC mean +0.0565  std 0.2261  IR +0.250  t +3.9   >0 0.54
+  PM's vs forward return   IC      mean +0.0475  std 0.2204  IR +0.216  t +3.3   >0 0.62
+  PM's vs forward return   rank IC mean +0.0705  std 0.1889  IR +0.373  t +5.8   >0 0.63
+  ours vs PM's prediction  IC      mean +0.6759  std 0.0794  IR +8.515  t +131.9 >0 1.00
+  ours vs PM's prediction  rank IC mean +0.7134  std 0.0614  IR +11.625 t +180.1 >0 1.00
+  ours top - bottom decile forward return (bp) mean +2.7665  std 33.6277  IR +0.082  t +1.3  >0 0.52
+  PM's top - bottom decile forward return (bp) mean +2.1509  std 36.0008  IR +0.060  t +0.9  >0 0.61
+== 1113 r34g: 240 marks, 292 stocks a mark, 70,292 rows
+  ours vs forward return   IC      mean +0.0534  std 0.1402  IR +0.381  t +5.9   >0 0.63
+  ours vs forward return   rank IC mean +0.0739  std 0.1323  IR +0.558  t +8.6   >0 0.69
+  PM's vs forward return   IC      mean +0.0475  std 0.2204  IR +0.216  t +3.3   >0 0.62
+  PM's vs forward return   rank IC mean +0.0705  std 0.1889  IR +0.373  t +5.8   >0 0.63
+  ours vs PM's prediction  IC      mean +0.5638  std 0.0634  IR +8.898  t +137.8 >0 1.00
+  ours vs PM's prediction  rank IC mean +0.5944  std 0.0528  IR +11.255 t +174.4 >0 1.00
+  ours top - bottom decile forward return (bp) mean +4.4523  std 21.1239  IR +0.211  t +3.3  >0 0.63
+  PM's top - bottom decile forward return (bp) mean +2.1509  std 36.0008  IR +0.060  t +0.9  >0 0.61
+== 1113 r41c: 240 marks, 292 stocks a mark, 70,292 rows
+  ours vs forward return   IC      mean +0.0582  std 0.0924  IR +0.630  t +9.8   >0 0.73
+  ours vs forward return   rank IC mean +0.0775  std 0.0896  IR +0.865  t +13.4  >0 0.80
+  PM's vs forward return   IC      mean +0.0475  std 0.2204  IR +0.216  t +3.3   >0 0.62
+  PM's vs forward return   rank IC mean +0.0705  std 0.1889  IR +0.373  t +5.8   >0 0.63
+  ours vs PM's prediction  IC      mean +0.4824  std 0.0757  IR +6.376  t +98.8  >0 1.00
+  ours vs PM's prediction  rank IC mean +0.5088  std 0.0605  IR +8.405  t +130.2 >0 1.00
+  ours top - bottom decile forward return (bp) mean +3.8376  std 12.7547  IR +0.301  t +4.7  >0 0.73
+  PM's top - bottom decile forward return (bp) mean +2.1509  std 36.0008  IR +0.060  t +0.9  >0 0.61
+[00:57:34] done

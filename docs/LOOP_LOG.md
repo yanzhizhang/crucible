@@ -435,3 +435,4 @@
 - 23:45 also on 1113: r34g .5944, r37b .5116, r41b .4855. Every 0430-tuned set scores lower on 1113 (224 target) than r27both .7134.
 - 00:14-00:22 (11-14) R42 on 97: 1113 with --neutral/--seed-dir unchanged (r41c .5067, 144 cols); seed state from 20261106.jz (stale!). r41c by column: 43 help 0430/hurt 1113, rank corr of IC loss .079; 1113 tails top .288. mp/ files are zstd. docs/reports_97/r42/r42.txt, share23/mp_format_1112.txt.
 - 00:35 2.23 since 11-13 20:02: only the 20:02 link batch (269: 71 dirs, 198 links, 0 files). Nothing new after.
+- 00:42-00:57 R43 on 97 (first try failed: 2nd terminal had no conda env). vs fwd 5-min return, rank IC: 0430 PM .137 / ours r27both .088 r34g .122 r41c .123; 1113 PM .071 / ours .057 .074 .078. docs/reports_97/r43/r43.txt.
