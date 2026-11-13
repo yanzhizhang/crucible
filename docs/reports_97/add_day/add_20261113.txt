@@ -37,3 +37,9 @@
 # extra (same args as step 4, 224 target, reference only), ~23:38-23:40:
 r40g: IC: start 0.4544 -> end 0.4544 (t 92.00, 240 marks); 139 of 209 columns assigned
 r41c: IC: start 0.5083 -> end 0.5083 (t 129.66, 240 marks); 142 of 209 columns assigned (gated file has 144)
+# more (same args, ~23:41-23:45; data/reports/add_20261113_y.txt):
+r34g: IC: start 0.5944 -> end 0.5944 (t 174.35, 240 marks); 135 of 209 columns assigned
+r37b: IC: start 0.5116 -> end 0.5116 (t 117.36, 240 marks); 141 of 209 columns assigned
+r41b: IC: start 0.4855 -> end 0.4855 (t 113.01, 240 marks); 139 of 209 columns assigned
+# 1113 (224 target) in assignment order: r27both .7134, r34g .5944, r37b .5116, r40g .4544, r41b .4855, r41c .5083
+# (on 0430 / 2.23 target, grid 7: r27both .377 -> r34g .608 -> r37b .628 -> r40g .629 -> r41c .629)
