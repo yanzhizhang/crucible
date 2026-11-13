@@ -445,3 +445,4 @@
 - r41_s2 lines 116-266 transcribed: docs/reports_97/r41/r41_s2_116_266.txt.
 - R48 (r48.sh a423ba45) HELD: step 0 rsyncs ~0.94 GB of PM HS300 mp files off 2.23; needs the user's OK (2.23 rule so far = read-only listing).
 - 03:26 R47 done (23 min, no errors): A 22 hurting cols picked on fit days (same sign on test days .82); B pruned r41c (122 cols) 0430 vs PM .567, fwd rank 0430 .130 / 1109 .099 / 1111 .072 / 1113 .090; C fwd scan on 1106 assigned 20 more (164 cols): vs PM 0430 .537, fwd rank .115/.105/.106/.057/.110/.093 (0430/1109/1110/1111/1112/1113). docs/reports_97/r47/r47.txt. 97 idle; R48 held.
+- 03:50 R49 (r49.sh 41576ae0; first try python not found in terminal 2, rerun with conda): 0430-vs-224-day per-column rank corr -.03..+.19, but 224 days vs each other .64-.88 -> the columns that lower similarity with the 224 signal are the same every 224 day (systematic). 47 columns hurt on >=4 of 6 days. docs/reports_97/r49/r49.txt.

@@ -1,0 +1,30 @@
+R49 (r49.sh 41576ae0, md5 OK; first try failed: python not found in terminal 2, rerun with conda)
+== 1 r41c column by column, 0430 (2.23 target) against each 224 day (its signal)
+-- 0430 against 1106
+ class (cls columns ic_0430 ic_1106): both 52 .1863 .3553 | helps_0430_hurts_1106 43 .1714 -.3749 | only_1106 17 .0024 .0780 | hurts_1106 11 .0011 -.0702 | only_0430 10 .0319 -.0008 | neither 7 .0002 -.0002 | hurts_0430_helps_1106 4 -.0018 .0040
+ kind (kind columns ic_0430 ic_1106 hurt both): plain 69 .1701 -.0700 30 20 | z 11 .0276 -.0015 5 4 | srank 11 .0425 -.0012 4 6 | seed 2 .0010 -.0005 1 0 | dmi 4 .0014 .0039 0 2 | rank 13 .0558 .0042 3 7 | dm 16 .0287 .0095 8 4 | neu 3 .0066 .0133 0 2 | state 4 .0483 .0134 0 2 | crank 11 .0094 .0202 3 5
+ rank correlation of per-column IC loss: -0.028
+-- 0430 against 1109
+ class: both 55 .2106 .2053 | helps_0430_hurts_1109 33 .1163 -.1222 | only_0430 17 .0626 .0037 | only_1109 16 .0018 .0263 | hurts_1109 12 .0010 -.0282 | neither 9 .0003 .0005 | hurts_0430_helps_1109 2 -.0012 .0010
+ kind: rank 13 .0558 -.0047 2 8 | seed 2 .0010 -.0005 1 0 | crank 11 .0094 .0018 3 4 | dmi 4 .0014 .0036 0 3 | srank 11 .0425 .0037 3 7 | z 11 .0276 .0113 5 5 | neu 3 .0066 .0117 0 3 | plain 69 .1701 .0121 25 19 | state 4 .0483 .0224 0 2 | dm 16 .0287 .0250 6 4
+ rank correlation: 0.187
+-- 0430 against 1110
+ class: both 53 .2109 .2879 | helps_0430_hurts_1110 41 .1645 -.2718 | hurts_1110 16 .0016 -.0507 | only_1110 15 .0015 .0473 | only_0430 11 .0142 .0010 | hurts_0430_helps_1110 4 -.0018 .0020
+   ... neither 4 .0006 .0001
+ kind: plain 69 .1701 -.0557 31 18 | rank 13 .0558 -.0021 3 8 | seed 2 .0010 -.0004 1 0 | z 11 .0276 .0031 6 4 | srank 11 .0425 .0038 4 6 | dmi 4 .0014 .0046 0 3 | crank 11 .0094 .0094 3 5 | state 4 .0483 .0137 0 3 | neu 3 .0066 .0142 1 2 | dm 16 .0287 .0251 8 4
+ rank correlation: 0.074
+-- 0430 against 1111
+ class: both 52 .1635 .2791 | helps_0430_hurts_1111 38 .1805 -.2272 | only_0430 15 .0456 .0011 | hurts_1111 15 .0014 -.0344 | only_1111 13 .0019 .0443 | neither 8 .0002 -.0009 | hurts_0430_helps_1111 3 -.0017 .0015
+ kind: state 4 .0483 -.0233 2 0 | plain 69 .1701 -.0211 26 21 | seed 2 .0010 .0004 0 1 | dm 16 .0287 .0016 9 4 | dmi 4 .0014 .0039 0 3 | rank 13 .0558 .0095 5 7 | srank 11 .0425 .0143 3 5 | neu 3 .0066 .0173 0 3 | crank 11 .0094 .0178 3 4 | z 11 .0276 .0432 5 4
+ rank correlation: 0.073
+-- 0430 against 1112
+ class: both 59 .2134 .4349 | helps_0430_hurts_1112 42 .1602 -.4296 | only_1112 17 .0022 .0717 | hurts_1112 12 .0015 -.0839 | neither 6 -.0000 -.0000 | only_0430 4 .0160 .0012 | hurts_0430_helps_1112 4 -.0018 .0074
+ kind: plain 69 .1701 -.1048 30 23 | rank 13 .0558 -.0138 3 8 | srank 11 .0425 -.0117 3 8 | z 11 .0276 -.0036 5 4 | seed 2 .0010 -.0017 2 0 | dmi 4 .0014 .0053 0 3 | neu 3 .0066 .0124 1 2 | crank 11 .0094 .0211 3 5 | dm 16 .0287 .0465 7 4 | state 4 .0483 .0521 0 2
+ rank correlation: 0.078
+== 2 224 days against each other
+-- 1106 against 1110
+ class (ic_1106 ic_1110): both 62 .3961 .3200 | hurts_1110 51 -.4316 -.3153 | neither 10 -.0104 -.0003 | helps_1106_hurts_1110 6 .0123 -.0071 | only_1110 6 -.0005 .0119 | only_1106 5 .0290 .0014 | hurts_1106_helps_1110 4 -.0035 .0053
+ rank correlation: 0.875
+step 2 rank corr (224 days vs each other): 1106-1110 .875, 1110-1113 .858, 1106-1113 .845, 1109-1112 .740, 1111-1112 .643
+step 3 days_hurt (days columns l_0430 mean224): 0 64 .1226 .3218 | 1 12 .0938 .0443 | 2 9 .0056 .0046 | 3 12 .0102 -.0023 | 4 8 .0244 -.0172 | 5 14 .0840 -.1116 | 6 25 .0507 -.2060
+47 columns hurt on >=4 of 6 224 days (25 on all 6); 45 help on >=5 and on 0430. Full tables as sent to crucible ~03:55.
