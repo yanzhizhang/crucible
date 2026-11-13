@@ -62,6 +62,7 @@ from same_gap import day_frame  # samplerS cells of one family and day (cached p
 
 MARKS = np.arange(300.0, 13801.0, 300.0)  # 09:35 ... 14:50: the last mark still has 5 minutes of continuous session ahead
 HORIZON = 300.0
+POOLX = re.compile(r"\b(gen|ced)\.")  # an expression over the shared pool, not a stem's own atoms
 STS_MAP: dict[str, str] = {}  # --pm-sts-map: trading day -> the stsfile day 224's PM loaded
 
 
@@ -900,6 +901,7 @@ def main() -> None:
     ap.add_argument("--ced-xr", type=Path, help="read shtcommon's CED files from this directory instead of the crucible store")
     ap.add_argument("--sid-mod", default="", help="n:k = score the IC only over stocks with sid %% n == k; features still use every stock (a stock split for out-of-sample checks)")
     ap.add_argument("--neutral", action="store_true", help="also neu:<base>: each tick base's residual on that day's Barra industry + style exposures, per mark")
+    ap.add_argument("--state-pool", action="store_true", help="a stateful stem's columns also try the shared pool (gen.* / ced.*), not only its own atoms")
     ap.add_argument("--xs", action=argparse.BooleanOptionalAction, default=True,
                     help="also each stateless candidate cross-sectionally z-scored / ranked within its mark")
     ap.add_argument("--max-worsen", type=float, default=None,
@@ -938,6 +940,7 @@ def main() -> None:
     ap.add_argument("--scan-include", default="", help="regex: candidates the scan always tries on top of its shortlist")
     ap.add_argument("--scan-feats", default="", help="scan these features (comma-separated) instead of the top --max-features")
     ap.add_argument("--scan-match", default="", help="also scan every feature whose name matches this regex")
+    ap.add_argument("--scan-state", action="store_true", help="also scan every column whose stem is stateful")
     ap.add_argument("--calibrate", action=argparse.BooleanOptionalAction, default=False,
                     help="scan: also every shortlisted candidate quantile-mapped onto PM's training CDF (cal:<expr>)")
     ap.add_argument("--scale-report", default="", help="regex: print PM's training CDF vs our values for matching assigned columns")
@@ -1318,7 +1321,7 @@ def main() -> None:
                 out[rows] = calibrate(raw[rows], gen_cdf[k].get(feature))
             return out
         stem = feature.split(".")[0]
-        if stem not in state_stems:
+        if stem not in state_stems or POOLX.search(expr):  # a pool candidate in a stateful column (--state-pool)
             x = pool_col(expr)
             return x if x is not None else np.full(sid_a.size, np.nan)
         v = np.full(sid_a.size, np.nan)
@@ -1486,6 +1489,10 @@ def main() -> None:
         base_f = feats if args.scan_feats else []  # without --scan-feats, feats is still the top --max-features list here
         feats = base_f + [f for f in names if f in col and re.search(args.scan_match, f) and f not in base_f]
         print(f"scan: {feats}")
+    if args.scan_state:  # every column of a stateful stem, by gain (with --state-pool: the shared pool in the columns the state rules own)
+        feats += [f for f in fp.sort("gain_share", descending=True)["feature"].to_list()
+                  if f in col and f.split(".")[0] in state_stems and f not in feats]
+        print(f"scan-state: {len(feats)} columns of {len(state_stems)} stateful stems")
     feats += [f for f in relock if f not in feats]  # --family-lock drops are always rescanned
     frozen: set[str] = set()
     if args.freeze_strong and ev0 is not None:  # a formula graded strong last time and still assigned is settled: not scanned again
@@ -1528,6 +1535,12 @@ def main() -> None:
             if id(cand_all) not in sorted_pools:
                 sorted_pools[id(cand_all)] = {k: np.sort(v) for k, v in cand_all.items()}
             cs = sorted_pools[id(cand_all)]
+            if args.state_pool and stem in state_stems:  # own atoms first, the shared pool beside them (each sorted once)
+                shared = pool_samples()
+                if id(shared) not in sorted_pools:
+                    sorted_pools[id(shared)] = {k: np.sort(v) for k, v in shared.items()}
+                cs = {**sorted_pools[id(shared)], **cs}
+                cand_all = {**shared, **cand_all}
             if feat not in ranked_cache:
                 ranked_cache[feat] = fast_rank(feat, cs)
             ranked = ranked_cache[feat]
@@ -1655,11 +1668,23 @@ def main() -> None:
         v = keep_col[np.isfinite(keep_col)]
         gap = FM.cdf_gap(v, cdf[feat]) if feat in cdf and v.size else np.nan
         e_ = expr.removeprefix(CAL)
+        raw_gap = shape_gap = np.nan  # before cal: (units as built), and after the best affine map onto PM's points (shape only)
+        if feat in cdf and v.size >= 100:
+            rv = column(feat, e_) if expr.startswith(CAL) else keep_col
+            rv = rv[np.isfinite(rv)]
+            if rv.size >= 100:
+                raw_gap = FM.cdf_gap(rv, cdf[feat])
+                tp_, pp_ = FM.interior(cdf[feat])
+                qo_ = np.quantile(rv, pp_)
+                if np.ptp(qo_) > 0:
+                    a_, b_ = np.polyfit(qo_, tp_, 1)
+                    shape_gap = FM.cdf_gap(a_ * rv + b_, cdf[feat])
         src = ("state" if feat.split(".")[0] in state_stems else "xs" if e_.startswith(XS)
                else e_.lstrip("-|").split(".")[0]) + (" cal" if expr.startswith(CAL) else "")
         grade = ("strong" if gap <= 0.02 and t_loss >= 2 else "fits" if gap <= args.accept_cdf else "weak") if np.isfinite(gap) \
             else ("ic" if t_loss >= 2 else "weak")
-        evid.append({"feature": feat, "formula": expr, "source": src, "cdf_gap": gap, "ic_loss": loss, "t_loss": t_loss, "grade": grade})
+        evid.append({"feature": feat, "formula": expr, "source": src, "cdf_gap": gap, "ic_loss": loss, "t_loss": t_loss, "grade": grade,
+                     "raw_gap": raw_gap, "shape_gap": shape_gap})
     args.out.mkdir(parents=True, exist_ok=True)
     (args.out / "ic_assign.json").write_text(json.dumps(assign, indent=1))
     if args.dump_pred:  # per row: our prediction with the final assignment and PM's, for residual breakdowns
