@@ -434,3 +434,4 @@
 - 23:37 add_day 20261113 done (add_day.sh re-pasted 40277011): r17 .6969 r27both .7134 r24 .6899 r24g .6634; engine = PM 1113.jz (zzui/zzxo r.* .9995/.9989). Extra on 1113 (224 target): r40g .4544, r41c .5083. docs/reports_97/add_day/add_20261113.txt.
 - 23:45 also on 1113: r34g .5944, r37b .5116, r41b .4855. Every 0430-tuned set scores lower on 1113 (224 target) than r27both .7134.
 - 00:14-00:22 (11-14) R42 on 97: 1113 with --neutral/--seed-dir unchanged (r41c .5067, 144 cols); seed state from 20261106.jz (stale!). r41c by column: 43 help 0430/hurt 1113, rank corr of IC loss .079; 1113 tails top .288. mp/ files are zstd. docs/reports_97/r42/r42.txt, share23/mp_format_1112.txt.
+- 00:35 2.23 since 11-13 20:02: only the 20:02 link batch (269: 71 dirs, 198 links, 0 files). Nothing new after.
