@@ -297,4 +297,81 @@ zzwa.h   rank:gen.microprice_minus_mid_rel            null                      
 zzxc.b   crank:gen.best_level_order_count_imbalance   null                                    -0.0051  -8.0480   false
 zzhi2.e  rank:gen.ofi_levels1to6_norm_30s             null                                    -0.0067  -12.6381  false
 gated: 139 columns -> data/reports/stage6_r41b_gate/ic_assign_gated.json
-[08:44:35] 2 stateful columns with the shared pool + the top 40 open columns: even sids x grid 0, from data/reports/stage6_r41b_gate/ic_assign_gated[.json]
+[08:44:35] 2 stateful columns with the shared pool + the top 40 open columns: even sids x grid 0, from data/reports/stage6_r41b_gate/ic_assign_gated.json
+scan-state: 44 columns of 13 stateful stems
+IC: start 0.6174 -> end 0.6274 (t 88.01, 240 marks); 149 of 209 columns assigned -> data/reports/stage6_r41c/ic_assign.json
+files: stage6_r41b_gate (139)  stage6_r41c (149)
+12 of 149 columns differ; '-' = not assigned
+zzcb      -                      | rank:-gen.sd_eg_px_low
+zzeu      -                      | cal:srank:gen.imb1
+zzjx2.a   -                      | cal:dm:-gen.sd_eg_px_hiw
+zzop.i    -                      | |gen.order_price_aggressiveness_mean_900s|*1e4
+zzpe.b    -                      | dm:gen.sd_lp_pklo
+zzpe.d    -                      | srank:gen.microprice_minus_mid_rel
+zzpe.e    -                      | gen.sd_eg_rng
+zzpk      -                      | dmi:-gen.sd_eg_rng
+zzqf9.a   |gen.ipc_hs300|        | |gen.amihud_illiq_900s|
+zzri2.f   -                      | crank:gen.microprice_minus_mid_rel
+zzsf.d    -                      | |gen.lp_vwap|
+zzxu.a    zzxu.a / zzxu.low      | |gen.sd_eg_rngw|
+stage6_r41c vs stage6_r41b_gate: 10 newly assigned, 0 dropped:
+== gate against data/reports/stage6_r41b_gate/ic_assign_gated.json: 6 of 12 changes kept (t >= 1.0)
+feature  old                 new                                              gain     t        kept_new
+zzpe.d   null                srank:gen.microprice_minus_mid_rel               0.0040   7.7041   true
+zzpk     null                dmi:-gen.sd_eg_rng                               0.0009   6.7853   true
+zzpe.b   null                dm:gen.sd_lp_pklo                                0.0006   4.3140   true
+zzeu     null                cal:srank:gen.imb1                               0.0021   3.5576   true
+zzri2.f  null                crank:gen.microprice_minus_mid_rel               0.0003   2.6973   true
+zzqf9.a  |gen.ipc_hs300|     |gen.amihud_illiq_900s|                          0.0003   1.2693   true
+zzpe.e   null                gen.sd_eg_rng                                    0.0000   0.1921   false
+zzjx2.a  null                cal:dm:-gen.sd_eg_px_hiw                         -0.0000  -0.0492   false
+zzxu.a   zzxu.a / zzxu.low   |gen.sd_eg_rngw|                                 -0.0001  -0.2771   false
+zzop.i   null                |gen.order_price_aggressiveness_mean_900s|*1e4   -0.0001  -0.3731   false
+zzcb     null                rank:-gen.sd_eg_px_low                           -0.0004  -1.1989   false
+zzsf.d   null                |gen.lp_vwap|                                    -0.0007  -1.6146   false
+gated: 144 columns -> data/reports/stage6_r41c_gate/ic_assign_gated.json
+[09:07:07] 3 grid 7, both halves
+stocks    r40g    r41b    r41c
+sid%2:1   0.6287  0.6217  0.6288
+sid%2:0   0.6209  0.6174  0.6239
+[09:13:34] 4 audit data/reports/stage6_r41c_gate/ic_assign_gated.json: all stocks, grid 7
+== 144 assigned columns by tier (gap <= 0.05; gain = share of the model's total split gain)
+tier   columns  gain    sum_ic_loss
+shape  29       0.1835  0.1334
+idle   40       0.1699  0.0018
+nocdf  31       0.1460  0.0676
+units  25       0.1252  0.1227
+proxy  19       0.0552  0.0659
+open: 65 columns, gain 0.3201; assigned gain 0.6799
+== tails over 240 marks, decile = 10% (random: overlap 0.10, our rank 0.50)
+  PM's top decile:    0.449 of it is in our top decile; our mean rank of its stocks 0.798
+  PM's bottom decile: 0.424 of it is in our bottom decile; our mean rank of its stocks 0.208
+  same side of the median: 0.730
+-> data/reports/r41_audit2.json
+[09:14:39] 5 implied: what PM's model wants in the open columns (report only)
+IC: start 0.6291 -> end 0.6291 (t 88.49, 240 marks); 144 of 209 columns assigned -> data/reports/stage6_r41_implied/ic_assign.json
+time ablation 5s
+== implied values (30,000 rows, PM pred mapped as 1.675 x + 2.06e-03; 4318 plain candidates, 3853 distinct, 1494 distinct by rank)
+(numpy RuntimeWarning: invalid value encountered in divide, _function_base_impl.py:3036 / 3037, c /= stddev)
+  residual (PM beyond ours, per-mark ranks) closest: gen.net_buy_amount_share_orders_under_40k_cny_120s +0.09, gen.simbn20 +0.08, gen.imba90 +0.08, gen.imbv90 +0.08, gen.imba120 +0.08, gen.imbv120 +0.08
+  residual (ours beyond PM, per-mark ranks) closest: gen.microprice_minus_mid_rel +0.41, gen.imb1 +0.39, gen.rete75 -0.32, gen.lpe75 -0.32, gen.rpe75 -0.32, gen.rete90 -0.32
+  agreement on these rows 0.628; carrier probe: the top 6 residual groups (18 candidates) tried in each open column, against constants (below / inside / above its split points, missing)
+  zzro2.a response mixed (+0.06); split together with zzwj.a 40, zzeg 37, zzbt2.h 34, zzpp.e 31; implied vs current formula +0.07
+  zzro2.a (now gen.stoch): informative 0.24; implied p10/p50/p90 -0.004041/0.001781/0.0041; variance explained by stock-day 0.07, by mark 0.05; closest: gen.microprice_minus_mid_rel -0.25, gen.imb1 -0.22
+  zzro2.a level match (0.08 bounded): gen.lee120_1800 0.10/+0.03, -gen.lmie45 0.06/+0.02, |gen.lpma900| 0.11/+0.02, |gen.lpe450| 0.12/+0.02
+  zzro2.a carrier: const hi -0.0008; gen.net_buy_amount_share_orders_under_40k_cny_120s -0.0260 (-0.0252), ...*1e4 -0.0268 (-0.0259), gen.simbn20*1e4 -0.0309 (-0.0301)
+  zzro2.c response up (+0.74); split together with zzqf6.q.c1 53, zzal.d 41, zzqf.q.c1 40, zzeg 36; implied vs current formula -0.17
+  zzro2.c (now dm:-gen.ret120): informative 0.32; implied p10/p50/p90 -0.004491/0.006358/0.01017; closest: gen.microprice_minus_mid_rel -0.25, gen.imb1 -0.24
+  zzro2.c level match (0.14 bounded): gen.ret450 0.08/+0.02, gen.ret300 0.07/+0.02, gen.ret1800 0.10/+0.02, gen.pret180 0.06/+0.01
+  zzro2.c carrier: const mid +0.0001; gen.net_buy_amount_share_orders_under_40k_cny_120s -0.0289 (-0.0289), ...*1e4 -0.0308 (-0.0309), gen.simbn20*1e4 -0.0337 (-0.0337)
+  zzgh2.b response hump (-0.38); split together with zzxu.a 28, zzab2 21, zzop.j 21, zzpe.c 20; implied vs current formula -0.04
+  zzgh2.b (now rank:gen.rete150): informative 0.19; implied p10/p50/p90 136.5/729.5/1263; closest: gen.imb1 -0.28, gen.microprice_minus_mid_rel -0.28, gen.imbv15 +0.26
+  zzgh.b response hump (-0.15); split together with zzxu.a 23, zzal.d 18, zzeg 15, zzjx3.b 15; implied vs current formula +nan
+  zzgh.b (now -): informative 0.08; implied p10/p50/p90 16.75/140/784; variance explained by stock-day 0.16, by mark 0.10; closest: gen.lpev60 -0.27, gen.zpe60 -0.27, gen.lmie60 -0.26
+  zzgh.b level match (0.05 bounded): |gen.net_buy_amount_share_orders_under_40k_cny_1800s|*1e4 0.13/+0.03, |gen.lee60_7200|*1e4 0.12/+0.03, |gen.lmie1800|*1e4 0.11/+0.03
+  zzel.a response down (-0.75); split together with zzop.j 73, zzcb 63, zzpe.a 61; implied vs current formula +nan
+  zzel.a (now -): informative 0.27; implied p10/p50/p90 0.0002115/0.00138/0.003373; closest: gen.rete25 -0.20, gen.rpe25 -0.20, gen.lpe25 -0.20, gen.rpe20 -0.20
+  zzel.a level match (0.17 bounded): -gen.lmie1800 0.08/+0.02, |gen.pret30| 0.11/+0.01, -gen.lppe10800 0.06/+0.01, |gen.lmie2400| 0.11/+0.01
+  (step 5 lines above abridged: response tuples and some closest lists cut; step 5 continues per open column, ~150 more lines, not transcribed -- read data/reports/r41_s2.txt on 97 lines 116-266)
+[09:21:33] done
+(no "errors in" lines; no Error / Traceback in r41.txt)

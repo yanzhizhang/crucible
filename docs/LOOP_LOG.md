@@ -429,3 +429,4 @@
 - 08:33 R41 step 0 done (r40g audit: idle 49 / shape 24 / units 20 / nocdf 26 / proxy 19; tails top .455 bottom .411); sent to crucible. Step 1 running.
 - 08:44 R41 step 1 done: strict rescan; gate keeps 3/20 (zzpz.b neu:gen.vfrac10, zzpz.a -gen.lpev60, zzja |log_new_order_count_60s|). Step 2 running.
 - ~09:17 Windows App: "session was disconnected because another connection was made to the remote PC" (0x5). Not reconnecting (would kick the other session). R41 step 2 was running in the left VS Code terminal (r41.txt via tee); steps 2-5 not yet read.
+- 19:07 Reconnected to 97 (user OK). R41 finished at 09:21:33, no errors. Step 2: 6 of 12 kept, 144 cols; step 3 r41c .6288 / .6239 (odd / even) vs r40g .6287 / .6209; step 4 open 65 cols gain .320 (was 71 / .382), tails .449 / .424. Transcribed in docs/reports_97/r41/r41.txt.
