@@ -527,3 +527,6 @@ C++ whole-book replay: self-test 0 off; book matches Python on 0430 and 1112 (0 
 ## R70 -- 2026-11-14 19:43:52-19:50:03 (crucible request)
 PM LightGBM model in C++: self-test 0 differ; on ic_score's own matrix bit-identical 72,000/72,000 both days. C++ columns -> C++ model:
 similarity .6282 / .6558 (float32), .6282 / .6557 (double). 3 s day scored in 7 s. 0430 with engine_r68a: .6282. Report: docs/reports_97/r70/r70.txt.
+
+## Env probe (2026-11-15 ~00:24)
+Read-only conda/Arrow/DuckDB/Eigen probe on 97 after Mac unlock. Arrow/Parquet 25.0.0 C++ libs+headers+cmake present; no Eigen, no libduckdb/duckdb.h. gcc 15.3, cmake 4.4.3. docs/reports_97/probe_env/probe_env.txt.
