@@ -519,3 +519,7 @@ zzro2.a (gen.stoch) agrees. 141/144 on both days: zzab, zzav, zzxt3 off (r67 ran
 ## R68 -- 2026-11-14 19:06:32-19:07:39 (crucible request)
 Engine export tie-break: two runs of 0430 identical; vs baseline engine_m7, 6 keys moved (zzbd.rEmaT.sum 99%, zzqj.r.sum, zzba.r.sum,
 zzxu.last/zzxo.last/cdc.lp 3.6%). feitu 0430: 75.8% of trades share an arrival stamp; DataYes 1112: 0%. Report: docs/reports_97/r68/r68.txt.
+
+## R69 -- 2026-11-14 ~19:11:39-19:13:26 (crucible request)
+C++ whole-book replay: self-test 0 off; book matches Python on 0430 and 1112 (0 differing). 144 columns with the C++ book: 141/144 both days
+(zzab, zzav, zzxt3 as in R67). 1112 every 3 s all in C++: 65 s total, all 144 columns have values. Report: docs/reports_97/r69/r69.txt.

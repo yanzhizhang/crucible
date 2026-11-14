@@ -1,0 +1,51 @@
+R69 on 97 (commit 66311e5: r69.sh 9603bafd, featgen/book_day.py 9c92d83b, featgen/cpp/bookgen.cpp a294d230), ~19:11:39 - 19:13:26, no errors.
+Transcribed from a squeezed, folded view (column lines: status col formula finite NaNmis cells mad corr | where). The view's sed also
+dropped the word "finite" elsewhere; restored below as [finite]. The 0430 book-check line ends "in Python 71,687, 0" as printed.
+
+[19:11:39] 0 self-test
+ exit 0, 10 stocks: 0 off
+[19:11:45] 1 20260430 book at the scoring marks
+bookgen: 299 stocks x 240 times
+20260430: 299 stocks, 74,345,420 events, 240 times; load 14s, pack 0.5s, bookgen 2.5s; [finite] 0.9990; unresolved cancels 0, unresolved passive fills 140,
+  out-of-band adds 0 -> data/featgen_book/date=20260430.parquet
+20260430: against /work/crucible_data/store/pm_factors/full_book_m7/date=20260430.parquet: 71,760 cells matched of 71,760, [finite] in Python 71,687, 0
+[19:12:05] 2 20260430 the 144 columns with the C++ book
+featvec: 144 columns x 240 times x 300 stocks
+20260430: 72,000 rows in x.parquet, 72,000 matched
+ OFF zzab cal:neu:-gen.depth_weighted_price_5lvl_minus_mid_rel 70919 0 720 mad 5.38e-05 corr 0.999999 | 3 stocks, 240 times; top 786:240, 601919:240, 300979:240
+ OFF zzav cal:|gen.lpe5|*1e4 71760 0 10285 mad 2.89 corr 0.999926 | 145 stocks, 240 times; top 601818:237, 600016:227, 600905:226, 601916:224
+ ok zzfb.b rank:-gen.lpe50 71760 0 4 mad 0.00503 corr 1.000000
+ ok zzqo.d crank:gen.lpe50 71760 0 4 mad 0.00503 corr 1.000000
+ OFF zzxt3 crank:gen.lpe25 71760 0 565 mad 0.0436 corr 0.999997 | 37 stocks, 81 times; top 601916:80, 600905:68, 601818:58, 601816:48
+20260430: 141 of 144 columns agree with ic_score's matrix, 3 off
+[19:12:07] 1 20261112 book at the scoring marks
+bookgen: 300 stocks x 240 times
+20261112: 300 stocks, 65,422,071 events, 240 times; load 6s, pack 0.4s, bookgen 2.3s; [finite] 1.0000; unresolved cancels 0, unresolved passive fills 0,
+  out-of-band adds 0 -> data/featgen_book/date=20261112.parquet
+20261112: against /work/crucible_data/store/pm_factors/full_book_dysl2/date=20261112.parquet: 72,000 cells matched of 72,000, [finite] in Python 72,000, 0
+[19:12:18] 2 20261112 the 144 columns with the C++ book
+featvec: 144 columns x 240 times x 300 stocks
+20261112: 72,000 rows in x.parquet, 72,000 matched
+ OFF zzab cal:neu:-gen.depth_weighted_price_5lvl_minus_mid_rel 72000 0 479 mad 3.29e-05 corr 1.000000 | 2 stocks, 240 times; top 1280:240, 601919:239
+ OFF zzav cal:|gen.lpe5|*1e4 72000 0 10158 mad 2.83 corr 0.999927 | 145 stocks, 240 times; top 600221:229, 600905:216, 601868:214, 601669:212
+ ok zzqf5.q.c2 gen.lpes28800 72000 0 3 mad 9.31e-10 corr 1.000000
+ OFF zzxt3 crank:gen.lpe25 72000 0 146 mad 0.0284 corr 0.999999 | 28 stocks, 25 times; top 601868:18, 601377:13, 601238:12, 630:11
+ ok zzzl2.f gen.lpes28800 72000 0 3 mad 9.31e-10 corr 1.000000
+20261112: 141 of 144 columns agree with ic_score's matrix, 3 off
+[19:12:20] 3 20261112 every 3 s, all in C++
+20261112: 300 stocks, 65,422,071 events, 4740 times; load 6s, pack 0.4s, bookgen 2.5s; [finite] 1.0000; unresolved cancels 0, unresolved passive fills 0,
+  out-of-band adds 0 -> data/featgen_book_3s/date=20261112.parquet
+20261112: stop 54149.897 -> data/engine_3s/engine_20261112.json.gz (25s total)
+20261112: pack 2.0s, featgen 4.2s; 1,422,000 rows x 89 base quantities -> data/featgen_3s/base_20261112.parquet; [finite] share lowest: flow_big_imb60 0.464,
+  mret1800 0.937, ret1800 0.937, zr60 0.961, log_channel_sequence_ (cut)
+20261112: done in 15s
+featvec: 144 columns x 4740 times x 300 stocks
+20261112: 300 stocks x 4740 times, 96 names (book rows matched 1.000; state names found 6 of 6; CED rows 300 of 300, 46 exposures, 300 with an industry);
+  names nobody supplied: none; calibration points for 31 of 31 cal columns
+20261112: assemble 2.4s, featvec 6.6s; 1,422,000 rows x 144 columns -> data/featvec_3s/vec_20261112.parquet
+ seconds: book 11, state engine 26, base 17, formula layer 11, total 65
+ vec_20261112.parquet: 1,422,000 rows x 144 columns; columns with no [finite] value: 0; lowest finite shares: zzwj.d 0.464, zzro.a 0.937, zzro.b 0.937,
+  zzpp2.d 0.961, zzrb 0.961, zzhi2.b 0.973, zzpk 0.980, zzwa.j 0.980
+ -rw-r--r-- 1 root root   4154050 Nov 14 19:12 data/featgen_book_3s/date=20261112.parquet
+ -rw-r--r-- 1 root root 995048896 Nov 14 19:13 data/featvec_3s/vec_20261112.parquet
+[19:13:26] done
