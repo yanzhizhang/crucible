@@ -1,0 +1,22 @@
+R72 on 97 (r72.sh 8741c3e6, runs_target.py ecc9be4c; gates also on pm_signals/pm_orders/runs_sample/runs_fit/pm_poslog), 01:08:22 - 01:12:30.
+[01:08:22] 0 inventory
+  20261113: log files 2, position-log csvs 1, base position csvs: base_position_v1.1_hs300.csv base_position_v1.1_zz1000.csv
+    base_position_v1.1_zz500.csv base_position_v1_hs300.csv base_position_v1_zz1000.csv base_position_v1_zz500.csv
+    base_position_v2_hs300.csv base_position_v2_zz1000.csv base_position_v2_zz500.csv
+  20261114: log files 0, position-log csvs 0, base position csvs:   (user: 1114 is a Saturday; no trading)
+Tail seen on screen (step 4, 20261113 E block):
+  E 761,279 decisions with the holding known; live gap = base - qty != 0 on 0.374; corr(pos, qty - base) +0.999, corr(pos, qty) +0.205,
+    pos == qty - base 0.999, pos == qty 0.002
+  09:30-09:31 (1,496 rows) ... later (759,783 rows): trade on [fa x w, gap, 1]: R^2 0.874; [fa x w, gap, cpos, 1]: R^2 0.878
+  sell (trade < 0): 94,981 rows, made 1,244 (0.0131); buy (trade > 0): 221,573 rows, made 1,137 (0.0051); none: 444,381, made 0
+==== 20261114: no position log under /work/crucible_data/chrono_poslog/20261114
+[01:12:30] done
+Full r72.txt stays on 97 (data/reports/r72.txt); to be read and relayed in full.
+
+Daily pull + cron (user: "copy and set up a cron to run the daily data pull"), 2026-11-15 01:14-01:17:
+  research/daily_pull.sh (new, = daily_pm.sh steps 1-2, rsync only, ssh BatchMode; today+yesterday by default)
+  ssh -o BatchMode=yes to 224: SSH KEY LOGIN OK (from the VS Code shell); pull 20261114: no position log, no base positions, 0 files (Saturday)
+  root crontab on 97: added   30 21 * * 1-5 bash /work/crucible/research/daily_pull.sh >> /work/crucible/data/reports/daily/cron_pull.log 2>&1
+    existing 20 lines kept unchanged (incl. a pre-existing "...barra_eod.log 2>&1:wq" typo, not touched); 21 lines after
+  crond: /usr/sbin/crond -n running since Nov 3 (container, no systemd); existing cron jobs fired (ced logs Nov 12/13 20:30, tdf Nov 14 19:30)
+  server time CST. PENDING: ssh test in a bare cron-like env (no forwarded agent) -- interrupted, user at the Mac.
