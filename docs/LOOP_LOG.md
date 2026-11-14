@@ -457,3 +457,4 @@ Read-only listing of baseline columns by kind on 97 (r55.sh c1e6a331). 25 dm/neu
 
 ## R56 (2026-11-14 08:32)
 Stopped at step 0 (own guard): 0430 has 0 of 13 hstats families in the view (ZZAL/20260430 not present); 1106-1113 have all 13. See docs/reports_97/r56/r56.txt.
+R56 rerun (c6c9a7f8, 08:34): 0430 also absent under /data/prod/hstats/HS300; stopped at step 0 again.
