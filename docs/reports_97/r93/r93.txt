@@ -1,0 +1,27 @@
+R93 on 97 (r93.sh 94e3cb55, backfill_days.py 2b0ee3ae), 07:27:24 - 07:35:21. 36 lines, full (IC lines cut at 235 on screen; r93.sh itself cuts pred_ic at 200).
+Before it (same paste): BACKUP 8 days, 87M -> data/backfill_3s_r84_dysl2 (R84's 1104-1113 day dirs + verify csvs).
+[07:27:24] feitu catalog: snapshot rows per day from 1104
+  20261104 23,171,598 | 20261105 22,783,388 | 20261106 21,928,526 | 20261109 21,957,950
+[07:27:24] rerun the DataYes days from feitu where it has them
+8 days: 20261104 .. 20261113; keep ['pred'] -> data/backfill_3s
+20261104: feitu; side 3s, chain 52s, verify 3s; verify: 68 keys, SZSE all equal 43, all stocks equal 43, median share 1.0000; kept 11 MB
+20261105: feitu; side 3s, chain 50s, verify 3s; verify: 68 keys, SZSE all equal 50, all stocks equal 48, median share 1.0000; kept 11 MB
+20261106: feitu; side 3s, chain 46s, verify 3s; verify: 68 keys, SZSE all equal 50, all stocks equal 47, median share 1.0000; kept 11 MB
+20261109: feitu; side 3s, chain 52s, verify 3s; verify: 68 keys, SZSE all equal 50, all stocks equal 48, median share 1.0000; kept 11 MB
+20261110: dysl2; side 3s, chain 46s, verify 2s; verify: 68 keys, SZSE all equal 24, all stocks equal 19, median share 0.6767; kept 11 MB
+20261111: dysl2; side 3s, chain 49s, verify 2s; verify: 68 keys, SZSE all equal 19, all stocks equal 18, median share 0.9567; kept 11 MB
+20261112: dysl2; side 3s, chain 53s, verify 2s; verify: 68 keys, SZSE all equal 26, all stocks equal 20, median share 0.9600; kept 11 MB
+20261113: dysl2; side 3s, chain 52s, verify 2s; verify: 68 keys, SZSE all equal 22, all stocks equal 19, median share 0.9567; kept 11 MB
+[07:34:53] state engine over all days
+49 days (20260429 .. 20261113), 69 keys; SZSE fully equal on every day: 11; mean SZSE share >= 0.999: 17
+ 20261029 47 1.0000 | 20261030 41 1.0000 | 20261102 46 1.0000 | 20261103 49 1.0000 | 20261104 43 1.0000 | 20261105 50 1.0000 | 20261106 50 1.0000 | 20261109 50 1.0000 | 20261110 24 0.6767 | 20261111 19 0.9567 | 20261112 26 0.9600 | 20261113 22 0.9567
+[07:34:53] returns IC on the rerun days  (D (src): PM found share; rank corr ours vs PM pooled; ours 30s / 60s / 300s IC t >0 (marks) [rest cut])
+  20261104 (feitu): PM 0.927 of rows; corr 0.3716; ours 30s +0.1074 t 17.4 >0 0.81 (443) | 60s +0.0942 t 13.7 >0 0.77 (444) | 300s +0.0442 t 5.7 >0 0.62 (444)
+  20261105 (feitu): PM 1.000; corr 0.4817; ours 30s +0.1210 t 18.3 >0 0.83 (444) | 60s +0.1114 t 15.8 >0 0.81 (444) | 300s +0.0787 t 9.3 >0 0.70 (444)
+  20261106 (feitu): PM 1.000; corr 0.4970; ours 30s +0.1386 t 22.1 >0 0.87 (444) | 60s +0.1377 t 21.0 >0 0.85 (444) | 300s +0.1020 t 16.4 >0 0.78 (444
+  20261109 (feitu): PM 1.000; corr 0.4731; ours 30s +0.1291 t 23.7 >0 0.86 (444) | 60s +0.1168 t 20.0 >0 0.82 (444) | 300s +0.0797 t 12.6 >0 0.74 (444
+  20261110 (dysl2): PM 0.840; corr 0.5811; ours 30s +0.1349 t 27.2 >0 0.91 (444) | 60s +0.1262 t 23.7 >0 0.84 (444) | 300s +0.0979 t 17.3 >0 0.80 (444
+  20261111 (dysl2): PM 1.000; corr 0.4250; ours 30s +0.1356 t 25.3 >0 0.88 (444) | 60s +0.1331 t 22.5 >0 0.86 (444) | 300s +0.0970 t 16.5 >0 0.79 (444
+  20261112 (dysl2): PM 1.000; corr 0.5933; ours 30s +0.1216 t 20.0 >0 0.82 (444) | 60s +0.1167 t 18.6 >0 0.80 (444) | 300s +0.0968 t 13.9 >0 0.73 (444
+  20261113 (dysl2): PM 1.000; corr 0.6140; ours 30s +0.1232 t 19.0 >0 0.80 (444) | 60s +0.1134 t 16.3 >0 0.78 (444) | 300s +0.0638 t 8.4 >0 0.63 (444)
+[07:35:21] done
