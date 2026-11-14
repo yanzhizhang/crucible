@@ -1,0 +1,66 @@
+R79 on 97 (r79.sh d100773a, side_day.py 32cbc75c; gates on ced_match 4684a1ba, dcp_build 39c3d7bb, ic_score 37d2fc42, model_status 44cc836f), 02:19:35 - 02:19:42.
+Transcribed in full. NOTE: r79.sh's "head -60" ends the worklist table after 24 of its 30 rows (no closing border).
+[02:19:35] 1 model_status, top of the table
+== model months by file date
+shape: (3, 5)   month | files | mtime_min | mtime_max | example
+ 202509  | 12 | 20260802 | 20260802 | tk5m/202509/lgb/livev1_fit1/model_s1.txt
+ undated | 12 | 20260904 | 20260904 | tk5m/202601.updated/lgb/livev1_fit1/model_s1.txt
+ 202609  | 12 | 20261022 | 20261022 | tk5m/202609/lgb/livev1_fit1/model_s1.txt
+144 features with an assigned formula, 25 strong (data/reports/stage6_r41c_gate/ic_assign_gated.json)
+== refit undated -> 202609: 209 kept, added none, dropped none
+shape: (8, 5)   feature | family | new | old | delta
+ zzro2.c ZZRO 0.0425 0.0501 -0.0076
+ zzgh2.b ZZGH 0.0264 0.0226  0.0038
+ zzfb2.a ZZFB 0.0141 0.0105  0.0036
+ zzop.i  ZZOP 0.0127 0.0097  0.0030
+ zzgh.b  ZZGH 0.0242 0.0215  0.0027
+ zzie3.c ZZIE 0.0058 0.0085 -0.0027
+ zzzl2.i ZZZL 0.0101 0.0075  0.0026
+ zzba    ZZBA 0.0112 0.0137 -0.0025
+== worklist, month 202609: families by gain without a strong formula (top 30)
+shape: (30, 7)   family | features | gain | formula | strong | gain_open | cum_open
+ ZZRO 6 0.1138 6 1 0.1111 0.1111
+ ZZZL 9 0.0641 6 0 0.0641 0.1752
+ ZZQF 21 0.0623 20 3 0.0545 0.2297
+ ZZGH 2 0.0506 1 0 0.0506 0.2804
+ ZZWA 11 0.0547 8 1 0.0497 0.3301
+ ZZOP 4 0.0304 3 0 0.0304 0.3605
+ ZZPE 5 0.0383 4 1 0.0288 0.3893
+ ZZAL 8 0.0284 6 0 0.0284 0.4177
+ ZZSF 2 0.0262 0 0 0.0262 0.4438
+ ZZEL 2 0.0250 0 0 0.0250 0.4689
+ ZZSA 4 0.0199 1 0 0.0199 0.4887
+ ZZAG 6 0.0237 4 1 0.0197 0.5084
+ ZZXU 2 0.0192 2 0 0.0192 0.5276
+ ZZJX 4 0.0187 1 0 0.0187 0.5463
+ ZZPP 5 0.0182 3 0 0.0182 0.5645
+ ZZBT 4 0.0175 1 0 0.0175 0.5821
+ ZZQO 6 0.0138 6 0 0.0138 0.5959
+ ZZEG 2 0.0202 1 1 0.0132 0.6090
+ ZZRI 3 0.0126 2 0 0.0126 0.6217
+ ZZBA 1 0.0112 0 0 0.0112 0.6329
+ ZZUP 1 0.0099 1 0 0.0099 0.6428
+ ZZPK 1 0.0094 1 0 0.0094 0.6523
+ ZZIE 5 0.0094 3 0 0.0094 0.6617
+ [table cut here by head -60]
+[02:19:36] 2 side tables without ic_score
+/work/crucible/research/pm_factors/ic_score.py:769: RuntimeWarning: Mean of empty slice
+  and 0 < np.nanmean(v) < 0.5]  # industry dummies (the country factor is 1 everywhere)
+/opt/anaconda3/envs/crucible/lib/python3.12/site-packages/numpy/lib/_nanfunctions_impl.py:1997: RuntimeWarning: Degrees of freedom <= 0 for slice.
+  var = nanvar(a, axis=axis, dtype=dtype, out=out, ddof=ddof,
+20260430: 300 stocks from 20260429.jz; CED rows 300, 47 exposures, 300 with an industry; calibration points for 130 features from ['202501/lgb/livev1_fit1/model_s1.txt', '202501/lgb/livev1_fit1/model_s2.txt', '202501/lgb/livev1_fit1/model_s3.txt', '202501/lgb/[cut at 260]
+  dsid: shape (300,) vs (300,), identical True
+  ind: shape (300,) vs (300,), identical True
+  expo: shape (300, 47) vs (300, 47), identical True
+  cal: 130 vs 130 features, identical True
+20261112: stsfile stats/sod/20261111.xr
+20261112: stsfile index/index-20261111.xr
+20261112: stsfile ex/ex-20261111.xr
+(same two RuntimeWarnings)
+20261112: 300 stocks from 20261112.jz; CED rows 300, 46 exposures, 300 with an industry; calibration points for 130 features from ['202501/lgb/livev1_fit1/model_s1.txt', '202501/lgb/livev1_fit1/model_s2.txt', '202501/lgb/livev1_fit1/model_s3.txt', '202501/lgb/[cut]
+  dsid: shape (300,) vs (300,), identical True
+  ind: shape (300,) vs (300,), identical True
+  expo: shape (300, 46) vs (300, 46), identical True
+  cal: 130 vs 130 features, identical True
+[02:19:42] done
+R79 DONE 02:19:42
