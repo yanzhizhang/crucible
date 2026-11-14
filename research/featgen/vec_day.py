@@ -53,6 +53,8 @@ def main() -> None:
     ap.add_argument("--x", type=Path, help="ic_score --dump-x's x.parquet: compare every column with it")
     ap.add_argument("--out", type=Path, default=Path("data/featvec"))
     ap.add_argument("--threads", type=int, default=32)
+    ap.add_argument("--float32", action="store_true",
+                    help="round the gen.* bases to float32 first, as ic_score caches them (base_vec): for an exact comparison with --x")
     a = ap.parse_args()
     t0 = time.perf_counter()
     forms = IO.read_formulas(a.formulas)
@@ -76,12 +78,16 @@ def main() -> None:
         for k in need:
             if k in st.columns:
                 cols[k] = st[k].to_numpy().astype(float)
+        if "zzxu.last" in cols:  # feature_match.atoms: a stem's "px" is the state's last price (zzxu.last), not the snapshot price
+            cols["px"] = cols["zzxu.last"]
         note.append(f"state names found {sum(k in st.columns for k in need)} of {len(need)}")
     names = list(cols)
     missing = sorted({k for _, e in forms for k in re.findall(r"gen\.[A-Za-z0-9_]+|zz[a-z0-9]+\.[A-Za-z.]+|\bpx\b", e)} - set(names))
     for k in missing:  # a name nobody supplied: the columns built on it come out NaN
         cols[k] = np.full(ns * nt, np.nan)
     names = list(cols)
+    if a.float32:
+        cols = {k: (np.asarray(v, np.float32).astype(float) if k.startswith("gen.") else v) for k, v in cols.items()}
     val = np.stack([np.asarray(v, float).reshape(ns, nt) for v in cols.values()], axis=1)  # [ns, nv, nt]
     industry, expo = np.full(ns, -1), np.zeros((ns, 0))
     if a.side and a.side.exists():
