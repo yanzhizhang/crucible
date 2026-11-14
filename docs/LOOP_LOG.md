@@ -459,3 +459,6 @@ Read-only listing of baseline columns by kind on 97 (r55.sh c1e6a331). 25 dm/neu
 Stopped at step 0 (own guard): 0430 has 0 of 13 hstats families in the view (ZZAL/20260430 not present); 1106-1113 have all 13. See docs/reports_97/r56/r56.txt.
 R56 rerun (c6c9a7f8, 08:34): 0430 also absent under /data/prod/hstats/HS300; stopped at step 0 again.
 R56 third version (8c90e0cd) started 08:37:02 on 97, scan on 1110+1112; at 08:57 the user was using the Windows desktop, so screen reading paused until they free it.
+
+## R57 (2026-11-14 09:06)
+User approved the 0430 hstats copy in this session. Listing ran; 2.23 prod/hstats/HS300 has no 0430 samplerS.nc (0430 ls empty), but prod/hstats/sod/HS300/<FAM>/20260430 exists for 15 families. Nothing copied. /data/share/s holds 0-byte .xr names (ex, index, stats/sod) + sid2symbol json; /data/share/o empty.

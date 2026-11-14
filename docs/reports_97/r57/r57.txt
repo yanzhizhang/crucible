@@ -1,0 +1,30 @@
+R57 on 97 (research/r57.sh md5 b17ac947), 2026-11-14 ~09:06, finished 09:06:41. Read-only on 2.23; the copy step found nothing to copy.
+User approved the 0430 hstats copy in the supervisor session ("Yes, copy it"). Nothing was written.
+
+== 1 /data/share/s
+drwx--x--x 6 root root 4096 Oct 26 15:12 /data/share/s
+  /data/share/s: 4 entries, 0 files, first ex, last stats, newest:
+  /data/share/s/ex: 26 entries, 26 files, first ex-20261008.xr, last ex-20261113.xr, newest: 2026-11-13 08:45 ex-20261113.xr
+  /data/share/s/index: 26 entries, 26 files, first index-20261008.xr, last index-20261113.xr, newest: 2026-11-13 08:45 index-20261113.xr
+  /data/share/s/sid2symbol: 15 entries, 15 files, first 20261026.json, last sid2symbol.json, newest: 2026-11-13 08:45 sid2symbol.json
+  /data/share/s/stats: 1 entries, 0 files, first sod, last sod, newest:
+  /data/share/s/stats/sod: 42 entries, 42 files, first 20260901.xr, last 20261113.xr, newest: 2026-11-13 08:45 20261113.xr
+  -- file name patterns (digits -> N), with counts and total size:
+     26 files        0 bytes  ex/ex-N.xr
+     26 files        0 bytes  index/index-N.xr
+     14 files  1355572 bytes  sid2symbol/N.json
+      1 files    96833 bytes  sid2symbol/sid2symbol.json
+     42 files        0 bytes  stats/sod/N.xr
+== 1 /data/share/o
+drwx--x--x 4 root root 4096 Oct 26 16:15 /data/share/o
+  /data/share/o: 2 entries, 0 files, first executor, last sig, newest:
+  /data/share/o/executor: 0 entries, 0 files
+  /data/share/o/sig: 0 entries, 0 files
+  -- file name patterns: (none)
+== 2 /data/share/data/prod/hstats/HS300
+  ZZAC ZZAL ZZCR ZZDS ZZGW ZZHL ZZMS ZZQI ZZQO ZZSQ ZZTS ZZUG ZZVC ZZWA ZZXC: 49 days, 20260429 .. 20261113; 20260430: (empty)
+  ZZUG2: 48 days, 20260901 .. 20261113; 20260430: (empty)
+  other places with a 20260430 hstats directory:
+   /data/share/data/prod/hstats/sod/HS300/<FAM>/20260430 for ZZQI ZZMS ZZTS ZZGW ZZCR ZZAC ZZHL ZZDS ZZAL ZZSQ ZZQO ZZUG ZZWA ZZXC ZZVC (15)
+== 3 copy hstats of 20260430 to /work/crucible_data/hstats_0430/HS300
+  2.23 has no samplerS.nc of 20260430 under prod/hstats/HS300: nothing copied
