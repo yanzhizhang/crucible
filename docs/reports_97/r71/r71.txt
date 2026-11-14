@@ -1,0 +1,39 @@
+R71 on 97 (r71.sh 1c36156e, day.py 66e5006b, pred_day.py b0663feb, lgbpred.cpp fe7de98f, libcheck.cpp 528a8f9e, CMakeLists.txt ef8d31a8), 01:24:47 - 01:27:08.
+Transcribed from screen in full (r71.sh cuts lines at 260; two lines end cut on screen as marked).
+CONDA_PREFIX=/opt/anaconda3/envs/crucible
+GATES OK
+[01:24:47] 0 cmake build
+-- featgen: Arrow 25.0.0 and Parquet: building lgbpred_pq (parquet in and out)
+-- featgen: DuckDB / Eigen not both found: no libcheck
+  build exit 0; 0 warnings, 0 errors
+bookgen featgen featvec lgbpred lgbpred_pq
+[01:24:52] 1 self-test
+parquet way: 20,000 rows, 0 differ from the binary way
+20,000 rows: 0 scores differ from ic_score.TreeModel (largest difference 0)
+[01:24:55] 2 one after another, model the old way
+20261112: tick readers one after another
+  book     11.0s  20261112: 300 stocks, 65,422,071 events, 4740 times; load 6s, pack 0.4s, bookgen 2.4s; finite 1.0000; unresolved cancels 0, unresolved passive fills 0, out-of-band adds 0 -> data/day_r71_serial/book/d[cut]
+  engine   24.6s  20261112: stop 54149.897 -> data/day_r71_serial/engine/engine_20261112.json.gz (23s total)
+  base     17.4s  20261112: done in 15s
+  vec      10.9s  20261112: assemble 2.3s, featvec 6.6s; 1,422,000 rows x 144 columns -> data/day_r71_serial/vec/vec_20261112.parquet
+  pred     11.7s  20261112: 1,422,000 rows, 144 of 209 model columns filled, models ['202501/lgb/livev1_fit1/model_s1.txt']; assemble 4.2s, lgbpred 6.8s -> data/day_r71_serial/pred/pred_20261112.parquet
+20261112: tick readers 53s (their own seconds add up to 53), formula layer 11s, model 12s, total 76s -> data/day_r71_serial
+[01:26:11] 3 side by side, model through lgbpred_pq
+20261112: tick readers side by side
+  book     12.7s  20261112: 300 stocks, 65,422,071 events, 4740 times; load 7s, pack 0.5s, bookgen 2.6s; finite 1.0000; unresolved cancels 0, unresolved passive fills 0, out-of-band adds 0 -> data/day_r71/book/date=202[cut]
+  engine   33.8s  20261112: stop 54149.897 -> data/day_r71/engine/engine_20261112.json.gz (33s total)
+  base     33.8s  20261112: done in 17s
+  vec      11.0s  20261112: assemble 2.3s, featvec 6.6s; 1,422,000 rows x 144 columns -> data/day_r71/vec/vec_20261112.parquet
+  pred      8.1s  20261112: 1,422,000 rows, models ['202501/lgb/livev1_fit1/model_s1.txt']; lgbpred_pq 7.9s -> data/day_r71/pred/pred_20261112.parquet
+20261112: tick readers 34s (their own seconds add up to 80), formula layer 11s, model 8s, total 53s -> data/day_r71
+[01:27:04] 4 compare
+  vectors serial vs side by side: 1,422,000 / 1,422,000 rows, 146 columns, columns not identical: 0 []
+  vectors vs R69: 1,422,000 / 1,422,000 rows, 146 columns, columns not identical: 0 []
+  scores old way vs lgbpred_pq: 1,422,000 / 1,422,000 rows, 3 columns, columns not identical: 0 []
+  -rw-r--r-- 1 root root 686196343 Nov 15 01:26 data/day_r71/base/base_20261112.parquet
+  -rw-r--r-- 1 root root   4154050 Nov 15 01:26 data/day_r71/book/date=20261112.parquet
+  -rw-r--r-- 1 root root 236514883 Nov 15 01:26 data/day_r71/engine/marks_20261112.parquet
+  -rw-r--r-- 1 root root  11361183 Nov 15 01:27 data/day_r71/pred/pred_20261112.parquet
+  -rw-r--r-- 1 root root 995048896 Nov 15 01:26 data/day_r71/vec/vec_20261112.parquet
+[01:27:08] done
+R71 DONE 01:27:08

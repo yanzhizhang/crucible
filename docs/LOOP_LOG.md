@@ -535,3 +535,4 @@ DuckDB 2.0.0 installed on 97 (user request): rc=0, C++ headers+lib present; pyte
 DuckDB rolled back to 1.5.6 on 97 (user): pytest 297 passed, 7 failed (all exchange_calendars DateOutOfBounds in test_almanac, not DuckDB). Pin revert a13a92d.
 R72 run (1113 only; 1114 Saturday). daily_pull.sh + root cron 21:30 Mon-Fri on 97; cron-env ssh test pending.
 R72 relayed in full (1113); cron-env ssh OK (bare env, root key).
+R71: cmake build clean (lgbpred_pq; no libcheck), self-test 0 diffs, 1112 serial 76 s vs side by side 53 s, vectors/scores identical, = R69.
