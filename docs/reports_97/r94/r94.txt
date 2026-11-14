@@ -1,0 +1,24 @@
+R94 on 97 (r94.sh 8ddaaa40), 07:43:39 - 07:48:50. 52 lines, full (candidate | min | 1112; one day only).
+[07:43:39] implied scan, hstats cells, 1112 only
+baseline similarity 20261112 0.6558 (bases found at 1.000 of rows)
+152 candidate bases (152 from --extra)
+-- zzbt.b: 304 candidates in 35s; best by the smaller day gain:
+   cal:-ZZQI.ab@1 -0.0189 | cal:-ZZQI.ab@0 -0.0193 | cal:-ZZQI.a@1 -0.0195 | cal:-ZZQI.ab@-1 -0.0196 | cal:-ZZQI.a@0 -0.0196 | cal:-ZZQI.a@-1 -0.0200
+   share of candidates helping on every day: 0.000
+-- zzaa.b: 304 candidates in 44s
+   cal:ZZWA.bn@1 +0.0055 | cal:ZZWA.bn@-1 +0.0049 | cal:ZZWA.bn@0 +0.0049 | cal:ZZWA.an@-1 +0.0033 | cal:ZZWA.an@1 +0.0030 | cal:ZZWA.an@0 +0.0028
+   share of candidates helping on every day: 0.095
+-- zzxo: 304 candidates in 54s
+   cal:ZZSQ.a@0 -0.0053 | cal:ZZDS.vr@0 -0.0065 | cal:ZZQI.d@1 -0.0083 | cal:ZZQI.d@-1 -0.0083 | cal:ZZQI.d@0 -0.0084 | cal:-ZZWA.aq@-1 -0.0087
+   share of candidates helping on every day: 0.000
+-- zzpp.b: 304 candidates in 49s
+   cal:-ZZXC.q@-1 -0.0058 | cal:ZZWA.bn@-1 -0.0059 | cal:-ZZQO.q@-1 -0.0060 | cal:-ZZWA.aq@-1 -0.0060 | cal:-ZZWA.bq@-1 -0.0060 | cal:ZZWA.an@-1 -0.0060
+   share of candidates helping on every day: 0.000
+-- zzhj: 304 candidates in 57s
+   cal:ZZGW.na@-1 +0.0047 | cal:ZZGW.nab@-1 +0.0047 | cal:ZZGW.na@0 +0.0047 | cal:ZZGW.na@1 +0.0046 | cal:ZZGW.nab@0 +0.0046 | cal:ZZGW.nb@-1 +0.0045
+   share of candidates helping on every day: 0.293
+-- zzop.i: 304 candidates in 71s
+   cal:-ZZHL.n@1 +0.0024 | cal:-ZZHL.n@0 +0.0023 | cal:-ZZHL.n@-1 +0.0022 | cal:-ZZMS.q@0 +0.0018 | cal:-ZZMS.q@1 +0.0018 | cal:-ZZMS.q@-1 +0.0017
+   share of candidates helping on every day: 0.970
+[07:48:50] done
+(min equals the 1112 value on every line, one day)
