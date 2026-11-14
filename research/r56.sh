@@ -5,8 +5,8 @@
 # the cell itself (ced.<FAM>.<V>@-1/0/1) and the last 5-minute bar's amount / volume / buy amount over it (ced.lr.*).
 #   0 which hstats day each target day reads through the view, and which families it has
 #   1 scan on 1110 + 1112 (those with hstats in the view; else 1106 alone), even sids, generation B
-#   2 gates against r41c: 0430, then 1109, then 1113 (odd sids): a change must gain on a day of each group
-#   3 the survivor on all seven days; 1111 is never fitted or gated on
+#   2 gates against r41c: 1109 (the day that behaves like 0430; 0430 has no hstats on 97), 1106, 1113 (odd sids)
+#   3 the survivor on the six 224 days; 1111 is never fitted or gated on
 #   bash research/r56.sh 2>&1 | tee data/reports/r56.txt
 set -u
 cd /work/crucible
@@ -71,7 +71,7 @@ for day in 1110 1112; do [ -e $HV/ZZAL/2026$day/samplerS.nc ] && DAYS="$DAYS,202
 DAYS=${DAYS#,}
 [ -n "$DAYS" ] || { [ -e $HV/ZZAL/20261106/samplerS.nc ] && DAYS=20261106; }
 [ -n "$DAYS" ] || { say "no scan day has hstats in the view: stop"; exit 1; }
-[ -e $HP/ZZAL/20260430/samplerS.nc ] || { say "0430 has no hstats under $HP either: stop"; exit 1; }
+echo "  0430 has no hstats on this machine: it cannot gate or score an hstats column; 1109 stands in for its day group"
 SD=$(seed_of ${DAYS%%,*})
 say "1 scan on $DAYS (even sids), generation B; seed dir of the first day: $SD"
 for P in $SAFE ZZWA,ZZAL,ZZQO,ZZXC,ZZTS; do
@@ -86,10 +86,10 @@ grep -E "^scan-state|IC: start|seed state|^scan" $R/r56_scan.txt | head -8 | cut
 python -u research/pm_factors/assign_diff.py $C1 $R/stage6_r56/ic_assign.json | cut -c1-200 | head -70
 
 SCORE="$SCORE --profiles $PF"
-say "2 gates against r41c: 0430, 1109, 1113 (odd sids)"
+say "2 gates against r41c: 1109, 1106, 1113 (odd sids)"
 A=$R/stage6_r56/ic_assign.json
-gate $A 0430 g1; [ -f $R/stage6_r56_g1/ic_assign_gated.json ] && A=$R/stage6_r56_g1/ic_assign_gated.json
-if [ -e $HV/ZZAL/20261109/samplerS.nc ]; then gate $A 1109 g2; [ -f $R/stage6_r56_g2/ic_assign_gated.json ] && A=$R/stage6_r56_g2/ic_assign_gated.json; else echo "  1109 has no hstats: gate skipped"; fi
+gate $A 1109 g1; [ -f $R/stage6_r56_g1/ic_assign_gated.json ] && A=$R/stage6_r56_g1/ic_assign_gated.json
+gate $A 1106 g2; [ -f $R/stage6_r56_g2/ic_assign_gated.json ] && A=$R/stage6_r56_g2/ic_assign_gated.json
 if [ -e $HV/ZZAL/20261113/samplerS.nc ]; then
   CRUCIBLE_SOURCE=dysl2 python -u research/pm_factors/ic_score.py --dates 20261113 --assign $A --gate-against $C1 --gate-t 1 --sid-mod 2:1 $SCORE $(xof 1113) $MB --out $R/stage6_r56_g3 > $R/r56_g3.txt 2>&1
   grep -E "Error|Traceback" $R/r56_g3.txt | head -3; sed -n '/== gate/,/^gated/p' $R/r56_g3.txt | cut -c1-230 | head -60
@@ -98,11 +98,11 @@ else echo "  1113 has no hstats: gate skipped"; fi
 echo "  survivor: $A"
 python -u research/pm_factors/assign_diff.py $C1 $A | cut -c1-200 | head -40
 
-say "3 the survivor on all seven days (r41c gen B: 0430 .6282 1106 .5690 1109 .6207 1110 .6470 1111 .4727 1112 .6558 1113 .6789)"
+say "3 the survivor on the six 224 days (r41c gen B: 1106 .5690 1109 .6207 1110 .6470 1111 .4727 1112 .6558 1113 .6789)"
 if cmp -s <(python -c "import json;print(sorted(json.load(open('$A')).items()))") <(python -c "import json;print(sorted(json.load(open('$C1')).items()))"); then
   echo "  nothing survived the gates: no score runs"
 else
-  for day in 1111 0430 1109 1106 1110 1112 1113; do score surv $A $day; done
+  for day in 1111 1109 1106 1110 1112 1113; do score surv $A $day; done
 fi
 grep -lE "Error|Traceback" $R/r56*.txt 2>/dev/null | head | sed 's/^/  errors in /'
 say "done"
