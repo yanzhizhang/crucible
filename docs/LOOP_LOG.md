@@ -507,3 +507,7 @@ zzab's differences sit on 2-3 whole stocks (300979, 601919, 786 / 1280, 601919).
 gen.stoch diagnostic on 0430: 2,359 cells flagged (240 of them NaN/NaN, an artifact of NaN > x in polars); the rest are small value
 shifts (e.g. 0.612 vs 0.568), spread over the whole day. featgen vs Python on 688008/688041/688012/688047: stoch agrees; only the two
 limit-price quantities are OFF (no finite reference values, 0/960). 688008 trades sorted. Report: docs/reports_97/r65/r65.txt.
+
+## R66 -- 2026-11-14 ~17:59 (crucible request, read-only)
+gen.stoch on 0430: the four cached builds disagree with each other at the same mark (e.g. 688008 mark 347: .571/.544/.571/.612);
+the matrix equals the newest cache (1cd82cdb). The script's own cut -c1-240 truncated the whole-day range. Report: docs/reports_97/r66/r66.txt.

@@ -1,0 +1,27 @@
+R66 on 97 (commit 25f6448: r66.sh e280e51f), ~17:59, read-only, about 1 min, no errors. Transcribed from screen (viewed with fold -w 145).
+The script's own "cut -c1-240" truncated the long lines in r66.txt itself, so the ends of the "mark" lines (whole-day hi and its stoch)
+were never printed; marked (cut at 240).
+
+marks of the grid, first 6: [51.0, 72.0, 104.0, 161.0, 196.0, 347.0] ; dtype of x.mark Float64 ; marks in x not in the grid: 0
+cache 8e1c8a5ccda44b57/date=20260430.c5354cec (mtime 1794646119): keys with 'stoch' ['gen.stoch'], rows 480, rows per (sid, key, mark) max 1
+cache 94a582bffc90e5b5/date=20260430.c5354cec (mtime 1794646524): keys with 'stoch' ['gen.stoch'], rows 480, rows per (sid, key, mark) max 1
+cache 6a4c0ea6a1f4db0c/date=20260430.c5354cec (mtime 1794648869): keys with 'stoch' ['gen.stoch'], rows 480, rows per (sid, key, mark) max 1
+cache 1cd82cdb11398c85/date=20260430.c5354cec (mtime 1794649077): keys with 'stoch' ['gen.stoch'], rows 480, rows per (sid, key, mark) max 1
+sid 688041: trades 155,671, before 09:30 exchange time 1022, t_local of the first continuous trade 0.215, trades with t_local <= 0 and s >= 34200: 0;
+  first 3 (t_local, s, price): [(-275.235, 33901.0, 284.9), (-275.235, 33901.0, 284.9), (-27 (cut at 240)
+  mark 72 | matrix [0.5555555820465088] | cache..20260430 [0.555556] | cache..20260430 [0.555556] | cache..20260430 [0.555556] | cache..20260430 [0.555556]
+    | fresh generic 0.084444 (px 285.07, lo 284.88, hi 287.13; whole-day range lo 284.88 (cut at 240)
+  mark 418 | matrix [0.39024388790130615] | cache..20260430 [0.406504] | cache..20260430 [0.406504] | cache..20260430 [0.406504] | cache..20260430 [0.390244]
+    | fresh generic 0.390244 (px 286.8, lo 284.88, hi 289.8; whole-day range lo 284.88 (cut at 240)
+  mark 1887 | matrix [0.8267716765403748] | cache..20260430 [0.796588] | cache..20260430 [0.826772] | cache..20260430 [0.826772] | cache..20260430 [0.826772]
+    | fresh generic 0.826772 (px 291.18, lo 284.88, hi 292.5; whole-day range lo 284.8 (cut at 240)
+sid 688008: trades 144,629, before 09:30 exchange time 1251, t_local of the first continuous trade 0.216, trades with t_local <= 0 and s >= 34200: 0;
+  first 3 (t_local, s, price): [(-287.687, 33900.64999985695, 174.28), (-287.687, 33900.6499 (cut at 240)
+  mark 347 | matrix [0.6122449040412903] | cache..20260430 [0.571429] | cache..20260430 [0.544218] | cache..20260430 [0.571429] | cache..20260430 [0.612245]
+    | fresh generic 0.571429 (px 173.68, lo 172.0, hi 174.94; whole-day range lo 172.0, (cut at 240)
+  mark 758 | matrix [0.6770538091659546] | cache..20260430 [0.725212] | cache..20260430 [0.719547] | cache..20260430 [0.725212] | cache..20260430 [0.677054]
+    | fresh generic 0.677054 (px 173.8, lo 171.41, hi 174.94; whole-day range lo 171.41 (cut at 240)
+  mark 1250 | matrix [0.004830917809158564] | cache..20260430 [0.016908] | cache..20260430 [0.016908] | cache..20260430 [0.016908] | cache..20260430 [0.004831]
+    | fresh generic 0.016908 (px 170.87, lo 170.8, hi 174.94; whole-day range lo 170 (cut at 240)
+done
+(cache columns in mtime order, oldest first: 8e1c8a5c, 94a582bf, 6a4c0ea6, 1cd82cdb)
