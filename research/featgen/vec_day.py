@@ -90,8 +90,11 @@ def main() -> None:
         cols = {k: (np.asarray(v, np.float32).astype(float) if k.startswith("gen.") else v) for k, v in cols.items()}
     val = np.stack([np.asarray(v, float).reshape(ns, nt) for v in cols.values()], axis=1)  # [ns, nv, nt]
     industry, expo = np.full(ns, -1), np.zeros((ns, 0))
-    if a.side and a.side.exists():
-        z = np.load(a.side)
+    z = np.load(a.side) if a.side and a.side.exists() else None
+    if z is not None and z["dsid"].size == 0:  # no CED rows that day (no daily store yet): no industry, no exposures
+        note.append("side table empty: no industry, no exposures")
+        z = None
+    if z is not None:
         i = np.searchsorted(z["dsid"], sids)
         ok = (i < z["dsid"].size) & (z["dsid"][np.clip(i, 0, max(z["dsid"].size - 1, 0))] == sids)
         ic = np.clip(i, 0, max(z["dsid"].size - 1, 0))

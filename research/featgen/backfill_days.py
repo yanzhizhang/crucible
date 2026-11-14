@@ -56,6 +56,7 @@ def main() -> None:
     ap.add_argument("--out", type=Path, default=Path("data/backfill_3s"))
     ap.add_argument("--keep", default="pred", help="comma list of outputs kept per day: vec, pred, base, engine, book")
     ap.add_argument("--threads", type=int, default=32)
+    ap.add_argument("--seed-map", default="", help="D=YYYYMMDD,...: day D's yesterday state is that day's .jz (what 224's PM read, e.g. a stale sod link)")
     a = ap.parse_args()
     keep = {x for x in a.keep.split(",") if x}
     py = [sys.executable, "-u"]
@@ -79,7 +80,19 @@ def main() -> None:
         if rc1:
             print(f"{d}: side tables FAILED ({t1[:160]})", flush=True)
             continue
-        rc2, s2, t2 = run([*py, str(HERE / "day.py"), "--date", d, "--source", src, "--state", str(st), "--seed-dir", str(st.parent), "--catalog", str(cat),
+        seed_dir = st.parent
+        smap = dict(x.split("=") for x in a.seed_map.split(",") if "=" in x)
+        if d in smap:  # a dir holding only the mapped file: both the engine's --prev and run_day's seed pick it as "latest before D"
+            src_jz = next((sd / f"{smap[d]}.jz" for sd in dirs if (sd / f"{smap[d]}.jz").exists()), None)
+            if src_jz is None:
+                print(f"{d}: seed-map file {smap[d]}.jz not found, skipped", flush=True)
+                continue
+            seed_dir = a.out / "seedmap" / d
+            seed_dir.mkdir(parents=True, exist_ok=True)
+            link = seed_dir / src_jz.name
+            if not link.exists():
+                link.symlink_to(src_jz.resolve())
+        rc2, s2, t2 = run([*py, str(HERE / "day.py"), "--date", d, "--source", src, "--state", str(st), "--seed-dir", str(seed_dir), "--catalog", str(cat),
                            "--grid", repr(a.grid), "--side", str(side / f"side_{d}.npz"), "--cal", str(side / f"cal_{d}.json"), "--models", str(a.models),
                            *(["--pq", str(a.pq)] if a.pq else []), "--out", str(day_out), "--threads", str(a.threads)], log_dir / f"day_{d}.txt", env)
         if rc2:
@@ -100,7 +113,7 @@ def main() -> None:
                 shutil.rmtree(path)
         shutil.rmtree(day_out / "work", ignore_errors=True)
         size = sum(f.stat().st_size for f in day_out.rglob("*") if f.is_file()) / 2**20
-        print(f"{d}: {src}; side {s1:.0f}s, chain {s2:.0f}s, verify {s3:.0f}s{' FAILED' if rc3 else ''}; {t3[:150]}; kept {size:.0f} MB", flush=True)
+        print(f"{d}: {src}{f' seed {smap[d]}' if d in smap else ''}; side {s1:.0f}s, chain {s2:.0f}s, verify {s3:.0f}s{' FAILED' if rc3 else ''}; {t3[:150]}; kept {size:.0f} MB", flush=True)
 
 
 if __name__ == "__main__":
