@@ -4,7 +4,7 @@
 # Days: the arguments, else today and yesterday (rsync is incremental, so a missed night is picked up the next day).
 #   bash research/daily_pull.sh                 # today + yesterday
 #   bash research/daily_pull.sh 20261114        # one day
-# Cron (97, root, trading days Mon-Fri): 30 21 * * 1-5 bash /work/crucible/research/daily_pull.sh >> /work/crucible/data/reports/daily/cron_pull.log 2>&1
+# Cron (97, root, trading days Mon-Fri, 16:00 after the close): 0 16 * * 1-5 bash /work/crucible/research/daily_pull.sh >> /work/crucible/data/reports/daily/cron_pull.log 2>&1
 set -u
 H=${H:-zhangyanzhi@10.12.1.224}
 DATA=/work/crucible_data
