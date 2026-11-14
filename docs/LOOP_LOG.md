@@ -515,3 +515,7 @@ the matrix equals the newest cache (1cd82cdb). The script's own cut -c1-240 trun
 ## R67 -- 2026-11-14 18:15:02-18:25:51 (crucible request)
 Loader tie-break fix (dcp_ema, tick_flow edited in place, md5-gated). Two from-scratch builds of 0430 now identical (no differing cell);
 zzro2.a (gen.stoch) agrees. 141/144 on both days: zzab, zzav, zzxt3 off (r67 ran without LPE_SNAP). Report: docs/reports_97/r67/r67.txt.
+
+## R68 -- 2026-11-14 19:06:32-19:07:39 (crucible request)
+Engine export tie-break: two runs of 0430 identical; vs baseline engine_m7, 6 keys moved (zzbd.rEmaT.sum 99%, zzqj.r.sum, zzba.r.sum,
+zzxu.last/zzxo.last/cdc.lp 3.6%). feitu 0430: 75.8% of trades share an arrival stamp; DataYes 1112: 0%. Report: docs/reports_97/r68/r68.txt.

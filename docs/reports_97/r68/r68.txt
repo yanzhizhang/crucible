@@ -1,0 +1,22 @@
+R68 on 97 (commit a209a50: r68.sh 378bbdeb, engine/export.py 3b593ad8, engine/stream.py 23a57693), 19:06:32 - 19:07:39, no errors.
+Transcribed from screen (spaces squeezed, folded at 140).
+
+[19:06:32] 1 equal arrival stamps
+ 20260430 (catalog.duckdb), 10 stocks: trades 1,157,656; sharing an arrival stamp with another trade 877,704 (75.82%), largest batch 424;
+   sharing a stamp with a snapshot 734 (0.0634%)
+ 20261112 (catalog_dysl2.duckdb), 10 stocks: trades 944,113; sharing an arrival stamp with another trade 0 (0.00%), largest batch 1;
+   sharing a stamp with a snapshot 0 (0.0000%)
+[19:06:34] 2 engine on 0430, twice
+20260430: stop 54149.932 -> data/engine_r68a/engine_20260430.json.gz (28s total)
+20260430: stop 54149.932 -> data/engine_r68b/engine_20260430.json.gz (34s total)
+ two runs: 65 keys x 72,000 rows; keys with any differing cell: 0 []
+ new export against data/engine_m7 (the baseline's file): 65 common keys x 72,000 rows; keys moved: 6
+ zzbd.rEmaT.sum cells 71500 (99.31%) max rel diff 681
+ zzqj.r.sum cells 66932 (92.96%) max rel diff 0.000332
+ zzba.r.sum cells 44577 (61.91%) max rel diff 0.0679
+ zzxu.last cells 2600 (3.61%) max rel diff 0.00459
+ zzxo.last cells 2600 (3.61%) max rel diff 0.00459
+ cdc.lp cells 2600 (3.61%) max rel diff 0.00459
+ the six names the baseline's state columns read: [('zzup.pf.sum', 0), ('zzup.ps.sum', 0), ('zzvx.trDEmaD.sum', 0), ('zzxu.a.sum', 0),
+   ('zzxu.low', 0), ('zzxu.last', 2600)]
+[19:07:39] done
