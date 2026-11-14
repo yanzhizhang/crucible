@@ -36,6 +36,7 @@ def main() -> None:
     ap.add_argument("--pm-sts-day", choices=("before", "on"), default="before")
     ap.add_argument("--pm-sts-map", type=Path, help="json {day: stsfile day} (sts_days.py), as ic_score --pm-sts-map")
     ap.add_argument("--out", type=Path, default=Path("data/side"))
+    ap.add_argument("--daily", action="store_true", help="also write daily_<D>.parquet: the CED daily candidates + PM's stsfile inputs per sid")
     ap.add_argument("--check", type=Path, help="an ic_score --dump-x output dir holding side_<D>.npz / cal_<D>.json: compare")
     a = ap.parse_args()
     import ced_match as CM
@@ -54,6 +55,9 @@ def main() -> None:
     pmd = IC.pm_daily(a.pm_stsfile, d, sids, a.pm_sts_day, IC.STS_MAP.get(d)) if a.pm_stsfile.exists() else None
     if pmd is not None:
         dc = pmd if dc is None else dc.join(pmd.with_columns(pl.col("sid").cast(dc.schema["sid"])), on="sid", how="left")
+    a.out.mkdir(parents=True, exist_ok=True)
+    if a.daily and dc is not None:  # the CED daily table itself (one row per sid): candidates for implied_scan --extra
+        dc.write_parquet(a.out / f"daily_{d}.parquet")
     pool = IC.Pool(False, True)
     pool.add_block([], dc)
     lines = [ln.strip() for ln in a.feature_csv.read_text(errors="replace").splitlines() if ln.strip()]

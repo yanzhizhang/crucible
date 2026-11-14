@@ -34,7 +34,7 @@ from missing_damage import sim  # noqa: E402
 class Day:
     """One day: the scored matrix, PM's prediction, the bases at the same rows, the calibration points."""
 
-    def __init__(self, d: str, x_dir: Path, base: Path, names: list[str]) -> None:
+    def __init__(self, d: str, x_dir: Path, base: Path, names: list[str], extra: list[Path] | None = None) -> None:
         x = pl.read_parquet(x_dir / "x.parquet").filter(pl.col("date") == int(d)).drop("date").with_columns(pl.col("sid").cast(pl.Int64)).sort("sid", "mark")
         pr = pl.read_parquet(x_dir / "pred.parquet").filter(pl.col("date") == int(d)).with_columns(pl.col("sid").cast(pl.Int64))
         key = x.select("sid", "mark")
@@ -44,6 +44,20 @@ class Day:
         bj = key.join(b, on=["sid", "mark"], how="left")
         self.bases = {c: bj[c].to_numpy().astype(float) for c in b.columns if c not in ("sid", "mark")}
         self.found = float(bj[next(iter(self.bases))].is_not_null().mean()) if self.bases else 0.0
+        for f in extra or []:  # more candidate sources: per (sid, mark) like engine marks, or per sid (a daily table)
+            e = pl.read_parquet(f).with_columns(pl.col("sid").cast(pl.Int64))
+            on = ["sid", "mark"] if "mark" in e.columns else ["sid"]
+            ej = key.join(e, on=on, how="left")
+            sums = {c[:-4] for c in e.columns if c.endswith(".sum") and f"{c[:-4]}.wgt" in e.columns}
+            for c in e.columns:
+                if c in on or c.endswith(".wgt") or e.schema[c] not in (pl.Float64, pl.Float32, pl.Int64, pl.Int32, pl.Int16, pl.Int8, pl.UInt32, pl.UInt64, pl.Boolean):
+                    continue
+                if c.endswith(".sum") and c[:-4] in sums:  # an EMA: sum / wgt, as feature_match reads it
+                    w = ej[f"{c[:-4]}.wgt"].to_numpy().astype(float)
+                    with np.errstate(divide="ignore", invalid="ignore"):
+                        self.bases[f"x.{c[:-4]}"] = np.where(w != 0, ej[c].to_numpy().astype(float) / w, np.nan)
+                else:
+                    self.bases[f"x.{c}"] = ej[c].to_numpy().astype(float)
         ix = {n: i for i, n in enumerate(names)}
         self.X = np.full((x.height, len(names)), np.nan)
         for c in x.columns:
@@ -72,6 +86,8 @@ def main() -> None:
     ap.add_argument("--fits", default="livev1_fit1")
     ap.add_argument("--subs", default="s1")
     ap.add_argument("--feature-csv", type=Path, default=Path("/data/prod/models/lgb_fn_v1_209_cte.csv"))
+    ap.add_argument("--extra", default="", help="comma list of more candidate parquets ({date} / {mmdd} filled): (sid, mark, ...) or (sid, ...)")
+    ap.add_argument("--only-extra", action="store_true", help="candidates from --extra only, not the tick bases")
     ap.add_argument("--top", type=int, default=8)
     ap.add_argument("--work", type=Path, default=Path("data/implied_scan_work"))
     ap.add_argument("--threads", type=int, default=32)
@@ -81,7 +97,9 @@ def main() -> None:
     names = P.feature_names(a.feature_csv)
     ix = {n: i for i, n in enumerate(names)}
     ds = [x.strip() for x in a.days.split(",") if x.strip()]
-    days = {d: Day(d, Path(a.x_dir.format(mmdd=d[4:], date=d)), Path(a.base.format(date=d, mmdd=d[4:])), names) for d in ds}
+    ext = [x for x in a.extra.split(",") if x]
+    days = {d: Day(d, Path(a.x_dir.format(mmdd=d[4:], date=d)), Path(a.base.format(date=d, mmdd=d[4:])), names,
+                   [Path(e.format(date=d, mmdd=d[4:])) for e in ext]) for d in ds}
     files = {d: P.model_files(a.models, d, a.fits.split(","), a.subs.split(",")) for d in ds}
     a.work.mkdir(parents=True, exist_ok=True)
     exe = P.ensure_binary()
@@ -110,6 +128,9 @@ def main() -> None:
     s0 = {d: sim(score(d, D.X), D.pm, D.marks) for d, D in days.items()}
     print("baseline similarity " + ", ".join(f"{d} {v:.4f} (bases found at {days[d].found:.3f} of rows)" for d, v in s0.items()), flush=True)
     bases = sorted(set.intersection(*[set(D.bases) for D in days.values()]))
+    if a.only_extra:
+        bases = [b for b in bases if b.startswith("x.")]
+    print(f"{len(bases)} candidate bases ({sum(b.startswith('x.') for b in bases)} from --extra)", flush=True)
     want = []
     for t in (t.strip() for t in a.target.split(",") if t.strip()):  # "zzro*" = every model column of the family (zzro, zzro2, ...)
         want += [n for n in names if n.split(".")[0].rstrip("0123456789") == t[:-1]] if t.endswith("*") else [t]
@@ -136,7 +157,8 @@ def main() -> None:
         rows = []
         for (b, tr), gain in gains.items():
             if len(gain) == len(days):
-                label = {"b": f"cal:gen.{b}", "-b": f"cal:-gen.{b}", "|b|": f"cal:|gen.{b}|", "rank": f"cal:rank:gen.{b}", "-rank": f"cal:rank:-gen.{b}"}[tr]
+                nm = b[2:] if b.startswith("x.") else f"gen.{b}"
+                label = {"b": f"cal:{nm}", "-b": f"cal:-{nm}", "|b|": f"cal:|{nm}|", "rank": f"cal:rank:{nm}", "-rank": f"cal:rank:-{nm}"}[tr]
                 rows.append((min(gain.values()), label, gain))
         rows.sort(key=lambda r: -r[0])
         print(f"-- {tgt}: {len(rows)} candidates in {time.perf_counter() - t0:.0f}s; best by the smaller day gain:")
