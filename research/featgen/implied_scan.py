@@ -88,6 +88,7 @@ def main() -> None:
     ap.add_argument("--feature-csv", type=Path, default=Path("/data/prod/models/lgb_fn_v1_209_cte.csv"))
     ap.add_argument("--extra", default="", help="comma list of more candidate parquets ({date} / {mmdd} filled): (sid, mark, ...) or (sid, ...)")
     ap.add_argument("--only-extra", action="store_true", help="candidates from --extra only, not the tick bases")
+    ap.add_argument("--transforms", default="b,-b,|b|,rank,-rank", help="subset of b, -b, |b|, rank, -rank")
     ap.add_argument("--top", type=int, default=8)
     ap.add_argument("--work", type=Path, default=Path("data/implied_scan_work"))
     ap.add_argument("--threads", type=int, default=32)
@@ -139,7 +140,7 @@ def main() -> None:
             print(f"-- {tgt}: not a model column or no training-CDF points on every day, skipped")
             continue
         t0 = time.perf_counter()
-        cands = [(b, tr) for b in bases for tr in ("b", "-b", "|b|", "rank", "-rank")]
+        cands = [(b, tr) for b in bases for tr in a.transforms.split(",")]
         gains: dict[tuple[str, str], dict[str, float]] = {k: {} for k in cands}
         for d, D in days.items():  # every candidate of this column on this day in one lgbpred run (--batch)
             keep, cols = [], []
