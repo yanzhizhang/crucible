@@ -34,3 +34,16 @@ DuckDB 2.0 upgrade on 97 (user asked: "update the duckdb to 2.0 and related pyth
      .fetchall()"). rel.arrow() now returns a RecordBatchReader (was a Table). fetch_record_batch deprecated -> to_arrow_reader.
      A relation can't run while an execute() result is unfinished (ResourceInUseException; call complete() or abort()).
   Repo use: src/quarry/loaders.py conn.execute(...).pl() x5; src/quarry/db.py cur.fetch_record_batch; 29 .py files use some fetch call.
+
+Rollback to DuckDB 1.5.6 on 97 (user: "ok roll back to 1.5.6"), 2026-11-16 ~00:55-01:07:
+  dry run: DOWNGRADED duckdb, libduckdb, libduckdb-devel, python-duckdb 2.0.0 -> 1.5.6 (nothing else)
+  install: Verifying/Executing transaction done, rc=0 (harmless "Unexpected error writing token file .conda/aau_token_host")
+  conda's reactivate after the install left that shell deactivated (bash: gettext:, CONDA_SHLVL=0); conda activate crucible fixed it
+  now: croaring 5.4.0 (left over), duckdb / libduckdb / libduckdb-devel / python-duckdb 1.5.6; select version() v1.5.6; execute().pl() OK
+       include/duckdb.h, include/duckdb.hpp, lib/libduckdb.so present (C++ interface via libduckdb-devel 1.5.6)
+  pytest: 7 failed, 297 passed in 72 s; all 7 in tests/test_almanac.py (equity_slot_counts, slots_are_right_labelled,
+     slot_grid_refuses_ragged_frequency, slot_grid_rejects_non_session, sessions_exclude_mainland_holidays,
+     shift_moves_by_sessions_not_days, night_session_belongs_to_next_trading_date):
+     7 exchange_calendars.errors.DateOutOfBounds, 1 AssertionError; exchange_calendars 4.8. Not DuckDB (also failed under 2.0).
+  The user ran "conda update -n base -c conda-forge conda" themselves in another tab: "All requested packages already installed" (conda 25.7.0).
+  Mac repo: 28278f8 (pin >=2.0) reverted by a13a92d; environment.yml back to origin's (md5 0c55493e).

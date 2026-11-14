@@ -532,3 +532,4 @@ similarity .6282 / .6558 (float32), .6282 / .6557 (double). 3 s day scored in 7 
 Read-only conda/Arrow/DuckDB/Eigen probe on 97 after Mac unlock. Arrow/Parquet 25.0.0 C++ libs+headers+cmake present; no Eigen, no libduckdb/duckdb.h. gcc 15.3, cmake 4.4.3. docs/reports_97/probe_env/probe_env.txt.
 Env check vs environment.yml d2c2156: 46/48 OK, missing libduckdb-devel and eigen (install is the user's call).
 DuckDB 2.0.0 installed on 97 (user request): rc=0, C++ headers+lib present; pytest 34 failed / 46 errors from removed execute().pl() and fetch_record_batch. Rollback vs port pending user.
+DuckDB rolled back to 1.5.6 on 97 (user): pytest 297 passed, 7 failed (all exchange_calendars DateOutOfBounds in test_almanac, not DuckDB). Pin revert a13a92d.
