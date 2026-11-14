@@ -1,0 +1,31 @@
+R91 on 97 (r91.sh 87c142d3, day.py ed424ae0, backfill_days.py 5d745f1b; gate run_cpp.py a542e01a), paste ~06:14:30, output 06:33:54 - 06:49:42. 30 lines, full.
+[06:33:54] A: true previous day, every EMA seeded (c0)
+20261104: dysl2; side 3s, chain 51s, verify 2s; verify: 68 keys, SZSE all equal 13, all stocks equal 12, median share 0.9333; kept 11 MB
+20261105: dysl2; side 3s, chain 51s, verify 2s; verify: 68 keys, SZSE all equal 25, all stocks equal 19, median share 0.9933; kept 11 MB
+20261106: dysl2; side 3s, chain 50s, verify 2s; verify: 68 keys, SZSE all equal 26, all stocks equal 20, median share 0.9633; kept 11 MB
+20261109: dysl2; side 3s, chain 47s, verify 2s; verify: 68 keys, SZSE all equal 22, all stocks equal 20, median share 0.8067; kept 11 MB
+20261110: dysl2; side 3s, chain 46s, verify 2s; verify: 68 keys, SZSE all equal 24, all stocks equal 19, median share 0.6767; kept 11 MB
+20261111: dysl2; side 3s, chain 45s, verify 2s; verify: 68 keys, SZSE all equal 19, all stocks equal 18, median share 0.9567; kept 11 MB
+20261112: dysl2; side 3s, chain 46s, verify 2s; verify: 68 keys, SZSE all equal 26, all stocks equal 20, median share 0.9600; kept 11 MB
+[06:40:10] B: the stale links, every EMA seeded (c0)
+20261104: dysl2 seed 20260914; side 3s, chain 54s, verify 2s; verify: 68 keys, SZSE all equal 13, all stocks equal 12, median share 0.9333; kept 11 MB
+20261105: dysl2 seed 20261030; side 3s, chain 53s, verify 2s; verify: 68 keys, SZSE all equal 25, all stocks equal 19, median share 0.9933; kept 11 MB
+20261106: dysl2 seed 20261102; side 3s, chain 48s, verify 2s; verify: 68 keys, SZSE all equal 26, all stocks equal 20, median share 0.9633; kept 11 MB
+20261109: dysl2 seed 20261104; side 3s, chain 48s, verify 2s; verify: 68 keys, SZSE all equal 22, all stocks equal 20, median share 0.8067; kept 11 MB
+20261110: dysl2 seed 20261104; side 3s, chain 45s, verify 2s; verify: 68 keys, SZSE all equal 24, all stocks equal 19, median share 0.6767; kept 11 MB
+20261111: dysl2 seed 20261110; side 3s, chain 50s, verify 2s; verify: 68 keys, SZSE all equal 19, all stocks equal 18, median share 0.9567; kept 11 MB
+20261112: dysl2 seed 20261110; side 3s, chain 50s, verify 2s; verify: 68 keys, SZSE all equal 26, all stocks equal 20, median share 0.9600; kept 11 MB
+[06:46:38] F: 1104-1106 from feitu, no seeding (as R84 did for the feitu days)
+20261104: feitu; side 3s, chain 54s, verify 3s; verify: 68 keys, SZSE all equal 43, all stocks equal 43, median share 1.0000; kept 11 MB
+20261105: feitu; side 3s, chain 58s, verify 3s; verify: 68 keys, SZSE all equal 50, all stocks equal 48, median share 1.0000; kept 11 MB
+20261106: feitu; side 3s, chain 53s, verify 2s; verify: 68 keys, SZSE all equal 50, all stocks equal 47, median share 1.0000; kept 11 MB
+[06:49:41] state engine, A
+7 days (20261104 .. 20261112), 68 keys; SZSE fully equal on every day: 11; mean SZSE share >= 0.999: 13
+per day: 20261104 13 0.9333 | 20261105 25 0.9933 | 20261106 26 0.9633 | 20261109 22 0.8067 | 20261110 24 0.6767 | 20261111 19 0.9567 | 20261112 26 0.9600
+[06:49:41] state engine, B
+7 days (20261104 .. 20261112), 68 keys; SZSE fully equal on every day: 11; mean SZSE share >= 0.999: 13
+per day: 20261104 13 0.9333 | 20261105 25 0.9933 | 20261106 26 0.9633 | 20261109 22 0.8067 | 20261110 24 0.6767 | 20261111 19 0.9567 | 20261112 26 0.9600
+[06:49:41] state engine, F
+3 days (20261104 .. 20261106), 68 keys; SZSE fully equal on every day: 43; mean SZSE share >= 0.999: 43
+per day: 20261104 43 1.0000 | 20261105 50 1.0000 | 20261106 50 1.0000
+[06:49:42] done
