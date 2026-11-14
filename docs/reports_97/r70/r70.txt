@@ -1,0 +1,50 @@
+R70 on 97 (commit f59509a: r70.sh ba64887b, featgen/pred_day.py f8984458, featgen/cpp/lgbpred.cpp 14656217), 19:43:52 - 19:50:03, no errors.
+Transcribed from a squeezed, folded view. Model files are read from /work/crucible_data/models_gen/B (path printed relative to it).
+
+[19:43:52] 0 self-test
+lgbpred: 20000 rows x 60 columns, 2 model files, 600 trees
+20,000 rows: 0 scores differ from ic_score.TreeModel (largest difference 0)
+[19:43:55] 1 20260430: ic_score's matrix and scores
+ similarity 0.6282
+lgbpred: 72000 rows x 209 columns, 1 model files, 2000 trees
+20260430: 72,000 rows, 144 of 209 model columns filled, models ['202501/lgb/livev1_fit1/model_s1.txt']; assemble 0.4s, lgbpred 0.5s -> data/featpred_r70/same_matrix/pred_20260430.parquet
+20260430: against data/reports/stage6_r70_0430/pred.parquet: 72,000 rows matched; scores bit-identical 72,000, differing 0; largest difference 0 (scores span 0.00911), correlation 1.000000000
+20260430: similarity of the C++ scores to PM's prediction (rank IC per mark, mean over 240 marks): 0.6282
+[19:45:02] 2 20260430: C++ columns -> C++ model
+ -- float32 bases
+lgbpred: 72000 rows x 209 columns, 1 model files, 2000 trees
+20260430: 72,000 rows, 144 of 209 model columns filled, models [same]; assemble 0.4s, lgbpred 0.4s -> data/featpred_r70/float32/pred_20260430.parquet
+20260430: against stage6_r70_0430/pred.parquet: 72,000 rows matched; scores bit-identical 71,417, differing 583; largest difference 0.000105 (scores span 0.00911), correlation 0.999997410
+20260430: similarity of the C++ scores to PM's prediction (rank IC per mark, mean over 240 marks): 0.6282
+ -- double bases
+lgbpred: 72000 rows x 209 columns, 1 model files, 2000 trees
+20260430: 72,000 rows, 144 of 209 model columns filled; assemble 0.4s, lgbpred 0.5s -> data/featpred_r70/double/pred_20260430.parquet
+20260430: against stage6_r70_0430/pred.parquet: 72,000 rows matched; scores bit-identical 68,945, differing 3,055; largest difference 0.000242 (scores span 0.00911), correlation 0.999981658
+20260430: similarity of the C++ scores to PM's prediction (rank IC per mark, mean over 240 marks): 0.6282
+[19:45:06] 1 20261112: ic_score's matrix and scores
+ similarity 0.6558
+lgbpred: 72000 rows x 209 columns, 1 model files, 2000 trees
+20261112: 72,000 rows, 144 of 209 model columns filled, models ['202501/lgb/livev1_fit1/model_s1.txt']; assemble 0.4s, lgbpred 0.5s -> data/featpred_r70/same_matrix/pred_20261112.parquet
+20261112: against stage6_r70_1112/pred.parquet: 72,000 rows matched; scores bit-identical 72,000, differing 0; largest difference 0 (scores span 0.00902), correlation 1.000000000
+20261112: similarity of the C++ scores to PM's prediction (rank IC per mark, mean over 240 marks): 0.6558
+[19:46:14] 2 20261112: C++ columns -> C++ model
+ -- float32 bases
+lgbpred: 72000 rows x 209 columns, 1 model files, 2000 trees
+20261112: 72,000 rows, 144 of 209; assemble 0.4s, lgbpred 0.4s -> data/featpred_r70/float32/pred_20261112.parquet
+20261112: against stage6_r70_1112/pred.parquet: 72,000 rows matched; scores bit-identical 71,623, differing 377; largest difference 7.82e-05 (scores span 0.00902), correlation 0.999998849
+20261112: similarity of the C++ scores to PM's prediction (rank IC per mark, mean over 240 marks): 0.6558
+ -- double bases
+lgbpred: 72000 rows x 209 columns, 1 model files, 2000 trees
+20261112: 72,000 rows, 144 of 209; assemble 0.4s, lgbpred 0.4s -> data/featpred_r70/double/pred_20261112.parquet
+20261112: against stage6_r70_1112/pred.parquet: 72,000 rows matched; scores bit-identical 67,990, differing 4,010; largest difference 0.00032 (scores span 0.00902), correlation 0.999987185
+20261112: similarity of the C++ scores to PM's prediction (rank IC per mark, mean over 240 marks): 0.6557
+[19:46:19] 3 20261112 every 3 s: scores
+lgbpred: 1422000 rows x 209 columns, 1 model files, 2000 trees
+20261112: 1,422,000 rows, 144 of 209 model columns filled, models ['202501/lgb/livev1_fit1/model_s1.txt']; assemble 4.6s, lgbpred 7.0s -> data/featpred_3s/pred_20261112.parquet
+ total 10556
+ drwxr-xr-x 2 root root 43 Nov 14 19:46 .
+ drwxr-xr-x 38 root root 4096 Nov 14 19:46 ..
+ -rw-r--r-- 1 root root 10802420 Nov 14 19:46 pred_20261112.parquet
+[19:46:31] 4 0430 with the deterministic engine marks (r41c: .6282 with data/engine_m7)
+ similarity 0.6282
+[19:50:03] done

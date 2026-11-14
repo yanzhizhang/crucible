@@ -523,3 +523,7 @@ zzxu.last/zzxo.last/cdc.lp 3.6%). feitu 0430: 75.8% of trades share an arrival s
 ## R69 -- 2026-11-14 ~19:11:39-19:13:26 (crucible request)
 C++ whole-book replay: self-test 0 off; book matches Python on 0430 and 1112 (0 differing). 144 columns with the C++ book: 141/144 both days
 (zzab, zzav, zzxt3 as in R67). 1112 every 3 s all in C++: 65 s total, all 144 columns have values. Report: docs/reports_97/r69/r69.txt.
+
+## R70 -- 2026-11-14 19:43:52-19:50:03 (crucible request)
+PM LightGBM model in C++: self-test 0 differ; on ic_score's own matrix bit-identical 72,000/72,000 both days. C++ columns -> C++ model:
+similarity .6282 / .6558 (float32), .6282 / .6557 (double). 3 s day scored in 7 s. 0430 with engine_r68a: .6282. Report: docs/reports_97/r70/r70.txt.
