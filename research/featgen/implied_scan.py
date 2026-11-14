@@ -95,7 +95,10 @@ def main() -> None:
     s0 = {d: sim(score(d, D.X), D.pm, D.marks) for d, D in days.items()}
     print("baseline similarity " + ", ".join(f"{d} {v:.4f} (bases found at {days[d].found:.3f} of rows)" for d, v in s0.items()), flush=True)
     bases = sorted(set.intersection(*[set(D.bases) for D in days.values()]))
-    for tgt in [t.strip() for t in a.target.split(",") if t.strip()]:
+    want = []
+    for t in (t.strip() for t in a.target.split(",") if t.strip()):  # "zzro*" = every model column of the family (zzro, zzro2, ...)
+        want += [n for n in names if n.split(".")[0].rstrip("0123456789") == t[:-1]] if t.endswith("*") else [t]
+    for tgt in dict.fromkeys(want):
         if tgt not in ix or any(tgt not in D.cal for D in days.values()):
             print(f"-- {tgt}: not a model column or no training-CDF points on every day, skipped")
             continue
