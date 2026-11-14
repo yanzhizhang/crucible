@@ -35,6 +35,19 @@ def days(spec: str, state_dirs: list[Path]) -> list[str]:
     return [x.strip() for x in spec.split(",") if x.strip()]
 
 
+def has_day(catalog: Path, d: str) -> bool:
+    """Whether the catalog holds snapshots of the day."""
+    import duckdb
+
+    try:
+        con = duckdb.connect(str(catalog), read_only=True)
+        n = con.sql(f"SELECT count(*) FROM (SELECT 1 FROM raw_quotation WHERE date = {int(d)} LIMIT 1000)").fetchone()[0]
+        con.close()
+        return n >= 1000
+    except Exception:  # noqa: BLE001 -- no catalog / no view: not there
+        return False
+
+
 def run(cmd: list[str], log: Path, env: dict[str, str]) -> tuple[int, float, str]:
     t0 = time.perf_counter()
     with log.open("w") as f:
@@ -50,6 +63,8 @@ def main() -> None:
     ap.add_argument("--state-dir", default="/data/prod/h/HS300/p1_intrading_dcp,/work/crucible_data/seed_probe/HS300",
                     help="comma list of dirs of PM's day-end state files (.jz); a day takes the first dir that has its file")
     ap.add_argument("--dysl2-from", default="20261104", help="first day read from DataYes (dysl2); earlier days from feitu")
+    ap.add_argument("--prefer-feitu", action="store_true",
+                    help="read feitu whenever its catalog has the day (R91: PM's production state matches feitu, not DataYes, on 1104-1106)")
     ap.add_argument("--grid", type=float, default=3.0)
     ap.add_argument("--models", type=Path, default=DATA / "models_gen" / "B")
     ap.add_argument("--pq", type=Path, help="lgbpred_pq for the model step")
@@ -72,6 +87,8 @@ def main() -> None:
             print(f"{d}: no state file in {[str(x) for x in dirs]}, skipped", flush=True)
             continue
         src = "dysl2" if d >= a.dysl2_from else "feitu"
+        if a.prefer_feitu and src != "feitu" and has_day(DATA / "catalog.duckdb", d):
+            src = "feitu"
         cat = DATA / ("catalog.duckdb" if src == "feitu" else f"catalog_{src}.duckdb")
         env = dict(os.environ, CRUCIBLE_SOURCE=src)
         day_out = a.out / "days" / d
