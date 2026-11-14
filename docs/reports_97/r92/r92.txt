@@ -1,0 +1,17 @@
+R92 on 97 (r92.sh 9e32404c, hstats_extra.py 12586f5e, implied_scan.py e70704a9), 06:55:51 - 06:55:59 (paste ~06:50). 16 lines, full.
+[06:55:51] hstats cells 20261112
+20261112: families ['ZZAL', 'ZZDS', 'ZZGW', 'ZZHL', 'ZZMS', 'ZZQI', 'ZZQO', 'ZZSQ', 'ZZTS', 'ZZUG', 'ZZVC', 'ZZWA', 'ZZXC']; 152 cells x 72,000 rows (301 stocks with cells) -> data/side_r92/hstats_20261112.parquet
+[06:55:55] hstats cells 20260430
+20260430: families []; 0 cells x 72,000 rows (0 stocks with cells) -> data/side_r92/hstats_20260430.parquet
+[06:55:56] implied scan, hstats cells
+baseline similarity 20261112 0.6558 (bases found at 1.000 of rows), 20260430 0.6282 (bases found at 1.000 of rows)
+0 candidate bases (0 from --extra)
+-- zzbt.b: 0 candidates in 0s; best by the smaller day gain:
+   share of candidates helping on every day: nan
+-- zzaa.b: 0 candidates in 0s; best by the smaller day gain:
+   share of candidates helping on every day: nan
+-- zzxo: 0 candidates in 0s; best by the smaller day gain:
+   share of candidates helping on every day: nan
+-- zzpp.b: 0 candidates in 0s; best by the smaller day gain:
+   share of candidates helping on every day: nan
+[06:55:59] done
