@@ -49,7 +49,7 @@ KERNEL_BUILD = [
 FEATGEN_CPP = [
     "libarrow>=18",
     "libparquet>=18",
-    "libduckdb-devel>=1.1",
+    "libduckdb-devel>=1.1,<2",
     "eigen>=3.4",
 ]
 
