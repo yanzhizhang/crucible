@@ -534,3 +534,4 @@ Env check vs environment.yml d2c2156: 46/48 OK, missing libduckdb-devel and eige
 DuckDB 2.0.0 installed on 97 (user request): rc=0, C++ headers+lib present; pytest 34 failed / 46 errors from removed execute().pl() and fetch_record_batch. Rollback vs port pending user.
 DuckDB rolled back to 1.5.6 on 97 (user): pytest 297 passed, 7 failed (all exchange_calendars DateOutOfBounds in test_almanac, not DuckDB). Pin revert a13a92d.
 R72 run (1113 only; 1114 Saturday). daily_pull.sh + root cron 21:30 Mon-Fri on 97; cron-env ssh test pending.
+R72 relayed in full (1113); cron-env ssh OK (bare env, root key).

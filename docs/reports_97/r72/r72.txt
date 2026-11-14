@@ -1,22 +1,203 @@
 R72 on 97 (r72.sh 8741c3e6, runs_target.py ecc9be4c; gates also on pm_signals/pm_orders/runs_sample/runs_fit/pm_poslog), 01:08:22 - 01:12:30.
+Transcribed from screen (view: spaces squeezed, fold -w 175; 277 view lines of 241). 20261114 is a Saturday (user), so its steps have no data.
+
 [01:08:22] 0 inventory
-  20261113: log files 2, position-log csvs 1, base position csvs: base_position_v1.1_hs300.csv base_position_v1.1_zz1000.csv
-    base_position_v1.1_zz500.csv base_position_v1_hs300.csv base_position_v1_zz1000.csv base_position_v1_zz500.csv
-    base_position_v2_hs300.csv base_position_v2_zz1000.csv base_position_v2_zz500.csv
-  20261114: log files 0, position-log csvs 0, base position csvs:   (user: 1114 is a Saturday; no trading)
-Tail seen on screen (step 4, 20261113 E block):
-  E 761,279 decisions with the holding known; live gap = base - qty != 0 on 0.374; corr(pos, qty - base) +0.999, corr(pos, qty) +0.205,
-    pos == qty - base 0.999, pos == qty 0.002
-  09:30-09:31 (1,496 rows) ... later (759,783 rows): trade on [fa x w, gap, 1]: R^2 0.874; [fa x w, gap, cpos, 1]: R^2 0.878
-  sell (trade < 0): 94,981 rows, made 1,244 (0.0131); buy (trade > 0): 221,573 rows, made 1,137 (0.0051); none: 444,381, made 0
+ 20261113: log files 2, position-log csvs 1, base position csvs: base_position_v1.1_hs300.csv base_position_v1.1_zz1000.csv base_position_v1.1_zz500.csv
+   base_position_v1_hs300.csv base_position_v1_zz1000.csv base_position_v1_zz500.csv base_position_v2_hs300.csv base_position_v2_zz1000.csv base_position_v2_zz500.csv
+ 20261114: log files 0, position-log csvs 0, base position csvs:
+[01:08:22] 1 20261113 pm_signals, pm_orders
+
+==== 20261113: 1,373,162 scored snapshots, 761,279 decisions, RPT 11708, ORD 5948, SEND 5855, CXL 5273, TRD 651, CLOCK 387, POS 300, BHOLD 296, REJ 93, CXL_RSP 2, STRAT 1, BSNAP 1, BASSET 1, ACCT 1, SCASH 1, INS_RSP 1
+-- 1 strategy line shapes (count, source, keys | example):
+ 1,374,823 catchRun.cpp:73 srcEpoch recEpoch sid | srcEpoch: 1794533400, recEpoch: 1794533400.043925, sid: 600372, name: alpha.1
+ 1,373,162 alg.cpp:169 sidIdx aIdx fa book->epoch emsOurVol emsMktVol | sidIdx = 153, aIdx = 0, fa = -0.0005069766384664557, book->epoch = 1794533400.043925, emsO
+ 1,373,162 alg.cpp:213 mp fa vpen vr poscst cpos asq hs | mp: 11.295, fa: -0.0005069766384664557, vpen: 1e-07, vr: 0.23103609956760557, poscst: 2128
+ 761,279 alg.cpp:257 aIdx sid fa pos pp_ this->executp asq lthr hs liid winsdQty asf | aIdx = 0, sid = 688072, fa = -0.0006945734858815805, pos = -100, pp_ = 0, this->executp =
+ 758,890 alg.cpp:258 order is nullptr : true | order is nullptr : true
+ 6,505 es.cpp:172 sid exOid cumQty | OnEOM sid: 977, exOid: 1, cumQty: 0, fPrc0.
+ 5,948 es.cpp:399 nowTs | Po nowTs:20261113 09:30:00.594901SO,1794533400.586090,0,1,101,977,56.56,400
+ 5,948 catchRun.cpp:209 symbol volume price | place_order symbol = 000977.SZ, volume = 400, price = 56.56, side = buy
+ 5,273 es.cpp:73 sid exOid | cxl ords, sid: 2230, exOid: 3
+ 5,273 es.cpp:493 sid exOid prc exSoQ | cancelExOrd, sid: 2230, exOid: 3, prc: 37.450000, exSoQ: 200
+ 5,271 es.cpp:83 sid exOid cq | OnECM sid: 2230, exOid: 3, cq: 100
+ 5,271 es.cpp:132 OnECM N N:N:N.N, ExOid N, OrderId N | OnECM 20261113 09:30:07.120170, ExOid 3, OrderId 3
+ 5,271 es.cpp:135 sid exOid | OnECM erase order sid: 2230, exOid: 3
+ 2,389 alg.cpp:258 order is nullptr : false | order is nullptr : false
+ 651 es.cpp:216 OnEOM N N:N:N.N, ExOid N, N, N.N, {.Nf}, N.N | OnEOM 20261113 09:30:00.651418, ExOid 2, 900, 25.7400, {.6f}, 1794533400.6514184
+ 583 es.cpp:235 sid exOid exFq exCq exSoQ | OnEOM erase order, sid: 938, exOid: 2, ExCond: None, exFq: 900, exCq: 0, exSoQ: 900, becau
+ 300 catchRun.cpp:189 yesterday_qty sellable_qty | symbol 000001.SZ p.total_qty() = 3800, p.yesterday_qty = 3800, p.sellable_qty = 3800
+ 94 es.cpp:246 OnFOM sid: , exOid: | OnFOM sid: , exOid:
+ 94 es.cpp:265 OnFOM erase order, sid: | OnFOM erase order, sid:
+ 2 catchRun.hpp:24 runS constructor | runS constructor
+ 2 catchRun.cpp:77 runS initialize, waiting for attach | runS initialize, waiting for attach
+ 2 trd.cpp:45 Loading data from /tmp/s/stsfile/index/index-N.xr | Loading data from /tmp/s/stsfile/index/index-20261112.xr
+ 1 trd.cpp:50 Loading data from /tmp/s/stsfile/ex/ex-N.xr | Loading data from /tmp/s/stsfile/ex/ex-20261113.xr
+ 1 trd.cpp:54 Loading data from /tmp/s/stsfile/sidNsymbol/N.json | Loading data from /tmp/s/stsfile/sid2symbol/20261113.json
+ 1 trd.cpp:59 Loading data from /tmp/s/stsfile/stats/sod/N.xr | Loading data from /tmp/s/stsfile/stats/sod/20261113.xr
+-- 2 share of snapshots reaching a decision, by |fa| / hs (stock's median hs):
+ (-inf, 0.25] - 0.583 (153,787) | (-inf, 0.25] + 0.643 (128,021) | (0.25, 0.5] - 0.500 (140,694) | (0.25, 0.5] + 0.683 (91,754) | (0.5, 0.75] - 0.470 (118,557) | (0.5, 0.75] +
+ 0.732 (66,674) | (0.75, 1] - 0.440 (89,585) | (0.75,
+-- 3 lthr = -0.000182 -0.2208 x hs (resid p10/p50/p90 -0.0002556/2.689e-06/0.0002441, exact to 1e-5 0.031); distinct lthr 685921, hs 68789
+ on decisions: fa p10/p50/p90 -0.0004964/-2.91e-05/0.0004194; fa < lthr 0.251; fa > -lthr 0.193; |fa| > hs 0.340; executp != 0 0.395; nullptr=1 0.997
+ executp != 0: sign(executp) == sign(fa) 0.617; |executp| p10/p50/p90 0.05687/0.4876/368.5; |executp| / winsdQty 2.886e-07/2.71e-06/0.002141; pos p10/p50/p90 -1800/-100/122; a
+ sq 0/291/5800
+-- 4 5,948 orders; 0.000 tied to a decision; side == sign(fa) 0.000, == sign(executp) 0.000; qty p10/p50/p90 100/200/900; qty / |executp| -; |fa| / hs -
+-- 5 orders per half hour (09:30 = 0): 0:4246 1:407 2:216 3:14 4:189 5:158 6:245 7:473; PM's snapshot receive -> order (ms) p10/p50/p90 4.943/4.943/4.943; chrono's signal hand
+ ling -> order (ms) 1.795e+12/1.795e+12/1.795e+12
+ gap between two orders of a stock (s) p1/p10/p50/p90 0.0006259/0.004773/0.2525/4.009, min 0.000; orders per stock p10/p50/p90 595.6/2974/5352, stocks 2
+ SEND: 5,855
+ CXL: 5,273
+ RPT: 11,708
+ TRD: 651
+-- 6 chrono REJ reasons: leg blocked at gate -- xtp_<acct> 100 shares: outside_ 53; leg blocked at gate -- xtp_<acct> 600 shares: outside_ 30; leg blocked at gate
+ -- xtp_<acct> 400 shares: outside_ 4; leg blocked
+-- 7 5,948 Po lines; side tag (the 2 letters after the time): {'SO': 5948}; f3 runs 1..5948 (exOid, +1 per order: 0.974), f4 = 100 x f3 + 1 1.000; tied to a decision 0.999, de
+ cision -> Po (ms) p10/p50/p90 289.2/1326/1.945e+04
+ SO: n 5,944; fa > 0 0.483; executp > 0 0.292, < 0 0.404, = 0 0.304; fa < lthr 0.508, fa > -lthr 0.418; |fa| / hs p10/p50/p90 1.574/4.024/13.09; qty p10/p50/p90 100/200/900, q
+ ty / |executp| 0.1875/0.8/1621; pos -700/0/400; asq 0
+ REJ: sides {'BUY': 79, 'SELL': 14}; on stocks holding nothing at boot 0.000 (17 stocks, 0 of them with no holding); stocks with a boot holding: 296
+ decisions followed by a Po within 200 ms, by |executp|: (-inf, 0] 0.000 (460,383) | (0, 99] 0.000 (252,782) | (99, 199] 0.002 (7,208) | (199, 999] 0.005 (29,470) | (999, 9999
+ ] 0.003 (11,436)
+ fa < lthr, Po rate by: nullptr 0.0: 0.138 (1,231), 1.0: 0.000 (189,819) | asq > 0 False: 0.000 (64,225), True: 0.001 (126,825) | pos > 0 False: 0.001 (161,084), True: 0.002 (
+ 29,966)
+[01:12:23] 2 20261113 runs_sample, runs_fit
+761,279 decisions, columns ['src_epoch', 'ev_mp', 'ev_fa', 'ev_vpen', 'ev_vr', 'ev_poscst', 'ev_cpos', 'ev_asq', 'ev_hs', 'aIdx', 'sid', 'fa', 'pos', 'pp', 'executp', 'asq', '
+lthr', 'hs', 'liid', 'winsdQty', 'asf', 'nullptr']
+shape: (22, 8)   col | p1 | p10 | p50 | p90 | p99 | zero | int
+ src_epoch | 1.794534e18 | 1.794546e18 | 1.794549e18 | 1.794552e18 | 1.794553e18 | 0.000000 | 1.000000
+ ev_mp | 2.515000 | 5.255000 | 23.200000 | 111.150000 | 971.051600 | 0.000000 | 0.000715
+ ev_fa | -0.001125 | -0.000496 | -0.000029 | 0.000419 | 0.001120 | 0.000000 | 0.000000
+ ev_vpen | 0.000000 | 0.000036 | 0.000663 | 0.000936 | 0.000986 | 0.000000 | 0.000000
+ ev_vr | 0.039755 | 0.075664 | 0.184901 | 0.937998 | 3.885199 | 0.000000 | 0.000000
+ ev_poscst | 3600.000000 | 10100.000000 | 80400.000000 | 3697800.000000 | 10000000.000000 | 0.000000 | 1.000000
+ ev_cpos | -4200.000000 | -500.000000 | 0.000000 | 0.000000 | 2300.000000 | 0.626992 | 1.000000
+ ev_asq | 0.000000 | 0.000000 | 163.000000 | 3800.000000 | 11100.000000 | 0.462871 | 1.000000
+ ev_hs | 0.000025 | 0.000092 | 0.000286 | 0.000964 | 0.001988 | 0.000000 | 0.000000
+ aIdx | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 1.000000 | 1.000000
+ sid | 63.000000 | 975.000000 | 600372.000000 | 603501.000000 | 688472.000000 | 0.000000 | 1.000000
+ fa | -0.001125 | -0.000496 | -0.000029 | 0.000419 | 0.001120 | 0.000000 | 0.000000
+ pos | -4200.000000 | -500.000000 | 0.000000 | 0.000000 | 2300.000000 | 0.626408 | 1.000000
+ pp | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.996154 | 1.000000
+ executp | -1014.948297 | -0.876509 | 0.000000 | 0.000000 | 381.182038 | 0.604749 | 0.616782
+ asq | 0.000000 | 0.000000 | 163.000000 | 3800.000000 | 11100.000000 | 0.462843 | 1.000000
+ lthr | -0.000953 | -0.000542 | -0.000257 | -0.000001 | 0.000000 | 0.098930 | 0.098930
+ hs | 0.000025 | 0.000092 | 0.000286 | 0.000964 | 0.001988 | 0.000000 | 0.000000
+ liid | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.999997 | 1.000000
+ winsdQty | 9972.286891 | 35695.537900 | 156819.003376 | 706926.926724 | 2384855.673051 | 0.000000 | 0.000005
+ asf | 0.800000 | 0.800000 | 0.800000 | 0.800000 | 0.800000 | 0.000000 | 0.000000
+ nullptr | 1.000000 | 1.000000 | 1.000000 | 1.000000 | 1.000000 | 0.003138 | 1.000000
+
+-- decisions that produced an order (nullptr 0)
+shape: (10, 20)   columns sid | src_epoch | fa | ev_mp | ev_vpen | ev_vr | ev_poscst | ev_cpos | ev_asq | ev_hs | pos | pp | executp | asq | lthr | hs | liid | winsdQty | a(sf?) ...
+ (wide table wrapped on screen; values in column order as shown)
+ 977 | 1794533400000 | 0.001159 | 56.555000 | 0.000000 | 0.065782 | 31700.000000 | 0.000000 | 400.000000 | 0.000088 | 0.000000 | 0.000000 | 400.000000 | 400.000000 | 0.000000 | 0.000088 | 0.000000 | 78388.235294 | 0
+ 938 | 1794533400000 | 0.001601 | 25.735000 | 0.000000 | 0.086747 | 127000.000000 | 0.000000 | 900.000000 | 0.000194 | 0.000000 | 0.000000 | 900.000000 | 900.000000 | 0.000000 | 0.000194 | 0.000000 | 274782.352941 | 0
+ 2230 | 1794533400000 | -0.001096 | 37.465000 | 0.000000 | 0.082163 | 36400.000000 | -100.000000 | 700.000000 | 0.000400 | -100.000000 | 0.000000 | -800.000000 | 700.000000 | 0.000000 | 0.000400 | 0.000000 | 13200.000000 | 0
+ 300308 | 1794533400000 | 0.001912 | 520.600000 | 0.000000 | 0.222877 | 9000.000000 | 0.000000 | 400.000000 | 0.000096 | 0.000000 | 0.000000 | 204.429699 | 400.000000 | 0.000000 | 0.000096 | 0.000000 | 165652.941176 | 0
+ 300413 | 1794533400000 | 0.001689 | 33.095000 | 0.000000 | 0.719201 | 60000.000000 | 0.000000 | 300.000000 | 0.000755 | 0.000000 | 0.000000 | 300.000000 | 300.000000 | 0.000000 | 0.000755 | 0.000000 | 413823.352941 | 0
+ 300661 | 1794533400000 | 0.001262 | 85.395000 | 0.000000 | 0.283275 | 5000.000000 | 0.000000 | 200.000000 | 0.000527 | 0.000000 | 0.000000 | 200.000000 | 200.000000 | 0.000000 | 0.000527 | 0.000000 | 13005.882353 | 0
+ 601877 | 1794533401000 | -0.001074 | 23.790000 | 0.000000 | 0.116780 | 49100.000000 | 0.000000 | 400.000000 | 0.000420 | 0.000000 | 0.000000 | -400.000000 | 400.000000 | 0.000000 | 0.000420 | 0.000000 | 5964.705882 | 0
+ 300502 | 1794533400000 | 0.001011 | 212.060000 | 0.000000 | 0.248159 | 14300.000000 | 0.000000 | 500.000000 | 0.000283 | 0.000000 | 0.000000 | 158.321879 | 500.000000 | 0.000000 | 0.000283 | 0.000000 | 345689.117647 | 0
+ 603288 | 1794533401000 | -0.000836 | 34.445000 | 0.000000 | 0.089912 | 41400.000000 | -100.000000 | 600.000000 | 0.000145 | -100.000000 | 0.000000 | -700.000000 | 600.000000 | 0.000000 | 0.000145 | 0.000000 | 16532.470588 | 0
+ 301308 | 1794533400000 | 0.000921 | 231.890000 | 0.000000 | 0.132945 | 5000.000000 | 0.000000 | 100.000000 | 0.000043 | 0.000000 | 0.000000 | 100.000000 | 100.000000 | 0.000000 | 0.000043 | 0.000000 | 31958.823529 | 0
+ (each row also wraps a trailing "| 000000 |" cell)
+
+761,279 decisions; cpos == pos + pp: 1.0000
+trade = executp - cpos: == -asq 0.3380, == +asq 0.3153, |trade| <= asq 0.8170, sign(trade) == sign(fa) 0.2327
+ trade p1/10/50/90/99: -1306 / -44.86 / 0 / 498.9 / 3700; |executp| 0 / 0 / 0 / 1.482 / 1343
+ 09:30-09:31: 1,496 rows; trade == -asq 0.264, == +asq 0.163; |executp| 0 / 50.63 / 429.5 / 1402 / 3633; lthr == 0 1.000
+ later: 759,783 rows; trade == -asq 0.338, == +asq 0.316; |executp| 0 / 0 / 0 / 1.403 / 1319; lthr == 0 0.097
+
+executp / (fa x winsdQty): -13.72 / -0.005773 / 0 / 0.05479 / 15.51
+executp / ((|fa| - hs)+ x sign(fa) x winsdQty): -49.76 / -0 / 0 / 4.543 / 48.66
+executp / ((fa - lthr) x winsdQty): -13.74 / -0.012 / 0 / 0.0238 / 15.51
+
+least squares of executp on ['fa_w', 'fa_w_vpen', 'fa_w_vr', 'cpos', 'pos', 'pp', 'hs_w', 'lthr_w', 'one'] over 363,870 uncapped rows: R^2 0.366
+ fa_w +0.2763, fa_w_vpen -329.5, fa_w_vr -0.005804, cpos +0.2985, pos -0.001006, pp +0.2996, hs_w -0.01411, lthr_w -0.05974, one -40.47
+ corr(executp, fa_w) +0.089
+ corr(executp, fa_w_vpen) +0.000
+ corr(executp, fa_w_vr) +0.019
+ corr(executp, cpos) +0.575
+ corr(executp, pos) +0.571
+ corr(executp, pp) +0.057
+ corr(executp, hs_w) +0.019
+ corr(executp, lthr_w) -0.031
+
+order made (nullptr 0) by |trade|:
+ [0, 1): 454,619 rows, made 0.0000
+ [1, 100): 126,570 rows, made 0.0000
+ [100, 200): 35,604 rows, made 0.0167
+ [200, 1000): 84,608 rows, made 0.0161
+ [1000, 1000000000.0): 59,534 rows, made 0.0072
+order made by asq == 0 / > 0, and by lthr == 0 / < 0:
+ asq 0: 352,353 rows, made 0.0014
+ asq > 0: 408,926 rows, made 0.0046
+ lthr 0: 75,313 rows, made 0.0246
+ lthr < 0: 685,966 rows, made 0.0008
+[01:12:26] 1 20261114 pm_signals, pm_orders
+20261114: no logs
+[01:12:27] 2 20261114 runs_sample, runs_fit
+ runs_sample.py line 27 and runs_fit.py line 33: pl.read_parquet(a.orders / f"date={a.date}" / "decisions.parquet")
+ FileNotFoundError: No such file or directory (os error 2): /work/crucible_data/pm_orders/date=20261114/decisions.parquet   (both; Saturday)
+[01:12:27] 3 pm_poslog
+
+== 20261113: 221,700 position-log rows from 1 file(s), 300 stocks, 739 dumps; qty != 0 0.861, base_qty != 0 0.997
+ stocks whose qty changes during the day 0.650; share of rows with qty == base_qty 0.610
+ decisions with a log row at or before them: 761,279 of 761,279
+ pos == (exact / within 100 / corr): qty 0.002/0.081/r +0.205; yesterday_qty 0.031/0.095/r -0.166; sellable_qty 0.373/0.437/r +0.093; base_qty 0.034/0.081/r -0.166; gap 0.626/
+ 0.652/r -0.999; ngap 0.999/0.999/r +0.999
+ executp == (exact / within 100 / corr): qty 0.011/0.162/r +0.063; yesterday_qty 0.005/0.061/r -0.072; sellable_qty 0.324/0.488/r +0.001; base_qty 0.003/0.055/r -0.072; gap 0.
+ 582/0.637/r -0.364; ngap 0.582/0.768/r +0.364
+ executp == pos with sells capped at sellable_qty 0.591; on executp != 0: sign(executp) == sign(base - qty) 0.014, == sign(fa) 0.617
+ prediction vs holding gap: corr(fa, base - qty) +0.005; corr(fa, pos) -0.004; rows with base - qty != 0 0.374
+
+== 20261114: no position log under /work/crucible_data/chrono_poslog/20261114
+[01:12:28] 4 runs_target
+
+==== 20261113: 300 stocks, 739 dumps; base_qty constant within the day for 1.000 of stocks
+A gap0 = base - yesterday: != 0 for 0.197 of stocks; shares p1/10/50/90/99 -45.55 / 0 / 0 / 100 / 100.1; sum |gap0| 5,357 against sum base 495,100 and sum yesterday 490,599; f
+irst-dump qty == yesterday 1.000
+B net trade = last qty - yesterday: != 0 for 0.187; sum |net| 21,522; sign(net) == sign(gap0) on stocks that traded and had a gap 0.867
+ net on [gap0, 1]: R^2 0.008 over 300 rows: gap0 -0.8275, one -33.18
+ gap left at the close: sum |base - last qty| 21,793 = 4.068 of sum |gap0|; net / gap0 per stock p1/p10/p50/p90/p99 -30.56 / 0 / 0 / 1 / 3.43
+ 761,279 decisions, columns ['src_epoch', 'ev_mp', 'ev_fa', 'ev_vpen', 'ev_vr', 'ev_poscst', 'ev_cpos', 'ev_asq', 'ev_hs', 'aIdx', 'sid', 'fa', 'pos', 'pp', 'executp', 'asq',
+'lthr', 'hs', 'liid', 'winsdQty', 'asf', 'nullptr']
+D first decision of each stock (300 stocks), exact / within 100 / corr:
+ pos yesterday 0.007/0.083/r -0.531; base 0.017/0.073/r -0.543; yesterday - base 0.997/0.997/r +0.961; base - yesterday 0.800/0.830/r -0.961; values -100.1 / -100 / 0 / 0 / 10
+0
+ pos on [yesterday, base, 1]: R^2 0.924 over 300 rows: yesterday +1, base -1, one +0.9885
+ ev_cpos yesterday 0.010/0.087/r -0.475; base 0.020/0.077/r -0.485; yesterday - base 0.987/0.993/r +0.836; base - yesterday 0.790/0.827/r -0.836; values -100.1 / -100 / 0 / 0
+ / 100
+ ev_cpos on [yesterday, base, 1]: R^2 0.699 over 300 rows: yesterday +1.006, base -1.006, one +3.781
+ executp yesterday 0.223/0.270/r -0.044; base 0.207/0.263/r -0.045; yesterday - base 0.003/0.197/r +0.093; base - yesterday 0.003/0.170/r -0.093; values -2054 / -816.6 / -1.60
+9 / 885 / 1802
+ executp on [yesterday, base, 1]: R^2 0.009 over 300 rows: yesterday +1.851, base -1.848, one +27.65
+ asq yesterday 1.000/1.000/r +1.000; base 0.803/0.990/r +1.000; yesterday - base 0.003/0.080/r -0.545; base - yesterday 0.003/0.070/r +0.545; values 0 / 200 / 800 / 4310 / 1.1
+1e+04
+ asq on [yesterday, base, 1]: R^2 1.000 over 300 rows: yesterday +1, base +1.486e-15, one +1.381e-14
+E 761,279 decisions with the holding known; live gap = base - qty != 0 on 0.374; corr(pos, qty - base) +0.999, corr(pos, qty) +0.205, pos == qty - base 0.999, pos == qty 0.002
+ 09:30-09:31 (1,496 rows): executp -3633 / -1061 / -9.109 / 926.4 / 2500; trade -2730 / -1091 / -52.69 / 857.3 / 2300
+ executp on [fa x w, 1]: R^2 0.323 over 1,496 rows: fa_w +1.733, one -68.45
+ executp on [fa x w, gap, 1]: R^2 0.377 over 1,496 rows: fa_w +1.748, gap -0.6254, one -80.88
+ executp on [fa x w, gap, cpos, 1]: R^2 0.473 over 1,495 rows: fa_w +1.551, gap +0.2255, cpos +0.8524, one -68.14
+ trade on [fa x w, 1]: R^2 0.313 over 1,495 rows: fa_w +1.526, one -73.34
+ trade on [fa x w, gap, 1]: R^2 0.337 over 1,495 rows: fa_w +1.517, gap +0.3728, one -65.92
+ trade on [fa x w, gap, cpos, 1]: R^2 0.341 over 1,495 rows: fa_w +1.551, gap +0.2255, cpos -0.1476, one -68.14
+ later (759,783 rows): executp -1000 / -0.8675 / 0 / 0 / 345.1; trade -1300 / -43 / 0 / 498.4 / 3700
+ executp on [fa x w, 1]: R^2 0.007 over 759,783 rows: fa_w +0.07242, one -22.42
+ executp on [fa x w, gap, 1]: R^2 0.142 over 759,783 rows: fa_w +0.07439, gap -0.1286, one -1.395
+ executp on [fa x w, gap, cpos, 1]: R^2 0.146 over 759,440 rows: fa_w +0.07302, gap +0.1359, cpos +0.2661, one -1.51
+ trade on [fa x w, 1]: R^2 0.001 over 759,440 rows: fa_w +0.08255, one +139.7
+ trade on [fa x w, gap, 1]: R^2 0.874 over 759,440 rows: fa_w +0.06933, gap +0.8655, one -1.841
+ trade on [fa x w, gap, cpos, 1]: R^2 0.878 over 759,440 rows: fa_w +0.07302, gap +0.1359, cpos -0.7339, one -1.51
+ by side of trade = executp - cpos (rows, order made, then on the rows that made an order):
+ sell (trade < 0): 94,981 rows, made 1,244 (0.0131); fa -0.002225 / -0.001352 / -0.0008836 / -0.0006389 / -0.0003433; fa < lthr 0.986, fa > -lthr 0.000, |fa| > hs 0.992; sign(
+gap) -/0/+ 0.33/0.50/0.17; |trade| 100 / 100 / 400 / 1300 / 4110
+ buy (trade > 0): 221,573 rows, made 1,137 (0.0051); fa 0.0001026 / 0.0003248 / 0.0008316 / 0.001498 / 0.004143; fa < lthr 0.000, fa > -lthr 0.846, |fa| > hs 0.964; sign(gap)
+-/0/+ 0.04/0.31/0.65; |trade| 100 / 100 / 300 / 1700 / 4200
+ none (trade = 0): 444,381 rows, made 0 (0.0000);
+ lthr / hs -9.488 / -2.821 / -0.7175 / -0.001858 / 0; corr(lthr / hs, gap / winsdQty) +0.016; corr(lthr, gap) +0.025; lthr / hs by sign(gap) -/0/+: -11.39 / -2.293 / -0.2748
+ / 0 / 0 | -10.41 / -3.141 / -0.8442 / -0.09377 / 0 | -6.207 / -2.16 / -0.542 / 0 / 0
+
 ==== 20261114: no position log under /work/crucible_data/chrono_poslog/20261114
 [01:12:30] done
-Full r72.txt stays on 97 (data/reports/r72.txt); to be read and relayed in full.
-
-Daily pull + cron (user: "copy and set up a cron to run the daily data pull"), 2026-11-15 01:14-01:17:
-  research/daily_pull.sh (new, = daily_pm.sh steps 1-2, rsync only, ssh BatchMode; today+yesterday by default)
-  ssh -o BatchMode=yes to 224: SSH KEY LOGIN OK (from the VS Code shell); pull 20261114: no position log, no base positions, 0 files (Saturday)
-  root crontab on 97: added   30 21 * * 1-5 bash /work/crucible/research/daily_pull.sh >> /work/crucible/data/reports/daily/cron_pull.log 2>&1
-    existing 20 lines kept unchanged (incl. a pre-existing "...barra_eod.log 2>&1:wq" typo, not touched); 21 lines after
-  crond: /usr/sbin/crond -n running since Nov 3 (container, no systemd); existing cron jobs fired (ced logs Nov 12/13 20:30, tdf Nov 14 19:30)
-  server time CST. PENDING: ssh test in a bare cron-like env (no forwarded agent) -- interrupted, user at the Mac.
