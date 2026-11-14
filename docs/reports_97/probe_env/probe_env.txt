@@ -13,3 +13,9 @@ lib dirs ['.../site-packages/pyarrow', '/opt/anaconda3/envs/crucible/lib']; duck
 lib: libarrow.so -> .so.2500 -> .so.2500.0.0; libparquet.so -> .so.2500 -> .so.2500.0.0; libduckdb.so*: No such file
 include: arrow/ and parquet/ present; eigen3/: No such directory; duckdb.h: No such file
 lib/cmake: Arrow ArrowAcero ArrowCompute ArrowDataset ArrowSubstrait Parquet
+
+Env check against origin environment.yml (d2c2156, md5 0c55493e; 48 conda entries), 97, 2026-11-16 ~00:30, read-only:
+  46 OK; MISSING libduckdb-devel >=1.1, MISSING eigen >=3.4 (the two added in d2c2156; libarrow/libparquet 25.0.0 already satisfy >=18)
+  pip: crucible 0.1.0 editable at /work/crucible; crucible-kernels 0.1.0 editable at /work/crucible/kernels
+  crucible_kernels import OK (/work/crucible/kernels/python/crucible_kernels/__init__.py); ruff 0.16.9
+  ruff.toml is lint config only (no packages); ruff installed satisfies ruff>=0.8.
