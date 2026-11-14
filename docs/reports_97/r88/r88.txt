@@ -1,0 +1,26 @@
+R88 on 97 (r88.sh cee9b660, backfill_days.py 99c80cc3, vec_day.py 9146c911), 05:30:29 - 05:37:59. 54 lines, full (verify_days table cut to 40 lines by r88.sh's head -40).
+[05:30:29] DataYes days with the seed map
+7 days: 20261104 .. 20261112; keep ['pred'] -> data/backfill_seedmap
+20261104: dysl2 seed 20260914; side 3s, chain 55s, verify 2s; verify: 68 keys, SZSE all equal 13, all stocks equal 12, median share 0.9333; kept 11 MB
+20261105: dysl2 seed 20261030; side 3s, chain 56s, verify 2s; verify: 68 keys, SZSE all equal 25, all stocks equal 19, median share 0.9933; kept 11 MB
+20261106: dysl2 seed 20261102; side 3s, chain 49s, verify 2s; verify: 68 keys, SZSE all equal 26, all stocks equal 20, median share 0.9633; kept 11 MB
+20261109: dysl2 seed 20261104; side 3s, chain 48s, verify 2s; verify: 68 keys, SZSE all equal 22, all stocks equal 20, median share 0.8067; kept 11 MB
+20261110: dysl2 seed 20261104; side 3s, chain 47s, verify 2s; verify: 68 keys, SZSE all equal 24, all stocks equal 19, median share 0.6767; kept 11 MB
+20261111: dysl2 seed 20261110; side 3s, chain 47s, verify 2s; verify: 68 keys, SZSE all equal 19, all stocks equal 18, median share 0.9567; kept 11 MB
+20261112: dysl2 seed 20261110; side 3s, chain 52s, verify 2s; verify: 68 keys, SZSE all equal 26, all stocks equal 20, median share 0.9600; kept 11 MB
+  NOTE (supervisor): all seven verify triples are identical to R84's for the same days.
+[05:37:04] 0429 again
+1 days: 20260429 .. 20260429; keep ['pred'] -> data/backfill_3s
+20260429: feitu; side 2s, chain 50s, verify 3s; verify: 69 keys, SZSE all equal 37, all stocks equal 10, median share 0.3679; kept 11 MB
+[05:37:59] state engine with the seed map, against R84 on the same days
+7 days (20261104 .. 20261112), 68 keys; SZSE fully equal on every day: 11; mean SZSE share >= 0.999: 13
+shape: (55, 8)  key | days | szse_mean | szse_worst | all_mean | szse_full_days | worst_day | mre  (days = 7 everywhere)
+ zzbd.pEmaT.t 0/0/0 0 20261104 0.0001 | zzbd.rEmaT.t 0/0/0 0 1104 0.0001 | zzgh.nb|cnt 0/0/0 0 1104 0.5746 | zzgh.nb|ord 0/0/0 0 1104 1.1571
+ zzgh.nb|ordvol 0/0/0 0 1104 1.1385 | zzqj.r.t 0/0/0 0 1104 0.0001 | zzqj.tpv|all 0/0/0 0 1104 0.0053 | zzqj.tpv|loc 0/0/0 0 1104 0.0109
+ zzqj.tpv|noclose 0/0/0 0 1104 0.0109 | zzqj.v|all 0/0/0 0 1104 0.0053 | zzqj.v|loc 0/0/0 0 1104 0.0109 | zzqj.v|noclose 0/0/0 0 1104 0.0109
+ zzgh.nb|vol 0.0013/0/0.0005 0 1104 0.0111 | zzgh.nb 0.0026/0/0.0024 0 1105 0.0060 | zzgh.nb|snappx 0.0026/0/0.0019 0 1104 0.0069
+ zzup.ps 0.0778/0.0089/0.0814 0 1104 0 | zzba.p 0.1454/0.0179/0.1138 0 1104 0
+ 0.7857/0.4732/0.8986 0 20261110 0.0000 for: zzab2.r.t zzba.p.t zzba.r.t zzbd.pEmaS.t zzbd.rEmaS.t zzeb.p.t zzpk.p.t zzup.pf.t zzup.ps.t zzvx.rEmaD.t zzvx.rEmaO.t zzvx.trDEmaD.t zzvx.trDEmaO.t zzvx.trEmaD.t zzvx.trEmaO.t zzxu.a.t
+ [table cut by head -40]
+[05:37:59] done
+seed links (ls): data/backfill_seedmap/seedmap/20261104/20260914.jz -> /data/prod/h/HS300/p1_intrading_dcp/20260914.jz; .../20261105/20261030.jz -> .../p1_intrading_dcp/20261030.jz; (others not shown)
