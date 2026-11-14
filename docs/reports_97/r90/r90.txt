@@ -1,0 +1,78 @@
+R90 on 97 (r90.sh a53c6e4b, implied_scan.py 44a0ba87, side_day.py 17c55c61), 05:45:50 - 06:14:20. 77 lines, full (candidate | min | 1112 | 0430).
+[05:45:50] daily tables
+20260430: 300 stocks from 20260429.jz; CED rows 300, 47 exposures, 300 with an industry; calibration points for 130 features from ['202501/lgb/livev1_fit1/model_s1.txt', '202501/lgb/livev1_fit1/model_[cut]
+20261112: 300 stocks from 20261112.jz; CED rows 300, 46 exposures, 300 with an industry; calibration points for 130 features from [same, cut]
+[05:45:56] implied scan, daily + state candidates
+baseline similarity 20261112 0.6558 (bases found at 1.000 of rows), 20260430 0.6282 (bases found at 1.000 of rows)
+156 candidate bases (156 from --extra)
+-- zzbt.b: 620 candidates in 164s; best by the smaller day gain:   (candidate | min | 1112 | 0430)
+   cal:-zzgh.nsnap -0.0218 -0.0218 -0.0184
+   cal:zzgh.nsnap -0.0263 -0.0263 -0.0186
+   cal:|zzgh.nsnap| -0.0263 -0.0263 -0.0186
+   cal:zzgh.ncancel -0.0271 -0.0164 -0.0271
+   cal:|zzgh.ncancel| -0.0271 -0.0164 -0.0271
+   cal:rank:zzgh.ncancel -0.0277 -0.0169 -0.0277
+   cal:-totshare -0.0305 -0.0274 -0.0305
+   cal:rank:-totshare -0.0305 -0.0274 -0.0305
+   share of candidates helping on every day: 0.000
+-- zzaa.b: 620 candidates in 206s
+   cal:exp.COUNTRY -0.0001 +0.0005 -0.0001
+   cal:-exp.COUNTRY -0.0001 +0.0005 -0.0001
+   cal:|exp.COUNTRY| -0.0001 +0.0005 -0.0001
+   cal:rank:exp.COUNTRY -0.0001 +0.0005 -0.0001
+   cal:rank:-exp.COUNTRY -0.0001 +0.0005 -0.0001
+   cal:weekday_mon0 -0.0001 +0.0005 -0.0001
+   cal:-weekday_mon0 -0.0001 +0.0005 -0.0001
+   cal:|weekday_mon0| -0.0001 +0.0005 -0.0001
+   share of candidates helping on every day: 0.000
+-- zzxo: 620 candidates in 243s
+   cal:stats.SRisk -0.0044 -0.0041 -0.0044
+   cal:|stats.SRisk| -0.0044 -0.0041 -0.0044
+   cal:rank:stats.SRisk -0.0044 -0.0041 -0.0044
+   cal:vol60 -0.0052 -0.0052 -0.0050
+   cal:|vol60| -0.0052 -0.0052 -0.0050
+   cal:rank:vol60 -0.0052 -0.0052 -0.0050
+   cal:stats.TRisk -0.0053 -0.0053 -0.0045
+   cal:|stats.TRisk| -0.0053 -0.0053 -0.0045
+   share of candidates helping on every day: 0.000
+-- zzpp.b: 620 candidates in 223s
+   cal:-stats.EstU -0.0062 -0.0057 -0.0062
+   cal:rank:-stats.EstU -0.0062 -0.0057 -0.0062
+   cal:rank:-zzqj.v -0.0065 -0.0065 -0.0056
+   cal:rank:-zzvm.c.v -0.0065 -0.0065 -0.0056
+   cal:-exp.EARNYILD -0.0066 -0.0066 -0.0066
+   cal:rank:-exp.EARNYILD -0.0066 -0.0066 -0.0066
+   cal:rank:-zzgh.nb -0.0067 -0.0066 -0.0067
+   cal:rank:-zzgh.nb|vol -0.0067 -0.0066 -0.0067
+   share of candidates helping on every day: 0.000
+-- zzpe.e: 620 candidates in 291s
+   cal:exp.COUNTRY +0.0001 +0.0007 +0.0001
+   cal:-exp.COUNTRY +0.0001 +0.0007 +0.0001
+   cal:|exp.COUNTRY| +0.0001 +0.0007 +0.0001
+   cal:rank:exp.COUNTRY +0.0001 +0.0007 +0.0001
+   cal:rank:-exp.COUNTRY +0.0001 +0.0007 +0.0001
+   cal:weekday_mon0 +0.0001 +0.0007 +0.0001
+   cal:-weekday_mon0 +0.0001 +0.0007 +0.0001
+   cal:|weekday_mon0| +0.0001 +0.0007 +0.0001
+   share of candidates helping on every day: 0.032
+-- zzop.i: 620 candidates in 314s
+   cal:vol13 -0.0025 +0.0014 -0.0025
+   cal:|vol13| -0.0025 +0.0014 -0.0025
+   cal:rank:vol13 -0.0025 +0.0014 -0.0025
+   cal:-zzgh.nb|ordvol -0.0025 +0.0011 -0.0025
+   cal:-zzgh.nb|ord -0.0025 +0.0011 -0.0025
+   cal:-range8 -0.0025 +0.0005 -0.0025
+   cal:rank:-range8 -0.0025 +0.0005 -0.0025
+   cal:-range4 -0.0026 +0.0004 -0.0026
+   share of candidates helping on every day: 0.000
+-- zzhj: 620 candidates in 258s
+   cal:exp.BETA +0.0014 +0.0069 +0.0014
+   cal:rank:exp.BETA +0.0014 +0.0069 +0.0014
+   cal:stats.HBeta +0.0014 +0.0069 +0.0014
+   cal:|stats.HBeta| +0.0014 +0.0069 +0.0014
+   cal:rank:stats.HBeta +0.0014 +0.0069 +0.0014
+   cal:rank:zzqj.tpv +0.0012 +0.0054 +0.0012
+   cal:rank:zzvm.c.tpv +0.0012 +0.0054 +0.0012
+   cal:stats.PBeta +0.0012 +0.0080 +0.0012
+   share of candidates helping on every day: 0.337
+[06:14:20] done
