@@ -34,7 +34,8 @@ def load_orders(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop
     con.register("want_o", pl.DataFrame({"sid": sids}))
     out = con.sql(f"""SELECT symbol_id AS sid, {B.tc(L)} AS t_local, spider_ts AS ls, {S} AS s, price::DOUBLE AS price, volume::DOUBLE AS vol,
         CASE dir WHEN 1063 THEN 1.0 WHEN 1550 THEN -1.0 ELSE 0.0 END AS side
-        FROM raw_order o JOIN want_o w ON w.sid = o.symbol_id WHERE o.date = {date} AND {L} <= {stop} ORDER BY sid, spider_ts""").pl()
+        FROM raw_order o JOIN want_o w ON w.sid = o.symbol_id WHERE o.date = {date} AND {L} <= {stop}
+        ORDER BY sid, spider_ts{", seq_id" if "seq_id" in E.columns(con, "raw_order") else ""}, time""").pl()
     con.unregister("want_o")
     return out
 
@@ -47,7 +48,7 @@ def load_cancels(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], sto
     con.register("want_c", pl.DataFrame({"sid": sids}))
     out = con.sql(f"""SELECT symbol_id AS sid, {B.tc(L)} AS t_local, spider_ts AS ls, {S} AS s
         FROM raw_transaction r JOIN want_c w ON w.sid = r.symbol_id WHERE r.date = {date} AND r.trade_type = 2 AND {L} <= {stop}
-        ORDER BY sid, spider_ts""").pl()
+        ORDER BY sid, spider_ts{", seq_id" if "seq_id" in E.columns(con, "raw_transaction") else ""}, time""").pl()
     con.unregister("want_c")
     return out
 

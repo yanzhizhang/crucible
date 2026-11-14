@@ -69,25 +69,31 @@ def load_events(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop
     """Every snapshot and trade received by the stop as one structured array, in the engine's order."""
     S, L = B.SOD, B.LSOD
     con.register("want", pl.DataFrame({"sid": sids}))
+    from dcp_ema import columns  # noqa: PLC0415
+
+    # messages of one arrival batch share spider_ts: within a kind the channel sequence number (else the exchange time) fixes
+    # their order, which otherwise changes from run to run
+    sq_t = "seq_id::DOUBLE" if "seq_id" in columns(con, "raw_transaction") else "NULL::DOUBLE"
+    sq_o = "seq_id::DOUBLE" if "seq_id" in columns(con, "raw_order") else "NULL::DOUBLE"
     df = con.sql(f"""
         SELECT sid, mkt, kind, t, s, lsod, price, f0, f1, f2, f3, f4, f5, f6 FROM (
           SELECT symbol_id AS sid, market_id AS mkt, 0::SMALLINT AS kind, {B.tc(L)}::DOUBLE AS t, {S}::DOUBLE AS s, {L}::DOUBLE AS lsod,
                  spider_ts AS ls, price::DOUBLE AS price, q.bid_px[1]::DOUBLE AS f0, q.ask_px[1]::DOUBLE AS f1, high::DOUBLE AS f2,
-                 low::DOUBLE AS f3, open::DOUBLE AS f4, pre_close::DOUBLE AS f5, total_amount::DOUBLE AS f6
+                 low::DOUBLE AS f3, open::DOUBLE AS f4, pre_close::DOUBLE AS f5, total_amount::DOUBLE AS f6, NULL::DOUBLE AS sq
           FROM raw_quotation q JOIN want w ON w.sid = q.symbol_id WHERE q.date = {date} AND {L} <= {stop}
           UNION ALL
           SELECT symbol_id, market_id, 1::SMALLINT, {B.tc(L)}::DOUBLE, {S}::DOUBLE, {L}::DOUBLE, spider_ts, price::DOUBLE,
-                 volume::DOUBLE, CASE dir WHEN 1063 THEN 1.0 WHEN 1550 THEN -1.0 ELSE 0.0 END, 0.0, 0.0, 0.0, 0.0, 0.0
+                 volume::DOUBLE, CASE dir WHEN 1063 THEN 1.0 WHEN 1550 THEN -1.0 ELSE 0.0 END, 0.0, 0.0, 0.0, 0.0, 0.0, {sq_t}
           FROM raw_transaction r JOIN want w ON w.sid = r.symbol_id WHERE r.date = {date} AND r.trade_type = 1 AND {L} <= {stop}
           UNION ALL
           SELECT symbol_id, market_id, 2::SMALLINT, {B.tc(L)}::DOUBLE, {S}::DOUBLE, {L}::DOUBLE, spider_ts, price::DOUBLE,
-                 volume::DOUBLE, CASE dir WHEN 1063 THEN 1.0 WHEN 1550 THEN -1.0 ELSE 0.0 END, 0.0, 0.0, 0.0, 0.0, 0.0
+                 volume::DOUBLE, CASE dir WHEN 1063 THEN 1.0 WHEN 1550 THEN -1.0 ELSE 0.0 END, 0.0, 0.0, 0.0, 0.0, 0.0, {sq_o}
           FROM raw_order o JOIN want w ON w.sid = o.symbol_id WHERE o.date = {date} AND {L} <= {stop}
           UNION ALL
           SELECT symbol_id, market_id, 3::SMALLINT, {B.tc(L)}::DOUBLE, {S}::DOUBLE, {L}::DOUBLE, spider_ts, 0.0,
-                 volume::DOUBLE, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+                 volume::DOUBLE, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, {sq_t}
           FROM raw_transaction r JOIN want w ON w.sid = r.symbol_id WHERE r.date = {date} AND r.trade_type = 2 AND {L} <= {stop}
-        ) ORDER BY sid, ls, kind""").pl()
+        ) ORDER BY sid, ls, kind, sq, s""").pl()
     con.unregister("want")
     n = df.height
     out = np.empty(n, dtype=EVENT_DTYPE)
