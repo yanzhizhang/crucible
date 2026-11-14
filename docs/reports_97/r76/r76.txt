@@ -1,0 +1,77 @@
+R76 on 97 (r76.sh 1a6c0575, gain_share.py 4b431f04), 02:10:43. 73 lines, transcribed from screen in full.
+[02:10:43] generation B (the one we score with)
+models ['202501/lgb/livev1_fit1/model_s1.txt']; 209 model columns, 144 settled (baseline_r41c.txt), 65 not; 124,995 splits
+gain share: settled 0.6211, not settled 0.3789; split share: settled 0.6236
+columns never split on: settled 0, not settled 1
+not-settled columns by gain (rank among all 209, gain share, cumulative share of the whole model, splits):
+    1 zzeg     0.0262 cum 0.0262 splits 2,410
+    4 zzba     0.0196 cum 0.0458 splits 1,794
+    5 zzel.a   0.0195 cum 0.0653 splits 2,390
+    8 zzop.i   0.0175 cum 0.0828 splits 2,321
+   11 zzzl2.c  0.0152 cum 0.0980 splits 1,579
+   12 zzmh     0.0147 cum 0.1127 splits 1,492
+   14 zzel.b   0.0142 cum 0.1269 splits 2,139
+   17 zzpe.e   0.0137 cum 0.1406 splits 1,827
+   21 zzjx3.b  0.0125 cum 0.1530 splits 1,558
+   24 zzab2    0.0111 cum 0.1641 splits 1,265
+   25 zzvm     0.0107 cum 0.1748 splits 1,407
+   29 zzsf.d   0.0101 cum 0.1849 splits 1,078
+   33 zzhj     0.0095 cum 0.1944 splits 1,250
+   35 zzxo     0.0092 cum 0.2036 splits 1,043
+   37 zzsf.c   0.0091 cum 0.2127 splits 1,205
+   40 zzcb     0.0084 cum 0.2210 splits 1,037
+   41 zzzl2.g  0.0082 cum 0.2292 splits 1,147
+   42 zzwa.c   0.0081 cum 0.2373 splits 991
+   45 zzal.a   0.0075 cum 0.2448 splits 812
+   47 zzgh.b   0.0074 cum 0.2522 splits 749
+   50 zzzl.f   0.0070 cum 0.2591 splits 820
+   51 zzbt.b   0.0069 cum 0.2660 splits 289
+   53 zzri2.a  0.0069 cum 0.2729 splits 853
+   55 zzag2.f  0.0067 cum 0.2796 splits 875
+   57 zzsa.b   0.0062 cum 0.2858 splits 639
+   58 zzag.a   0.0061 cum 0.2919 splits 785
+   61 zzpp.b   0.0060 cum 0.2979 splits 811
+   64 zzuc.c   0.0054 cum 0.3032 splits 747
+   65 zzjx2.a  0.0053 cum 0.3086 splits 670
+   68 zzaa.b   0.0050 cum 0.3136 splits 690
+   70 zzqf.q.a 0.0049 cum 0.3185 splits 722
+   79 zzbo.a   0.0045 cum 0.3229 splits 757
+   81 zzpp.a   0.0043 cum 0.3272 splits 698
+   89 zzal.b   0.0039 cum 0.3312 splits 432
+   90 zzsa.a   0.0038 cum 0.3350 splits 534
+   91 zzwa.b   0.0038 cum 0.3387 splits 693
+   96 zzhi2.c  0.0035 cum 0.3423 splits 398
+   97 zzwa.a   0.0035 cum 0.3457 splits 630
+   99 zzsa2.a  0.0034 cum 0.3492 splits 546
+  107 zzts     0.0031 cum 0.3523 splits 390
+top 15 columns overall: zzeg* 0.026, zzpe.c 0.022, zzxu.b 0.020, zzba* 0.020, zzel.a* 0.020, zzzl2.b 0.018, zzxu.a 0.018, zzop.i* 0.017, zzop.j 0.017, zzpe.a 0.016, zzzl2.c* 0.015, zzmh* 0.015, zzfb2.a 0.014, zzel.b* 0.014, zzro2.a 0.014
+ (* = not settled)
+[02:10:43] production model month for 20261113
+models ['202611/lgb/livev1_fit1/model_s1.txt']; 209 model columns, 144 settled (baseline_r41c.txt), 65 not; 124,842 splits
+gain share: settled 0.6251, not settled 0.3749; split share: settled 0.6270
+columns never split on: settled 0, not settled 1
+not-settled columns by gain (rank among all 209, gain share, cumulative share of the whole model, splits):
+    1 zzeg     0.0220 cum 0.0220 splits 2,149
+    3 zzop.i   0.0206 cum 0.0426 splits 2,502
+    6 zzel.a   0.0168 cum 0.0594 splits 2,095
+    8 zzel.b   0.0167 cum 0.0761 splits 2,312
+   11 zzmh     0.0153 cum 0.0913 splits 1,515
+   14 zzzl2.c  0.0144 cum 0.1057 splits 1,519
+   20 zzpe.e   0.0132 cum 0.1189 splits 1,765
+   21 zzhj     0.0129 cum 0.1317 splits 1,419
+   23 zzba     0.0127 cum 0.1444 splits 1,472
+   24 zzjx3.b  0.0126 cum 0.1571 splits 1,620
+   25 zzab2    0.0119 cum 0.1689 splits 1,203
+   30 zzvm     0.0100 cum 0.1789 splits 1,241
+   31 zzzl2.g  0.0099 cum 0.1888 splits 1,406
+   34 zzsf.d   0.0098 cum 0.1985 splits 1,150
+   38 zzxo     0.0095 cum 0.2080 splits 1,050
+   39 zzsf.c   0.0092 cum 0.2173 splits 1,135
+   42 zzgh.b   0.0089 cum 0.2261 splits 905
+   45 zzcb     0.0079 cum 0.2340 splits 992
+   50 zzzl.f   0.0071 cum 0.2411 splits 819
+   52 zzpp.b   0.0070 cum 0.2481 splits 999
+top 15 columns overall: zzeg* 0.022, zzfb2.a 0.021, zzop.i* 0.021, zzzl2.b 0.020, zzpe.c 0.019, zzel.a* 0.017, zzop.j 0.017, zzel.b* 0.017, zzxu.b 0.016, zzpe.a 0.016, zzmh* 0.015, zzzl2.e 0.015, zzpe.b 0.015, zzzl2.c* 0.014, zzal.d 0.014
+ (* = not settled)
+[02:10:43] done
+R76 DONE 02:10:43
