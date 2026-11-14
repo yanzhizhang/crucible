@@ -1,0 +1,88 @@
+R59 on 97 (r59.sh a0bd9b5e, r59_cmp.py 45a29fca), 13:14:47 - 13:16:49 (~2 min). User approved the 1111+1112 mp copy from 2.23 in the supervisor session ("Yes, copy them").
+Only "errors in r59_catalog.txt": skip view bars_1min / quality_checks / pub_tdx_daily: IO Error: No files found (empty views, benign). Transcribed from screen.
+
+[13:14:47] 0 pull mp/20261111 from 2.23
+  2.23: 129723 Nov 12 19:25 SH_HS300_index.mp | 262498929 Nov 12 17:42 SH_HS300_order.mp | 52389814 Nov 12 17:41 SH_HS300_snap.mp | 133460212 Nov 12 19:07 SH_HS300_trade.mp
+  2.23: 108226 Nov 12 19:26 SZ_HS300_index.mp | 231043791 Nov 12 17:45 SZ_HS300_order.mp | 36570089 Nov 12 17:44 SZ_HS300_snap.mp | 181267263 Nov 12 17:46 SZ_HS300_trade.mp
+  97: same 8 files, same sizes
+[13:14:50] 1 decode 20261111 (source pmmp) -- tail (first table's header cut by tail -25):
+  3553 1 1063 5932304 | 3553 1 1550 5477928 | 3554 1 0 109762 | 3554 1 1063 4899592 | 3554 1 1550 4879575 | 3554 2 0 3746016
+  orders by market / update_type / order_type / dir: len
+  3553 1 2 1063 6576446 | 3553 1 2 1550 6549261 | 3553 2 2 1063 2501197 | 3553 2 2 1550 2556630 | 3554 1 1 1063 30224
+  3554 1 1 1550 43646 | 3554 1 2 1063 7621650 | 3554 1 2 1550 7797017 | 3554 1 3 1063 537 | 3554 1 3 1550 8630
+[13:15:19] 0 pull mp/20261112 from 2.23
+  2.23: 130563 Nov 13 14:49 SH_HS300_index.mp | 288242177 Nov 13 14:48 SH_HS300_order.mp | 54730553 Nov 13 14:46 SH_HS300_snap.mp | 150492632 Nov 13 14:49 SH_HS300_trade.mp
+  2.23: 130952 Nov 13 14:55 SH_ZZ1000_index.mp | 130672 Nov 13 14:51 SH_ZZ500_index.mp | 108030 Nov 13 14:57 SZ_HS300_index.mp | 251634059 Nov 13 14:56 SZ_HS300_order.mp
+  2.23: 37565559 Nov 13 14:55 SZ_HS300_snap.mp | 199404079 Nov 13 14:57 SZ_HS300_trade.mp | 109411 Nov 13 15:01 SZ_ZZ500_index.mp
+  97: the 8 HS300 files, same sizes (ZZ500/ZZ1000 index files not pulled)
+[13:15:22] 1 decode 20261112 (source pmmp) -- tail:
+  3553 1 1063 7036902 | 3553 1 1550 5816125 | 3554 1 0 112593 | 3554 1 1063 6051924 | 3554 1 1550 4970546 | 3554 2 0 4031416
+  orders: 3553 1 2 1063 7685468 | 3553 1 2 1550 6808126 | 3553 2 2 1063 2931172 | 3553 2 2 1550 2682570 | 3554 1 1 1063 17402
+          3554 1 1 1550 49387 | 3554 1 2 1063 8927719 | 3554 1 2 1550 8147237 | 3554 1 3 1063 533 | 3554 1 3 1550 12318
+[13:15:57] 2 ticks of 20261111: mp against DataYes
+== quotation 20261111: 48 columns in mp, 48 in DataYes, 48 common; only in DataYes: []
+  mp     :  1,529,359 rows, 300 stocks, exchange time 1794358862000000000 .. 1794382801000000000, rows of the lower market id 979,435
+  DataYes:  1,532,299 rows, 300 stocks, exchange time 1794358503000000000 .. 1794382804000000000, rows of the lower market id 981,703
+  DataYes whole market: 21,903,233 rows, 5225 stocks; stocks per market in mp: [(3553, 188), (3554, 112)]
+  key (symbol_id, market_id, time); rows beyond the first per key: mp 0, DataYes 0
+  keys: mp 1,529,359, DataYes 1,532,299, in both 1,529,359; only in mp 0 (0.0000%), only in DataYes 2,940 (0.1919%)
+  equal on matched keys: price 1.000000, close 1.000000, total_volume 1.000000, total_amount 0.165470
+  local arrival, mp - DataYes (ns): median -289099.0, p1 -7055435.88, p99 7661037.379999964; identical on 0.0001% of matched keys
+  only in DataYes: top stocks [(600584, 13), (688521, 13), (601288, 13), (601728, 13), (688111, 13)]
+== order 20261111: 19 columns in mp, 19 in DataYes, 19 common; only in DataYes: []
+  mp     : 33,685,238 rows, 300 stocks, exchange time 1794359700000000000 .. 1794380399990000128, rows of the lower market id 18,183,534
+  DataYes: 33,686,366 rows, 300 stocks, exchange time 1794327926920000000 .. 1794380700000000000, rows of the lower market id 18,184,662
+  DataYes whole market: 205,210,949 rows, 5222 stocks; stocks per market in mp: [(3553, 188), (3554, 112)]
+  key (symbol_id, market_id, channel_id, seq_id); rows beyond the first per key: mp 0, DataYes 0
+  keys: mp 33,685,238, DataYes 33,686,366, in both 33,685,238; only in mp 0 (0.0000%), only in DataYes 1,128 (0.0033%)
+  equal on matched keys: price 1.000000, volume 1.000000, time 0.499520, order_type 0.460193
+  local arrival, mp - DataYes (ns): median 78997.0, p1 -371883480.43, p99 9136040.629999999; identical on 0.0000% of matched keys
+  only in DataYes: top stocks [(601766, 6), (688303, 6), (600115, 6), (600438, 6), (600930, 6)]
+== transaction 20261111: 19 columns in mp, 19 in DataYes, 19 common; only in DataYes: []
+  mp     : 25,209,725 rows, 300 stocks, exchange time 1794359700020000000 .. 1794382199890000128, rows of the lower market id 11,574,780
+  DataYes: 25,209,725 rows, 300 stocks, exchange time 1794359700020000000 .. 1794382199890000000, rows of the lower market id 11,574,780
+  DataYes whole market: 160,322,584 rows, 5219 stocks; stocks per market in mp: [(3553, 188), (3554, 112)]
+  key (symbol_id, market_id, channel_id, seq_id); rows beyond the first per key: mp 7,691, DataYes 0
+  keys: mp 25,202,034, DataYes 25,209,725, in both 25,201,852; only in mp 182 (0.0007%), only in DataYes 7,873 (0.0312%)
+  equal on matched keys: price 1.000000, volume 1.000000, time 0.504739
+  local arrival, mp - DataYes (ns): median 41662.0, p1 -493154068.37, p99 7316085.759999961; identical on 0.0000% of matched keys
+  only in mp: top stocks [(600438, 1), (600930, 1), (600115, 1), (688303, 1), (601766, 1)]; top minutes (time // 60e9) [(29906345, 155), (2990634.. (cut)
+  only in DataYes: top stocks [(601138, 550), (600176, 413), (600522, 411), (603986, 399), (600183, 274)]
+[13:16:17] 2 ticks of 20261112: mp against DataYes
+== quotation 20261112: 48/48/48 common; only in DataYes: []
+  mp     :  1,534,705 rows, 300 stocks, exchange time 1794445261000000000 .. 1794469200000000000, rows of the lower market id 983,321
+  DataYes:  1,537,642 rows, 300 stocks, exchange time 1794444904000000000 .. 1794469204000000000, rows of the lower market id 985,582
+  DataYes whole market: 22,231,405 rows, 5225 stocks; stocks per market in mp: [(3553, 188), (3554, 112)]
+  key (symbol_id, market_id, time); rows beyond the first per key: mp 0, DataYes 0
+  keys: mp 1,534,705, DataYes 1,537,642, in both 1,534,705; only in mp 0 (0.0000%), only in DataYes 2,937 (0.1910%)
+  equal on matched keys: price 1.000000, close 1.000000, total_volume 1.000000, total_amount 0.156396
+  local arrival, mp - DataYes (ns): median 400356.0, p1 -9406415.48, p99 5798290.239999987; identical on 0.0001% of matched keys
+  only in DataYes: top stocks [(601618, 13), (601138, 13), (600549, 13), (601689, 13), (688072, 13)]
+== order 20261112: 19/19/19 common; only in DataYes: []
+  mp     : 37,261,932 rows, 300 stocks, exchange time 1794446100000000000 .. 1794466799990000128, rows of the lower market id 20,107,336
+  DataYes: 37,263,060 rows, 300 stocks, exchange time 1794414368580000000 .. 1794467100000000000, rows of the lower market id 20,108,464
+  DataYes whole market: 226,071,585 rows, 5222 stocks; stocks per market in mp: [(3553, 188), (3554, 112)]
+  key (symbol_id, market_id, channel_id, seq_id); rows beyond the first per key: mp 0, DataYes 0
+  keys: mp 37,261,932, DataYes 37,263,060, in both 37,261,932; only in mp 0 (0.0000%), only in DataYes 1,128 (0.0030%)
+  equal on matched keys: price 1.000000, volume 1.000000, time 0.499187, order_type 0.460379
+  local arrival, mp - DataYes (ns): median 490515.5, p1 -832127460.1899999, p99 10144019.449999988; identical on 0.0000% of matched keys
+  only in DataYes: top stocks [(600438, 6), (600115, 6), (600930, 6), (688303, 6), (601766, 6)]
+== transaction 20261112: 19/19/19 common; only in DataYes: []
+  mp     : 28,167,981 rows, 300 stocks, exchange time 1794446100020000000 .. 1794468599940000000, rows of the lower market id 13,001,502
+  DataYes: 28,167,981 rows, 300 stocks, exchange time 1794446100020000000 .. 1794468599940000000, rows of the lower market id 13,001,502
+  DataYes whole market: 179,119,020 rows, 5218 stocks; stocks per market in mp: [(3553, 188), (3554, 112)]
+  key (symbol_id, market_id, channel_id, seq_id); rows beyond the first per key: mp 7,659, DataYes 0
+  keys: mp 28,160,322, DataYes 28,167,981, in both 28,160,139; only in mp 183 (0.0006%), only in DataYes 7,842 (0.0278%)
+  equal on matched keys: price 1.000000, volume 1.000000, time 0.504845
+  local arrival, mp - DataYes (ns): median 450991.0, p1 -816371333.1999999, p99 103530095.5800021; identical on 0.0000% of matched keys
+  only in mp: top stocks [(600438, 1), (688303, 1), (600115, 1), (601766, 1), (600930, 1)]; top minutes (time // 60e9) [(29907785, 156), (299077.. (cut)
+  only in DataYes: top stocks [(601899, 469), (601138, 455), (600584, 397), (600183, 306), (600176, 283)]
+3 day-end state against PM's <D>.jz (tail -40; the head of the first table is cut by tail; its visible rows all 1.0000 in all four runs:
+  zzqj.v zzui.r.*(mean) zzvm.c.tpv zzvm.c.v zzvx.high zzvx.low zzxo.last zzxo.r.*(mean) zzxu.high zzxu.last zzxu.low)
+  == median relative error (clock rows: median PM - ours, s), 18 rows; all rows 0.0000 except:
+                         1111 mp   1111 DataYes   1112 mp   1112 DataYes
+  clock.fast ~ *.t (mean) -0.0010   -0.0009        0.0010    -0.0010
+  zzgh.nb                  1.9999    0.0069        1.9985     0.0048
+  (zero rows: zzmh.hm zzpk.high zzpk.low zzpk.open zzqj.tpv zzqj.v zzui.r.*(mean) zzvm.c.tpv zzvm.c.v zzvx.high zzvx.low zzxo.last zzxo.r.*(mean) zzxu.high zzxu.last zzxu.low)
+  [13:16:38] 1111 mp, [13:16:41] 1111 DataYes, [13:16:43] 1112 mp, [13:16:46] 1112 DataYes
+[13:16:49] done
