@@ -44,7 +44,7 @@ GLUE = re.compile(r"(?=\[(?:INFO|WARN|WARNING|ERROR|DEBUG)\] \[/)|(?=\[20\d\d-\d
 
 def parse_day(files: list[str]) -> tuple[pl.DataFrame, pl.DataFrame, pl.DataFrame, pl.DataFrame, dict]:
     """(snapshots, decisions, chrono trk rows, signals, census) of one day's logs."""
-    snaps, decs, trk, sigs, pos_ = [], [], [], [], []
+    snaps, decs, trk, sigs, pos_, placed, life = [], [], [], [], [], [], []
     posm: list[dict] = []  # OnPosM (es.cpp:29x / 31x) and the plugin's position view (catchRun.cpp:180)
     census: dict[tuple[str, str], list] = {}
     for f in files:
@@ -95,18 +95,49 @@ def parse_day(files: list[str]) -> tuple[pl.DataFrame, pl.DataFrame, pl.DataFram
                                      "sid": int(float(f_[5])), "px": float(f_[6]), "qty": float(f_[7].split()[0]), "stamp": f_[0][-2:]})
                     except (IndexError, ValueError):
                         pass
+                elif fname == "es.cpp" and (ml := LIFE.search(rest)):  # order life: OnECM = cancel confirmed, OnEOM = fill (with qty, px)
+                    tail = [x.strip() for x in ml.group(4).split(",") if x.strip()]
+                    row = {"ev": ml.group(1), "ts": local_ns(ml.group(2)), "exoid": int(ml.group(3))}
+                    if ml.group(1) == "OnEOM" and len(tail) >= 2:
+                        row.update(fill_qty=float(tail[0]), fill_px=float(tail[1]))
+                    life.append(row)
+                elif fname == "es.cpp" and "cancelExOrd" in rest:  # a cancel request; no stamp of its own: the snapshot being handled
+                    kv2 = dict(re.findall(r"(\w+): (-?[\d.]+)", rest))
+                    life.append({"ev": "cxl_req", "ts": round(last["srcEpoch"] * 1e9) if "srcEpoch" in last else None, "exoid": int(float(kv2.get("exOid", -1))),
+                                 "sid": int(float(kv2.get("sid", -1))), "cxl_px": float(kv2.get("prc", "nan")), "cxl_qty": float(kv2.get("exSoQ", "nan"))})
+                elif fname == "catchRun.cpp" and "place_order" in rest:  # from 1113: the plugin's own order line carries the side
+                    mp_ = re.search(r"symbol = (\d{6})\S*, volume = ([\d.]+), price = ([\d.]+), side = (\w+)", rest)
+                    if mp_:
+                        placed.append({"sid": int(mp_.group(1)), "qty": float(mp_.group(2)), "px": float(mp_.group(3)), "side": mp_.group(4).lower()})
                 elif fname == "alg.cpp" and "nullptr" in rest and pending is not None:
                     mn = re.search(r"nullptr\s*:\s*(\d+|true|false)", rest)  # 0 / 1 before 1112, false / true from 1112
                     pending["nullptr"] = (1.0 if mn.group(1) == "true" else 0.0 if mn.group(1) == "false" else float(mn.group(1))) if mn else None
                     pending = None
     def frame(rows: list[dict]) -> pl.DataFrame:
         return pl.DataFrame(rows, infer_schema_length=None) if rows else pl.DataFrame()
-    global POSM
-    POSM = frame(posm)
-    return frame(snaps), frame(decs), frame(trk), frame(sigs), census, frame(pos_)
+    global POSM, LIFE_DF
+    POSM, LIFE_DF = frame(posm), frame(life)
+    po = frame(pos_)
+    if placed and po.height:  # each Po takes the side of the place_order line with the same stock, price and qty, in turn
+        rk = [pl.col("sid"), pl.col("px").round(4), pl.col("qty")]
+        a_ = po.with_columns(pl.col("px").round(4).alias("pxr"), pl.int_range(pl.len()).over(rk).alias("k"))
+        b_ = frame(placed).with_columns(pl.col("px").round(4).alias("pxr"), pl.int_range(pl.len()).over(rk).alias("k"))
+        po = a_.join(b_.select("sid", "pxr", "qty", "k", "side"), on=["sid", "pxr", "qty", "k"], how="left").drop("pxr", "k")
+        print(f"place_order lines {len(placed):,}, Po lines {po.height:,}, Po with a side {po['side'].is_not_null().mean():.3f}: {dict(Counter(po['side'].to_list()))}")
+    return frame(snaps), frame(decs), frame(trk), frame(sigs), census, po
 
 
 POSM = pl.DataFrame()
+LIFE_DF = pl.DataFrame()
+LIFE = re.compile(r"(OnECM|OnEOM|OnFOM) (\d{8} \d\d:\d\d:\d\d\.\d+), ExOid (\d+)(.*)$")
+
+
+def local_ns(stamp: str) -> int:
+    """'20261113 09:30:07.120170' (Beijing time) -> epoch ns."""
+    import datetime as dt
+
+    t = dt.datetime.strptime(stamp, "%Y%m%d %H:%M:%S.%f").replace(tzinfo=dt.timezone(dt.timedelta(hours=8)))
+    return round(t.timestamp() * 1e6) * 1000
 
 
 def num(df: pl.DataFrame, cols: list[str]) -> pl.DataFrame:
@@ -203,7 +234,8 @@ def po_report(decs: pl.DataFrame, trk: pl.DataFrame, po: pl.DataFrame) -> None:
         return
     d = decs.filter(pl.col("src_epoch").is_not_null()).with_columns(pl.col("src_epoch").cast(pl.Int64), pl.col("sid").cast(pl.Int64)).sort("src_epoch")
     p = po.with_columns(pl.col("sid").cast(pl.Int64)).sort("po_ts")
-    j = p.join_asof(d.select("sid", pl.col("src_epoch").alias("dec_ts"), "fa", "executp", "pos", "asq", "lthr", "hs", "winsdQty"),
+    j = p.join_asof(d.select("sid", pl.col("src_epoch").alias("dec_ts"), "fa", "executp", "pos", "asq", "lthr", "hs", "winsdQty",
+                             *[c for c in ("pp", "ev_cpos") if c in d.columns]),
                     left_on="po_ts", right_on="dec_ts", by="sid", strategy="backward")
     ok = j.filter(pl.col("dec_ts").is_not_null())
     lag = ((ok["po_ts"] - ok["dec_ts"]) / 1e6).to_numpy()
@@ -213,8 +245,9 @@ def po_report(decs: pl.DataFrame, trk: pl.DataFrame, po: pl.DataFrame) -> None:
           f"f4 = 100 x f3 + 1 {np.mean(po['f4'].to_numpy() == 100 * po['f3'].to_numpy() + 1):.3f}; tied to a decision {ok.height / po.height:.3f}, "
           f"decision -> Po (ms) p10/p50/p90 {q(lag)}")
     with np.errstate(divide="ignore", invalid="ignore"):
-        for tag in sorted(set(ok["stamp"].to_list())):
-            o = ok.filter(pl.col("stamp") == tag)
+        by = "side" if "side" in ok.columns else "stamp"
+        for tag in sorted(set(ok[by].drop_nulls().to_list())):
+            o = ok.filter(pl.col(by) == tag)
             ex, fa = o["executp"].to_numpy(), o["fa"].to_numpy()
             print(f"   {tag}: n {o.height:,}; fa > 0 {np.mean(fa > 0):.3f}; executp > 0 {np.mean(ex > 0):.3f}, < 0 {np.mean(ex < 0):.3f}, = 0 {np.mean(ex == 0):.3f}; "
                   f"fa < lthr {np.mean(fa < o['lthr'].to_numpy()):.3f}, fa > -lthr {np.mean(fa > -o['lthr'].to_numpy()):.3f}; |fa| / hs p10/p50/p90 {q(np.abs(fa) / o['hs'].to_numpy())}; "
@@ -273,7 +306,7 @@ def main() -> None:
         snaps, decs, trk, sigs, census, po = parse_day(files)
         out = a.out / f"date={d}"
         out.mkdir(parents=True, exist_ok=True)
-        for name, df in (("snaps", snaps), ("decisions", decs), ("trk", trk), ("po", po)):
+        for name, df in (("snaps", snaps), ("decisions", decs), ("trk", trk), ("po", po), ("life", LIFE_DF)):
             if df.height:
                 df.write_parquet(out / f"{name}.parquet")
         report(d, snaps, decs, trk, sigs, census, out)
