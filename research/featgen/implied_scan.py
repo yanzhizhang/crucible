@@ -92,6 +92,21 @@ def main() -> None:
                        stdout=subprocess.DEVNULL)
         return P.read_scores(a.work / "p.bin").copy()
 
+    def batch(d: str, X: np.ndarray, col: int, cols: list[np.ndarray]) -> np.ndarray:
+        P.write_x(a.work / "x.bin", X)
+        with (a.work / "c.bin").open("wb") as f:
+            f.write(b"CRULC001")
+            f.write(np.array([len(cols), X.shape[0]], "<u8").tobytes())
+            for v in cols:
+                f.write(np.array([col], "<u8").tobytes())
+                f.write(np.ascontiguousarray(v, "<f8").tobytes())
+        subprocess.run([str(exe), str(a.work / "x.bin"), str(a.work / "b.bin"), *map(str, files[d]), "--batch", str(a.work / "c.bin"),
+                        "--threads", str(a.threads)], check=True, stdout=subprocess.DEVNULL)
+        raw = (a.work / "b.bin").read_bytes()
+        assert raw[:8] == b"CRULB001", "not an lgbpred batch output"
+        n, r = (int(x) for x in np.frombuffer(raw, "<u8", 2, 8))
+        return np.frombuffer(raw, "<f8", n * r, 24).reshape(n, r)
+
     s0 = {d: sim(score(d, D.X), D.pm, D.marks) for d, D in days.items()}
     print("baseline similarity " + ", ".join(f"{d} {v:.4f} (bases found at {days[d].found:.3f} of rows)" for d, v in s0.items()), flush=True)
     bases = sorted(set.intersection(*[set(D.bases) for D in days.values()]))
@@ -103,29 +118,34 @@ def main() -> None:
             print(f"-- {tgt}: not a model column or no training-CDF points on every day, skipped")
             continue
         t0 = time.perf_counter()
+        cands = [(b, tr) for b in bases for tr in ("b", "-b", "|b|", "rank", "-rank")]
+        gains: dict[tuple[str, str], dict[str, float]] = {k: {} for k in cands}
+        for d, D in days.items():  # every candidate of this column on this day in one lgbpred run (--batch)
+            keep, cols = [], []
+            for b, tr in cands:
+                v = D.bases[b]
+                v = (-v if tr == "-b" else np.abs(v) if tr == "|b|" else per_mark_rank(v, D.marks, 1.0) if tr == "rank"
+                     else per_mark_rank(v, D.marks, -1.0) if tr == "-rank" else v)
+                if np.isfinite(v).sum() >= 0.5 * v.size:
+                    keep.append((b, tr))
+                    cols.append(IC.calibrate(v, D.cal[tgt]))
+            if not keep:
+                continue
+            for k, sc in zip(keep, batch(d, D.X, ix[tgt], cols), strict=True):
+                gains[k][d] = sim(sc, D.pm, D.marks) - s0[d]
         rows = []
-        for b in bases:
-            for tr in ("b", "-b", "|b|", "rank", "-rank"):
-                gain = {}
-                for d, D in days.items():
-                    v = D.bases[b]
-                    v = (-v if tr == "-b" else np.abs(v) if tr == "|b|" else per_mark_rank(v, D.marks, 1.0) if tr == "rank"
-                         else per_mark_rank(v, D.marks, -1.0) if tr == "-rank" else v)
-                    if np.isfinite(v).sum() < 0.5 * v.size:
-                        break
-                    M = D.X.copy()
-                    M[:, ix[tgt]] = IC.calibrate(v, D.cal[tgt])
-                    gain[d] = sim(score(d, M), D.pm, D.marks) - s0[d]
-                if len(gain) == len(days):
-                    label = {"b": f"cal:gen.{b}", "-b": f"cal:-gen.{b}", "|b|": f"cal:|gen.{b}|", "rank": f"cal:rank:gen.{b}", "-rank": f"cal:rank:-gen.{b}"}[tr]
-                    rows.append((min(gain.values()), label, gain))
+        for (b, tr), gain in gains.items():
+            if len(gain) == len(days):
+                label = {"b": f"cal:gen.{b}", "-b": f"cal:-gen.{b}", "|b|": f"cal:|gen.{b}|", "rank": f"cal:rank:gen.{b}", "-rank": f"cal:rank:-gen.{b}"}[tr]
+                rows.append((min(gain.values()), label, gain))
         rows.sort(key=lambda r: -r[0])
         print(f"-- {tgt}: {len(rows)} candidates in {time.perf_counter() - t0:.0f}s; best by the smaller day gain:")
         for mn, name, gain in rows[: a.top]:
             print(f"   {name:<52} min {mn:+.4f}  " + "  ".join(f"{d} {g:+.4f}" for d, g in gain.items()))
         print(f"   share of candidates helping on every day: {np.mean([r[0] > 0 for r in rows]) if rows else float('nan'):.3f}", flush=True)
     (a.work / "x.bin").unlink(missing_ok=True)
-    (a.work / "p.bin").unlink(missing_ok=True)
+    for f in ("p.bin", "c.bin", "b.bin"):
+        (a.work / f).unlink(missing_ok=True)
 
 
 if __name__ == "__main__":

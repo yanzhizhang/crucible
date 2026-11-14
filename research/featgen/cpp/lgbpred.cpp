@@ -5,6 +5,9 @@
 // inside the leaf values); several model files are averaged. A NaN feature follows each split's own missing rule.
 //
 //   lgbpred <x.bin> <out.bin> <model.txt> [<model.txt> ...] [--threads N]
+//   lgbpred <x.bin> <out.bin> <model.txt> [...] --batch <cand.bin>   one-column replacements of x, scored one by one:
+//           cand.bin "CRULC001", u64 n_cand, u64 n_rows, then per candidate u64 column, f64 values[n_rows];
+//           out.bin  "CRULB001", u64 n_cand, u64 n_rows, f64 score[n_cand][n_rows]
 //   lgbpred --parquet <vec.parquet> <pred.parquet> --features <names.csv> <model.txt> [...] [--threads N]
 //           (only when built with -DCRUCIBLE_ARROW, by CMake inside the conda env, as lgbpred_pq): reads the feature
 //           parquet itself (sid, mark, one column per model feature it fills; the others are NaN) and writes sid, mark, pred
@@ -254,13 +257,15 @@ int main(int argc, char** argv) {
     try {
         unsigned threads = 8;
         bool parquet = false;
-        std::string csv;
+        std::string csv, batch;
         std::vector<std::string> pos;
         for (int i = 1; i < argc; ++i) {
             if (!std::strcmp(argv[i], "--threads") && i + 1 < argc) {
                 threads = static_cast<unsigned>(std::max(1, std::atoi(argv[++i])));
             } else if (!std::strcmp(argv[i], "--features") && i + 1 < argc) {
                 csv = argv[++i];
+            } else if (!std::strcmp(argv[i], "--batch") && i + 1 < argc) {
+                batch = argv[++i];
             } else if (!std::strcmp(argv[i], "--parquet")) {
                 parquet = true;
             } else {
@@ -287,6 +292,31 @@ int main(int argc, char** argv) {
         std::vector<double> x(n_rows * n_cols);
         if (!x.empty() && std::fread(x.data(), 8, x.size(), f) != x.size()) throw std::runtime_error("short read");
         std::fclose(f);
+        if (!batch.empty()) {  // many one-column replacements of the same matrix: models and matrix read once
+            std::FILE* fb = std::fopen(batch.c_str(), "rb");
+            if (!fb) throw std::runtime_error("cannot open " + batch);
+            std::uint64_t n_cand, n_r;
+            if (std::fread(magic, 1, 8, fb) != 8 || std::memcmp(magic, "CRULC001", 8)) throw std::runtime_error("not an lgbpred batch file");
+            if (std::fread(&n_cand, 8, 1, fb) != 1 || std::fread(&n_r, 8, 1, fb) != 1 || n_r != n_rows) throw std::runtime_error("batch rows differ from the matrix");
+            std::FILE* g = std::fopen(pos[1].c_str(), "wb");
+            if (!g) throw std::runtime_error("cannot write " + pos[1]);
+            std::fwrite("CRULB001", 1, 8, g);
+            std::fwrite(&n_cand, 8, 1, g);
+            std::fwrite(&n_rows, 8, 1, g);
+            std::vector<double> col(n_rows), keep(n_rows);
+            for (std::uint64_t k = 0; k < n_cand; ++k) {
+                std::uint64_t c;
+                if (std::fread(&c, 8, 1, fb) != 1 || c >= n_cols || std::fread(col.data(), 8, n_rows, fb) != n_rows) throw std::runtime_error("short batch read");
+                for (std::uint64_t r = 0; r < n_rows; ++r) keep[r] = x[r * n_cols + c], x[r * n_cols + c] = col[r];
+                const std::vector<double> out = predict(models, x, n_rows, n_cols, threads);
+                for (std::uint64_t r = 0; r < n_rows; ++r) x[r * n_cols + c] = keep[r];
+                std::fwrite(out.data(), 8, n_rows, g);
+            }
+            std::fclose(fb);
+            std::fclose(g);
+            std::printf("lgbpred: %llu candidates x %llu rows\n", static_cast<unsigned long long>(n_cand), static_cast<unsigned long long>(n_rows));
+            return 0;
+        }
         const std::vector<double> out = predict(models, x, n_rows, n_cols, threads);
         std::FILE* g = std::fopen(pos[1].c_str(), "wb");
         if (!g) throw std::runtime_error("cannot write " + pos[1]);
