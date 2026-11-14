@@ -201,3 +201,7 @@ gap) -/0/+ 0.33/0.50/0.17; |trade| 100 / 100 / 400 / 1300 / 4110
 
 ==== 20261114: no position log under /work/crucible_data/chrono_poslog/20261114
 [01:12:30] done
+
+Cron moved (user in this session: "Yes, move to 16:00"), 2026-11-15 ~01:45: daily_pull.sh updated to 0a73ef03 (comment line only);
+root crontab: "30 21 * * 1-5 ..." replaced by "0 16 * * 1-5 bash /work/crucible/research/daily_pull.sh >> /work/crucible/data/reports/daily/cron_pull.log 2>&1";
+lines before 21, after 21; daily_pull entries 1; diff of all other entries empty ("other entries unchanged"); backup data/reports/crontab_before_16.txt on 97.
