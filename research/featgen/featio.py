@@ -74,7 +74,8 @@ def run(inp: Path, out: Path, names: Path, threads: int = 8, exe: Path | None = 
     import os
 
     cmd = [str(exe or ensure_binary()), str(inp), str(out), "--names", str(names), "--threads", str(threads)]
-    subprocess.run(cmd + (["--simb-exact"] if os.environ.get("CRUCIBLE_SIMB_EXACT") == "1" else []), check=True)
+    cmd += ["--simb-legacy"] if os.environ.get("CRUCIBLE_SIMB_EXACT") == "0" else []
+    subprocess.run(cmd + (["--lpe-snap"] if os.environ.get("CRUCIBLE_LPE_SNAP") == "1" else []), check=True)
 
 
 def read_output(out: Path, names: Path) -> tuple[list[str], dict[int, np.ndarray]]:

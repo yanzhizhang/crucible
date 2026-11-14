@@ -9,7 +9,7 @@
 // Only what the 144 formulas use is here. The whole-book quantity (best_level_order_count_imbalance) comes from the book
 // replay, not from this file.
 //
-//   featgen <in.bin> <out.bin> [--names names.txt] [--threads N] [--simb-exact]
+//   featgen <in.bin> <out.bin> [--names names.txt] [--threads N] [--simb-legacy] [--lpe-snap]
 // in.bin  (featio.py writes it): "CRUFG001", u64 n_stocks, u64 n_T, T[n_T], then per stock
 //         i64 sid, u64 nf, u64 ns, u64 no, f64 seed[3], fast[NF][nf], slow[NS][ns], orders[NO][no]   (all f64, column-major)
 // out.bin: "CRUFO001", u64 n_stocks, u64 n_T, u64 n_base, then per stock i64 sid, f64 v[n_base][n_T]
@@ -31,7 +31,9 @@ namespace {
 using vec = std::vector<double>;
 constexpr double nan_ = std::numeric_limits<double>::quiet_NaN();
 constexpr double inf_ = std::numeric_limits<double>::infinity();
-bool simb_exact = false;  // --simb-exact: sign the snapshot flows against the mid itself, not exp(log(mid))
+bool simb_exact = true;   // sign the snapshot flows against the mid itself; --simb-legacy: against exp(log(mid)), the old way
+bool lpe_snap = false;    // --lpe-snap: a log price over its own EMA below 1e-12 in size is 0 (rounding of sum / wgt)
+inline double snap(double x) { return (lpe_snap && std::fabs(x) < 1e-12) ? 0.0 : x; }
 
 // column order of the three streams (featio.py FAST / SLOW / ORD)
 enum fast_col { F_T, F_S, F_PRICE, F_OP, F_PC, F_B1, F_A1, F_BV1, F_AV1, F_CV, F_CA, F_BV5, F_AV5, F_BWP5, F_AWP5, F_OFI25, F_UL, F_LL,
@@ -291,14 +293,14 @@ void compute(const stock& st, const vec& T, result& out) {
             out["rv60"][j] = rv(60, j);
             const double rv900 = rv(900, j);
             out["zr60"][j] = clip(ret(60, j) / (rv900 * std::sqrt(60.0 / 900.0)), -10, 10);
-            auto lpe = [&](int h) { return lm0[j] - at(t, em_log[h], x); };
+            auto lpe = [&](int h) { return snap(lm0[j] - at(t, em_log[h], x)); };
             out["lpe5"][j] = lpe(5);
             out["lpe25"][j] = lpe(25);
             out["lpe50"][j] = lpe(50);
             out["lpe100"][j] = lpe(100);
             out["lpe200"][j] = lpe(200);
             for (int h : {5, 10, 20, 25, 75, 5400, 14400}) out["rpe" + std::to_string(h)][j] = std::exp(lpe(h));
-            for (int h : {5, 10, 30}) out["lmie" + std::to_string(h)][j] = li0[j] - at(t, emi_log[h], x);
+            for (int h : {5, 10, 30}) out["lmie" + std::to_string(h)][j] = snap(li0[j] - at(t, emi_log[h], x));
             for (int h : {30, 50, 75, 150}) out["rete" + std::to_string(h)][j] = at(t, em_ret[h], x);
             const double lpma = lm0[j] - win_mean(60, j);
             out["lpma60"][j] = lpma;
@@ -306,9 +308,9 @@ void compute(const stock& st, const vec& T, result& out) {
             out["lee30_14400"][j] = at(t, em_log[30], x) - at(t, em_log[14400], x);
             for (auto& [h, e] : ems_log) out["lpes" + std::to_string(h)][j] = lm0[j] - at(t, e, x);
             for (int h : {60, 3600, 14400}) out["lpev" + std::to_string(h)][j] = clip(lpe(h) / rv900, -10, 10);
-            out["lpew1800"][j] = lm0[j] - at(t, ew1800, x);
-            out["lpew14400"][j] = lm0[j] - at(t, ew14400, x);
-            out["lpek50"][j] = lm0[j] - at(t, ek50, x);
+            out["lpew1800"][j] = snap(lm0[j] - at(t, ew1800, x));
+            out["lpew14400"][j] = snap(lm0[j] - at(t, ew14400, x));
+            out["lpek50"][j] = snap(lm0[j] - at(t, ek50, x));
             out["ldl1800"][j] = win_min(1800, j) - lm0[j];
             out["simba10"][j] = win(c_sa, t, x, 10) / win(c_a, t, x, 10);
             out["simba180"][j] = win(c_sa, t, x, 180) / win(c_a, t, x, 180);
@@ -578,7 +580,11 @@ int main(int argc, char** argv) {
         std::string names_path;
         unsigned threads = 8;
         for (int i = 3; i < argc; ++i)
+        {
+            if (!std::strcmp(argv[i], "--simb-legacy")) simb_exact = false;
             if (!std::strcmp(argv[i], "--simb-exact")) simb_exact = true;
+            if (!std::strcmp(argv[i], "--lpe-snap")) lpe_snap = true;
+        }
         for (int i = 3; i + 1 < argc; ++i) {
             if (!std::strcmp(argv[i], "--names")) names_path = argv[i + 1];
             if (!std::strcmp(argv[i], "--threads")) threads = static_cast<unsigned>(std::max(1, std::atoi(argv[i + 1])));

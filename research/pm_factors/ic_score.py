@@ -296,6 +296,13 @@ def win_mean(v: np.ndarray, s: np.ndarray, e: np.ndarray) -> np.ndarray:
         return np.where(n > 0, (cs[e] - cs[s]) / n, np.nan)
 
 
+def _snap(x: np.ndarray) -> np.ndarray:
+    """CRUCIBLE_LPE_SNAP=1: a log price over its own EMA below 1e-12 in size is 0. Once the price has stood still for many
+    half-lives the EMA equals it, and what is left is the rounding of sum / wgt (+-1e-16 .. 1e-13, either sign): harmless as
+    a value, but a rank, |x| or the calibration ECDF then orders those cells at random instead of tying them."""
+    return np.where(np.abs(x) < 1e-12, 0.0, x) if os.environ.get("CRUCIBLE_LPE_SNAP") == "1" else x
+
+
 def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None, T: np.ndarray = MARKS) -> dict[str, np.ndarray]:
     """Tick quantities at each time of T (default: the 5-minute marks) for stateless families: returns, imbalances, volatility, book."""
     out: dict[str, np.ndarray] = {}
@@ -330,9 +337,9 @@ def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None, T: np.ndarray = MA
         # flows from snapshots alone (a chrono plugin only sees lv2: no trade stream, no BS flag): volume / amount growth
         # between snapshots, signed by the interval's average price against the previous mid (tick rule on a tie)
         dv, da = a["dvol"][ok], a["damt"][ok]
-        # CRUCIBLE_SIMB_EXACT=1: the previous mid itself. exp(log(mid)) can differ from mid in the last bit, and that bit then
-        # decides the sign whenever a trade prints exactly at the mid -- a tie meant for the tick rule, machine-dependent as is
-        pmid = np.concatenate([[np.nan], (mid[ok] if os.environ.get("CRUCIBLE_SIMB_EXACT") == "1" else np.exp(lm))[:-1]])
+        # the previous mid itself. exp(log(mid)) can differ from mid in the last bit, and that bit then decided the sign whenever a
+        # trade printed exactly at the mid -- a tie meant for the tick rule, machine-dependent. CRUCIBLE_SIMB_EXACT=0: the old way
+        pmid = np.concatenate([[np.nan], (np.exp(lm) if os.environ.get("CRUCIBLE_SIMB_EXACT") == "0" else mid[ok])[:-1]])
         with np.errstate(divide="ignore", invalid="ignore"):
             vw = np.where(dv > 0, da / dv, np.nan)
             sd = np.sign(vw - pmid)
@@ -366,8 +373,9 @@ def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None, T: np.ndarray = MA
             ems = {}
             for h in (5, 10, 15, 20, 25, 30, 40, 45, 50, 60, 75, 90, 100, 120, 150, 200, 240, 300, 450, 600, 900, 1200, 1800, 2400, 3600, 5400, 7200, 10800, 14400):
                 em = ems[h] = at(T, np.log(ema_irregular(t, mid_, float(h))))
-                out[f"lpe{h}"], out[f"rpe{h}"] = lm0 - em, np.exp(lm0 - em)
-                out[f"lmie{h}"] = li0 - at(T, np.log(ema_irregular(t, np.exp(lmi), float(h))))  # microprice over its EMA
+                d_ = _snap(lm0 - em)
+                out[f"lpe{h}"], out[f"rpe{h}"] = d_, np.exp(d_)
+                out[f"lmie{h}"] = _snap(li0 - at(T, np.log(ema_irregular(t, np.exp(lmi), float(h)))))  # microprice over its EMA
                 out[f"rete{h}"] = at(T, ema_irregular(t, dlm, float(h)))  # EMA of returns (zzbd.rEma-like)
                 if lpx_ok.sum() > 2:
                     ep = FI.at_marks(t[lpx_ok], np.log(ema_irregular(t[lpx_ok], np.exp(lpx[lpx_ok]), float(h))), T)
@@ -396,9 +404,9 @@ def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None, T: np.ndarray = MA
             tw = np.where(t > 7200, t + 5400, t)  # wall clock: the lunch break back in (t is the trading clock)
             ix_ = np.arange(t.size, dtype=float)  # per snapshot: a classic EMA counted in updates, not seconds
             for h in (60, 200, 600, 1800, 3600, 14400):
-                out[f"lpew{h}"] = lm0 - at(T, np.log(ema_irregular(tw, mid_, float(h))))
+                out[f"lpew{h}"] = _snap(lm0 - at(T, np.log(ema_irregular(tw, mid_, float(h)))))
             for n in (10, 20, 50, 100, 200, 600, 1200, 2400):
-                out[f"lpek{n}"] = lm0 - at(T, np.log(ema_irregular(ix_, mid_, float(n))))
+                out[f"lpek{n}"] = _snap(lm0 - at(T, np.log(ema_irregular(ix_, mid_, float(n)))))
             for h in (60, 200, 600, 1800, 3600, 14400):  # Bollinger-style z: (log mid - its EMA) / EMA std of log mid
                 m1 = ema_irregular(t, lm, float(h))
                 sd = np.sqrt(np.maximum(ema_irregular(t, lm * lm, float(h)) - m1 * m1, 0.0))
@@ -500,8 +508,10 @@ def build_dir(args, d: str, state: Path, target: Path | None) -> Path | None:
     code = [inspect.getsource(m) for m in mods] + [inspect.getsource(fn) for fn in (generic, index_relative, index_series, pm_daily, profile_marks, seed_state, seed_feats)]
     parts = [BUILD_REV, HORIZON, MARKS.tolist(), args.profiles, str(args.hstats), str(args.pm_cache), str(args.pm_stsfile), args.pm_sts_day, STS_MAP.get(d), str(args.seed_dir), args.seed_map, args.ced,
              str(args.ced_xr), args.target_stale, stamp(args.engine_dir / f"marks_{d}.parquet"), args.order_flow]
-    if os.environ.get("CRUCIBLE_SIMB_EXACT") == "1":  # the exact-mid variant of the snapshot-signed flows: its own builds
-        parts.append("simb_exact")
+    if os.environ.get("CRUCIBLE_SIMB_EXACT") == "0":  # the old tie-breaking of the snapshot-signed flows: its own builds
+        parts.append("simb_legacy")
+    if os.environ.get("CRUCIBLE_LPE_SNAP") == "1":
+        parts.append("lpe_snap")
     if args.full_book is not None:  # whole-book factors: their file is part of the build
         parts.append(stamp(args.full_book / f"date={d}.parquet"))
     if str(B.CATALOG) != "/work/crucible_data/catalog.duckdb":  # another market-data source (CRUCIBLE_SOURCE): its own builds
@@ -1269,7 +1279,8 @@ def main() -> None:
                         ok = ix >= 0
                         v[ix[ok]] = x[ok]
                         seen = True
-            base_vec[base] = v.astype(np.float32) if seen else None  # float32 halves the memory of ~1000 cached bases
+            # float32 halves the memory of ~1000 cached bases, but quantises values near 1 (rpe*) into ties; CRUCIBLE_BASE64=1 keeps float64
+            base_vec[base] = (v if os.environ.get("CRUCIBLE_BASE64") == "1" else v.astype(np.float32)) if seen else None
         b_ = base_vec[base]
         return None if b_ is None else b_.astype(np.float64)
 

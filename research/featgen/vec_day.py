@@ -135,9 +135,16 @@ def main() -> None:
             corr = float(np.corrcoef(r[both], g[both])[0, 1]) if both.sum() > 2 and np.std(r[both]) > 0 and np.std(g[both]) > 0 else float("nan")
             off = nd > 0.002 * max(int(fr.sum()), 1) or nn > 0.002 * r.size
             bad += off
+            who = ""
+            if off and nd:  # where the differing cells sit: by stock, and by time
+                dm = np.zeros(r.size, bool)
+                dm[np.flatnonzero(both)[d > tol]] = True
+                bs = j.select("sid", "mark").with_columns(pl.Series("d", dm)).filter(pl.col("d"))
+                top = bs.group_by("sid").len().sort("len", descending=True).head(4)
+                who = f" | {bs['sid'].n_unique()} stocks, {bs['mark'].n_unique()} times; top " + ", ".join(f"{s}:{n}" for s, n in top.iter_rows())
             if off or nd or nn:
                 rows.append(f"  {'OFF' if off else 'ok '} {c:<12} {e:<58} finite {int(fr.sum()):>6} NaN mismatches {nn:>6} cells differing {nd:>6} "
-                            f"max abs diff {float(d.max()) if d.size else 0:.3g} corr {corr:.6f}")
+                            f"max abs diff {float(d.max()) if d.size else 0:.3g} corr {corr:.6f}{who}")
         print("\n".join(rows))
         print(f"{a.date}: {len(forms) - bad} of {len(forms)} columns agree with ic_score's matrix, {bad} off")
 
