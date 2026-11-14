@@ -1,0 +1,88 @@
+R77 on 97 (r77.sh ea1c853e; model_status.py 44cc836f), 02:15:03 - 02:15:05. 86 lines, transcribed in full.
+NOTE: r77.sh's own "| tail -70" cut model_status's output: the table header (column names) and its first rows are not in r77.txt.
+Visible columns: column | gain | formula | grade | (num) | (num).
+[02:15:03] model_status on the baseline (r41c gate)
+ zzzl2.e  0.0089 gen.microprice_minus_mid_rel                       weak   NaN    NaN
+ zzro2.b  0.0087 neu:gen.ret90                                      weak   0.0472 7.0836
+ zzef     0.0087 dm:-gen.lpev14400                                  fits   0.0255 0.7208
+ zzop.j   0.0086 |gen.order_price_aggressiveness_mean_900s|*1e4     weak   NaN    1.7801
+ zzqf6.q.a 0.0084 |gen.lpes2400|                                    ic     NaN    5.3433
+ zzxu.b   0.0083 (px - zzxu.a) / zzxu.last                          ic     NaN    11.4621
+ zzfb.b   0.0082 rank:-gen.lpe50                                    strong 0.0191 6.5369
+ zzpe.a   0.0079 -gen.simba10                                       fits   0.0260 2.6266
+ zzqf9.a  0.0079 |gen.amihud_illiq_900s|                            weak   NaN    1.2693
+ zzfe     0.0078 cal:gen.imbn90                                     strong 0.0072 2.0128
+ zzrg     0.0076 z:-gen.return_open_to_1000_log                     ic     NaN    14.2434
+ zzpe.d   0.0075 srank:gen.microprice_minus_mid_rel                 weak   0.0542 7.7041
+ zzpe.b   0.0072 dm:gen.sd_lp_pk1o                                  ic     NaN    4.3140
+ zzeg2    0.0070 cal:|gen.rpe20|                                    strong 0.0077 11.8554
+ zzyg2.0.b 0.0068 srank:gen.microprice_minus_mid_rel                weak   0.1303 6.9594
+ zzho     0.0068 cal:gen.position_in_limit_band                     strong 0.0053 2.2988
+ zzwa.d   0.0063 rank:gen.lpma60                                    ic     NaN    5.8881
+ zzro.e   0.0062 cal:dm:-gen.rete30                                 weak   0.0570 1.5148
+ zzef2    0.0059 cal:gen.lmie5*1e4                                  strong 0.0064 8.7078
+ zzzl2.f  0.0059 gen.lpes28800                                      ic     NaN    3.3884
+ zzie3.c  0.0058 cal:gen.imbn10                                     fits   0.0066 -0.1287
+ zzja     0.0058 |gen.log_new_order_count_per_s_60s|*1e4            weak   0.0346 -0.2326
+ zzop2.b  0.0054 gen.trading_seconds_since_0930                     fits   0.0245 2.4440
+ zzqo.c   0.0051 z:-gen.lpek50                                      weak   0.2146 NaN
+ zzsa2.b  0.0051 cal:-gen.rv60                                      weak   0.0723 0.0850
+ zzdw     0.0051 z:gen.rete150                                      weak   0.1122 5.3395
+ ...      (elided rows)
+ zzqf8.q.c2 0.0015 gen.lpes3600                                     weak   NaN    1.5487
+ zzwa.i   0.0015 |gen.microprice_minus_mid_rel|                     weak   0.3551 NaN
+ zzyg.1.a 0.0015 z:gen.simba10                                      weak   0.0561 0.3631
+ zzwj.b   0.0014 -gen.flow_refill_imb300                            weak   NaN    -0.7304
+ zzhi2.i  0.0013 cal:gen.ofi_levels1to5_norm_10s                    strong 0.0039 10.0383
+ zzhi.h   0.0012 -gen.flow_ord_imb300                               weak   0.1085 5.7238
+ zzpz.d   0.0012 z:gen.microprice_minus_mid_rel                     weak   0.0637 5.1283
+ zzpz.c   0.0012 rank:gen.microprice_minus_mid_rel                  weak   0.4690 -1.0899
+ zzal.f   0.0012 dm:-gen.imbn120                                    ic     NaN    2.3622
+ zzie2.c  0.0012 cal:crank:gen.imb1                                 fits   0.0236 1.6468
+ zzag.c   0.0012 gen.flow_ord_imb60                                 weak   0.0438 6.1980
+ zzqo.f   0.0012 srank:-gen.rpe10                                   weak   0.0914 5.9964
+ zzro.b   0.0012 cal:|gen.ret1800|                                  fits   0.0292 7.4026
+ zzmo     0.0012 srank:-gen.rete50                                  strong 0.0114 2.8225
+ zzlk     0.0011 dm:-gen.flow_ord_imb60                             weak   0.3206 11.5901
+ zzoe     0.0011 cal:dm:gen.lpev3600                                strong 0.0186 3.1570
+ zzrb     0.0011 -gen.zr60                                          weak   0.1187 4.1607
+ zzwj.d   0.0010 gen.flow_big_imb60                                 ic     NaN    2.3744
+ zzqf.q.c3 0.0010 z:-gen.rpe5                                       ic     NaN    5.5529
+ zzhi.b   0.0010 |gen.log_channel_sequence_advance_per_s_60s|       weak   0.5756 9.1357
+ zzqf4.q.c2 0.0010 dm:gen.rpe14400                                  weak   NaN    -1.5482
+ zzie4.c  0.0009 dm:-gen.simbv120                                   fits   0.0055 0.6031
+ zzhi2.e  0.0009 rank:gen.ofi_levels1to6_norm_30s                   weak   0.2919 8.1588
+ zzor.a   0.0009 crank:-gen.rete50                                  ic     NaN    2.2632
+ zzqo.d   0.0008 crank:gen.lpe50                                    weak   0.3003 2.3211
+ zzhi2.l  0.0008 -gen.marketable_order_amount_share_60s             weak   0.2579 -1.0358
+ zzal.g   0.0008 gen.imbv10                                         ic     NaN    4.5103
+ zzwj.c   0.0008 crank:-gen.flow_refill_imb300                      weak   NaN    1.3469
+ zzqf.q.c2 0.0007 -gen.lpes2400                                     ic     NaN    2.8154
+ zzqf7.q.c2 0.0007 gen.log_distance_to_up_limit                     weak   0.8707 2.0010
+ zzpz.b   0.0007 neu:gen.vfrac10                                    fits   0.0223 4.3145
+ zzhi2.b  0.0006 gen.log_channel_sequence_advance_per_s_900s        weak   0.5723 15.4229
+ zzhi2.h  0.0006 gen.net_buy_amount_share_orders_over_200k_cny_120s weak   0.0633 3.8410
+ zzyj5.b  0.0005 dmi:-gen.best_level_order_count_imbalance          strong 0.0017 2.3621
+ zzyj5.a  0.0005 dmi:-gen.best_level_order_count_imbalance          ic     NaN    4.3707
+ zzyj2.c  0.0005 dm:-gen.best_level_order_count_imbalance           ic     NaN    2.7227
+ zzyj.c   0.0004 srank:-gen.best_level_order_count_imbalance        weak   NaN    1.2041
+ zzxt5    0.0004 crank:gen.rpe10                                    ic     NaN    2.2741
+ zzav     0.0003 cal:|gen.lpe5|*1e4                                 fits   0.0000 -1.6114
+ zzyj4.c  0.0003 rank:gen.best_level_order_count_imbalance          fits   0.0158 -0.3470
+covered gain: strong 0.139, any formula 0.675 of 1.000
+[02:15:04] where the top open columns appear in the scan outputs (count of lines per file, top files)
+  zzeg: 197 files; latest data/reports/r76.txt data/reports/r59_dcp_dysl2_20261112.txt data/reports/r59_dcp_pmmp_20261112.txt
+  zzop.i: 143 files; latest data/reports/r76.txt data/reports/stage6_r70_1112/cal_20261112.json data/reports/stage6_r70_0430/cal_20260430.json
+  zzel.a: 99 files; latest data/reports/r76.txt data/reports/r52c_scan.txt data/reports/r51_audit_1112.json
+  zzel.b: 103 files; latest data/reports/r76.txt data/reports/stage6_r70_1112/cal_20261112.json data/reports/stage6_r70_0430/cal_20260430.json
+  zzmh: 112 files; latest data/reports/r76.txt data/reports/r59_v.txt data/reports/r59_s.txt
+xargs: ls: terminated by signal 13
+  zzzl2.c: 1086 files; latest data/reports/r76.txt data/reports/r52_bc.txt data/reports/r52_s.txt
+  zzpe.e: 170 files; latest data/reports/r76.txt data/reports/stage6_r70_1112/cal_20261112.json data/reports/stage6_r70_0430/cal_20260430.json
+xargs: ls: terminated by signal 13
+  zzhj: 850 files; latest data/reports/r76.txt data/reports/stage6_r70_1112/cal_20261112.json data/reports/stage6_r70_0430/cal_20260430.json
+  zzba: 168 files; latest data/reports/r76.txt data/reports/r68.txt data/reports/r59_dcp_dysl2_20261112.txt
+xargs: ls: terminated by signal 13
+  zzjx3.b: 770 files; latest data/reports/r76.txt data/reports/r52_bc.txt data/reports/r52_s.txt
+[02:15:05] done
+R77 DONE 02:15:05
