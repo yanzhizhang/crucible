@@ -1,0 +1,16 @@
+R56 on 97 (research/r56.sh md5 41a3b4bf), 2026-11-14 08:32:16. Stopped at step 0 by its own guard. Transcribed from screen.
+
+[08:32:16] 0 hstats through the view (/work/crucible_data/hstats_view/HS300)
+drwxr-xr-x 18 root root 4096 Nov 11 09:28 /work/crucible_data/hstats_view/HS300
+  0430: 0 of 13 families; ZZAL -> /work/crucible_data/hstats_view/HS300/ZZAL/20260430; missing: ZZAL ZZDS ZZGW ZZHL ZZMS ZZQI ZZQO ZZSQ ZZTS ZZUG ZZVC ZZWA ZZXC
+  1106: 13 of 13 families; ZZAL -> /data/prod/hstats/HS300/ZZAL/20261106; missing: none
+  1109: 13 of 13 families; ZZAL -> /work/crucible_data/hstats_extra/HS300/ZZAL/20261109; missing: none
+  1110: 13 of 13 families; ZZAL -> /work/crucible_data/hstats_extra/HS300/ZZAL/20261110; missing: none
+  1111: 13 of 13 families; ZZAL -> /work/crucible_data/hstats_extra/HS300/ZZAL/20261111; missing: none
+  1112: 13 of 13 families; ZZAL -> /work/crucible_data/hstats_extra/HS300/ZZAL/20261112; missing: none
+  1113: 13 of 13 families; ZZAL -> /work/crucible_data/hstats_extra/HS300/ZZAL/20261113; missing: none
+  model columns named after an hstats family: 30: zzwa.j zzal.d zzwa.b zzwa.c zzwa.d zzwa.a zzal.c zzal.a zzqo.c zzwa.h
+    zzwa.e zzal.e zzts zzal.h zzal.b zzwa.k zzal.f zzwa.f zzwa.g zzal.g zzqo.a zzqo.f zzqo.b zzxc.b zzqo.d zzxc.a zzxc.d
+    zzqo.e zzxc.c   (only 29 names visible: the line is cut at 250 chars by the script, so the 30th is lost)
+[08:32:16] 0430 has no hstats in the view: stop
+No steps 1-3 ran. No errors.
