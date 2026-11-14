@@ -1,0 +1,15 @@
+R86 on 97 (r86.sh 110e5534, runs_requote.py 48f20ec5), 03:21:54. 14 lines, full.
+[03:21:54] runs_requote 20261113
+==== 20261113: 5,948 orders; from a decision 1,947, re-quotes (another order of the stock before it) 3,902
+  re-quote: seconds since the previous send 0/6.036/30.07; since the previous order's cancel request -5.269/0.7043/18.6; previous order's cancel confirm minus this send (s) -17.71/0.1309/6.102
+  previous order cancel-confirmed before this send 0.455, after 0.478, never 0.067; previous fully filled 0.055; qty == previous rest 0.521, == previous qty 0.538; same side 0.955; px - previous px -0.1/0/0.08
+  chains (a decision's order and the re-quotes until the next decision): 1,947; orders per chain 1/2/4 (max 51); seconds 0/2.997/45; filled share of the first qty 0/0/1; any fill 0.186; one side 0.968
+    1 orders:   817 chains, any fill 0.198, filled share 0.197
+    2 orders:   562 chains, any fill 0.158, filled share 0.364
+    3 orders:   258 chains, any fill 0.190, filled share 0.521
+    4 orders:   119 chains, any fill 0.202, filled share 0.494
+    5 orders:    72 chains, any fill 0.097, filled share 0.228
+    6 orders:    35 chains, any fill 0.257, filled share 0.874
+    8 orders:    17 chains, any fill 0.235, filled share 0.412
+   10 orders:    10 chains, any fill 0.400, filled share 1.100
+[03:21:54] done
