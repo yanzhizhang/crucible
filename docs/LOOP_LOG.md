@@ -487,3 +487,9 @@ ic_score.py edited in place on 97 with md5 gates (b84e6a92 -> 6fb045a6). First p
 screenshot and click, the click hit the VS Code explorer. Exact-mid: featgen agrees 89/89 on synthetic, 1112 and 0430;
 similarity unchanged (.6282/.6283 0430, .6558 1112). featvec needed baseline_r41c.txt; rerun at 17:03 gave 144/144.
 Report: docs/reports_97/r61/r61.txt. R62 started 17:03:26.
+
+## R62 -- 2026-11-14 17:03:26-17:07:09 (crucible request, pasted together with baseline_r41c.txt + featvec rerun)
+ic_score.py edited in place on 97 (6fb045a6 -> 18539882). featvec self-test 144/144. C++ pipeline vs ic_score's matrix:
+0430 93 of 144 agree (51 off), 1112 96 of 144 (48 off); most OFF columns have corr 1.000000 and tiny max abs diff; worst zzvx.a /
+zzxu.b on 0430 (corr .53 / -.77). 3-second day: engine 25 s, base 17 s, formula layer 11 s, total 53 s. User said "done" mid-run
+(meaning unclear; VDI went full-screen at ~17:09). Report: docs/reports_97/r62/r62.txt.

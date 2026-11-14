@@ -1,0 +1,186 @@
+R62 on 97 (commit 259d6f1: r62.sh 05bb776a, vec_day.py cf986d22, engine/baseline_r41c.txt d96b7762; ic_score.py edited in place 6fb045a6 -> 18539882, md5-gated), 17:03:26 - 17:07:09.
+Transcribed from screen via a space-squeezed view (r62_v.txt, 180 lines); column lines: status, column, formula, finite, NaN mismatches, cells differing, max abs diff (mad), corr. Only non-trivial column lines are printed.
+featvec self-test rerun first (after pasting baseline_r41c.txt): 144 formulas over 96 names, 300 stocks x 60 times; 144 columns: 0 off.
+
+[17:03:30] 20260430: ic_score --dump-x
+feature matrix -> data/reports/stage6_r62_0430/x.parquet (144 columns), side tables per day
+ similarity 0.6283
+[17:04:34] 20260430: featgen base
+20260430: no state file, stock list and stop time from 20260429.jz
+20260430: yesterday's state from 20260429.jz for 300 stocks
+20260430: 300 stocks, stop 54149.932, 240 times; snapshots 1,489,303, trades 27,992,205, orders 46,353,075; snapshot columns missing: none (..cut)
+featgen: 300 stocks x 240 times x 89 base quantities
+20260430: pack 2.4s, featgen 3.2s; 72,000 rows x 89 base quantities -> data/featgen_r62/base_20260430.parquet; share lowest: log_distance_to..(cut)
+20260430: done in 16s
+[17:04:51] 20260430: featvec, against ic_score's matrix
+featvec: 144 columns x 240 times x 300 stocks
+20260430: 300 stocks x 240 times, 96 names (book rows matched 0.997; state names found 6 of 6; CED rows 300 of 300, 47 exposures, 300 with a..(cut)
+20260430: assemble 0.4s, featvec 0.3s; 72,000 rows x 144 columns -> data/featvec_r62/vec_20260430.parquet
+20260430: 72,000 rows in x.parquet, 72,000 matched
+(column lines: status col formula finite NaNmis cells mad corr)
+ ok zzaa.a cal:-gen.nam15 71760 0 4 mad 0.527 corr 1.000000
+ OFF zzab cal:neu:-gen.depth_weighted_price_5lvl_minus_mid_rel 70919 0 741 mad 5.39e-05 corr 0.999999
+ ok zzag2.e cal:|gen.flow_ord_imb300|*1e4 71760 0 16 mad 0.151 corr 1.000000
+ ok zzal.c -gen.buy300 71760 0 4 mad 63 corr 1.000000
+ OFF zzal.e dm:-gen.imbn10 71111 0 2323 mad 3.16e-08 corr 1.000000
+ OFF zzal.f dm:-gen.imbn120 71760 0 3302 mad 3.08e-08 corr 1.000000
+ OFF zzal.h z:gen.lpe200 71760 0 3874 mad 3.8e-07 corr 1.000000
+ OFF zzav cal:|gen.lpe5|*1e4 71760 0 10309 mad 2.89 corr 0.999926
+ OFF zzbt.a cal:gen.amount_share_orders_over_200k_cny_since_0930 71760 0 364 mad 2.99e-05 corr 1.000000
+ ok zzdw z:gen.rete150 71760 0 123 mad 5.41e-07 corr 1.000000
+ OFF zzef dm:-gen.lpev14400 71760 0 6243 mad 4.67e-07 corr 1.000000
+ ok zzef2 cal:gen.lmie5*1e4 71760 0 26 mad 8.84e-05 corr 1.000000
+ OFF zzeg2 cal:|gen.rpe20| 71760 0 13605 mad 4.45e-05 corr 0.999942
+ ok zzeu2 srank:-gen.rete75 71760 0 2 mad 0.00336 corr 1.000000
+ ok zzfb.b rank:-gen.lpe50 71760 0 4 mad 0.00503 corr 1.000000
+ OFF zzfb2.a rank:gen.rpe75 71760 0 3775 mad 0.0386 corr 0.999949
+ OFF zzfq.b gen.simbn45 71755 0 302 mad 0.455 corr 0.999759
+ OFF zzfq.e dm:-gen.imb5 70992 0 4388 mad 3.12e-08 corr 1.000000
+ OFF zzhi2.i cal:gen.ofi_levels1to5_norm_10s 71748 0 153 mad 0.0001 corr 1.000000
+ OFF zzhk.d cal:dm:gen.rpma60 71760 0 27164 mad 0.000371 corr 1.000000
+ OFF zzho cal:gen.position_in_limit_band 26400 0 3333 mad 0.0307 corr 1.000000
+ OFF zzht dm:gen.simba10 71060 0 17464 mad 1.99 corr 0.999726
+ OFF zzie4.c dm:-gen.simbv120 71760 0 70573 mad 0.329 corr 0.999982
+ OFF zzjx3.a dm:gen.rpe5400 71760 0 67316 mad 1.62e-07 corr 1.000000
+ OFF zzlk dm:-gen.flow_ord_imb60 71760 0 2501 mad 3.1e-08 corr 1.000000
+ OFF zzlk2 dm:gen.flow_ord_imb60 71760 0 2501 mad 3.1e-08 corr 1.000000
+ OFF zzmo srank:-gen.rete50 71760 0 146 mad 0.00671 corr 1.000000
+ ok zzoe cal:dm:gen.lpev3600 71760 0 24 mad 4.8e-05 corr 1.000000
+ OFF zzor.a crank:-gen.rete50 71760 0 146 mad 0.00336 corr 1.000000
+ ok zzpe.a -gen.simba10 71060 0 65 mad 2 corr 0.999733
+ OFF zzpe.b dm:gen.sd_lp_pklo 71760 0 3972 mad 2.38e-07 corr 1.000000
+ OFF zzpk dmi:-gen.sd_eg_rng 70080 0 20547 mad 8.29e-09 corr 1.000000
+ OFF zzpp.e rank:-gen.rete50 71760 0 146 mad 0.00336 corr 1.000000
+ OFF zzpp2.d z:-gen.zr60 68688 0 2576 mad 2.6e-07 corr 1.000000
+ ok zzpp2.e z:-gen.rete50 71760 0 7 mad 4.76e-07 corr 1.000000
+ OFF zzpz.b neu:gen.vfrac10 71111 0 50763 mad 6.71e-07 corr 1.000000
+ OFF zzpz.d z:gen.microprice_minus_mid_rel 71760 0 3305 mad 2.53e-07 corr 1.000000
+ OFF zzqf.q.c3 z:-gen.rpe5 71760 0 59182 mad 8.79e-07 corr 1.000000
+ OFF zzqf4.q.c2 dm:gen.rpe14400 71760 0 67223 mad 1.81e-07 corr 1.000000
+ ok zzqf6.q.c1 cal:gen.lpes1800 71760 0 44 mad 2.27e-07 corr 1.000000
+ ok zzqf9.c1 cal:gen.lpew1800 71760 0 12 mad 3.28e-07 corr 1.000000
+ ok zzqo.a cal:gen.lmie30*1e4 71760 0 43 mad 0.137 corr 1.000000
+ OFF zzqo.c z:-gen.lpek50 71760 0 2943 mad 4.37e-07 corr 1.000000
+ ok zzqo.d crank:gen.lpe50 71760 0 4 mad 0.00503 corr 1.000000
+ OFF zzqo.e cal:srank:-gen.rpe25 71760 0 52874 mad 1.64e+04 corr 0.999945
+ OFF zzqo.f srank:-gen.rpe10 71760 0 15166 mad 0.282 corr 0.996602
+ OFF zzrg z:-gen.return_open_to_1000_log 71760 0 282 mad 3.82e-07 corr 1.000000
+ ok zzro.a cal:gen.mret1800 66378 0 46 mad 1.19e-06 corr 1.000000
+ OFF zzro.b cal:|gen.ret1800| 66378 0 4249 mad 3.01e-05 corr 1.000000
+ OFF zzro.e cal:dm:-gen.rete30 71760 0 349 mad 7.81e-08 corr 1.000000
+ OFF zzro2.a gen.stoch 71760 0 2078 mad 1 corr 0.999469
+ OFF zzro2.b neu:gen.ret90 71760 0 155 mad 2.02e-07 corr 1.000000
+ OFF zzsa2.b cal:-gen.rv60 71760 0 3033 mad 3.61e-06 corr 1.000000
+ OFF zzvx.a zzvx.trDEmaD / px 71760 0 28892 mad 6.57 corr 0.528071
+ ok zzwa.d rank:gen.lpma60 71760 0 2 mad 0.00168 corr 1.000000
+ OFF zzwa.f cal:gen.microprice_minus_mid_rel 71760 0 231 mad 6.78e-09 corr 1.000000
+ OFF zzwa.g z:gen.lpe50 71760 0 2320 mad 4.15e-07 corr 1.000000
+ ok zzwa.k cal:dmi:gen.microprice_minus_mid_rel 70080 0 24 mad 2.39e-06 corr 1.000000
+ OFF zzwf cal:-gen.ofi_levels2to5_norm_10s 71748 0 378 mad 0.000461 corr 1.000000
+ OFF zzxt3 crank:gen.lpe25 71760 0 565 mad 0.0436 corr 0.999997
+ OFF zzxt5 crank:gen.rpe10 71760 0 15166 mad 0.141 corr 0.996602
+ OFF zzxu.b (px - zzxu.a) / zzxu.last 71760 0 28892 mad 1.45e+03 corr -0.765352
+ OFF zzyg.0.a cal:z:gen.simba180 71760 0 66668 mad 0.986 corr 0.999983
+ OFF zzyg.1.a z:gen.simba10 71060 0 17477 mad 2.65 corr 0.999731
+ OFF zzyj2.c dm:-gen.best_level_order_count_imbalance 71687 0 1174 mad 3.14e-08 corr 1.000000
+ OFF zzyj5.a dmi:-gen.best_level_order_count_imbalance 70007 0 3301 mad 3.72e-08 corr 1.000000
+ OFF zzyj5.b dmi:-gen.best_level_order_count_imbalance 70007 0 3301 mad 3.72e-08 corr 1.000000
+ OFF zzzs.a dm:-gen.flow_refill_imb60 70160 0 1451 mad 3.16e-08 corr 1.000000
+20260430: 93 of 144 columns agree with ic_score's matrix, 51 off
+[17:04:53] 20261112: ic_score --dump-x
+feature matrix -> data/reports/stage6_r62_1112/x.parquet (144 columns), side tables per day
+ similarity 0.6558
+[17:05:59] 20261112: featgen base
+20261112: yesterday's state from 20261111.jz for 300 stocks
+20261112: 300 stocks, stop 54149.897, 240 times; snapshots 1,519,129, trades 24,128,723, orders 41,293,348; snapshot columns missing: none (..cut)
+featgen: 300 stocks x 240 times x 89 base quantities
+20261112: pack 2.1s, featgen 2.9s; 72,000 rows x 89 base quantities -> data/featgen_r62/base_20261112.parquet; share lowest: flow_big_imb60 ..(cut)
+20261112: done in 13s
+[17:06:14] 20261112: featvec, against ic_score's matrix
+featvec: 144 columns x 240 times x 300 stocks
+20261112: 300 stocks x 240 times, 96 names (book rows matched 1.000; state names found 6 of 6; CED rows 300 of 300, 46 exposures, 300 with a..(cut)
+20261112: assemble 0.4s, featvec 0.3s; 72,000 rows x 144 columns -> data/featvec_r62/vec_20261112.parquet
+20261112: 72,000 rows in x.parquet, 72,000 matched
+ ok zzaa.a cal:-gen.nam15 72000 0 8 mad 1.97 corr 1.000000
+ OFF zzab cal:neu:-gen.depth_weighted_price_5lvl_minus_mid_rel 72000 0 523 mad 3.35e-05 corr 1.000000
+ ok zzag2.e cal:|gen.flow_ord_imb300|*1e4 72000 0 16 mad 0.118 corr 1.000000
+ OFF zzal.e dm:-gen.imbn10 71061 0 2776 mad 3.22e-08 corr 1.000000
+ OFF zzal.f dm:-gen.imbn120 72000 0 5247 mad 3.12e-08 corr 1.000000
+ OFF zzal.h z:gen.lpe200 72000 0 5606 mad 3.2e-07 corr 1.000000
+ OFF zzav cal:|gen.lpe5|*1e4 72000 0 10220 mad 2.83 corr 0.999927
+ OFF zzbt.a cal:gen.amount_share_orders_over_200k_cny_since_0930 72000 0 358 mad 3.4e-05 corr 1.000000
+ OFF zzdw z:gen.rete150 72000 0 5407 mad 3.21e-07 corr 1.000000
+ OFF zzef dm:-gen.lpev14400 72000 0 5617 mad 4.71e-07 corr 1.000000
+ ok zzef2 cal:gen.lmie5*1e4 72000 0 34 mad 8.81e-05 corr 1.000000
+ OFF zzeg2 cal:|gen.rpe20| 72000 0 13814 mad 4.23e-05 corr 0.999950
+ OFF zzfb2.a rank:gen.rpe75 72000 0 3179 mad 0.0301 corr 0.999976
+ OFF zzfq.b gen.simbn45 71999 0 363 mad 0.267 corr 0.999790
+ OFF zzfq.e dm:-gen.imb5 72000 0 5313 mad 3.2e-08 corr 1.000000
+ OFF zzhi2.i cal:gen.ofi_levels1to5_norm_10s 71989 0 200 mad 0.000199 corr 1.000000
+ OFF zzhk.d cal:dm:gen.rpma60 72000 0 43310 mad 0.000488 corr 1.000000
+ OFF zzho cal:gen.position_in_limit_band 72000 0 23326 mad 0.00474 corr 1.000000
+ OFF zzht dm:gen.simba10 70993 0 22118 mad 1.53 corr 0.999867
+ OFF zzie4.c dm:-gen.simbv120 72000 0 71138 mad 0.158 corr 0.999985
+ OFF zzjx3.a dm:gen.rpe5400 72000 0 70873 mad 6.31e-08 corr 1.000000
+ ok zzlf crank:-gen.microprice_minus_mid_rel 72000 0 2 mad 0.00167 corr 1.000000
+ OFF zzlk dm:-gen.flow_ord_imb60 72000 0 3189 mad 3.1e-08 corr 1.000000
+ OFF zzlk2 dm:gen.flow_ord_imb60 72000 0 3189 mad 3.1e-08 corr 1.000000
+ ok zzoe cal:dm:gen.lpev3600 72000 0 18 mad 5.88e-05 corr 1.000000
+ ok zzpe.a -gen.simba10 70993 0 82 mad 1.54 corr 0.999873
+ OFF zzpe.b dm:gen.sd_lp_pklo 72000 0 2646 mad 7.45e-09 corr 1.000000
+ ok zzpe.d srank:gen.microprice_minus_mid_rel 72000 0 2 mad 0.00334 corr 1.000000
+ OFF zzpk dmi:-gen.sd_eg_rng 70560 0 27887 mad 1.49e-08 corr 1.000000
+ OFF zzpp2.d z:-gen.zr60 69249 0 3599 mad 2.78e-07 corr 1.000000
+ OFF zzpp2.e z:-gen.rete50 72000 0 4721 mad 3.04e-07 corr 1.000000
+ OFF zzpz.b neu:gen.vfrac10 71061 0 49695 mad 6.37e-07 corr 1.000000
+ ok zzpz.c rank:gen.microprice_minus_mid_rel 72000 0 2 mad 0.00167 corr 1.000000
+ OFF zzpz.d z:gen.microprice_minus_mid_rel 72000 0 3118 mad 2.95e-07 corr 1.000000
+ OFF zzqf.q.c3 z:-gen.rpe5 72000 0 71963 mad 0.000591 corr 1.000000
+ OFF zzqf4.q.c2 dm:gen.rpe14400 72000 0 70761 mad 6.38e-08 corr 1.000000
+ ok zzqf6.q.c1 cal:gen.lpes1800 72000 0 77 mad 2.26e-07 corr 1.000000
+ ok zzqf9.c1 cal:gen.lpew1800 72000 0 16 mad 3.27e-07 corr 1.000000
+ ok zzqo.a cal:gen.lmie30*1e4 72000 0 34 mad 0.00194 corr 1.000000
+ OFF zzqo.c z:-gen.lpek50 72000 0 5549 mad 3.48e-07 corr 1.000000
+ OFF zzqo.e cal:srank:-gen.rpe25 72000 0 57127 mad 4.13e+04 corr 0.999943
+ OFF zzqo.f srank:-gen.rpe10 72000 0 15014 mad 0.268 corr 0.997180
+ OFF zzrg z:-gen.return_open_to_1000_log 72000 0 1894 mad 2.13e-07 corr 1.000000
+ ok zzri2.f crank:gen.microprice_minus_mid_rel 72000 0 2 mad 0.00167 corr 1.000000
+ ok zzro.a cal:gen.mret1800 66900 0 50 mad 1.34e-06 corr 1.000000
+ OFF zzro.b cal:|gen.ret1800| 66900 0 5858 mad 2.51e-05 corr 1.000000
+ ok zzro.e cal:dm:-gen.rete30 72000 0 20 mad 2.71e-09 corr 1.000000
+ OFF zzro2.b neu:gen.ret90 72000 0 195 mad 1.73e-09 corr 1.000000
+ ok zzro2.c dm:-gen.ret120 72000 0 2 mad 1.85e-09 corr 1.000000
+ OFF zzsa2.b cal:-gen.rv60 72000 0 3941 mad 5.55e-06 corr 1.000000
+ ok zzuc.d crank:-gen.microprice_minus_mid_rel 72000 0 2 mad 0.00167 corr 1.000000
+ ok zzvm2 cal:rank:gen.microprice_minus_mid_rel 72000 0 2 mad 2.6e-06 corr 1.000000
+ OFF zzvx.a zzvx.trDEmaD / px 72000 0 25452 mad 0.000304 corr 1.000000
+ ok zzwa.d rank:gen.lpma60 72000 0 6 mad 0.00167 corr 1.000000
+ OFF zzwa.f cal:gen.microprice_minus_mid_rel 72000 0 322 mad 6.76e-09 corr 1.000000
+ OFF zzwa.g z:gen.lpe50 72000 0 4611 mad 2.87e-07 corr 1.000000
+ ok zzwa.h rank:gen.microprice_minus_mid_rel 72000 0 2 mad 0.00167 corr 1.000000
+ ok zzwa.k cal:dmi:gen.microprice_minus_mid_rel 70560 0 21 mad 1.49e-06 corr 1.000000
+ OFF zzwf cal:-gen.ofi_levels2to5_norm_10s 71989 0 499 mad 0.000276 corr 1.000000
+ OFF zzxt3 crank:gen.lpe25 72000 0 146 mad 0.0284 corr 0.999999
+ OFF zzxt5 crank:gen.rpe10 72000 0 15014 mad 0.134 corr 0.997180
+ OFF zzxu.b (px - zzxu.a) / zzxu.last 72000 0 25452 mad 0.00847 corr 0.999403
+ OFF zzyg.0.a cal:z:gen.simba180 72000 0 66776 mad 0.567 corr 0.999986
+ OFF zzyg.1.a z:gen.simba10 70993 0 22124 mad 2.21 corr 0.999866
+ ok zzyg2.0.b srank:gen.microprice_minus_mid_rel 72000 0 2 mad 0.00334 corr 1.000000
+ OFF zzyj2.c dm:-gen.best_level_order_count_imbalance 72000 0 1119 mad 3.15e-08 corr 1.000000
+ OFF zzyj5.a dmi:-gen.best_level_order_count_imbalance 70560 0 3669 mad 3.67e-08 corr 1.000000
+ OFF zzyj5.b dmi:-gen.best_level_order_count_imbalance 70560 0 3669 mad 3.67e-08 corr 1.000000
+ OFF zzzs.a dm:-gen.flow_refill_imb60 71501 0 1973 mad 3.15e-08 corr 1.000000
+20261112: 96 of 144 columns agree with ic_score's matrix, 48 off
+[17:06:16] 20261112 on a 3-second grid: state engine, base, formula layer (no whole-book quantity: 8 columns stay empty)
+20261112: state at 4740 marks x 300 stocks -> data/engine_3s/marks_20261112.parquet
+20261112: stop 54149.897 -> data/engine_3s/engine_20261112.json.gz (24s total)
+20261112: pack 2.1s, featgen 4.1s; 1,422,000 rows x 89 base quantities -> data/featgen_3s/base_20261112.parquet; finite share lowest: flow_big_imb60 0.464, mret1800 0.937, ret1800 0.937, zr60 0.961, log_channel_sequence_ (cut)
+20261112: done in 15s
+featvec: 144 columns x 4740 times x 300 stocks
+20261112: 300 stocks x 4740 times, 96 names (state names found 6 of 6; CED rows 300 of 300, 46 exposures, 300 with an industry); names nobody supplied: ['gen.best_level_order_count_imbalance']; calibration points for 31 of 31 cal columns
+20261112: assemble 2.2s, featvec 6.6s; 1,422,000 rows x 144 columns -> data/featvec_3s/vec_20261112.parquet
+  seconds: state engine 25, base 17, formula layer 11, total 53
+  -rw-r--r-- 1 root root 236514883 Nov 14 17:06 data/engine_3s/marks_20261112.parquet
+  -rw-r--r-- 1 root root 956081105 Nov 14 17:07 data/featvec_3s/vec_20261112.parquet
+[17:07:09] done
+R62 DONE 17:07:09
