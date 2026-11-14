@@ -1,0 +1,9 @@
+R81 on 97 (r81.sh de830e0c, runs_es.py a36c2d39), 02:26:39 - 02:26:40. 8 lines, full (wrapped lines rejoined; the M/N strings shortened).
+[02:26:39] runs_es 20261113
+==== 20261113: 5,948 orders sent, 2,389 decisions made an order
+  sent within 1 s of a made decision (and no cancel confirm in between): 0.387; within 1 s after a cancel confirm instead: 0.000; neither: 0.613
+  seconds since the made decision 0.1437/0.5397/0.8473; since the cancel confirm -
+  after a made decision (2,300): same side as the stock's previous order 0.810; qty == previous qty 0.454, == previous qty - its fills 0.420, == cancelled remainder 0.000; px - previous px -0.09/0/0.117; seconds since the last fill -
+  neither (3,648): same side as the stock's previous order 0.925; qty == previous qty 0.504, == previous qty - its fills 0.490, == cancelled remainder 0.000; px - previous px -0.12/0/0.09; seconds since the last fill -
+  per stock the sequence of order kinds (M = after a decision, C = after a cancel, N = neither), longest stocks: 2384:MNNNMNNNMNNN...(long, mostly N with M about every 3-4) | 600941:MNNNMNNNMNNN...N | 600176:NNNNMNNN...N |
+[02:26:40] done

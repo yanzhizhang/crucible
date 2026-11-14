@@ -1,0 +1,33 @@
+R83 on 97 (r83.sh 85cac7ca, missing_damage.py 5be914d7; gates pred_day b0663feb, gain_share 4b431f04), 02:26:43 - 02:27:03. 67 lines, full.
+Columns: open column (gain rank, gain share): pooled corr with the NaN scores | mean |change| / spread | similarity with the column filled at random (change)
+[02:26:43] 20261112
+20261112: 72,000 rows, 144 columns filled; similarity with every open column NaN 0.6558; score spread 0.001115
+ skipped (no training-CDF points): zzeg(1,.0262) zzba(4,.0196) zzel.a(5,.0195) zzzl2.c(11,.0152) zzmh(12,.0147) zzjx3.b(21,.0125) zzab2(24,.0111) zzvm(25,.0107) zzsf.d(29,.0101) zzsf.c(37,.0091) zzcb(40,.0084) zzzl2.g(41,.0082) zzwa.c(42,.0081) zzal.a(45,.0075) zzgh.b(47,.0074) zzzl.f(50,.0070) zzsa.b(57,.0062) zzuc.c(64,.0054)
+ zzop.i  ( 8, 0.0175): corr 0.9958 | change 0.1098 | similarity 0.6568 (+0.0010)
+ zzel.b  (14, 0.0142): corr 0.9998 | change 0.0230 | similarity 0.6548 (-0.0010)
+ zzpe.e  (17, 0.0137): corr 0.9972 | change 0.0704 | similarity 0.6508 (-0.0050)
+ zzhj    (33, 0.0095): corr 0.9988 | change 0.0414 | similarity 0.6526 (-0.0032)
+ zzxo    (35, 0.0092): corr 0.9788 | change 0.2327 | similarity 0.6412 (-0.0145)
+ zzbt.b  (51, 0.0069): corr 0.9533 | change 0.4946 | similarity 0.6164 (-0.0393)
+ zzri2.a (53, 0.0069): corr 0.9981 | change 0.0540 | similarity 0.6565 (+0.0007)
+ zzag2.f (55, 0.0067): corr 0.9950 | change 0.0971 | similarity 0.6580 (+0.0023)
+ zzag.a  (58, 0.0061): corr 0.9994 | change 0.0228 | similarity 0.6562 (+0.0004)
+ zzpp.b  (61, 0.0060): corr 0.9931 | change 0.1038 | similarity 0.6487 (-0.0071)
+ zzjx2.a (65, 0.0053): corr 0.9985 | change 0.0329 | similarity 0.6553 (-0.0005)
+ zzaa.b  (68, 0.0050): corr 0.9655 | change 0.1549 | similarity 0.6395 (-0.0163)
+[02:26:53] 20260430
+20260430: 72,000 rows, 144 columns filled; similarity with every open column NaN 0.6282; score spread 0.001077
+ skipped (no training-CDF points): the same 18 columns as 1112
+ zzop.i  ( 8, 0.0175): corr 0.9939 | change 0.1188 | similarity 0.6251 (-0.0031)
+ zzel.b  (14, 0.0142): corr 0.9998 | change 0.0214 | similarity 0.6278 (-0.0004)
+ zzpe.e  (17, 0.0137): corr 0.9958 | change 0.0800 | similarity 0.6249 (-0.0034)
+ zzhj    (33, 0.0095): corr 0.9987 | change 0.0418 | similarity 0.6279 (-0.0003)
+ zzxo    (35, 0.0092): corr 0.9771 | change 0.2408 | similarity 0.6214 (-0.0068)
+ zzbt.b  (51, 0.0069): corr 0.9471 | change 0.5795 | similarity 0.5896 (-0.0386)
+ zzri2.a (53, 0.0069): corr 0.9978 | change 0.0576 | similarity 0.6270 (-0.0012)
+ zzag2.f (55, 0.0067): corr 0.9944 | change 0.1005 | similarity 0.6266 (-0.0016)
+ zzag.a  (58, 0.0061): corr 0.9992 | change 0.0278 | similarity 0.6266 (-0.0016)
+ zzpp.b  (61, 0.0060): corr 0.9896 | change 0.1148 | similarity 0.6214 (-0.0068)
+ zzjx2.a (65, 0.0053): corr 0.9983 | change 0.0403 | similarity 0.6273 (-0.0009)
+ zzaa.b  (68, 0.0050): corr 0.9534 | change 0.1919 | similarity 0.5944 (-0.0338)
+[02:27:03] done

@@ -1,0 +1,12 @@
+R82 on 97 (r82.sh 98159f34, pred_ic.py e1165a93), 02:26:40 - 02:26:43. 50 lines; full except the two identical polars tracebacks (summarised).
+[02:26:40] 20261009 (feitu)
+20261009: 133,200 rows (444 marks every 30 s, 300 stocks); mid found at the mark 0.997
+  ours (C++ chain)   30s IC +0.1148 t 16.9 >0 0.77 (444) |  60s IC +0.0929 t 12.7 >0 0.71 (444) |  300s IC +0.0615 t 7.7 >0 0.66 (444) |  900s IC +0.0326 t 3.8 >0 0.58 (444)
+  (no PM line printed for 1009)
+[02:26:43] 20261110 (dysl2)
+Traceback ... pred_ic.py line 70: s = pl.read_parquet(a.scores)...
+FileNotFoundError: No such file or directory (os error 2): data/backfill_r80/days/20261110/pred/pred_20261110.parquet
+[02:26:43] 20261111 (dysl2)
+Traceback ... (same)
+FileNotFoundError: No such file or directory (os error 2): data/backfill_r80/days/20261111/pred/pred_20261111.parquet
+[02:26:43] done
