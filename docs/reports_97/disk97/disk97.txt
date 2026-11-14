@@ -1,0 +1,54 @@
+disk97 on 97 (research/disk97.sh 94cedfec, read-only), 01:34:38 - 01:34:43, 192 lines; transcribed from screen in full.
+[01:34:38] filesystems
+Filesystem  Size Used Avail Use% Mounted on
+overlay      25T 8.1T   17T  34% /
+/dev/sda1    25T 8.1T   17T  34% /work
+[01:34:38] /work, two levels (largest 40)
+111M /work/app/solar | 112M /work/barra/d100_factor_ret | 173M /work/infra/chrono | 214M /work/crucible_data/pm_orders | 225M /work/barra
+314M /work/infra/prototype | 342M /work/solar/example.backup | 361M /work/ts-strategy/hft-stocks | 539M /work/crucible_data/pm_signals
+611M /work/solar/20260401 | 642M /work/infra/beacon | 718M /work/crucible_data/seed_probe | 952M /work/solar | 1002M /work/md | 1002M /work/md/v3_index
+1.1G /work/crucible_data/mp | 1.1G /work/crucible_data/mp_raw | 1.1G /work/ts-strategy/ts-algo-platform | 1.2G /work/ts-strategy/hf-snapshot
+1.8G /work/crucible_data/pm_mp | 2.0G /work/crucible_data/pmmp_raw | 2.4G /work/infra/infra-mdservices | 2.7G /work/ts-strategy | 3.6G /work/infra
+5.6G /work/SHT | 5.6G /work/SHT/shtcommon | 7.8G /work/crucible_data/tmp | 9.8G /work/crucible_data/chrono_logs | 40G /work/crucible | 40G /work/crucible/data
+46G /work/crucible_data/cache | 46G /work/crucible_data/old_xtp_tdf | 49G /work/crucible_data/store | 78G /work/data/solar | 80G /work/crucible_data/dysl2_raw
+99G /work/data | 285G /work/crucible_data/xtp_raw | 581G /work/crucible_data/feitu_raw | 1.1T /work/crucible_data | 1.3T /work
+[01:34:39] /work/crucible/data, one level
+448K featgen_book | 3.2M featpred_r70 | 4.0M featgen_book_3s | 11M featpred_3s | 11M pytest_tmp_duckdb156 | 11M pytest_tmp_duckdb2 | 23M bookgen_work
+27M lgbpred_work | 32M engine_m7 | 32M engine_r68a | 32M engine_r68b | 36M featgen | 36M featgen_r65 | 48M featgen_selftest | 50M featvec_r63_double
+53M featvec_selftest | 71M featgen_r62 | 71M featgen_r63 | 71M featgen_r64 | 71M featgen_r67 | 71M featgen_x0 | 71M featgen_x1 | 80M featvec_r63
+80M featvec_r64 | 80M featvec_r67 | 80M featvec_r69 | 80M featvec_r70_float32 | 84M pm_export_sod | 100M featvec_r62 | 100M featvec_r70_double
+225M pm_export_all | 245M engine_3s | 439M pm_export | 635M engine_seed | 655M featgen_3s | 721M engine | 950M featvec_3s | 1.9G day_r71
+1.9G day_r71_serial | 31G reports | 40G (total)
+[01:34:39] /work/crucible_data, one level
+0 duckdb_tmp | 0 feitu_check_raw | 0 models_gen | 0 pm_target_prod | 0 seed_224 | 4.0K hstats_sod | 4.0K pm_target_r22 | 8.0K chrono_cfg
+68K hstats_view | 356K bench | 728K zyq_stocks | 1.3M logs | 17M hstats_0430 | 20M pm_livev1 | 21M pm_stsfile | 22M pm_alpha | 38M sod_dcp
+82M hstats_extra | 97M chrono_poslog | 214M pm_orders | 539M pm_signals | 718M seed_probe | 1.1G mp | 1.1G mp_raw | 1.8G pm_mp | 2.0G pmmp_raw
+7.8G tmp | 9.8G chrono_logs | 46G cache | 46G old_xtp_tdf | 49G store | 80G dysl2_raw | 285G xtp_raw | 581G feitu_raw | 1.1T (total)
+[01:34:39] files over 2 GB under /work (size, modified, path)
+ 21.3 GB 2026-04-03 /work/data/solar_data.tgz
+  5.3 GB 2026-05-11 /work/SHT/shtcommon/.git/objects/pack/pack-8ae001a82811391cb6e286e7b9820a9fe9c9f84d.pack
+  2.3 GB 2026-11-05 /work/crucible_data/feitu_raw/kind=order/date=20260430/part-SH.parquet
+  2.3 GB 2026-10-16 .../feitu_raw/kind=transaction/date=20260424/part-SZ.parquet
+  2.3 GB 2026-10-16 .../kind=transaction/date=20260423/part-SZ.parquet
+  2.2 GB 2026-10-19 .../kind=order/date=20260428/part-SH.parquet
+  2.2 GB 2026-10-16 .../kind=transaction/date=20260429/part-SZ.parquet
+  2.2 GB 2026-10-19 .../kind=order/date=20260429/part-SH.parquet
+  2.2 GB 2026-10-16 .../kind=transaction/date=20260428/part-SZ.parquet
+  2.2 GB 2026-11-05 .../kind=transaction/date=20260430/part-SZ.parquet
+  2.2 GB 2026-10-16 .../kind=transaction/date=20260427/part-SZ.parquet
+  2.2 GB 2026-10-21 .../kind=transaction/date=20260408/part-SZ.parquet
+  2.2 GB 2026-10-16 .../kind=transaction/date=20260422/part-SZ.parquet
+  2.1 GB 2026-10-16 .../kind=transaction/date=20260420/part-SZ.parquet
+  2.1 GB 2026-10-16 .../kind=transaction/date=20260417/part-SZ.parquet
+  2.1 GB 2026-10-16 .../kind=transaction/date=20260416/part-SZ.parquet
+  2.1 GB 2026-10-21 .../kind=transaction/date=20260415/part-SZ.parquet
+  2.1 GB 2026-10-21 .../kind=transaction/date=20260410/part-SZ.parquet
+  2.1 GB 2026-10-16 .../kind=transaction/date=20260421/part-SZ.parquet
+  2.0 GB 2026-10-21 .../kind=transaction/date=20260414/part-SZ.parquet
+  2.0 GB 2026-10-21 .../kind=transaction/date=20260401/part-SZ.parquet
+  2.0 GB 2026-10-21 .../kind=transaction/date=20260409/part-SZ.parquet
+[01:34:39] round outputs under /work/crucible/data, with last change (same sizes as above): all dated 2026-11-12..15 except pm_export 2026-10-29;
+  engine_seed 11-12; engine, engine_m7 11-13; pytest_tmp_*, lgbpred_work, day_r71*, reports 11-15; the rest 11-14.
+[01:34:39] conda pkgs cache and pip/uv caches
+18G /opt/anaconda3/pkgs | 181M /root/.cache/pip | 8.0K /root/.cache/uv
+[01:34:43] done
