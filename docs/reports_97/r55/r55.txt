@@ -1,0 +1,53 @@
+R55 on 97 (research/r55.sh md5 c1e6a331, read-only), 2026-11-14 ~08:20. Transcribed from screen.
+
+== hstats families on disk (newest day of each): files
+  ZZAC 20261106: samplerR.parquet
+  ZZAL 20261106: samplerS.nc
+  ZZCR 20261106: samplerR.parquet
+  ZZDS 20261106: sampler.nc samplerS.nc
+  ZZGW 20261106: samplerS.nc
+  ZZHL 20261106: samplerS.nc
+  ZZMS 20261106: samplerS.nc
+  ZZQI 20261106: samplerS.nc
+  ZZQO 20261106: samplerS.nc
+  ZZSQ 20261106: samplerS.nc
+  ZZTS 20261106: samplerS.nc
+  ZZUG 20261106: samplerS.nc samplerSS.nc
+  ZZUG2 20261106: (empty)
+  ZZVC 20261106: samplerS.nc
+  ZZWA 20261106: samplerS.nc
+  ZZXC 20261106: samplerS.nc
+
+== columns per kind (no ced, no hstats kinds occur)
+kind  columns sum_mean_loss days_pos
+plain 73      0.1405        4.1096
+xs    46      0.1072        4.7174
+dm    22      0.0068        4.1818
+neu   3       0.0017        4.3333
+
+== every column that is not plain / xs only (25); ic_loss per day 0430 1106 1109 1110 1111 1112 1113 | mean days_pos
+zzro2.c   dm:-gen.ret120                                   dm   .0004  .0085  .0005  .0047  .0006  .0087  .0079 | .0045 7
+zzro2.b   neu:gen.ret90                                    neu  .0041 -.0001  .0019  .0023 -.0000  .0026  .0020 | .0018 5
+zzro.e    cal:dm:-gen.rote30                               dm   .0003  .0017  .0006  .0013  .0002  .0032  .0026 | .0014 7
+zzlk      dm:-gen.flow_ord_imb60                           dm   .0039  .0039  .0023  .0002  .0033 -.0014 -.0024 | .0014 5
+zzwa.j    dmi:gen.microprice_minus_mid_rel                 dm   .0007  .0014  .0012  .0019  .0020  .0011  .0011 | .0013 7
+zzzs.a    dm:-gen.flow_refill_imb60                        dm   .0042  .0038  .0029  .0019  .0045 -.0040 -.0044 | .0013 5
+zzef      dm:-gen.lpcv14400                                dm  -.0004  .0028 -.0004  .0005  .0031  .0016  .0002 | .0011 5
+zzwa.k    cal:dmi:gen.microprice_minus_mid_rel             dm   .0001  .0008  .0008  .0014  .0009  .0003  .0007 | .0007 7
+zzqf4.q.c2 dm:gen.rpo14400                                 dm  -.0011  .0023 -.0008  .0003  .0009  .0019  .0005 | .0006 5
+zzal.f    dm:-gen.imbn120                                  dm   .0002  .0006  .0003  .0004  .0000  .0012  .0009 | .0005 7
+zzyj2.c   dm:-gen.best_level_order_count_imbalance         dm   .0002  .0007  .0004  .0005  .0003  .0003  .0004 | .0004 7
+zzab      cal:neu:-gen.depth_weighted_price_5lvl_minus_mid_rel neu .0010 -.0000 .0002 .0001 .0000 .0003 .0007 | .0003 6
+zzyj5.a   dmi:-gen.best_level_order_count_imbalance        dm   .0003  .0004  .0006  .0006  .0003 -.0004 -.0002 | .0002 5
+zzlk2     dm:gen.flow_ord_imb60                            dm   .0019  .0006  .0005 -.0001  .0024 -.0026 -.0019 | .0001 4
+zzyj5.b   dmi:-gen.best_level_order_count_imbalance        dm   .0003 -.0002  .0002 -.0001 -.0002 -.0000  .0001 | .0000 3
+zzie4.c   dm:-gen.simbv120                                 dm   .0000 -.0000 -.0000 -.0000 -.0000 -.0000 -.0000 | -.0000 1
+zzht      dm:gen.simba10                                   dm   .0015 -.0014  .0016  .0001 -.0002 -.0013 -.0013 | -.0001 3
+zzal.e    dm:-gen.imbn10                                   dm   .0001 -.0006  .0002 -.0006 -.0005 -.0001 -.0003 | -.0002 2
+zzfq.e    dm:-gen.imb5                                     dm   .0005 -.0005 -.0014 -.0009  .0011 -.0007 -.0005 | -.0003 2
+zzpz.b    neu:gen.vfrac10                                  neu  .0015 -.0007 -.0004 -.0008  .0007 -.0030 -.0004 | -.0004 2
+zzpe.b    dm:gen.sd_lp_pklo                                dm   .0006 -.0013 -.0003 -.0010  .0003 -.0016 -.0009 | -.0006 2
+zzjx3.a   dm:gen.rpo5400                                   dm   .0003 -.0016  .0002 -.0007 -.0011 -.0016 -.0012 | -.0008 2
+zzpk      dmi:-gen.sd_eg_rng                               dm   .0004 -.0039 -.0019 -.0013 -.0006 -.0003 -.0005 | -.0011 1
+zzoe      cal:dm:gen.lpcv3600                              dm   .0010 -.0039  .0009 -.0019 -.0019 -.0022 -.0016 | -.0014 2
+zzhk.d    cal:dm:gen.rpma60                                dm   .0156 -.0123  .0105 -.0043  .0105 -.0208 -.0140 | -.0021 3

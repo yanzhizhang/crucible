@@ -451,3 +451,6 @@
 - 05:50 R52 (r52.sh 6db46bfe, 04:54-05:50, no errors): 7 target days with gen B. A only 5 hurting cols (pruned 139: tiny gains). C scan open+stateful on 1110+1112 -> 168 cols, gate on 1113 keeps 16/27 -> 156 cols: similarity up on fit days (1110 .693, 1112 .713, 1113 .719 vs r41c .647/.656/.679) and 1106 (.627 vs .569) but down on 0430 (.570 vs .628), 1109 (.596 vs .621), 1111 (.457 vs .473). docs/reports_97/r52/r52.txt.
 - 06:17 R53 (r53.sh d805ba10, ~16 min, no errors): chained gates 0430 -> 1109 -> 1106 leave 2 of R52's changes (zzeg gen.rpe120, zzsa2.a crank:-gen.ldh30), 146 cols. Similarity vs r41c: 0430 .612/.628, 1106 .596/.569, 1109 .630/.621, 1110 .676/.647, 1111 .469/.473, 1112 .684/.656, 1113 .703/.679. docs/reports_97/r53/r53.txt.
 - 06:48 R54 (r54.sh 9745515c, ~24 min, no errors): zzeg=gen.rpe120 alone carries the 224 gains (1110 .675, 1112 .685, 1113 .704) and the 0430 loss (.606); zzsa2.a alone is neutral (0430 .630, others within +-.01 of r41c). docs/reports_97/r54/r54.txt.
+
+## R55 (2026-11-14 ~08:20)
+Read-only listing of baseline columns by kind on 97 (r55.sh c1e6a331). 25 dm/neu columns, no ced or hstats-cell columns in the r41c assignment; hstats on disk is samplerS.nc for most families, samplerR.parquet for ZZAC/ZZCR. See docs/reports_97/r55/r55.txt.
