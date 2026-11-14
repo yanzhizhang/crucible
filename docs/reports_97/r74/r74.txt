@@ -1,0 +1,33 @@
+R74 on 97 (r74.sh c7523173, runs_rule.py 37b70667), 02:02:49 - 02:02:51. Full output, transcribed from screen (wrapped lines rejoined).
+GATES OK
+[02:02:49] runs_rule 20261113
+==== 20261113: 761,279 decisions, 759,783 after 09:31
+-- 1 log|executp| on executp != 0
+ all terms: R^2 0.7274; log|fa| -0.09125, log vpen -3.836, log w +0.07209, log -lthr +1.391, log hs +0.2173, log vr -1.132, log mp -0.958, log poscst -0.01115, log(asq+1) -0.01975, one -16.63
+ log|fa| + log vpen: R^2 0.1599; log|fa| -0.1162, log vpen -1.063, one -10.31
+ log|fa| + log vpen + log w: R^2 0.3314; log|fa| -0.211, log vpen -1.209, log w +0.4649, one -17.86
+ log|fa| + log -lthr: R^2 0.1270; log|fa| -0.08778, log -lthr -0.4482, one -5.929
+ log|fa| + log vpen + log -lthr: R^2 0.1728; log|fa| -0.1503, log vpen -2.173, log -lthr +0.5496, one -14.23
+ log|fa| + log vpen + log hs: R^2 0.2099; log|fa| -0.1814, log vpen -1.068, log hs +0.3445, one -8.163
+ log|fa| + log vpen + log vr: R^2 0.1612; log|fa| -0.104, log vpen -1.06, log vr -0.04428, one -10.24
+ sign(executp) == sign(fa) 0.6155; executp == 0 with lthr == 0 0.1465, with lthr < 0 0.6553
+ |executp| / (|fa| / vpen) on executp != 0: 0.003523 / 0.09551 / 1.4 / 7.618 / 76.67
+-- 2 log(-lthr) on lthr < 0
+ all terms: R^2 0.9973; log hs +0.01759, log vr +0.1778, log vpen +2.014, log w -0.03086, log mp -0.0116, log poscst +0.03949, log(asq+1) +0.002111, log(|cpos|+1) +0.004544, one +6.839
+ log hs: R^2 0.0385; log hs +0.2162, one -6.669
+ log hs + log vr: R^2 0.0595; log hs +0.03334, log vr +0.2221, one -7.822
+ log hs + log vpen: R^2 0.9795; log hs +0.2346, log vpen +2.01, one +8.381
+ log hs + log vr + log vpen: R^2 0.9948; log hs +0.078, log vr +0.1901, log vpen +2.004, one +7.352
+ log vpen: R^2 0.9342; log vpen +2.002, one +6.42
+ log vpen + log w: R^2 0.9465; log vpen +1.976, log w +0.1005, one +5.025
+ lthr == 0 by minute of day (HH:MM, share): 09:30 1.00 09:50 1.00 10:10 1.00 10:30 1.00 10:50 1.00 11:10 1.00 11:30 1.00 13:19 0.00 13:39 0.00 13:59 0.00 14:19 0.00 14:39 0.00
+ lthr / hs -9.998 / -2.999 / -0.8163 / -0.159 / -0.01531; -lthr - hs -0.001554 / -0.0006228 / -5.524e-05 / 0.0002472 / 0.0003921; -lthr / vpen 0.05688 / 0.1798 / 0.4019 / 0.661 / 1.103
+-- 3 the gate
+ 71,835 decisions with |trade| >= 100 and the threshold met; made 0.0258
+   stock's last order still live = False: 71,109 rows, made 0.0223
+   stock's last order still live = True: 726 rows, made 0.3719
+   not live, by seconds since_po (no earlier order: 9,204 rows, made 0.0039): (1, 2] 0.2857 (7) | (2, 5] 0.2381 (42) | (5, 10] 0.2619 (1,172) | (10, 30] 0.1135 (3,455) | (30, 60] 0.0641 (2,480) | (60, 300] 0.0364 (9,042) | (300, inf] 0.0076 (45,707)
+   not live, by seconds since_end (no earlier order: 9,204 rows, made 0.0039): (-inf, 0.1] 0.0000 (1) | (0.1, 0.5] 0.4286 (21) | (0.5, 1] 0.2381 (84) | (1, 2] 0.2812 (601) | (2, 5] 0.1924 (920) | (5, 10] 0.1324 (982) | (10, 30] 0.0915 (2,635) | (30, 60] 0.059[cut at 260 by r74.sh]
+   by account orders sent in the second before: 0-0 0.0151 (54,172) | 1-1 0.0348 (8,903) | 2-3 0.0667 (5,098) | 4-9 0.0985 (3,085) | 10-1000000000 0.1438 (577)
+[02:02:51] done
+R74 DONE 02:02:51
