@@ -41,6 +41,7 @@ import argparse
 import hashlib
 import inspect
 import json
+import os
 import re
 import shutil
 import sys
@@ -329,7 +330,9 @@ def generic(gf: pl.DataFrame | None, gs: pl.DataFrame | None, T: np.ndarray = MA
         # flows from snapshots alone (a chrono plugin only sees lv2: no trade stream, no BS flag): volume / amount growth
         # between snapshots, signed by the interval's average price against the previous mid (tick rule on a tie)
         dv, da = a["dvol"][ok], a["damt"][ok]
-        pmid = np.concatenate([[np.nan], np.exp(lm)[:-1]])
+        # CRUCIBLE_SIMB_EXACT=1: the previous mid itself. exp(log(mid)) can differ from mid in the last bit, and that bit then
+        # decides the sign whenever a trade prints exactly at the mid -- a tie meant for the tick rule, machine-dependent as is
+        pmid = np.concatenate([[np.nan], (mid[ok] if os.environ.get("CRUCIBLE_SIMB_EXACT") == "1" else np.exp(lm))[:-1]])
         with np.errstate(divide="ignore", invalid="ignore"):
             vw = np.where(dv > 0, da / dv, np.nan)
             sd = np.sign(vw - pmid)
@@ -497,6 +500,8 @@ def build_dir(args, d: str, state: Path, target: Path | None) -> Path | None:
     code = [inspect.getsource(m) for m in mods] + [inspect.getsource(fn) for fn in (generic, index_relative, index_series, pm_daily, profile_marks, seed_state, seed_feats)]
     parts = [BUILD_REV, HORIZON, MARKS.tolist(), args.profiles, str(args.hstats), str(args.pm_cache), str(args.pm_stsfile), args.pm_sts_day, STS_MAP.get(d), str(args.seed_dir), args.seed_map, args.ced,
              str(args.ced_xr), args.target_stale, stamp(args.engine_dir / f"marks_{d}.parquet"), args.order_flow]
+    if os.environ.get("CRUCIBLE_SIMB_EXACT") == "1":  # the exact-mid variant of the snapshot-signed flows: its own builds
+        parts.append("simb_exact")
     if args.full_book is not None:  # whole-book factors: their file is part of the build
         parts.append(stamp(args.full_book / f"date={d}.parquet"))
     if str(B.CATALOG) != "/work/crucible_data/catalog.duckdb":  # another market-data source (CRUCIBLE_SOURCE): its own builds

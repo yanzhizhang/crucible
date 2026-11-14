@@ -47,6 +47,12 @@ def main() -> None:
     a = ap.parse_args()
     t0 = time.perf_counter()
     T = np.arange(a.grid, 14220.0 + 1e-9, a.grid) if a.grid else mark_grid(a.marks or "five")
+    if not a.state.exists():
+        prev = sorted(p for p in a.state.parent.glob("2*.jz") if p.stem < a.date)
+        if not prev:
+            raise SystemExit(f"no state file {a.state} and none earlier")
+        print(f"{a.date}: no state file, stock list and stop time from {prev[-1].name}")
+        a.state = prev[-1]
     pm = B.load_state(a.state)
     tz = pm.filter(pl.col("key") == "zzba.p.t")["pm"].max()
     stop = (tz + 34200 if tz <= 7200 else tz - 7200 + 46800) + 0.005

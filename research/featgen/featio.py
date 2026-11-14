@@ -71,7 +71,10 @@ def ensure_binary(build: Path | None = None) -> Path:
 
 
 def run(inp: Path, out: Path, names: Path, threads: int = 8, exe: Path | None = None) -> None:
-    subprocess.run([str(exe or ensure_binary()), str(inp), str(out), "--names", str(names), "--threads", str(threads)], check=True)
+    import os
+
+    cmd = [str(exe or ensure_binary()), str(inp), str(out), "--names", str(names), "--threads", str(threads)]
+    subprocess.run(cmd + (["--simb-exact"] if os.environ.get("CRUCIBLE_SIMB_EXACT") == "1" else []), check=True)
 
 
 def read_output(out: Path, names: Path) -> tuple[list[str], dict[int, np.ndarray]]:
@@ -130,6 +133,7 @@ def compare(names: list[str], got: dict[int, np.ndarray], ref: dict[int, dict[st
             both = fa & fb
             if both.any():
                 d = np.abs(c[both] - r[both]) / np.maximum(np.abs(r[both]), 1e-12)
+                d = np.where(np.abs(c[both] - r[both]) <= 1e-11, 0.0, d)  # a difference of two near-equal logs: rounding only
                 n_diff += int((d > tol).sum())
                 worst = max(worst, float(d.max()))
         off = nan_off > 0 or n_diff > share * max(n_ref, 1) or n_ref == 0

@@ -9,7 +9,7 @@
 // Only what the 144 formulas use is here. The whole-book quantity (best_level_order_count_imbalance) comes from the book
 // replay, not from this file.
 //
-//   featgen <in.bin> <out.bin> [--names names.txt] [--threads N]
+//   featgen <in.bin> <out.bin> [--names names.txt] [--threads N] [--simb-exact]
 // in.bin  (featio.py writes it): "CRUFG001", u64 n_stocks, u64 n_T, T[n_T], then per stock
 //         i64 sid, u64 nf, u64 ns, u64 no, f64 seed[3], fast[NF][nf], slow[NS][ns], orders[NO][no]   (all f64, column-major)
 // out.bin: "CRUFO001", u64 n_stocks, u64 n_T, u64 n_base, then per stock i64 sid, f64 v[n_base][n_T]
@@ -31,6 +31,7 @@ namespace {
 using vec = std::vector<double>;
 constexpr double nan_ = std::numeric_limits<double>::quiet_NaN();
 constexpr double inf_ = std::numeric_limits<double>::infinity();
+bool simb_exact = false;  // --simb-exact: sign the snapshot flows against the mid itself, not exp(log(mid))
 
 // column order of the three streams (featio.py FAST / SLOW / ORD)
 enum fast_col { F_T, F_S, F_PRICE, F_OP, F_PC, F_B1, F_A1, F_BV1, F_AV1, F_CV, F_CA, F_BV5, F_AV5, F_BWP5, F_AWP5, F_OFI25, F_UL, F_LL,
@@ -212,7 +213,7 @@ void compute(const stock& st, const vec& T, result& out) {
         // flows signed from snapshots alone
         vec sd(n), w_v(n), w_sv(n), w_a(n), w_sa(n), w_n(n), w_sn(n);
         for (std::size_t i = 0; i < n; ++i) {
-            const double pmid = i ? mid_[i - 1] : nan_;
+            const double pmid = i ? (simb_exact ? midk[i - 1] : mid_[i - 1]) : nan_;
             const double vw = dv[i] > 0 ? da[i] / dv[i] : nan_;
             double s1 = sign(vw - pmid);
             if (!(std::isfinite(s1) && s1 != 0)) s1 = sign(i ? lpx[i] - lpx[i - 1] : nan_);
@@ -576,7 +577,9 @@ int main(int argc, char** argv) {
         if (argc < 3) throw std::runtime_error("usage: featgen <in.bin> <out.bin> [--names names.txt] [--threads N]");
         std::string names_path;
         unsigned threads = 8;
-        for (int i = 3; i + 1 < argc; i += 2) {
+        for (int i = 3; i < argc; ++i)
+            if (!std::strcmp(argv[i], "--simb-exact")) simb_exact = true;
+        for (int i = 3; i + 1 < argc; ++i) {
             if (!std::strcmp(argv[i], "--names")) names_path = argv[i + 1];
             if (!std::strcmp(argv[i], "--threads")) threads = static_cast<unsigned>(std::max(1, std::atoi(argv[i + 1])));
         }
