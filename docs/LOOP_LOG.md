@@ -540,3 +540,4 @@ R73: Po side 1.000 from place_order; gate explains all but 201 of 759,783; order
 disk97 survey: /work 25T, 8.1T used (34%), du of /work only 1.3T; crucible_data 1.1T (feitu_raw 581G, xtp_raw 285G).
 Cron daily pull moved to 16:00 Mon-Fri (user approved); other crontab entries unchanged.
 R74: log(-lthr) ~ 2 log vpen (R^2 0.98-0.997); lthr == 0 before noon, < 0 after; gate made-rate rises with a live order / recent orders.
+R75: lthr == 0 all morning (09-11h), < 0 afternoon; 71% of orders in 09h; 1,827 order episodes over 245 stocks.
