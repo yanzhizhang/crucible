@@ -472,3 +472,6 @@ Start-of-day hstats, 0430 back. Scan .6461->.7132; gates 0430/1109/1106/1113 kep
 ## R59 (2026-11-14)
 User approved the 1111+1112 mp copy from 2.23 in this session. Before pasting, at 13:12 the Windows App connection to the remote PC dropped; at 13:13 it asks for the remote password. Not entered; R59 not started.
 R59 (13:14-13:17): mp 1111/1112 pulled (8 HS300 files/day, ~1.0-1.1 GB) and decoded. mp = DataYes subset on prices/volumes (quotes: DataYes has +0.19% keys, total_amount equal only ~16%; orders/trades: time ~50% and order_type ~46% equal; trades have ~7.7k duplicate keys in mp). Day-end state: all fields match on both feeds except zzgh.nb (mp rel err ~2.0, DataYes ~0.005).
+
+## R60 (2026-11-14 ~14:10)
+Files verified (5, md5 OK). Paste at 14:10 did not reach 97: a Claude app window (this session's remote view) was in front on the remote PC; the click landed in its conversation area (not the input box), input stayed empty, nothing sent. R60 not started; screen paused for the user.
