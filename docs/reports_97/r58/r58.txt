@@ -1,0 +1,61 @@
+R58 on 97 (research/r58.sh md5 5946e933), start-of-day hstats (previous trading day's files), 0430 gate restored.
+10:40:28 - 12:33:00 (1h53). No error lines. Transcribed from screen.
+
+[10:40:28] 0 start-of-day hstats view: /work/crucible_data/hstats_sod/HS300
+  20260430: ZZAL -> /work/crucible_data/hstats_0430/HS300/ZZAL/20260430 md5 adccf27d
+  20261106: ZZAL -> /data/prod/hstats/HS300/ZZAL/20261105 md5 6656492e
+  20261109: ZZAL -> /data/prod/hstats/HS300/ZZAL/20261106 md5 64419892
+  20261110: ZZAL -> /work/crucible_data/hstats_extra/HS300/ZZAL/20261109 md5 210c676d
+  20261111: ZZAL -> /work/crucible_data/hstats_extra/HS300/ZZAL/20261110 md5 e4427b6c
+  20261112: ZZAL -> /work/crucible_data/hstats_extra/HS300/ZZAL/20261111 md5 ea725fdd
+  20261113: ZZAL -> /work/crucible_data/hstats_extra/HS300/ZZAL/20261112 md5 7873d4bb
+  (2.23: start of day 1110 = 210c676d, 1111 = e4427b6c, 1112 = ea725fdd, 1113 = 7873d4bb)
+[10:40:28] 1 scan on 20261110,20261112 (even sids), generation B; seed dir: /work/crucible_data/seed_probe/HS300
+  families used: ZZAL,ZZGW,ZZHL,ZZMS,ZZQI,ZZQO,ZZTS,ZZVC,ZZWA,ZZXC
+20261110: seed state from 20261109.jz for 300 stocks; 20261112: seed state from 20261111.jz for 300 stocks
+IC: start 0.6461 -> end 0.7132 (t 224.01, 435 marks); 151 of 209 columns assigned
+files: stage6_r41c_gate (144) stage6_r58 (151); 25 of 151 differ; 7 newly assigned, 0 dropped
+zzal.b  - | cal:ced.ZZAL.db@-1
+zzal.c  -gen.buy300 | -ced.ZZGW.na@1
+zzal.d  gen.imbv30 | cal:crank:-gen.rpe120
+zzal.e  dm:-gen.imbn10 | ced.lr.buy300.ZZHL.n@0
+zzal.f  dm:-gen.imbn120 | rank:ced.lr.amt300.ZZQI.c@-1
+zzal.h  z:gen.lpe200 | -ced.stats.Close
+zzqo.a  cal:gen.lmie30*1e4 | cal:-ced.lr.vol300.ZZHL.n@0
+zzqo.b  gen.imba10 | rank:ced.ZZXC.n@-1
+zzqo.c  z:-gen.lpek50 | cal:srank:-gen.rpe450
+zzqo.d  crank:gen.lpe50 | z:ced.lr.amt300.ZZMS.n@-1
+zzqo.e  cal:srank:-gen.rpe25 | cal:z:-ced.ZZAL.an@1
+zzqo.f  srank:-gen.rpe10 | cal:srank:-gen.rpe450
+zzts    - | crank:ced.lr.buy300.ZZAL.an@-1
+zzwa.a  - | ced.lr.amt300.ZZAL.da@0
+zzwa.b  - | ced.lr.amt300.ZZAL.da@-1
+zzwa.c  - | rank:-gen.lpe120
+zzwa.d  rank:gen.lpma60 | rank:gen.lpe600
+zzwa.e  rank:gen.lpe100 | rank:ced.ZZMS.bm@0
+zzwa.f  cal:gen.microprice_minus_mid_rel | ced.ZZWA.bn@1
+zzwa.g  z:gen.lpe50 | ced.ret1
+zzwa.h  rank:gen.microprice_minus_mid_rel | crank:-gen.lpe120
+zzwa.i  |gen.microprice_minus_mid_rel| | cal:rank:gen.lpe1200
+zzwa.k  cal:dmi:gen.microprice_minus_mid_rel | ced.ret3
+zzxc.a  - | cal:z:-ced.ZZVC.ab@0
+zzxc.c  - | ced.ZZAL.db@1
+[12:19:01] 2 gates against r41c: 0430, 1109, 1106, 1113 (odd sids)   (feature gain t kept)
+gate 0430: 5 of 25 kept
+  T: zzwa.f .0158 24.90 | zzal.f .0067 14.90 | zzxc.a .0002 4.75 | zzal.h .0008 2.47 | zzal.c .0006 2.33
+  F: zzqo.b .0001 0.69 | zzxc.c -.0000 -0.02 | zzal.b -.0002 -0.84 | zzwa.b -.0000 -0.90 | zzal.d -.0021 -2.17 | zzwa.a -.0001 -2.66 | zzwa.g -.0011 -3.51
+     zzwa.c -.0010 -3.59 | zzqo.a -.0007 -3.74 | zzwa.e -.0008 -5.93 | zzts -.0013 -5.99 | zzqo.e -.0023 -6.43 | zzwa.h -.0035 -7.68 | zzqo.d -.0007 -8.07
+     zzqo.c -.0021 -8.40 | zzal.e -.0056 -8.45 | zzqo.f -.0028 -8.58 | zzwa.i -.0019 -9.55 | zzwa.d -.0030 -12.29 | zzwa.k -.0045 -15.18
+  gated: 145 columns -> stage6_r58_g0
+gate 1109: 2 of 5 kept
+  T: zzwa.f .0019 4.56 | zzxc.a .0001 1.72 ; F: zzal.c -.0000 -0.23 | zzal.h -.0006 -2.30 | zzal.f -.0004 -3.04
+  gated: 145 columns -> stage6_r58_g1
+gate 1106: 1 of 2 kept
+  T: zzxc.a .0005 8.11 ; F: zzwa.f -.0025 -4.69
+  gated: 145 columns -> stage6_r58_g2
+gate 1113 (odd sids): 0 of 1 kept
+  F: zzxc.a -.0000 -0.61
+  gated: 144 columns -> stage6_r58_g3
+survivor: stage6_r58_g3; 0 of 144 differ from r41c
+[12:33:00] 3 the survivor on all seven days: nothing survived the gates: no score runs
+[12:33:00] done
