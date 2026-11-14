@@ -54,6 +54,7 @@ def main() -> None:
     ap.add_argument("--state", type=Path, required=True, help="PM's state file of the day (.jz): the stocks and the stop time")
     ap.add_argument("--seed-dir", type=Path, required=True, help="directory of .jz files (yesterday's state)")
     ap.add_argument("--prev", type=Path, help="yesterday's state for the engine (default: the latest before the day in --seed-dir)")
+    ap.add_argument("--seed-all", default="", help="run_cpp --seed-all: c<N> / w<N> / wt<N> seeds EVERY engine EMA from --prev, as PM's live process does")
     ap.add_argument("--catalog", type=Path, required=True)
     ap.add_argument("--marks", help="ic_score's grid spec: five | rand:N[:seed] | a comma list")
     ap.add_argument("--grid", type=float, help="instead of --marks: every GRID seconds from GRID to 14220")
@@ -78,7 +79,7 @@ def main() -> None:
     readers = [
         ("book", [*py, str(HERE / "book_day.py"), "--date", D, "--state", str(a.state), *grid, "--out", str(out / "book"),
                   "--work", str(out / "work/book"), "--threads", th]),
-        ("engine", [*py, str(ENGINE / "run_cpp.py"), "--date", D, "--universe", f"pm:{a.state}", *(["--prev", str(prev)] if prev else []),
+        ("engine", [*py, str(ENGINE / "run_cpp.py"), "--date", D, "--universe", f"pm:{a.state}", *(["--prev", str(prev)] if prev else []), *(["--seed-all", a.seed_all] if a.seed_all else []),
                     "--catalog", str(a.catalog), "--marks", marks, "--threads", th, "--out", str(out / "engine"), "--work", str(out / "work/engine")]),
         ("base", [*py, str(HERE / "run_day.py"), "--date", D, "--state", str(a.state), "--seed-dir", str(a.seed_dir), "--catalog", str(a.catalog),
                   *grid, "--out", str(out / "base"), "--work", str(out / "work/base"), "--threads", th]),

@@ -56,6 +56,7 @@ def main() -> None:
     ap.add_argument("--out", type=Path, default=Path("data/backfill_3s"))
     ap.add_argument("--keep", default="pred", help="comma list of outputs kept per day: vec, pred, base, engine, book")
     ap.add_argument("--threads", type=int, default=32)
+    ap.add_argument("--seed-all", default="", help="passed to day.py / run_cpp: seed every engine EMA from yesterday's state (c0 = in full)")
     ap.add_argument("--seed-map", default="", help="D=YYYYMMDD,...: day D's yesterday state is that day's .jz (what 224's PM read, e.g. a stale sod link)")
     a = ap.parse_args()
     keep = {x for x in a.keep.split(",") if x}
@@ -94,7 +95,7 @@ def main() -> None:
                 link.symlink_to(src_jz.resolve())
         rc2, s2, t2 = run([*py, str(HERE / "day.py"), "--date", d, "--source", src, "--state", str(st), "--seed-dir", str(seed_dir), "--catalog", str(cat),
                            "--grid", repr(a.grid), "--side", str(side / f"side_{d}.npz"), "--cal", str(side / f"cal_{d}.json"), "--models", str(a.models),
-                           *(["--pq", str(a.pq)] if a.pq else []), "--out", str(day_out), "--threads", str(a.threads)], log_dir / f"day_{d}.txt", env)
+                           *(["--pq", str(a.pq)] if a.pq else []), *(["--seed-all", a.seed_all] if a.seed_all else []), "--out", str(day_out), "--threads", str(a.threads)], log_dir / f"day_{d}.txt", env)
         if rc2:
             print(f"{d}: chain FAILED in {s2:.0f}s ({t2[:200]}); log {log_dir / f'day_{d}.txt'}", flush=True)
             continue
