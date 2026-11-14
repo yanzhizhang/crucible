@@ -1,0 +1,31 @@
+R57b on 97 (research/r57b.sh md5 2a4da278). Step 1 alone first (09:13:17) to check size (~17 MB total), then the full script 09:14:23-09:14:25.
+Copy covered by the user's yes in the supervisor session (0430 HS300 hstats from 2.23 to 97 /work). Nothing written on 2.23. No errors.
+
+== 1 /data/share/data/prod/hstats: HS300 sod
+  /data/share/data/prod/hstats/sod: HS300
+  ZZAC ZZAL ZZCR ZZDS ZZGW ZZHL ZZMS ZZQI ZZQO ZZSQ ZZTS ZZUG ZZVC ZZWA ZZXC: each "49 days, 20260430 .. 20261113; 20260430:" (blank after colon)
+  days of sod/HS300/ZZAL: 20260430 20260901 20260902 20260903 20260904 20260907 20260908 20260909 20260910 20260911 20260914 20260915 20260916 20260917 20260918 20260921 ... (cut at 170 chars)
+  is sod/<D> the same file as HS300/<D> or HS300/<day before>? (md5 of ZZAL samplerS.nc)
+    20261110: sod 210c676d, HS300/20261110 e4427b6c, HS300/20261109 210c676d
+    20261111: sod e4427b6c, HS300/20261111 ea725fdd, HS300/20261110 e4427b6c
+    20261112: sod ea725fdd, HS300/20261112 7873d4bb, HS300/20261111 ea725fdd
+    20261113: sod 7873d4bb, HS300/20261113 d9c48285, HS300/20261112 7873d4bb
+  HS300/ZZAL/20260429: samplerS.nc (394350) ; HS300/ZZAL/20260430: ls: cannot access '/data/share/data/prod/hstats/HS300/ZZAL/20260430': No such file or directory
+  du sod/HS300/<FAM>/20260430: ZZAC 504K, ZZAL 392K, ZZCR 36K, ZZDS 100K, ZZGW 2.8M, ZZHL 460K, ZZMS 2.4M, ZZQI 3.5M, ZZQO 80K, ZZSQ 40K, ZZTS 108K, ZZUG 2.6M, ZZVC 3.3M, ZZWA 40K, ZZXC 164K
+== 2 copy sod/HS300/*/20260430 to /work/crucible_data/hstats_0430/HS300
+  ZZAC/20260430: samplerR.parquet (511439)
+  ZZAL/20260430: samplerS.nc (394350)
+  ZZCR/20260430: samplerR.parquet (30995)
+  ZZDS/20260430: sampler.nc (45545) samplerS.nc (45607)
+  ZZGW/20260430: samplerS.nc (2903882)
+  ZZHL/20260430: samplerS.nc (464570)
+  ZZMS/20260430: samplerS.nc (2423486)
+  ZZQI/20260430: samplerS.nc (3606862)
+  ZZQO/20260430: samplerS.nc (77245)
+  ZZSQ/20260430: samplerS.nc (36109)
+  ZZTS/20260430: samplerS.nc (104176)
+  ZZUG/20260430: samplerS.nc (2624308) samplerSS.nc (45610)
+  ZZVC/20260430: samplerS.nc (3400318)
+  ZZWA/20260430: samplerS.nc (34009)
+  ZZXC/20260430: samplerS.nc (161264)
+  total 17M /work/crucible_data/hstats_0430/HS300
