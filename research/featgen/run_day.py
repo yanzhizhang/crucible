@@ -44,6 +44,7 @@ def main() -> None:
     ap.add_argument("--work", type=Path, default=Path("data/featgen/work"))
     ap.add_argument("--threads", type=int, default=32)
     ap.add_argument("--check", type=int, default=0, help="compare this many stocks (evenly spread) with the Python definitions")
+    ap.add_argument("--check-sids", default="", help="comma list of stocks to compare with Python (instead of --check's even spread)")
     a = ap.parse_args()
     t0 = time.perf_counter()
     T = np.arange(a.grid, 14220.0 + 1e-9, a.grid) if a.grid else mark_grid(a.marks or "five")
@@ -98,8 +99,9 @@ def main() -> None:
           f"finite share lowest: {', '.join(f'{k} {v:.3f}' for v, k in low)}", flush=True)
     inp.unlink()
     outb.unlink()
-    if a.check:
-        pick = [sids[i] for i in np.unique(np.linspace(0, len(sids) - 1, a.check).astype(int))]
+    if a.check or a.check_sids:
+        pick = ([int(x) for x in a.check_sids.split(",") if x.strip()] if a.check_sids
+                else [sids[i] for i in np.unique(np.linspace(0, len(sids) - 1, a.check).astype(int))])
         t4 = time.perf_counter()
         ref = {s: IO.reference(fast.get(s), slow.get(s), orders.get(s), seed.get(s, {}), T) for s in pick}
         t5 = time.perf_counter()
