@@ -5,9 +5,13 @@
 // inside the leaf values); several model files are averaged. A NaN feature follows each split's own missing rule.
 //
 //   lgbpred <x.bin> <out.bin> <model.txt> [<model.txt> ...] [--threads N]
+//   lgbpred --parquet <vec.parquet> <pred.parquet> --features <names.csv> <model.txt> [...] [--threads N]
+//           (only when built with -DCRUCIBLE_ARROW, by CMake inside the conda env, as lgbpred_pq): reads the feature
+//           parquet itself (sid, mark, one column per model feature it fills; the others are NaN) and writes sid, mark, pred
 // x.bin  : "CRULX001", u64 n_rows, u64 n_cols, f64 x[n_rows][n_cols]   (columns in the model's feature order, NaN = missing)
 // out.bin: "CRULP001", u64 n_rows, f64 score[n_rows]
 #include <algorithm>
+#include <cctype>
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
@@ -18,6 +22,13 @@
 #include <string>
 #include <thread>
 #include <vector>
+
+#ifdef CRUCIBLE_ARROW
+#include <arrow/api.h>
+#include <arrow/io/api.h>
+#include <parquet/arrow/reader.h>
+#include <parquet/arrow/writer.h>
+#endif
 
 namespace {
 
@@ -117,24 +128,158 @@ double score(const std::vector<tree>& trees, const double* x) {
     return out;
 }
 
+// one score per row: np.mean over the models, their scores added in order, then divided
+std::vector<double> predict(const std::vector<std::vector<tree>>& models, const std::vector<double>& x, std::uint64_t n_rows, std::uint64_t n_cols,
+                            unsigned threads) {
+    for (auto& m : models)
+        for (auto& t : m)
+            for (int c : t.feat)
+                if (c < 0 || static_cast<std::uint64_t>(c) >= n_cols) throw std::runtime_error("a tree splits on a column the matrix does not have");
+    std::vector<double> out(n_rows);
+    std::vector<std::thread> pool;
+    for (unsigned w = 0; w < threads; ++w)
+        pool.emplace_back([&, w] {
+            for (std::uint64_t r = w; r < n_rows; r += threads) {
+                double s = 0.0;
+                for (auto& m : models) s += score(m, &x[r * n_cols]);
+                out[r] = s / static_cast<double>(models.size());
+            }
+        });
+    for (auto& th : pool) th.join();
+    return out;
+}
+
+#ifdef CRUCIBLE_ARROW
+void check(const arrow::Status& s) {
+    if (!s.ok()) throw std::runtime_error(s.ToString());
+}
+
+// the model's columns in order: the first field of each line of the csv, a "name" header line dropped
+std::vector<std::string> feature_names(const std::string& path) {
+    std::ifstream in(path);
+    if (!in) throw std::runtime_error("cannot open " + path);
+    std::vector<std::string> names;
+    std::string line;
+    while (std::getline(in, line)) {
+        std::string k = line.substr(0, line.find(','));
+        const auto b = k.find_first_not_of(" \t\r\n"), e = k.find_last_not_of(" \t\r\n");
+        if (b == std::string::npos) continue;
+        names.push_back(k.substr(b, e - b + 1));
+    }
+    if (!names.empty()) {
+        std::string h = names[0];
+        std::transform(h.begin(), h.end(), h.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+        if (h == "name") names.erase(names.begin());
+    }
+    return names;
+}
+
+// the parquet way: only the filled model columns are held (plus one all-NaN column every other feature points at)
+int run_parquet(const std::string& src, const std::string& dst, const std::string& csv, std::vector<std::vector<tree>>& models, unsigned threads) {
+    const std::vector<std::string> names = feature_names(csv);
+    auto file = arrow::io::ReadableFile::Open(src).ValueOrDie();
+    auto reader = parquet::arrow::OpenFile(file, arrow::default_memory_pool()).ValueOrDie();
+    reader->set_use_threads(true);
+    std::shared_ptr<arrow::Schema> schema;
+    check(reader->GetSchema(&schema));
+    const int i_sid = schema->GetFieldIndex("sid"), i_mark = schema->GetFieldIndex("mark");
+    if (i_sid < 0 || i_mark < 0) throw std::runtime_error("the feature parquet needs sid and mark columns");
+    if (schema->GetFieldIndex("date") >= 0) throw std::runtime_error("the feature parquet has a date column: use the x.bin way (pred_day.py does)");
+    std::vector<int> pick{i_sid, i_mark}, remap(names.size());
+    for (std::size_t k = 0; k < names.size(); ++k) {
+        const int i = schema->GetFieldIndex(names[k]);
+        remap[k] = i < 0 ? -1 : static_cast<int>(pick.size()) - 2;
+        if (i >= 0) pick.push_back(i);
+    }
+    const std::uint64_t n_have = pick.size() - 2, n_cols = n_have + 1;
+    for (int& r : remap)
+        if (r < 0) r = static_cast<int>(n_have);
+    for (auto& m : models)
+        for (auto& t : m)
+            for (int& c : t.feat) {
+                if (c < 0 || static_cast<std::size_t>(c) >= names.size()) throw std::runtime_error("a tree splits on a column the feature list does not have");
+                c = remap[static_cast<std::size_t>(c)];
+            }
+    const std::shared_ptr<arrow::Table> table = reader->ReadTable(pick).ValueOrDie();
+    const std::uint64_t n_rows = static_cast<std::uint64_t>(table->num_rows());
+    std::vector<double> x(n_rows * n_cols, std::nan(""));
+    std::vector<std::thread> pool;
+    std::vector<std::string> errors(threads);
+    for (unsigned w = 0; w < threads; ++w)
+        pool.emplace_back([&, w] {
+            for (std::uint64_t j = w; j < n_have; j += threads) {
+                std::uint64_t r = 0;
+                for (const auto& chunk : table->column(static_cast<int>(j) + 2)->chunks()) {
+                    const std::int64_t n = chunk->length();
+                    if (chunk->type_id() == arrow::Type::DOUBLE) {
+                        const auto& d = static_cast<const arrow::DoubleArray&>(*chunk);
+                        for (std::int64_t i = 0; i < n; ++i, ++r)
+                            if (d.IsValid(i)) x[r * n_cols + j] = d.Value(i);
+                    } else if (chunk->type_id() == arrow::Type::FLOAT) {
+                        const auto& d = static_cast<const arrow::FloatArray&>(*chunk);
+                        for (std::int64_t i = 0; i < n; ++i, ++r)
+                            if (d.IsValid(i)) x[r * n_cols + j] = static_cast<double>(d.Value(i));
+                    } else {
+                        errors[w] = "a feature column is neither double nor float";
+                        return;
+                    }
+                }
+            }
+        });
+    for (auto& th : pool) th.join();
+    for (auto& e : errors)
+        if (!e.empty()) throw std::runtime_error(e);
+    const std::vector<double> out = predict(models, x, n_rows, n_cols, threads);
+    arrow::DoubleBuilder b;
+    check(b.AppendValues(out));
+    std::shared_ptr<arrow::Array> pred;
+    check(b.Finish(&pred));
+    auto res = arrow::Table::Make(arrow::schema({schema->field(i_sid), schema->field(i_mark), arrow::field("pred", arrow::float64())}),
+                                  {table->column(0), table->column(1), std::make_shared<arrow::ChunkedArray>(pred)});
+    auto sink = arrow::io::FileOutputStream::Open(dst).ValueOrDie();
+    auto props = parquet::WriterProperties::Builder().compression(arrow::Compression::ZSTD)->build();
+    check(parquet::arrow::WriteTable(*res, arrow::default_memory_pool(), sink, 1 << 20, props));
+    check(sink->Close());
+    std::size_t nt = 0;
+    for (auto& m : models) nt += m.size();
+    std::printf("lgbpred: %llu rows, %llu of %zu model columns filled, %zu model files, %zu trees (parquet in and out)\n",
+                static_cast<unsigned long long>(n_rows), static_cast<unsigned long long>(n_have), names.size(), models.size(), nt);
+    return 0;
+}
+#endif
+
 }  // namespace
 
 int main(int argc, char** argv) {
     try {
         unsigned threads = 8;
-        std::vector<std::string> files;
-        for (int i = 3; i < argc; ++i) {
+        bool parquet = false;
+        std::string csv;
+        std::vector<std::string> pos;
+        for (int i = 1; i < argc; ++i) {
             if (!std::strcmp(argv[i], "--threads") && i + 1 < argc) {
                 threads = static_cast<unsigned>(std::max(1, std::atoi(argv[++i])));
+            } else if (!std::strcmp(argv[i], "--features") && i + 1 < argc) {
+                csv = argv[++i];
+            } else if (!std::strcmp(argv[i], "--parquet")) {
+                parquet = true;
             } else {
-                files.emplace_back(argv[i]);
+                pos.emplace_back(argv[i]);
             }
         }
-        if (argc < 4 || files.empty()) throw std::runtime_error("usage: lgbpred <x.bin> <out.bin> <model.txt> [...] [--threads N]");
+        if (pos.size() < 3) throw std::runtime_error("usage: lgbpred [--parquet --features <names.csv>] <x> <out> <model.txt> [...] [--threads N]");
         std::vector<std::vector<tree>> models;
-        for (auto& f : files) models.push_back(load(f));
-        std::FILE* f = std::fopen(argv[1], "rb");
-        if (!f) throw std::runtime_error(std::string("cannot open ") + argv[1]);
+        for (std::size_t i = 2; i < pos.size(); ++i) models.push_back(load(pos[i]));
+        if (parquet) {
+#ifdef CRUCIBLE_ARROW
+            if (csv.empty()) throw std::runtime_error("--parquet needs --features <names.csv>");
+            return run_parquet(pos[0], pos[1], csv, models, threads);
+#else
+            throw std::runtime_error("--parquet: this binary was built without Arrow (build with CMake inside the conda env)");
+#endif
+        }
+        std::FILE* f = std::fopen(pos[0].c_str(), "rb");
+        if (!f) throw std::runtime_error("cannot open " + pos[0]);
         char magic[8];
         std::uint64_t n_rows, n_cols;
         if (std::fread(magic, 1, 8, f) != 8 || std::memcmp(magic, "CRULX001", 8)) throw std::runtime_error("not an lgbpred input file");
@@ -142,23 +287,9 @@ int main(int argc, char** argv) {
         std::vector<double> x(n_rows * n_cols);
         if (!x.empty() && std::fread(x.data(), 8, x.size(), f) != x.size()) throw std::runtime_error("short read");
         std::fclose(f);
-        for (auto& m : models)
-            for (auto& t : m)
-                for (int c : t.feat)
-                    if (c < 0 || static_cast<std::uint64_t>(c) >= n_cols) throw std::runtime_error("a tree splits on a column the matrix does not have");
-        std::vector<double> out(n_rows);
-        std::vector<std::thread> pool;
-        for (unsigned w = 0; w < threads; ++w)
-            pool.emplace_back([&, w] {
-                for (std::uint64_t r = w; r < n_rows; r += threads) {
-                    double s = 0.0;  // np.mean over the models: their scores added in order, then divided
-                    for (auto& m : models) s += score(m, &x[r * n_cols]);
-                    out[r] = s / static_cast<double>(models.size());
-                }
-            });
-        for (auto& th : pool) th.join();
-        std::FILE* g = std::fopen(argv[2], "wb");
-        if (!g) throw std::runtime_error(std::string("cannot write ") + argv[2]);
+        const std::vector<double> out = predict(models, x, n_rows, n_cols, threads);
+        std::FILE* g = std::fopen(pos[1].c_str(), "wb");
+        if (!g) throw std::runtime_error("cannot write " + pos[1]);
         std::fwrite("CRULP001", 1, 8, g);
         std::fwrite(&n_rows, 8, 1, g);
         std::fwrite(out.data(), 8, n_rows, g);

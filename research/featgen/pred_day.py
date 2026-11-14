@@ -8,6 +8,10 @@ The feature parquet has ``sid``, ``mark`` and one column per model feature it fi
         --check $R/stage6_r70_0430/pred.parquet                      # the same matrix ic_score scored: the scores must be equal
     python research/featgen/pred_day.py --date 20261112 --x data/featvec_3s/vec_20261112.parquet --models $DATA/models_gen/B
     python research/featgen/pred_day.py --selftest [--stage make|check --work W]   # made-up trees against ic_score.TreeModel
+
+With ``--pq <lgbpred_pq>`` (the CMake build inside the conda env, Arrow + Parquet) the C++ program reads the feature parquet
+and writes the score parquet itself: no 2 GB matrix file in between. ``--selftest --pq ...`` checks that way against the
+binary way on a made-up parquet.
 """
 
 from __future__ import annotations
@@ -110,6 +114,23 @@ def selftest(a: argparse.Namespace) -> None:
         print(f"2 made-up models x 300 trees, {X.shape[0]:,} rows -> {a.work}")
     if a.stage == "all":
         subprocess.run([str(ensure_binary()), str(a.work / "x.bin"), str(a.work / "pred.bin"), *map(str, files)], check=True)
+    if a.pq and a.stage in ("all", "check"):  # the parquet way on the same matrix: the scores must be the same doubles
+        X = np.frombuffer((a.work / "x.bin").read_bytes(), "<f8", offset=24).reshape(-1, 60)
+        keep = [c for c in range(60) if c % 7]  # some model columns left out: they must count as NaN
+        (a.work / "names.csv").write_text("name\n" + "".join(f"f{c},x\n" for c in range(60)), newline="\n")
+        pl.DataFrame({"sid": np.arange(X.shape[0], dtype=np.int64) % 300, "mark": np.arange(X.shape[0]) // 300 * 3.0,
+                      **{f"f{c}": X[:, c] for c in keep}}).write_parquet(a.work / "x.parquet")
+        Xk = X.copy()
+        Xk[:, [c for c in range(60) if c % 7 == 0]] = np.nan
+        write_x(a.work / "xk.bin", Xk)
+        subprocess.run([str(ensure_binary()), str(a.work / "xk.bin"), str(a.work / "predk.bin"), *map(str, files)], check=True)
+        subprocess.run([str(a.pq), "--parquet", str(a.work / "x.parquet"), str(a.work / "pred.parquet"), "--features", str(a.work / "names.csv"),
+                        *map(str, files)], check=True)
+        p, b = pl.read_parquet(a.work / "pred.parquet"), read_scores(a.work / "predk.bin")
+        n = int((p["pred"].to_numpy() != b).sum()) + int((p["sid"].to_numpy() != np.arange(X.shape[0]) % 300).sum())
+        print(f"parquet way: {p.height:,} rows, {n} differ from the binary way")
+        if n:
+            sys.exit(1)
     if a.stage in ("all", "check"):
         got, ref = read_scores(a.work / "pred.bin"), np.load(a.work / "pred_ref.npy")
         n = int((got != ref).sum())
@@ -132,34 +153,40 @@ def main() -> None:
     ap.add_argument("--out", type=Path, default=Path("data/featpred"))
     ap.add_argument("--threads", type=int, default=32)
     ap.add_argument("--check", type=Path, help="ic_score --dump-pred's pred.parquet: compare with its 'ours'")
+    ap.add_argument("--pq", type=Path, help="the lgbpred_pq binary (CMake build with Arrow): parquet in and out, no matrix file")
     a = ap.parse_args()
     if a.selftest:
         return selftest(a)
     t0 = time.perf_counter()
-    names = feature_names(a.feature_csv)
-    df = pl.read_parquet(a.x)
-    if "date" in df.columns:
-        df = df.filter(pl.col("date") == int(a.date)).drop("date")
-    have = [c for c in df.columns if c in set(names)]
-    X = np.full((df.height, len(names)), np.nan)
-    ix = {n: i for i, n in enumerate(names)}
-    for c in have:
-        X[:, ix[c]] = df[c].to_numpy().astype(float)
     files = model_files(a.models, a.date, a.fits.split(","), a.subs.split(","))
-    a.work.mkdir(parents=True, exist_ok=True)
-    xb, pb = a.work / f"x_{a.date}.bin", a.work / f"pred_{a.date}.bin"
-    write_x(xb, X)
-    t1 = time.perf_counter()
-    subprocess.run([str(ensure_binary()), str(xb), str(pb), *map(str, files), "--threads", str(a.threads)], check=True)
-    t2 = time.perf_counter()
-    out = df.select(pl.col("sid").cast(pl.Int64), "mark").with_columns(pl.Series("pred", read_scores(pb)))
     a.out.mkdir(parents=True, exist_ok=True)
     dst = a.out / f"pred_{a.date}.parquet"
-    out.write_parquet(dst)
-    xb.unlink()
-    pb.unlink()
-    print(f"{a.date}: {df.height:,} rows, {len(have)} of {len(names)} model columns filled, models {[str(f.relative_to(a.models)) for f in files]}; "
-          f"assemble {t1 - t0:.1f}s, lgbpred {t2 - t1:.1f}s -> {dst}")
+    if a.pq and "date" not in pl.read_parquet_schema(a.x):
+        subprocess.run([str(a.pq), "--parquet", str(a.x), str(dst), "--features", str(a.feature_csv), *map(str, files), "--threads", str(a.threads)], check=True)
+        out = pl.read_parquet(dst).with_columns(pl.col("sid").cast(pl.Int64))
+        print(f"{a.date}: {out.height:,} rows, models {[str(f.relative_to(a.models)) for f in files]}; lgbpred_pq {time.perf_counter() - t0:.1f}s -> {dst}")
+    else:
+        names = feature_names(a.feature_csv)
+        df = pl.read_parquet(a.x)
+        if "date" in df.columns:
+            df = df.filter(pl.col("date") == int(a.date)).drop("date")
+        have = [c for c in df.columns if c in set(names)]
+        X = np.full((df.height, len(names)), np.nan)
+        ix = {n: i for i, n in enumerate(names)}
+        for c in have:
+            X[:, ix[c]] = df[c].to_numpy().astype(float)
+        a.work.mkdir(parents=True, exist_ok=True)
+        xb, pb = a.work / f"x_{a.date}.bin", a.work / f"pred_{a.date}.bin"
+        write_x(xb, X)
+        t1 = time.perf_counter()
+        subprocess.run([str(ensure_binary()), str(xb), str(pb), *map(str, files), "--threads", str(a.threads)], check=True)
+        t2 = time.perf_counter()
+        out = df.select(pl.col("sid").cast(pl.Int64), "mark").with_columns(pl.Series("pred", read_scores(pb)))
+        out.write_parquet(dst)
+        xb.unlink()
+        pb.unlink()
+        print(f"{a.date}: {df.height:,} rows, {len(have)} of {len(names)} model columns filled, models {[str(f.relative_to(a.models)) for f in files]}; "
+              f"assemble {t1 - t0:.1f}s, lgbpred {t2 - t1:.1f}s -> {dst}")
     if a.check and a.check.exists():
         r = pl.read_parquet(a.check).filter(pl.col("date") == int(a.date)).with_columns(pl.col("sid").cast(pl.Int64))
         j = out.join(r, on=["sid", "mark"], how="inner")

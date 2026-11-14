@@ -63,7 +63,7 @@ int main(int argc, char** argv) {
             auto in = arrow::io::ReadableFile::Open(path).ValueOrDie();
             auto reader = parquet::arrow::OpenFile(in, arrow::default_memory_pool()).ValueOrDie();
             reader->set_use_threads(true);
-            check(reader->ReadTable(&back));
+            back = reader->ReadTable().ValueOrDie();
         }
         double sum_r = 0;
         for (int c = 0; c < back->num_columns(); ++c)
