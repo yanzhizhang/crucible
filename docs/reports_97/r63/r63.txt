@@ -1,0 +1,41 @@
+R63 on 97 (commit 75da664: r63.sh 0cbb94a6, vec_day.py ca47dbc6; ic_score.py 18539882 gated), 17:16:03 - 17:18:51. CRUCIBLE_SIMB_EXACT=1 on both sides,
+vec_day --float32, px = zzxu.last for state stems. Transcribed from a space-squeezed view (r63_v.txt, 53 lines); column lines: status col formula
+finite NaNmis cells mad corr; long info lines cut at 150 chars.
+
+[17:16:03] 20260430: ic_score --dump-x
+feature matrix -> data/reports/stage6_r63_0430/x.parquet (144 columns), side tables per day
+ similarity 0.6282
+[17:17:08] 20260430: featgen base -- no state file, stock list and stop time from 20260429.jz; yesterday's state from 20260429.jz for 300 stocks;
+  300 stocks, stop 54149.932, 240 times; snapshots 1,489,303, trades 27,992,205, orders 46,353,075; missing none (10s load);
+  pack 2.5s, featgen 3.1s; 72,000 rows x 89 -> data/featgen_r63/base_20260430.parquet; done in 16s
+[17:17:26] 20260430: featvec: 144 columns x 240 times x 300 stocks; 96 names (book rows matched 0.997; state names found 6 of 6; CED rows 300 of 300,
+  47 exposures, 300 with an indus..(cut)); assemble 0.4s, featvec 0.3s; 72,000 rows in x.parquet, 72,000 matched
+ OFF zzab cal:neu:-gen.depth_weighted_price_5lvl_minus_mid_rel 70919 0 720 mad 5.38e-05 corr 0.999999
+ ok zzal.c -gen.buy300 71760 0 6 mad 2 corr 1.000000
+ OFF zzav cal:|gen.lpe5|*1e4 71760 0 10285 mad 2.89 corr 0.999926
+ ok zzfb.b rank:-gen.lpe50 71760 0 4 mad 0.00503 corr 1.000000
+ ok zzqo.d crank:gen.lpe50 71760 0 4 mad 0.00503 corr 1.000000
+ OFF zzro2.a gen.stoch 71760 0 2078 mad 1 corr 0.999272
+ OFF zzxt3 crank:gen.lpe25 71760 0 565 mad 0.0436 corr 0.999997
+20260430: 140 of 144 columns agree with ic_score's matrix, 4 off
+[17:17:28] 20261112: ic_score --dump-x -> stage6_r63_1112/x.parquet (144 columns); similarity 0.6558
+[17:18:33] 20261112: featgen base -- yesterday's state from 20261111.jz; 300 stocks, stop 54149.897, 240 times; snapshots 1,519,129,
+  trades 24,128,723, orders 41,293,348; missing none (8s load); pack 2.1s, featgen 2.9s; done in 13s
+[17:18:48] 20261112: featvec 144 x 240 x 300; 96 names (book rows matched 1.000; state names found 6 of 6; CED rows 300 of 300, 46 exposures, ..(cut));
+  assemble 0.4s, featvec 0.3s; 72,000 matched
+ OFF zzab cal:neu:-gen.depth_weighted_price_5lvl_minus_mid_rel 72000 0 479 mad 3.29e-05 corr 1.000000
+ OFF zzav cal:|gen.lpe5|*1e4 72000 0 10158 mad 2.83 corr 0.999927
+ ok zzqf5.q.c2 gen.lpes28800 72000 0 3 mad 9.31e-10 corr 1.000000
+ OFF zzxt3 crank:gen.lpe25 72000 0 146 mad 0.0284 corr 0.999999
+ ok zzzl2.f gen.lpes28800 72000 0 3 mad 9.31e-10 corr 1.000000
+20261112: 141 of 144 columns agree with ic_score's matrix, 3 off
+[17:18:49] float32 against double: the same 1112 marks without --float32 (lines with corr below 1 only)
+ OFF zzav cal:|gen.lpe5|*1e4 72000 0 10220 mad 2.83 corr 0.999927
+ OFF zzeg2 cal:|gen.rpe20| 72000 0 13814 mad 4.23e-05 corr 0.999950
+ OFF zzfb2.a rank:gen.rpe75 72000 0 3179 mad 0.0301 corr 0.999976
+ OFF zzqo.e cal:srank:-gen.rpe25 72000 0 57127 mad 4.13e+04 corr 0.999943
+ OFF zzqo.f srank:-gen.rpe10 72000 0 15014 mad 0.268 corr 0.997180
+ OFF zzxt3 crank:gen.lpe25 72000 0 146 mad 0.0284 corr 0.999999
+ OFF zzxt5 crank:gen.rpe10 72000 0 15014 mad 0.134 corr 0.997180
+20261112: 100 of 144 columns agree with ic_score's matrix, 44 off
+[17:18:51] done

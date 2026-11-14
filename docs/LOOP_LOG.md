@@ -493,3 +493,7 @@ ic_score.py edited in place on 97 (6fb045a6 -> 18539882). featvec self-test 144/
 0430 93 of 144 agree (51 off), 1112 96 of 144 (48 off); most OFF columns have corr 1.000000 and tiny max abs diff; worst zzvx.a /
 zzxu.b on 0430 (corr .53 / -.77). 3-second day: engine 25 s, base 17 s, formula layer 11 s, total 53 s. User said "done" mid-run
 (meaning unclear; VDI went full-screen at ~17:09). Report: docs/reports_97/r62/r62.txt.
+
+## R63 -- 2026-11-14 17:16:03-17:18:51 (user: "Yes, take it")
+float32 + px = zzxu.last + exact-mid: 0430 140 of 144 agree (zzab, zzav, zzro2.a, zzxt3 off), 1112 141 of 144 (zzab, zzav, zzxt3).
+Without float32 rounding 1112 drops to 100 of 144. Report: docs/reports_97/r63/r63.txt.
