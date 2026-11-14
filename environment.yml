@@ -47,6 +47,10 @@ dependencies:
   - zstd
   - nanobind>=2.4
   - scikit-build-core>=0.10
+  - libarrow>=18
+  - libparquet>=18
+  - libduckdb-devel>=1.1
+  - eigen>=3.4
   - pip
   - pip:
     - --no-build-isolation

@@ -41,6 +41,18 @@ KERNEL_BUILD = [
     "scikit-build-core>=0.10",
 ]
 
+#: C++ libraries of the feature engine (research/featgen/cpp, built with CMake inside the env). Only what the code links:
+#:   libarrow / libparquet  the engine reads and writes parquet itself (no binary hand-off through Python); the same
+#:                          Arrow C++ pyarrow wraps, so pinning them together keeps one copy in the env
+#:   libduckdb-devel        the engine queries the tick catalog itself (one read of the day for book + state + bases)
+#:   eigen                  header-only linear algebra (the neu: least squares; later batched regressions)
+FEATGEN_CPP = [
+    "libarrow>=18",
+    "libparquet>=18",
+    "libduckdb-devel>=1.1",
+    "eigen>=3.4",
+]
+
 _REQ = re.compile(r"^\s*([A-Za-z0-9_.\-]+)\s*([^;]*?)\s*(?:;\s*(.*))?$")
 
 
@@ -88,6 +100,7 @@ def render() -> str:
         f"  - python>={pyver},<3.15",
         *[f"  - {n}{s}" for n, s in sorted(conda.items())],
         *[f"  - {b}" for b in KERNEL_BUILD],
+        *[f"  - {b}" for b in FEATGEN_CPP],
         "  - pip",
         "  - pip:",
         "    - --no-build-isolation",
