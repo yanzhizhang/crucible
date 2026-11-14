@@ -1,0 +1,70 @@
+R73 on 97 (r73.sh 7c779b52, runs_exec.py baceb589, pm_orders.py ccf0bbda), 01:29:10 - 01:31:19. 68 lines, transcribed from screen in full.
+[01:29:10] 1 pm_orders 20261113
+place_order lines 5,948, Po lines 5,948, Po with a side 1.000: {'buy': 2896, 'sell': 3052}
+-- 7 5,948 Po lines; side tag (the 2 letters after the time): {'SO': 5948}; f3 runs 1..5948 (exOid, +1 per order: 0.974), f4 = 100 x f3 + 1 1.000; tied to a decision 0.999, decision -> Po (ms) p10/p50/p90 289.2/1326/1.945e+04
+ buy: n 2,895; fa > 0 0.987; executp > 0 0.583, < 0 0.116, = 0 0.301; fa < lthr 0.005, fa > -lthr 0.856; |fa| / hs p10/p50/p90 1.312/3.645/15.35; qty p10/p50/p90 100/200/1000, qty / |executp| 0.2222/1/5860; pos -1000/-100/0; asq 0/300/1100
+ sell: n 3,049; fa > 0 0.004; executp > 0 0.015, < 0 0.679, = 0 0.307; fa < lthr 0.986, fa > -lthr 0.002; |fa| / hs p10/p50/p90 1.943/4.242/12.24; qty p10/p50/p90 100/200/900, qty / |executp| 0.1429/0.6667/1; pos -200/0/600; asq 100/300/1300
+[01:31:17] 2 runs_exec 20261113
+==== 20261113: 761,279 decisions
+-- 1 executp
+ 09:30: 1,496 rows; executp == 0 0.0368 (55 of 1,496); integer 0.4677 (674 of 1,441); lot multiple 0.4601 (663 of 1,441)
+ executp == asq 0.2233 (334 of 1,496), == -asq 0.1791 (268 of 1,496), == cpos 0.0000 (0 of 1,496), == -asq - cpos... trade == -asq 0.2640 (395 of 1,496)
+ dead band |fa| < -lthr: executp == 0 inside -, outside 0.0368 (55 of 1,496); |fa| < hs: executp == 0 0.0000 (0 of 80)
+ executp / fa w on executp != 0: -22.85 / 0.5379 / 6.554 / 25.96 / 68.85; spread p90/p10 48.3
+ executp / (fa - lthr) w on executp != 0: -22.85 / 0.5379 / 6.554 / 25.96 / 68.85; spread p90/p10 48.3
+ executp / (fa + lthr) w on executp != 0: -22.85 / 0.5379 / 6.554 / 25.96 / 68.85; spread p90/p10 48.3
+ executp / sign(fa)(|fa| - hs)+ w on executp != 0: -6.93 / 2.334 / 15.05 / 61.9 / 195.6; spread p90/p10 26.5
+ executp / sign(fa)(|fa| + lthr)+ w on executp != 0: -22.85 / 0.5379 / 6.554 / 25.96 / 68.85; spread p90/p10 48.3
+ executp / fa w vr on executp != 0: -105.8 / 1.537 / 39.67 / 254.5 / 711.1; spread p90/p10 166
+ executp / fa w vpen on executp != 0: -2.286e+08 / 5.374e+06 / 6.582e+07 / 2.596e+08 / 6.887e+08; spread p90/p10 48.3
+ executp / fa vr on executp != 0: -1.18e+07 / 2.484e+05 / 3e+06 / 1.657e+07 / 6.024e+07; spread p90/p10 66.7
+ executp / fa / vpen on executp != 0: -0.2547 / 0.007942 / 0.05466 / 0.1652 / 0.361; spread p90/p10 20.8
+ least squares of executp on executp != 0 (1,440): R^2 0.626: fa_w +0.5942, fa_w_vr -0.7646, fa_vr +9408, fa/vpen +0.04801, lthr_w +1.961e-08, hs_w_sgn +0.8745, cpos +0.7779, one -54.59
+ corr(executp, fa_w) +0.581; on log |.|: +0.448
+ corr(executp, fa_w_vr) +0.252; on log |.|: +0.307
+ corr(executp, fa_vr) +0.421; on log |.|: +0.086
+ corr(executp, fa/vpen) +0.670; on log |.|: +0.350
+ corr(executp, hs_w_sgn) +0.431; on log |.|: +0.321
+ corr(executp, cpos) +0.489; on log |.|: -0.036
+ later: 759,783 rows; executp == 0 0.6059 (460,328 of 759,783); integer 0.0283 (8,486 of 299,455); lot multiple 0.0273 (8,181 of 299,455)
+ executp == asq 0.3236 (245,849 of 759,783), == -asq 0.3289 (249,859 of 759,783), == cpos 0.5849 (444,381 of 759,783), == -asq - cpos... trade == -asq 0.3381 (256,892 of 759,783)
+ dead band |fa| < -lthr: executp == 0 inside 0.6673 (282,611 of 423,517), outside 0.5285 (177,717 of 336,266); |fa| < hs: executp == 0 0.6124 (307,754 of 502,542)
+ executp / fa w on executp != 0: -44.65 / -0.1478 / 0.003481 / 1.504 / 49.12; spread p90/p10 -10.2
+ executp / (fa - lthr) w on executp != 0: -44.85 / -0.1373 / -0.0006858 / 1.473 / 49.08; spread p90/p10 -10.7
+ executp / (fa + lthr) w on executp != 0: -44.53 / -0.05786 / 0.004009 / 1.413 / 48.51; spread p90/p10 -24.4
+ executp / sign(fa)(|fa| - hs)+ w on executp != 0: -129.8 / -0.9216 / 0.04178 / 16.03 / 129.1; spread p90/p10 -17.4
+ executp / sign(fa)(|fa| + lthr)+ w on executp != 0: -90.45 / -2.403 / 0.01318 / 5.929 / 101.8; spread p90/p10 -2.47
+ executp / fa w vr on executp != 0: -321.2 / -1.3 / 0.007659 / 7.128 / 417.3; spread p90/p10 -5.48
+ executp / fa w vpen on executp != 0: -4.387e+08 / -380.1 / 5.25 / 1.231e+07 / 4.722e+08; spread p90/p10 -3.24e+04
+ executp / fa vr on executp != 0: -8.229e+07 / -1.242e+05 / 2446 / 9.115e+05 / 9.588e+07; spread p90/p10 -7.34
+ executp / fa / vpen on executp != 0: -30.96 / -2.339 / 0.06626 / 3.763 / 31.38; spread p90/p10 -1.61
+ least squares of executp on executp != 0 (299,307): R^2 0.231: fa_w +0.00592, fa_w_vr +0.00189, fa_vr -1.893e+04, fa/vpen +0.0545, lthr_w -0.01165, hs_w_sgn -0.00185, cpos +0.1465, one +43.31
+ corr(executp, fa_w) +0.091; on log |.|: +0.263
+ corr(executp, fa_w_vr) +0.019; on log |.|: +0.161
+ corr(executp, fa_vr) +0.049; on log |.|: +0.118
+ corr(executp, fa/vpen) +0.263; on log |.|: +0.850
+ corr(executp, lthr_w) -0.050; on log |.|: -0.887
+ corr(executp, hs_w_sgn) +0.018; on log |.|: +0.112
+ corr(executp, cpos) +0.361; on log |.|: -0.336
+-- 2 the gate (after 09:31)
+ |trade| >= 100 & side threshold met    :  71,835 rows, order made 0.0258 (1,854 of 71,835)
+ |trade| >= 100 & side threshold not met: 106,630 rows, order made 0.0018 (193 of 106,630)
+ |trade| < 100  & side threshold met    :  40,552 rows, order made 0.0000 (0 of 40,552)
+ |trade| < 100  & side threshold not met: 540,766 rows, order made 0.0000 (8 of 540,766)
+ among |trade| >= 100 & threshold met: pp != 0 (in flight) 0.0133 (955 of 71,835); made with pp == 0 0.0197 (1,395 of 70,880), with pp != 0 0.4806 (459 of 955)
+ the rows that made an order and still are not explained: 0.0003 (201 of 759,783)
+-- 3 the order: 5,948 sent, sides {'sell': 3052, 'buy': 2896}; tied to a decision 0.9993 (5,944 of 5,948)
+ buy: n 2,896; price at the far touch (buy at ask / sell at bid) 0.6640 (1,923 of 2,896), at the near touch 0.0349 (101 of 2,896), at mp 0.0117 (34 of 2,896); (px - mp) / (mp hs) -67.04 / -9.107 / 1 / 1 / 13
+   qty 100 / 100 / 200 / 1000 / 2910; qty == |trade| 0.3947 (1,143 of 2,896), qty == one lot 0.3273 (948 of 2,896), qty < |trade| 0.3194 (925 of 2,896); qty / |trade| 0.07142 / 0.3658 / 1 / 2 / 479.7
+ sell: n 3,052; price at the far touch (buy at ask / sell at bid) 0.6219 (1,898 of 3,052), at the near touch 0.0528 (161 of 3,052), at mp 0.0138 (42 of 3,052); (px - mp) / (mp hs) -13 / -2 / -1 / 3 / 31.65
+   qty 100 / 100 / 200 / 900 / 3300; qty == |trade| 0.4803 (1,466 of 3,052), qty == one lot 0.3493 (1,066 of 3,052), qty < |trade| 0.3585 (1,094 of 3,052); qty / |trade| 0.07813 / 0.3333 / 1 / 2 / 13.95
+-- 4 order life: events {'OnECM': 5271, 'cxl_req': 5273, 'OnEOM': 651}
+ buy: n 2,896; cancel confirmed 0.8750 (2,534 of 2,896), any fill 0.1001 (290 of 2,896), both 0.0028 (8 of 2,896), neither 0.0276 (80 of 2,896)
+   sent -> cancel requested (s) 4.541 / 5.267 / 5.838 / 6.544 / 6.76; sent -> cancel confirmed (s) 6.021 / 6.11 / 6.536 / 6.938 / 7.024; sent -> first fill (s) 0.009389 / 0.01255 / 0.02329 / 3.46 / 6.613
+   fill qty / order qty on filled 0.4817 / 1 / 1 / 1 / 1; fill vwap - order px -2.171 / -0.361 / -0.003638 / 0 / 0
+ sell: n 3,052; cancel confirmed 0.8968 (2,737 of 3,052), any fill 0.1032 (315 of 3,052), both 0.0046 (14 of 3,052), neither 0.0046 (14 of 3,052)
+   sent -> cancel requested (s) 4.573 / 5.275 / 5.847 / 6.516 / 6.768; sent -> cancel confirmed (s) 6.018 / 6.11 / 6.544 / 6.932 / 7.021; sent -> first fill (s) 0.008865 / 0.01254 / 0.02432 / 3.545 / 6.428
+   fill qty / order qty on filled 0.3333 / 1 / 1 / 1 / 1; fill vwap - order px 0 / 0 / 0.01 / 0.2378 / 1.891
+ position log: 300 stocks, the day's net traded qty sum |last - first| 21,522
+[01:31:19] done
+R73 DONE 01:31:19
