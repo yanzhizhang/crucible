@@ -22,11 +22,13 @@ seed_of() { local a b; a=$(last_before $DATA/seed_probe/HS300 $1); b=$(last_befo
   if [ "${a:-0}" \> "${b:-0}" ]; then echo $DATA/seed_probe/HS300; else echo /data/prod/h/HS300/p1_intrading_dcp; fi; }
 ic() { grep -E "IC: start" "$1" 2>/dev/null | tail -1 | sed -E 's/.*IC: start ([0-9.]+) -> end ([0-9.]+).*/\2/'; }
 fwd_of() { if [ $1 = 0430 ] || [ $1 = 1113 ]; then echo $R/stage6_r43_$1_fwd; else echo $R/stage6_r44_$1_fwd; fi; }
-MB="--models $G --drop-gap 1 --state-fallback --hstats $HV --neutral --target $DATA/pm_target_r22 --target-stale 4 --max-cdf 1 --max-score 99"
+HP=/data/prod/hstats/HS300
+hof() { if [ $1 = 0430 ]; then echo $HP; else echo $HV; fi; }
+MB="--models $G --drop-gap 1 --state-fallback --neutral --target $DATA/pm_target_r22 --target-stale 4 --max-cdf 1 --max-score 99"
 SCORE="--no-drop-harmful --max-features 0 --implied 0"
 FBD=$DATA/store/pm_factors/full_book_dysl2
 X0430="--marks rand:240:7 --engine-dir data/engine_m7 --full-book $DATA/store/pm_factors/full_book_m7 --seed-dir /data/prod/h/HS300/p1_intrading_dcp"
-xof() { if [ $1 = 0430 ]; then echo "$X0430"; else echo "--marks rand:240 --full-book $FBD --seed-dir $(seed_of 2026$1)"; fi; }
+xof() { if [ $1 = 0430 ]; then echo "$X0430 --hstats $HP"; else echo "--marks rand:240 --full-book $FBD --seed-dir $(seed_of 2026$1) --hstats $HV"; fi; }
 srcof() { if [ $1 = 0430 ]; then echo feitu; else echo dysl2; fi; }
 score() {
   local tag=$1 A=$2 day=$3
@@ -50,14 +52,14 @@ SAFE="ZZAL,ZZGW,ZZHL,ZZMS,ZZQI,ZZQO,ZZTS,ZZVC,ZZWA,ZZXC"
 MATCH='^zz(al|ds|gw|hl|ms|qi|qo|sq|ts|ug|vc|wa|xc|ac|cr)[0-9]*(\.|$)'
 INC='ced\.(lr\.[a-z0-9]+\.)?ZZ[A-Z]+\.'
 
-say "0 hstats through the view ($HV)"
+say "0 hstats: the view ($HV) for the 224 days, $HP for 0430 (the view has no 0430, so no 0430 run ever saw an hstats cell)"
 ls -ld $HV | cut -c1-200
 for day in 0430 1106 1109 1110 1111 1112 1113; do
   n=0; miss=""
-  for f in ${FALL//,/ }; do if [ -e $HV/$f/2026$day/samplerS.nc ]; then n=$((n+1)); else miss="$miss $f"; fi; done
-  echo "  $day: $n of 13 families; ZZAL -> $(readlink -f $HV/ZZAL/2026$day 2>/dev/null); missing:${miss:- none}"
+  for f in ${FALL//,/ }; do if [ -e $(hof $day)/$f/2026$day/samplerS.nc ]; then n=$((n+1)); else miss="$miss $f"; fi; done
+  echo "  $day: $n of 13 families; ZZAL -> $(readlink -f $(hof $day)/ZZAL/2026$day 2>/dev/null); missing:${miss:- none}"
 done
-python - <<PY 2>&1 | cut -c1-250
+python - <<PY 2>&1 | cut -c1-400
 import csv, re
 names = [r[-1] if len(r) == 1 else r[1] for r in csv.reader(open("/data/prod/models/lgb_fn_v1_209_cte.csv")) if r]
 m = [x for x in names if re.search(r'$MATCH', x)]
@@ -69,12 +71,12 @@ for day in 1110 1112; do [ -e $HV/ZZAL/2026$day/samplerS.nc ] && DAYS="$DAYS,202
 DAYS=${DAYS#,}
 [ -n "$DAYS" ] || { [ -e $HV/ZZAL/20261106/samplerS.nc ] && DAYS=20261106; }
 [ -n "$DAYS" ] || { say "no scan day has hstats in the view: stop"; exit 1; }
-[ -e $HV/ZZAL/20260430/samplerS.nc ] || { say "0430 has no hstats in the view: stop"; exit 1; }
+[ -e $HP/ZZAL/20260430/samplerS.nc ] || { say "0430 has no hstats under $HP either: stop"; exit 1; }
 SD=$(seed_of ${DAYS%%,*})
 say "1 scan on $DAYS (even sids), generation B; seed dir of the first day: $SD"
-for P in $FALL $SAFE; do
+for P in $SAFE ZZWA,ZZAL,ZZQO,ZZXC,ZZTS; do
   CRUCIBLE_SOURCE=dysl2 python -u research/pm_factors/ic_score.py --dates $DAYS --assign $C1 --calibrate --siblings --profiles $P --max-features 0 --scan-match "$MATCH" \
-    --scan-include "$INC" --implied 0 --no-drop-harmful --sid-mod 2:0 --marks rand:240 --full-book $FBD --seed-dir $SD $MB --out $R/stage6_r56 > $R/r56_scan.txt 2>&1
+    --scan-include "$INC" --implied 0 --no-drop-harmful --sid-mod 2:0 --marks rand:240 --full-book $FBD --seed-dir $SD --hstats $HV $MB --out $R/stage6_r56 > $R/r56_scan.txt 2>&1
   [ -f $R/stage6_r56/ic_assign.json ] && { echo "  families used: $P"; break; }
   echo "  scan with $P failed:"; grep -E "Error|Traceback" -A3 $R/r56_scan.txt | tail -8 | cut -c1-200
 done
