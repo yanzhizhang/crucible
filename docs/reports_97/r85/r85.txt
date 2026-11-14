@@ -1,0 +1,74 @@
+R85 on 97 (r85.sh 6e19e934, implied_scan.py 9ff10867 (--batch), lgbpred.cpp 1b32fcfb), 04:11:03 - 04:53:46. 73 lines, full (candidate | min gain | 1112 | 0430). First run of R85 (old one-call-per-candidate) was stopped at ~04:10 at crucible's suggestion.
+[04:11:03] implied scan
+baseline similarity 20261112 0.6558 (bases found at 1.000 of rows), 20260430 0.6282 (bases found at 1.000 of rows)
+-- zzbt.b: 430 candidates in 373s; best by the smaller day gain:   (candidate | min | 1112 | 0430)
+   cal:-gen.trading_seconds_since_0930 -0.0219 -0.0219 -0.0192
+   cal:gen.microprice_minus_mid_rel -0.0226 -0.0141 -0.0226
+   cal:rank:gen.microprice_minus_mid_rel -0.0230 -0.0142 -0.0230
+   cal:gen.imb1 -0.0244 -0.0190 -0.0244
+   cal:rank:gen.imb1 -0.0246 -0.0194 -0.0246
+   cal:gen.net_buy_amount_share_orders_under_40k_cny_120s -0.0248 -0.0248 -0.0170
+   cal:gen.trading_seconds_since_0930 -0.0263 -0.0263 -0.0186
+   cal:|gen.trading_seconds_since_0930| -0.0263 -0.0263 -0.0186
+   share of candidates helping on every day: 0.000
+-- zzaa.b: 430 candidates in 366s
+   cal:rank:gen.trading_seconds_since_0930 -0.0001 +0.0005 -0.0001
+   cal:rank:-gen.trading_seconds_since_0930 -0.0001 +0.0005 -0.0001
+   cal:gen.trading_seconds_since_0930 -0.0034 +0.0026 -0.0034
+   cal:|gen.trading_seconds_since_0930| -0.0034 +0.0026 -0.0034
+   cal:-gen.trading_seconds_since_0930 -0.0068 -0.0068 -0.0019
+   cal:gen.log_channel_sequence_advance_per_s_60s -0.0109 -0.0109 -0.0091
+   cal:|gen.log_channel_sequence_advance_per_s_60s| -0.0109 -0.0109 -0.0091
+   cal:gen.log_channel_sequence_advance_per_s_900s -0.0113 -0.0108 -0.0113
+   share of candidates helping on every day: 0.000
+-- zzxo: 430 candidates in 364s
+   cal:rank:gen.return_open_to_1000_log -0.0045 -0.0045 -0.0036
+   cal:gen.return_open_to_1000_log -0.0048 -0.0048 -0.0037
+   cal:|gen.lpes3600| -0.0058 -0.0044 -0.0058
+   cal:|gen.lpes2400| -0.0060 -0.0041 -0.0060
+   cal:|gen.ret1800| -0.0061 -0.0061 -0.0045
+   cal:|gen.lpes1800| -0.0061 -0.0046 -0.0061
+   cal:|gen.lpes1200| -0.0063 -0.0052 -0.0063
+   cal:|gen.lpew14400| -0.0064 -0.0064 -0.0063
+   share of candidates helping on every day: 0.000
+-- zzpp.b: 430 candidates in 364s
+   cal:-gen.simba180 -0.0059 -0.0059 -0.0051
+   cal:-gen.simbv120 -0.0060 -0.0060 -0.0055
+   cal:rank:-gen.lpe5 -0.0060 -0.0060 -0.0059
+   cal:rank:-gen.rpe5 -0.0060 -0.0060 -0.0059
+   cal:rank:-gen.simbv120 -0.0060 -0.0060 -0.0056
+   cal:rank:-gen.rete30 -0.0060 -0.0060 -0.0060
+   cal:rank:-gen.simba180 -0.0060 -0.0060 -0.0054
+   cal:rank:-gen.lpe50 -0.0060 -0.0060 -0.0060
+   share of candidates helping on every day: 0.000
+-- zzpe.e: 430 candidates in 366s
+   cal:rank:gen.trading_seconds_since_0930 +0.0001 +0.0007 +0.0001
+   cal:rank:-gen.trading_seconds_since_0930 +0.0001 +0.0007 +0.0001
+   cal:gen.microprice_minus_mid_rel -0.0010 +0.0009 -0.0010
+   cal:rank:-gen.lpev60 -0.0010 -0.0009 -0.0010
+   cal:rank:gen.microprice_minus_mid_rel -0.0011 +0.0009 -0.0011
+   cal:-gen.lpev60 -0.0012 -0.0012 -0.0008
+   cal:-gen.lpew14400 -0.0015 -0.0014 -0.0015
+   cal:-gen.rpe14400 -0.0015 -0.0014 -0.0015
+   share of candidates helping on every day: 0.005
+-- zzop.i: 430 candidates in 363s
+   cal:rank:-gen.microprice_minus_mid_rel -0.0021 +0.0020 -0.0021
+   cal:-gen.flow_ord_imb60 -0.0021 +0.0011 -0.0021
+   cal:rank:-gen.flow_ord_imb60 -0.0021 +0.0011 -0.0021
+   cal:-gen.microprice_minus_mid_rel -0.0022 +0.0020 -0.0022
+   cal:-gen.flow_ord_imb300 -0.0023 +0.0008 -0.0023
+   cal:rank:-gen.net_buy_amount_share_orders_under_40k_cny_300s -0.0023 +0.0007 -0.0023
+   cal:-gen.imba600 -0.0024 +0.0012 -0.0024
+   cal:rank:-gen.flow_ord_imb300 -0.0024 +0.0008 -0.0024
+   share of candidates helping on every day: 0.000
+-- zzhj: 430 candidates in 364s
+   cal:gen.buy300 +0.0016 +0.0026 +0.0016
+   cal:|gen.buy300| +0.0016 +0.0026 +0.0016
+   cal:rank:gen.buy300 +0.0014 +0.0035 +0.0014
+   cal:gen.log_new_order_count_per_s_60s +0.0013 +0.0020 +0.0013
+   cal:|gen.log_new_order_count_per_s_60s| +0.0013 +0.0020 +0.0013
+   cal:-gen.ret90 +0.0012 +0.0038 +0.0012
+   cal:rank:-gen.ret90 +0.0012 +0.0033 +0.0012
+   cal:rank:-gen.bid_depth_weighted_distance_5lvl_rel +0.0012 +0.0012 +0.0012
+   share of candidates helping on every day: 0.177
+[04:53:46] done
