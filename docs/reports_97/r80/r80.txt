@@ -1,0 +1,12 @@
+R80 on 97 (r80.sh 0c446798, backfill_days.py 0b235051; gates on engine/verify.py 6ab57f4b, featgen/day.py 66e5006b, featgen/side_day.py 32cbc75c), 02:22:26 - 02:23:31. Full output:
+GATES OK
+[02:22:26] backfill
+3 days: 20261009 .. 20261111; keep ['pred'] -> data/backfill_r80
+20261009: feitu; side 3s, chain 58s, verify 3s; verify: 68 keys, SZSE all equal 40, all stocks equal 19, median share 0.9967; kept 11 MB
+20261110: no state file /data/prod/h/HS300/p1_intrading_dcp/20261110.jz, skipped
+20261111: no state file /data/prod/h/HS300/p1_intrading_dcp/20261111.jz, skipped
+[02:23:31] what is kept
+  12M   data/backfill_r80
+[02:23:31] done
+R80 DONE 02:23:31
+(note: the per-day du line printed nothing for days/* beyond the total)
