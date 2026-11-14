@@ -497,3 +497,8 @@ zzxu.b on 0430 (corr .53 / -.77). 3-second day: engine 25 s, base 17 s, formula 
 ## R63 -- 2026-11-14 17:16:03-17:18:51 (user: "Yes, take it")
 float32 + px = zzxu.last + exact-mid: 0430 140 of 144 agree (zzab, zzav, zzro2.a, zzxt3 off), 1112 141 of 144 (zzab, zzav, zzxt3).
 Without float32 rounding 1112 drops to 100 of 144. Report: docs/reports_97/r63/r63.txt.
+
+## R64 -- 2026-11-14 17:32:06-17:50:34 (crucible request; user: "you can keep the control of this mac")
+ic_score.py edited in place by a 7-hunk script (18539882 -> 37d2fc42). Similarity: snap lowers it slightly (0430 .6282 -> .6278,
+1112 .6558 -> .6556); f64 changes ~nothing. C++ vs ic_score with snap: 0430 142/144 (zzab, zzro2.a off), 1112 143/144 (zzab).
+zzab's differences sit on 2-3 whole stocks (300979, 601919, 786 / 1280, 601919). Report: docs/reports_97/r64/r64.txt.

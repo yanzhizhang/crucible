@@ -1,0 +1,31 @@
+R64 on 97 (commit 5da43f9: r64.sh 13803e6d, featio.py 2fae4215, vec_day.py 48a900e8, cpp/featgen.cpp e67c94bb; ic_score.py 18539882 -> 37d2fc42 by a
+7-hunk in-place script, md5-gated before and after), 17:32:06 - 17:50:34 (~18.5 min). Exact-mid is now the default. Transcribed from screen
+(step 2 via a space-squeezed, folded view; column lines: status col formula finite NaNmis cells mad corr | where).
+
+[17:32:06] 1 similarity (r41c before: 0430 .6282, 1112 .6558)
+  20260430 default:  similarity 0.6282
+  20260430 snap:     similarity 0.6278
+  20260430 f64:      similarity 0.6282
+  20260430 snap_f64: similarity 0.6278
+  20261112 default:  similarity 0.6558
+  20261112 snap:     similarity 0.6556
+  20261112 f64:      similarity 0.6557
+  20261112 snap_f64: similarity 0.6556
+  (no Error/Traceback text on any line)
+[17:49:56] 2 C++ columns against ic_score's matrix, snap on
+20260430: done in 19s
+featvec: 144 columns x 240 times x 300 stocks
+20260430: 72,000 rows in x.parquet, 72,000 matched
+ OFF zzab cal:neu:-gen.depth_weighted_price_5lvl_minus_mid_rel 70919 0 720 mad 5.38e-05 corr 0.999999 | 3 stocks, 240 times; top 300979:240, 601919:240, 786:240
+ ok zzal.c -gen.buy300 71760 0 1 mad 4 corr 1.000000
+ OFF zzro2.a gen.stoch 71760 0 2119 mad 1 corr 0.999448 | 271 stocks, 240 times; top 688008:41, 688041:34, 688012:32, 688047:29
+20260430: 142 of 144 columns agree with ic_score's matrix, 2 off
+20261112: done in 13s
+featvec: 144 columns x 240 times x 300 stocks
+20261112: 72,000 rows in x.parquet, 72,000 matched
+ OFF zzab cal:neu:-gen.depth_weighted_price_5lvl_minus_mid_rel 72000 0 479 mad 3.29e-05 corr 1.000000 | 2 stocks, 240 times; top 1280:240, 601919:239
+ ok zzav cal:|gen.lpe5|*1e4 72000 0 8 mad 0.000229 corr 1.000000
+ ok zzqf5.q.c2 gen.lpes28800 72000 0 3 mad 9.31e-10 corr 1.000000
+ ok zzzl2.f gen.lpes28800 72000 0 3 mad 9.31e-10 corr 1.000000
+20261112: 143 of 144 columns agree with ic_score's matrix, 1 off
+[17:50:34] done
