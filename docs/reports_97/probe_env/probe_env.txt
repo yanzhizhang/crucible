@@ -19,3 +19,18 @@ Env check against origin environment.yml (d2c2156, md5 0c55493e; 48 conda entrie
   pip: crucible 0.1.0 editable at /work/crucible; crucible-kernels 0.1.0 editable at /work/crucible/kernels
   crucible_kernels import OK (/work/crucible/kernels/python/crucible_kernels/__init__.py); ruff 0.16.9
   ruff.toml is lint config only (no packages); ruff installed satisfies ruff>=0.8.
+
+DuckDB 2.0 upgrade on 97 (user asked: "update the duckdb to 2.0 and related python c++ interface"), 2026-11-16 ~00:40:
+  dry run: NEW croaring 5.4.0, libduckdb 2.0.0, libduckdb-devel 2.0.0; UPDATED ca-certificates, certifi 2026.10.23,
+           duckdb 1.5.6 -> 2.0.0, libcurl 8.22.0 -> 8.23.0, openssl 3.6.4 -> 3.6.5, python-duckdb 1.5.6 -> 2.0.0 (36.3 MB, conda-forge)
+  install rc=0; include/duckdb.h, include/duckdb.hpp, lib/libduckdb.so present; catalog.duckdb opens read-only (7 views)
+  pytest (basetemp under /work): 34 failed, 224 passed, 46 errors in 70 s. Distinct exceptions:
+     71 AttributeError: '_duckdb.DuckDBPyConnection' object has no attribute 'pl'
+      2 AttributeError: '_duckdb.DuckDBPyConnection' object has no attribute 'fetch_record_batch'
+      1 AssertionError
+  2.0 API (introspected): con.execute() returns the connection; it has fetchone/fetchall/fetchdf/fetchnumpy/fetchmany/
+     to_arrow_table/to_arrow_reader/complete, NOT pl/arrow/fetch_record_batch. Relations (con.sql) have pl/arrow/
+     to_arrow_table/to_arrow_reader/fetchall/df, NOT fetchone ("Relations no longer have fetchone(): ... Use rel.limit(1)
+     .fetchall()"). rel.arrow() now returns a RecordBatchReader (was a Table). fetch_record_batch deprecated -> to_arrow_reader.
+     A relation can't run while an execute() result is unfinished (ResourceInUseException; call complete() or abort()).
+  Repo use: src/quarry/loaders.py conn.execute(...).pl() x5; src/quarry/db.py cur.fetch_record_batch; 29 .py files use some fetch call.
