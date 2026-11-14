@@ -891,6 +891,9 @@ def main() -> None:
                     help="every column of one PM family (zzro, zzro2 ...) uses one quantity class (core): off-class start picks are dropped "
                          "and rescanned, the scan and the gate only take in-class formulas")
     ap.add_argument("--dump-pred", action="store_true", help="write <out>/pred.parquet: date, sid, mark, our prediction, PM's, per row")
+    ap.add_argument("--dump-x", action="store_true",
+                    help="write <out>/x.parquet (date, sid, mark, every assigned column) and per day side_<D>.npz (CED sids, Barra "
+                         "industry, exposures) + cal_<D>.json (training-CDF points): the reference and side inputs of research/featgen")
     ap.add_argument("--min-t", type=float, default=2.0, help="keep a candidate when its paired IC gain over marks has t >= this")
     ap.add_argument("--min-in-range", type=float, default=0.95, help="a candidate must sit inside the feature's training range this often")
     ap.add_argument("--max-score", type=float, default=1.5, help="and its p10 / median / p90 within this distance of the fingerprint's")
@@ -1696,6 +1699,14 @@ def main() -> None:
         days_ = np.array([int(blocks[b][0]) for b in range(len(blocks))])
         pl.DataFrame({"date": days_[blk], "sid": sid_a, "mark": MARKS[mk], "ours": full_pred, "pm": ret}).write_parquet(args.out / "pred.parquet")
         print(f"rows -> {args.out / 'pred.parquet'}")
+    if args.dump_x:  # the feature matrix as scored, and what the formula layer needs besides the tick bases
+        days_ = np.array([int(blocks[b][0]) for b in range(len(blocks))])
+        pl.DataFrame({"date": days_[blk], "sid": sid_a, "mark": MARKS[mk], **{f: X[:, col[f]] for f in assign if f in col}}).write_parquet(args.out / "x.parquet")
+        for b in range(len(blocks)):
+            pts = gen_cdf.get(block_gen[b], {}) if gen_rows and b < len(block_gen) else cdf
+            np.savez_compressed(args.out / f"side_{blocks[b][0]}.npz", dsid=pool.daily[b][0], ind=pool.ind[b], expo=pool.expo[b])
+            (args.out / f"cal_{blocks[b][0]}.json").write_text(json.dumps({f: [[float(x) for x in t], [float(x) for x in q]] for f, (t, q) in pts.items()}))
+        print(f"feature matrix -> {args.out / 'x.parquet'} ({len([f for f in assign if f in col])} columns), side tables per day")
     if args.gate_against is not None:  # each changed column, new formula against the old one on these days
         gb = json.loads(args.gate_against.read_text())
         gated, grow = dict(gb), []
