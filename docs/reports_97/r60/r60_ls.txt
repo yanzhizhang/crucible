@@ -1,0 +1,32 @@
+2.23 read-only listing of prod/h (crucible's one-liner, run from 97 at ~13:31, 2026-11-14). P = /data/share/data/prod. Names/sizes/dates only.
+== P/h
+total 4
+drwxr-xr-x 5 root root 4096 Sep  8 16:47 HS300
+== P/h/HS300
+total 12
+drwxr-xr-x 4 root root 4096 Sep 22 14:26 livev1
+drwxr-xr-x 2 root root 4096 Nov 13 20:02 p1_intrading_dcp
+drwxr-xr-x 3 root root 4096 Sep  8 15:28 sod
+== livev1 tree
+P/h/HS300/livev1
+P/h/HS300/livev1/rec10
+P/h/HS300/livev1/rec10/20260430
+P/h/HS300/livev1/rec10_p
+P/h/HS300/livev1/rec10_p/20260430
+P/h/HS300/livev1/rec10_p/20260430/alpha.parquet
+== files under P/h that are not .jz, newest 60
+2026-11-10 04:09     19938668 P/h/HS300/livev1/rec10_p/20260430/alpha.parquet
+== .jz per directory
+     76 P/h/HS300/p1_intrading_dcp
+     48 P/h/HS300/sod/p1_intrading_dcp
+== prod top level
+total 59400
+drwxr-xr-x 12 root root     4096 Nov 13 20:02 1min_src
+drwxr-xr-x  6 root root     4096 Sep  8 15:55 CEDxr4d
+drwxr-xr-x  3 root root     4096 Sep  8 15:28 h
+drwxr-xr-x  4 root root     4096 Sep  8 15:32 hstats
+drwxr-xr-x  3 root root     4096 Sep  8 15:57 index
+drwxr-xr-x  3 root root     4096 Aug 31 13:32 models
+-rwx------  1 root root 60789791 Sep 11 10:01 models.zip
+drwxr-xr-x  5 root root     4096 Sep  8 15:23 mp
+drwxrwxrwx  2 root root     4096 Sep 22 15:52 test
