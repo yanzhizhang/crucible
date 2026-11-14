@@ -303,12 +303,42 @@ int main(int argc, char** argv) {
             std::fwrite("CRULB001", 1, 8, g);
             std::fwrite(&n_cand, 8, 1, g);
             std::fwrite(&n_rows, 8, 1, g);
-            std::vector<double> col(n_rows), keep(n_rows);
+            // per replaced column: the trees that never split on it are summed once per row (rest), each candidate only
+            // walks the trees that do -- the same scores up to the order of the additions (not bit-identical to a full run)
+            std::vector<double> col(n_rows), keep(n_rows), out(n_rows);
+            std::uint64_t cur = n_cols;
+            std::vector<std::vector<tree>> use(models.size());
+            std::vector<double> rest(models.size() * n_rows);
             for (std::uint64_t k = 0; k < n_cand; ++k) {
                 std::uint64_t c;
                 if (std::fread(&c, 8, 1, fb) != 1 || c >= n_cols || std::fread(col.data(), 8, n_rows, fb) != n_rows) throw std::runtime_error("short batch read");
+                if (c != cur) {
+                    cur = c;
+                    std::vector<std::vector<tree>> other(models.size());
+                    for (std::size_t m = 0; m < models.size(); ++m) {
+                        use[m].clear();
+                        for (const tree& t : models[m])
+                            (std::find(t.feat.begin(), t.feat.end(), static_cast<int>(c)) != t.feat.end() ? use[m] : other[m]).push_back(t);
+                    }
+                    std::vector<std::thread> pool;
+                    for (unsigned w = 0; w < threads; ++w)
+                        pool.emplace_back([&, w] {
+                            for (std::uint64_t r = w; r < n_rows; r += threads)
+                                for (std::size_t m = 0; m < models.size(); ++m) rest[m * n_rows + r] = score(other[m], &x[r * n_cols]);
+                        });
+                    for (auto& th : pool) th.join();
+                }
                 for (std::uint64_t r = 0; r < n_rows; ++r) keep[r] = x[r * n_cols + c], x[r * n_cols + c] = col[r];
-                const std::vector<double> out = predict(models, x, n_rows, n_cols, threads);
+                std::vector<std::thread> pool;
+                for (unsigned w = 0; w < threads; ++w)
+                    pool.emplace_back([&, w] {
+                        for (std::uint64_t r = w; r < n_rows; r += threads) {
+                            double s = 0.0;
+                            for (std::size_t m = 0; m < models.size(); ++m) s += rest[m * n_rows + r] + score(use[m], &x[r * n_cols]);
+                            out[r] = s / static_cast<double>(models.size());
+                        }
+                    });
+                for (auto& th : pool) th.join();
                 for (std::uint64_t r = 0; r < n_rows; ++r) x[r * n_cols + c] = keep[r];
                 std::fwrite(out.data(), 8, n_rows, g);
             }
