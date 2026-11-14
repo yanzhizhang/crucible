@@ -110,10 +110,13 @@ def load(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop: float
         FROM raw_quotation q JOIN want w ON w.sid = q.symbol_id WHERE q.date = {date} AND {L} <= {stop})
         ORDER BY sid, ls""").pl()
     seq = ", buy_seq_id::BIGINT AS bsq, sell_seq_id::BIGINT AS ssq" if extra and {"buy_seq_id", "sell_seq_id"} <= columns(con, "raw_transaction") else ""
+    # trades of one arrival batch share spider_ts: without a second key their order (hence "the last trade at a mark") changes
+    # from run to run; the channel sequence number, else the exchange time, fixes it
+    tie = "seq_id, time" if "seq_id" in columns(con, "raw_transaction") else "time"
     slow = con.sql(f"""SELECT symbol_id AS sid, market_id AS mkt, {B.tc(L)} AS t_local, {B.tc(S)} AS t_exch, spider_ts AS ls, {S} AS s,
         price, volume::DOUBLE AS vol, volume * price AS amt, CASE dir WHEN 1063 THEN 1.0 WHEN 1550 THEN -1.0 ELSE 0.0 END AS side {seq}
         FROM raw_transaction r JOIN want w ON w.sid = r.symbol_id
-        WHERE r.date = {date} AND r.trade_type = 1 AND {L} <= {stop} ORDER BY sid, spider_ts""").pl()
+        WHERE r.date = {date} AND r.trade_type = 1 AND {L} <= {stop} ORDER BY sid, spider_ts, {tie}""").pl()
     ref = con.sql(f"""SELECT symbol_id AS sid, max(open) FILTER (open > 0)::DOUBLE AS op, max(pre_close) FILTER (pre_close > 0)::DOUBLE AS pc
         FROM raw_quotation q JOIN want w ON w.sid = q.symbol_id WHERE q.date = {date} GROUP BY 1""").pl()
     con.unregister("want")

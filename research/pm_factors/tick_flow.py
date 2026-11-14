@@ -54,7 +54,7 @@ def load_orders(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop
                price::DOUBLE, {tseq}
         FROM raw_transaction r JOIN want_o w ON w.sid = r.symbol_id
         WHERE r.date = {date} AND trade_type = 2 AND {L} <= {stop}
-        ORDER BY 1, 2""").pl()
+        ORDER BY 1, 2, 9, 3, 4""").pl()  # ties in arrival time: by sequence number, exchange time, kind (stable from run to run)
     con.unregister("want_o")
     return df
 
