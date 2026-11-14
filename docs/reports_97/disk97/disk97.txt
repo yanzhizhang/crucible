@@ -52,3 +52,14 @@ overlay      25T 8.1T   17T  34% /
 [01:34:39] conda pkgs cache and pip/uv caches
 18G /opt/anaconda3/pkgs | 181M /root/.cache/pip | 8.0K /root/.cache/uv
 [01:34:43] done
+
+disk97b (crucible's two read-only du lines), 01:39:01:
+(a) du -xh --max-depth=1 /
+0 /afs | 0 /boot | 0 /home | 0 /lost+found | 0 /media | 0 /srv | 12K /run | 24M /etc | 259M /var | 3.9G /root | 4.6G /usr | 21G /tmp | 25G /opt | 2.2T /data | 2.3T /
+  -> / (2.3T) + /work (1.3T) = 3.6T of the 8.1T df reports; ~4.5T is not visible from inside this container (host side / other containers).
+(b) du -xh --max-depth=1 /work/crucible/data/reports
+2.6M feitu_check | 3.1M stage6_r35_20260430 | 3.1M stage6_r35b_20260430 | 3.2M stage5 | 4.0M stage6_implied | 4.0M stage6_r23_implied_224 | 4.0M stage6_r4
+4.2M stage6_r41_implied | 5.0M stage6_r23_implied | 40M stage6_r62_0430 | 40M stage6_r63_0430 | 40M stage6_r64_0430_default | 40M stage6_r64_0430_snap
+40M stage6_r67_0430_a | 40M stage6_r67_0430_b | 41M stage6_r62_1112 | 41M stage6_r63_1112 | 41M stage6_r64_1112_default | 41M stage6_r64_1112_snap
+41M stage6_r67_1112_a | 41M stage6_r70_0430 | 42M stage6_r70_1112 | 50M stage6_r64_0430_f64 | 50M stage6_r64_0430_snap_f64 | 50M stage6_r64_1112_snap_f64
+51M stage6_r64_1112_f64 | 121M stage4 | 2.4G stage7 | 27G stage9 | 31G total
