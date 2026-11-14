@@ -468,3 +468,6 @@ R58 scanning since 10:40:28; at 11:16 the user was using the desktop again (VDI 
 
 ## R58 (2026-11-14 10:40-12:33)
 Start-of-day hstats, 0430 back. Scan .6461->.7132; gates 0430/1109/1106/1113 kept 5/2/1/0: nothing survived. zzwa.g->ced.ret1 (R56 survivor) fails 0430 (-.0011, t -3.5).
+
+## R59 (2026-11-14)
+User approved the 1111+1112 mp copy from 2.23 in this session. Before pasting, at 13:12 the Windows App connection to the remote PC dropped; at 13:13 it asks for the remote password. Not entered; R59 not started.
