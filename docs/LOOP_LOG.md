@@ -481,3 +481,9 @@ Pasted p60r.txt (md5 1d11001f) after confirming the 97 terminal was in front. Se
 Step 1 (1112, 8 stocks): 85 of 89 agree (lpe5, simba180, simbn45, simbv120 off); C++ 0.010 s/stock vs Python 0.4 s.
 Step 2 (0430) crashed: no /data/prod/h/HS300/p1_intrading_dcp/20260430.jz. Step 3 (1112 every 3 s): 1,422,000 rows in 15 s, 686 MB.
 Report: docs/reports_97/r60/r60.txt.
+
+## R61 -- 2026-11-14 16:44:47-16:59:38 (crucible request; screen still held from the user's "Yes, take it")
+ic_score.py edited in place on 97 with md5 gates (b84e6a92 -> 6fb045a6). First paste missed: the VDI window moved between
+screenshot and click, the click hit the VS Code explorer. Exact-mid: featgen agrees 89/89 on synthetic, 1112 and 0430;
+similarity unchanged (.6282/.6283 0430, .6558 1112). featvec needed baseline_r41c.txt; rerun at 17:03 gave 144/144.
+Report: docs/reports_97/r61/r61.txt. R62 started 17:03:26.

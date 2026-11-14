@@ -1,0 +1,30 @@
+R61 on 97 (commit 58cc988: r61.sh 6f22e93e, featio.py 52880b0d, run_day.py de1e11fd, cpp/featgen.cpp 27b0b731, selftest_vec.py fc8f4129,
+cpp/featvec.cpp 44b4b88c, selftest.py 8f412bce; ic_score.py edited in place b84e6a92 -> 6fb045a6, both md5-gated), 16:44:47 - 16:59:38 (~15 min).
+Transcribed from screen. First paste missed (window moved between screenshot and click; the click landed in the VS Code explorer).
+
+[16:44:47] 0 self-tests
+  featgen default: exit 1, 89 base quantities, 13 stocks: 3 off
+  featgen exact: exit 0, 89 base quantities, 13 stocks: 0 off
+  default: ok simba10 3907/5200 cells 11 max rel 4.38 | OFF simba180 4800/5200 cells 200 max rel 47.1
+           OFF simbn45 4799/5200 cells 59 max rel 5e+11 | OFF simbv120 4800/5200 cells 149 max rel 1.17e+11
+  exact:   simba10 / simba180 / simbn45 / simbv120 all ok, cells 0, max rel 0
+  featvec: exit 1, FileNotFoundError: /work/crucible/research/engine/baseline_r41c.txt (file never brought to 97)
+  -> rerun after pasting baseline_r41c.txt (d96b7762) at 17:03:26 (start of the R62 paste):
+     144 formulas over 96 names, 300 stocks x 60 times; featvec: 144 columns x 60 times x 300 stocks; 144 columns: 0 off
+[16:44:56] 1 featgen against Python on real days (filtered to non-trivial lines; cells/max rel diff)
+  exact=0 1112: ok simba10 1898/1920 2 / 1 ; OFF simba180 33 / 0.292 ; OFF simbn45 12 / 1.43e+11 ; OFF simbv120 27 / 0.0667
+          8 stocks (0.4 s/stock Python, 0.010 s/stock C++): 86 of 89 agree, 3 off; done in 16s
+  exact=0 0430: no state file, stock list and stop time from 20260429.jz; yesterday's state from 20260429.jz for 300 stocks
+          300 stocks, stop 54149.932, 240 times; snapshots 1,489,303, trades 27,992,205, orders 46,353,075; pack 2.5s, featgen 3.2s
+          ok simba10 1914/1920 1 / 0.834 ; OFF simba180 25 / 0.552 ; ok simbn45 4 / 1 ; OFF simbv120 13 / 1.43
+          8 stocks (0.5 s/stock Python, 0.011 s/stock C++): 87 of 89 agree, 2 off
+  exact=1 1112: pack 2.0s, featgen 2.9s; 89 of 89 agree, 0 off; done in 16s
+  exact=1 0430: pack 2.4s, featgen 3.2s; finite share lowest log_distance_to_up_limit 0.367, position_in_limit_band 0.367,
+          flow_big_imb60 0.564, mret1800 0.922; 89 of 89 agree, 0 off; done in 20s
+[16:46:16] 2 r41c similarity, default against exact
+  0430 exact=0 similarity 0.6283   (r41c before: .6282)
+  1112 exact=0 similarity 0.6558   (r41c before: .6558)
+  0430 exact=1 similarity 0.6282   (r41c before: .6282)
+  1112 exact=1 similarity 0.6558   (r41c before: .6558)
+  no errors
+[16:59:38] done
