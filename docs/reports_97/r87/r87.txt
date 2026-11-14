@@ -1,0 +1,47 @@
+R87 on 97 (r87.sh 7f1d4fe2, implied_scan.py 9ff10867, built from lgbpred.cpp 1b32fcfb -- started 1 min before 0dd41b3b was swapped in), 04:53:46 - 05:30:29. 56 lines, full (candidate | min | 1112 | 0430).
+[04:53:46] implied scan, families
+baseline similarity 20261112 0.6558 (bases found at 1.000 of rows), 20260430 0.6282 (bases found at 1.000 of rows)
+-- zzro2.c: 430 candidates in 371s; best by the smaller day gain:
+   cal:rank:-gen.ret90 -0.0001 +0.0016 -0.0001
+   cal:rank:-gen.zr60 -0.0003 +0.0013 -0.0003
+   cal:-gen.zr60 -0.0004 +0.0011 -0.0004
+   cal:rank:-gen.ret120 -0.0004 +0.0021 -0.0004
+   cal:-gen.ret90 -0.0007 +0.0006 -0.0007
+   share of candidates helping on every day: 0.000
+-- zzro2.a: 430 candidates in 367s
+   cal:gen.lpma60 -0.0126 +0.0074 -0.0126
+   cal:gen.rpma60 -0.0126 +0.0074 -0.0126
+   cal:|gen.rpma60| -0.0126 +0.0074 -0.0126
+   cal:gen.rpe10 -0.0126 +0.0071 -0.0126
+   cal:|gen.rpe10| -0.0126 +0.0071 -0.0126
+   share of candidates helping on every day: 0.000
+-- zzro.a: 430 candidates in 366s
+   cal:gen.mret1800 +0.0000 +0.0000 +0.0000
+   cal:|gen.ret1800| -0.0001 +0.0028 -0.0001
+   cal:gen.imb1 -0.0001 -0.0000 -0.0001
+   cal:|gen.mret1800| -0.0001 +0.0027 -0.0001
+   cal:rank:gen.imb1 -0.0003 -0.0001 -0.0003
+   share of candidates helping on every day: 0.000
+-- zzro2.b: 430 candidates in 368s
+   cal:gen.ret90 -0.0009 +0.0074 -0.0009
+   cal:rank:gen.ret90 -0.0009 +0.0078 -0.0009
+   cal:gen.zr60 -0.0013 +0.0033 -0.0013
+   cal:rank:gen.zr60 -0.0015 +0.0045 -0.0015
+   cal:gen.lpe25 -0.0016 +0.0076 -0.0016
+   share of candidates helping on every day: 0.000
+-- zzro.b: 430 candidates in 364s
+   cal:|gen.ret1800| -0.0000 +0.0000 -0.0000
+   cal:|gen.mret1800| -0.0006 -0.0006 -0.0001
+   cal:|gen.lpew1800| -0.0008 -0.0003 -0.0008
+   cal:|gen.lpew14400| -0.0012 -0.0012 -0.0011
+   cal:-gen.ld11800 -0.0013 +0.0120 -0.0013
+   share of candidates helping on every day: 0.000
+-- zzro.e: 430 candidates in 365s
+   cal:-gen.lpe50 +0.0001 +0.0001 +0.0001
+   cal:-gen.rete30 +0.0001 +0.0001 +0.0001
+   cal:rank:-gen.rete50 +0.0000 +0.0001 +0.0000
+   cal:rank:-gen.ret90 +0.0000 +0.0000 +0.0001
+   cal:-gen.rete50 +0.0000 +0.0001 +0.0000
+   share of candidates helping on every day: 0.014
+-- not a model column or no training-CDF points on every day, skipped: zzgh2.b, zzgh.b, zzzl2.i, zzzl2.g, zzzl2.c, zzzl2.e, zzzl2.f, zzzl.f, zzzl2.b, zzzl.d, zzzl2.d
+[05:30:29] done
