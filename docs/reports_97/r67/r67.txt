@@ -1,0 +1,29 @@
+R67 on 97 (commit b140508: r67.sh 66bcb7a2; dcp_ema.py cdfec121 -> 8a7d7a31 (2 hunks) and tick_flow.py 9c448277 -> 21506807 (1 hunk), edited in
+place by md5-gated scripts), 18:15:02 - 18:25:51 (~11 min), no errors. Transcribed from screen (step 2 via a squeezed, folded view;
+column lines: status col formula finite NaNmis cells mad corr | where). r67.sh sets no CRUCIBLE_LPE_SNAP (R64's step 2 had it on).
+
+[18:15:02] 1 0430 built twice from scratch (r41c before: .6282)
+  20260430 a: similarity 0.6282
+  20260430 b: similarity 0.6282
+  two builds of 0430: 144 columns, 72,000 rows; columns with any differing cell: none
+[18:22:01] 2 1112 (r41c before: .6558), then the C++ columns against both days' matrices
+  20261112 a: similarity 0.6558
+20260430: done in 17s
+featvec: 144 columns x 240 times x 300 stocks
+20260430: 72,000 rows in x.parquet, 72,000 matched
+ OFF zzab cal:neu:-gen.depth_weighted_price_5lvl_minus_mid_rel 70919 0 720 mad 5.38e-05 corr 0.999999 | 3 stocks, 240 times; top 300979:240, 786:240, 601919:240
+ OFF zzav cal:|gen.lpe5|*1e4 71760 0 10285 mad 2.89 corr 0.999926 | 145 stocks, 240 times; top 601818:237, 600016:227, 600905:226, 601916:224
+ ok zzfb.b rank:-gen.lpe50 71760 0 4 mad 0.00503 corr 1.000000
+ ok zzqo.d crank:gen.lpe50 71760 0 4 mad 0.00503 corr 1.000000
+ OFF zzxt3 crank:gen.lpe25 71760 0 565 mad 0.0436 corr 0.999997 | 37 stocks, 81 times; top 601916:80, 600905:68, 601818:58, 601816:48
+20260430: 141 of 144 columns agree with ic_score's matrix, 3 off
+20261112: done in 13s
+featvec: 144 columns x 240 times x 300 stocks
+20261112: 72,000 rows in x.parquet, 72,000 matched
+ OFF zzab cal:neu:-gen.depth_weighted_price_5lvl_minus_mid_rel 72000 0 479 mad 3.29e-05 corr 1.000000 | 2 stocks, 240 times; top 1280:240, 601919:239
+ OFF zzav cal:|gen.lpe5|*1e4 72000 0 10158 mad 2.83 corr 0.999927 | 145 stocks, 240 times; top 600221:229, 600905:216, 601868:214, 601669:212
+ ok zzqf5.q.c2 gen.lpes28800 72000 0 3 mad 9.31e-10 corr 1.000000
+ OFF zzxt3 crank:gen.lpe25 72000 0 146 mad 0.0284 corr 0.999999 | 28 stocks, 25 times; top 601868:18, 601377:13, 601238:12, 630:11
+ ok zzzl2.f gen.lpes28800 72000 0 3 mad 9.31e-10 corr 1.000000
+20261112: 141 of 144 columns agree with ic_score's matrix, 3 off
+[18:25:51] done
