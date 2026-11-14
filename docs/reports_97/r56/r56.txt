@@ -23,3 +23,66 @@ drwxr-xr-x 18 root root 4096 Nov 11 09:28 /work/crucible_data/hstats_view/HS300
   model columns named after an hstats family: 30: (the 29 above) zzwa.i
 [08:34:39] 0430 has no hstats under /data/prod/hstats/HS300 either: stop
 R56 DONE 08:34:39. No errors.
+
+--- Third version (md5 8c90e0cd, 0430 left out; gates 1109, 1106, 1113), 08:37:01 - 10:37:27 (2h00). No error lines.
+step 0 as before (0430 0 of 13 under /data/prod/hstats; 1106 prod; 1109-1113 hstats_extra; 30 model columns), plus:
+  0430 has no hstats on this machine: it cannot gate or score an hstats column; 1109 stands in for its day group
+[08:37:02] 1 scan on 20261110,20261112 (even sids), generation B; seed dir of the first day: /work/crucible_data/seed_probe/HS300
+  families used: ZZAL,ZZGW,ZZHL,ZZMS,ZZQI,ZZQO,ZZTS,ZZVC,ZZWA,ZZXC
+20261110: seed state from 20261109.jz for 300 stocks
+20261112: seed state from 20261111.jz for 300 stocks
+scan: ['zzwa.j', 'zzal.d', 'zzwa.b', ... (cut)
+IC: start 0.6461 -> end 0.7140 (t 221.51, 435 marks); 151 of 209 columns assigned -> data/reports/stage6_r56/ic_assign.json
+files: stage6_r41c_gate (144)  stage6_r56 (151); 26 of 151 columns differ; '-' = not assigned
+zzal.b  - | cal:ced.ZZAL.db@-1
+zzal.c  -gen.buy300 | -ced.ZZGW.na@1
+zzal.d  gen.imbv30 | cal:crank:-gen.rpe120
+zzal.e  dm:-gen.imbn10 | ced.lr.buy300.ZZHL.n@0
+zzal.f  dm:-gen.imbn120 | rank:ced.ZZHL.n@-1
+zzal.h  z:gen.lpe200 | -ced.stats.Close
+zzqo.a  cal:gen.lmie30*1e4 | cal:-ced.lr.vol300.ZZHL.n@-1
+zzqo.b  gen.imba10 | crank:ced.ZZMS.n@0
+zzqo.c  z:-gen.lpek50 | cal:srank:-gen.rpe450
+zzqo.d  crank:gen.lpe50 | ced.lr.amt300.ZZAL.bn@-1
+zzqo.e  cal:srank:-gen.rpe25 | cal:z:-gen.rpe120
+zzqo.f  srank:-gen.rpe10 | cal:srank:-gen.rpe600
+zzts    - | crank:ced.ZZQI.d@1
+zzwa.a  - | ced.lr.amt300.ZZAL.da@0
+zzwa.b  - | ced.lr.amt300.ZZAL.da@-1
+zzwa.c  - | rank:-gen.lpe120
+zzwa.d  rank:gen.lpma60 | rank:gen.lpe600
+zzwa.e  rank:gen.lpe100 | rank:-gen.lpe240
+zzwa.f  cal:gen.microprice_minus_mid_rel | ced.ZZWA.bn@1
+zzwa.g  z:gen.lpe50 | ced.ret1
+zzwa.h  rank:gen.microprice_minus_mid_rel | crank:-ced.ZZQI.a@0
+zzwa.i  |gen.microprice_minus_mid_rel| | cal:rank:gen.lpe1200
+zzwa.k  cal:dmi:gen.microprice_minus_mid_rel | ced.ret3
+zzxc.a  - | cal:z:-ced.ZZVC.a@0
+zzxc.b  crank:gen.best_level_order_count_imbalance | cal:dmi:gen.return_open_to_1000_log
+zzxc.c  - | ced.ZZAL.db@1
+stage6_r56 vs stage6_r41c_gate: 7 newly assigned, 0 dropped
+[10:16:04] 2 gates against r41c: 1109, 1106, 1113 (odd sids)
+gate 1 (1109): 11 of 26 changes kept (t >= 1.0)   feature gain t kept
+  zzwa.f .0095 17.78 T | zzal.b .0030 10.71 T | zzqo.b .0014 8.02 T | zzxc.c .0004 5.94 T | zzwa.a .0001 4.90 T | zzwa.h .0019 4.23 T
+  zzwa.g .0010 3.52 T | zzal.c .0005 3.05 T | zzwa.b .0001 2.81 T | zzxc.a .0001 1.86 T | zzal.f .0001 1.13 T
+  zzqo.d .0000 0.08 F | zzal.h -.0003 -1.51 F | zzqo.a -.0007 -3.93 F | zzwa.c -.0016 -6.14 F | zzts -.0011 -6.22 F | zzal.d -.0080 -6.80 F
+  zzqo.e -.0022 -7.45 F | zzwa.i -.0021 -8.69 F | zzal.e -.0056 -8.87 F | zzwa.e -.0014 -8.91 F | zzwa.d -.0022 -9.25 F | zzqo.c -.0024 -10.37 F
+  zzqo.f -.0051 -11.44 F | zzxc.b -.0048 -14.66 F | zzwa.k -.0075 -17.00 F
+  gated: 149 columns -> stage6_r56_g1
+gate 2 (1106): 4 of 11 kept
+  zzwa.g .0038 12.63 T | zzqo.b .0017 9.30 T | zzxc.a .0005 8.05 T | zzal.f .0009 5.45 T
+  zzwa.h -.0022 -4.53 F | zzal.b -.0032 -9.56 F | zzwa.b -.0007 -10.41 F | zzwa.f -.0061 -10.42 F | zzal.c -.0029 -14.62 F | zzwa.a -.0006 -15.36 F | zzxc.c -.0010 -15.73 F
+  gated: 145 columns -> stage6_r56_g2
+gate 3 (1113, odd sids): 1 of 4 kept
+  zzwa.g .0068 13.66 T | zzqo.b -.0000 -0.17 F | zzxc.a -.0000 -0.52 F | zzal.f -.0012 -5.88 F
+  gated: 144 columns -> stage6_r56_g3
+survivor: stage6_r56_g3; 1 of 144 differs: zzwa.g  z:gen.lpe50 | ced.ret1 ; 0 newly assigned, 0 dropped
+[10:26:08] 3 the survivor on the six 224 days (r41c gen B: 1106 .5690 1109 .6207 1110 .6470 1111 .4727 1112 .6558 1113 .6789)
+  day  similarity | ours vs fwd rank IC mean std IR t >0 | top-bottom decile bp mean std IR t >0
+  1111 .4711 | .0935 .1256 .744 11.5 .80 | 4.6072 10.2655 .449 7.0 .74
+  1109 .6227 | .1062 .1186 .895 12.2 .82 | 5.8125 15.7375 .369 5.0 .78
+  1106 .5732 | .1164 .1147 1.015 15.4 .84 | 7.8319 12.8144 .611 9.3 .83
+  1110 .6538 | .0987 .1280 .771 10.8 .81 | 5.7159 9.6641 .591 8.3 .78
+  1112 .6640 | .1065 .1564 .681 10.6 .75 | 6.5656 15.7288 .417 6.5 .72
+  1113 .6851 | .0727 .1760 .413 6.4 .66 | 2.8831 25.8065 .112 1.7 .65
+[10:37:27] done

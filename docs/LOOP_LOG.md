@@ -463,3 +463,4 @@ R56 third version (8c90e0cd) started 08:37:02 on 97, scan on 1110+1112; at 08:57
 ## R57 (2026-11-14 09:06)
 User approved the 0430 hstats copy in this session. Listing ran; 2.23 prod/hstats/HS300 has no 0430 samplerS.nc (0430 ls empty), but prod/hstats/sod/HS300/<FAM>/20260430 exists for 15 families. Nothing copied. /data/share/s holds 0-byte .xr names (ex, index, stats/sod) + sid2symbol json; /data/share/o empty.
 R57b (09:13-09:14): sod/<D> is byte-equal to HS300/<day before> (ZZAL md5, 4 days). Copied sod/HS300/*/20260430 (15 families, 17M) to /work/crucible_data/hstats_0430/HS300 under the user's yes.
+R56 v3 done 10:37 (2h00): scan IC .6461->.7140 on 1110+1112, 26 changes; gates 1109/1106/1113 leave one: zzwa.g z:gen.lpe50 -> ced.ret1; similarity +.002..+.008 on 5 days, 1111 -.0016. R58 started 10:40.
