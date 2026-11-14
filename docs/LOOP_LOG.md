@@ -502,3 +502,8 @@ Without float32 rounding 1112 drops to 100 of 144. Report: docs/reports_97/r63/r
 ic_score.py edited in place by a 7-hunk script (18539882 -> 37d2fc42). Similarity: snap lowers it slightly (0430 .6282 -> .6278,
 1112 .6558 -> .6556); f64 changes ~nothing. C++ vs ic_score with snap: 0430 142/144 (zzab, zzro2.a off), 1112 143/144 (zzab).
 zzab's differences sit on 2-3 whole stocks (300979, 601919, 786 / 1280, 601919). Report: docs/reports_97/r64/r64.txt.
+
+## R65 -- 2026-11-14 ~17:54-17:55:22 (crucible request)
+gen.stoch diagnostic on 0430: 2,359 cells flagged (240 of them NaN/NaN, an artifact of NaN > x in polars); the rest are small value
+shifts (e.g. 0.612 vs 0.568), spread over the whole day. featgen vs Python on 688008/688041/688012/688047: stoch agrees; only the two
+limit-price quantities are OFF (no finite reference values, 0/960). 688008 trades sorted. Report: docs/reports_97/r65/r65.txt.
