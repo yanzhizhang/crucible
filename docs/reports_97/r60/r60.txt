@@ -1,0 +1,36 @@
+R60 on 97 (r60.sh d63da2d7, run_day.py 300b143b, featio.py d7132fbd, selftest.py 8f412bce, cpp/featgen.cpp 81dd1ecc; commit 87a1288),
+16:31:58 - 16:32:40. Transcribed from screen; exponents of some "max rel diff" values were cut by line wrap ("4.77e-0?").
+
+[16:31:58] 0 self-test (synthetic ticks)
+  exit 1
+  ok  px        finite in ref 4800 / 5200  NaN mismatches 0  cells differing   0  max rel diff 0
+  89 base quantities, 13 stocks: 3 off
+  OFF simba180  finite in ref 4800 / 5200  NaN mismatches 0  cells differing 200  max rel diff 47.1
+  OFF simbn45   finite in ref 4799 / 5200  NaN mismatches 0  cells differing  59  max rel diff 5e+11
+  OFF simbv120  finite in ref 4800 / 5200  NaN mismatches 0  cells differing 149  max rel diff 1.17e+11
+[16:32:04] 1 20261112 at rand:240, 8 stocks against Python
+  yesterday's state from 20261111.jz for 300 stocks
+  300 stocks, stop 54149.897, 240 times; snapshots 1,519,129, trades 24,128,723, orders 41,293,348; snapshot columns missing: none (8s load)
+  featgen: 300 stocks x 240 times x 89 base quantities
+  pack 2.1s, featgen 2.9s; 72,000 rows x 89 -> data/featgen/base_20261112.parquet; finite share lowest: flow_big_imb60 0.464, mret1800 0 (cut)
+  OFF lpe5      finite in ref 1920 / 1920  NaN 0  cells differing 10  max rel diff 0.00044
+  ok  lpe200    finite in ref 1920 / 1920  NaN 0  cells differing  1  max rel diff 4.77e-0? (exponent cut)
+  ok  lmie5     finite in ref 1920 / 1920  NaN 0  cells differing  3  max rel diff 4.01e-0? (exponent cut)
+  ok  simba10   finite in ref 1898 / 1920  NaN 0  cells differing  2  max rel diff 1
+  OFF simba180  finite in ref 1920 / 1920  NaN 0  cells differing 33  max rel diff 0.292
+  OFF simbn45   finite in ref 1920 / 1920  NaN 0  cells differing 12  max rel diff 1.43e+1
+  OFF simbv120  finite in ref 1920 / 1920  NaN 0  cells differing 27  max rel diff 0.0667
+  8 stocks checked against Python (0.4s a stock in Python, 0.010s a stock in C++): 85 of 89 base quantities agree, 4 off
+  done in 16s
+[16:32:22] 2 20260430 at rand:240:7, 8 stocks against Python
+  Traceback: run_day.py line 50 main -> pm = B.load_state(a.state) -> pm_factors/dcp_build.py line 100 load_state -> gzip.open(path)
+  FileNotFoundError: [Errno 2] No such file or directory: '/data/prod/h/HS300/p1_intrading_dcp/20260430.jz'
+  (R60 listing: the 0430 state is not in p1_intrading_dcp; sod/p1_intrading_dcp may hold it under the next day's name -- unchecked)
+[16:32:22] 3 20261112 every 3 s
+  yesterday's state from 20261111.jz for 300 stocks
+  300 stocks, stop 54149.897, 4740 times; snapshots 1,519,129, trades 24,128,723, orders 41,293,348; snapshot columns missing: none (8s load)
+  featgen: 300 stocks x 4740 times x 89 base quantities
+  pack 2.1s, featgen 4.1s; 1,422,000 rows x 89 -> data/featgen_3s/base_20261112.parquet; finite share lowest: flow_big_imb60 0.464,
+    mret1800 0.937, ret1800 0.937, zr60 0.961, log_channel_sequence_advance_pe.. (cut)
+  done in 15s; data/featgen_3s: base_20261112.parquet 686,144,352 bytes (Nov 14 16:32)
+[16:32:40] done

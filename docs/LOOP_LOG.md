@@ -475,3 +475,9 @@ R59 (13:14-13:17): mp 1111/1112 pulled (8 HS300 files/day, ~1.0-1.1 GB) and deco
 
 ## R60 (2026-11-14 ~14:10)
 Files verified (5, md5 OK). Paste at 14:10 did not reach 97: a Claude app window (this session's remote view) was in front on the remote PC; the click landed in its conversation area (not the input box), input stayed empty, nothing sent. R60 not started; screen paused for the user.
+
+## R60 -- 2026-11-14 16:31:58-16:32:40 (user: "Yes, take it")
+Pasted p60r.txt (md5 1d11001f) after confirming the 97 terminal was in front. Self-test exit 1: simba180/simbn45/simbv120 off.
+Step 1 (1112, 8 stocks): 85 of 89 agree (lpe5, simba180, simbn45, simbv120 off); C++ 0.010 s/stock vs Python 0.4 s.
+Step 2 (0430) crashed: no /data/prod/h/HS300/p1_intrading_dcp/20260430.jz. Step 3 (1112 every 3 s): 1,422,000 rows in 15 s, 686 MB.
+Report: docs/reports_97/r60/r60.txt.
