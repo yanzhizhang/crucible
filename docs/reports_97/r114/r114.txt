@@ -1,0 +1,142 @@
+[16:56:47] max fingerprint score 0.01
+  fill zzab2      <-     id ret120                                      fingerprint 0.000
+  fill zzwa.c     <-   abs4 x.zzgh.nb|cnt/zzgh.norder                   fingerprint 0.000
+  fill zzuc.c     <-     id ofi_levels1to6_norm_30s                     fingerprint 0.000
+  fill zzxc.a     <-    1/b imbn10                                      fingerprint 0.000
+  fill zzor2.a    <-  srank simba10                                     fingerprint 0.000
+  fill zzyj2.a    <-  srank simba10                                     fingerprint 0.000
+  fill zzie5.c    <-     dm x.zzgh.nb                                   fingerprint 0.000
+  fill zzop.i     <-    1/b x.(zzpk.p-zzpk.low)/zzpk.low                fingerprint 0.001
+  fill zzzl2.g    <-    1/b x.(px-zzgh.nsnap)/zzgh.nb|cnt               fingerprint 0.001
+  fill zzzl.f     <-    1/b x.(px-zzgh.nsnap)/zzgh.nb|cnt               fingerprint 0.001
+  fill zzwa.b     <-   abs4 x.zzgh.nb|cnt/zzgh.norder                   fingerprint 0.001
+  fill zzxt6      <-     id x.(px-zzgh.ncancel)/zzgh.ntrade             fingerprint 0.001
+  fill zzyj5.c    <-     dm imbn120                                     fingerprint 0.001
+  fill zzeg       <-    -id x.(zzgh.nb|cnt-zzgh.nsnap)/zzgh.nsnap       fingerprint 0.002
+  fill zzwa.a     <-   abs4 x.zzgh.nb|cnt/zzgh.norder                   fingerprint 0.002
+  fill zzxt       <-     id x.zzgh.nb|vol                               fingerprint 0.002
+  fill zzyj.d     <-     id imbn120                                     fingerprint 0.002
+  fill zzcb       <-   abs4 order_price_aggressiveness_mean_900s        fingerprint 0.004
+  fill zzzl2.c    <-    log x.s.last/open                               fingerprint 0.007
+  fill zzvm       <-    -id x.(zzgh.nb|cnt-zzgh.nsnap)/zzgh.nsnap       fingerprint 0.009
+  fill zzyj4.a    <-  srank x.(zzxu.low-zzxu.last)/zzxu.last            fingerprint 0.010
+baseline 20260430 0.6282  20261112 0.6558  20261113 0.6790
+all 21 fills  20260430 0.5977 (-0.0305)  20261112 0.6605 (+0.0048)  20261113 0.6779 (-0.0011)
+leave one out (joint minus without it; + = the fill helps inside the set):
+  zzab2      0430 +0.0004  1112 +0.0194  1113 +0.0157
+  zzwa.c     0430 +0.0005  1112 +0.0014  1113 +0.0016
+  zzuc.c     0430 -0.0007  1112 -0.0007  1113 +0.0003
+  zzxc.a     0430 -0.0004  1112 -0.0006  1113 -0.0010
+  zzor2.a    0430 +0.0000  1112 +0.0000  1113 +0.0001
+  zzyj2.a    0430 -0.0012  1112 -0.0006  1113 -0.0003
+  zzie5.c    0430 -0.0000  1112 -0.0000  1113 -0.0000
+  zzop.i     0430 -0.0038  1112 +0.0029  1113 -0.0032
+  zzzl2.g    0430 +0.0001  1112 -0.0001  1113 -0.0001
+  zzzl.f     0430 -0.0000  1112 +0.0001  1113 +0.0001
+  zzwa.b     0430 -0.0021  1112 -0.0105  1113 -0.0116
+  zzxt6      0430 +0.0000  1112 -0.0000  1113 +0.0000
+  zzyj5.c    0430 -0.0003  1112 +0.0001  1113 +0.0000
+  zzeg       0430 +0.0679  1112 +0.1046  1113 +0.0903
+  zzwa.a     0430 -0.0005  1112 +0.0010  1113 +0.0011
+  zzxt       0430 -0.0001  1112 +0.0004  1113 -0.0002
+  zzyj.d     0430 -0.0001  1112 +0.0007  1113 +0.0006
+  zzcb       0430 -0.0041  1112 -0.0064  1113 -0.0128
+  zzzl2.c    0430 +0.0010  1112 -0.0043  1113 +0.0103
+  zzvm       0430 +0.0016  1112 -0.0043  1113 +0.0031
+  zzyj4.a    0430 +0.0003  1112 +0.0003  1113 +0.0006
+cumulative, fingerprint order:
+  +zzab2      0430 -0.0017  1112 +0.0154  1113 +0.0131
+  +zzwa.c     0430 -0.0021  1112 +0.0159  1113 +0.0142
+  +zzuc.c     0430 -0.0030  1112 +0.0148  1113 +0.0147
+  +zzxc.a     0430 -0.0033  1112 +0.0143  1113 +0.0139
+  +zzor2.a    0430 -0.0033  1112 +0.0143  1113 +0.0140
+  +zzyj2.a    0430 -0.0053  1112 +0.0131  1113 +0.0131
+  +zzie5.c    0430 -0.0053  1112 +0.0131  1113 +0.0131
+  +zzop.i     0430 -0.0127  1112 +0.0123  1113 +0.0072
+  +zzzl2.g    0430 -0.0126  1112 +0.0120  1113 +0.0071
+  +zzzl.f     0430 -0.0127  1112 +0.0121  1113 +0.0069
+  +zzwa.b     0430 -0.0156  1112 -0.0010  1113 -0.0072
+  +zzxt6      0430 -0.0156  1112 -0.0010  1113 -0.0072
+  +zzyj5.c    0430 -0.0158  1112 -0.0009  1113 -0.0071
+  +zzeg       0430 -0.0246  1112 +0.0233  1113 +0.0027
+  +zzwa.a     0430 -0.0253  1112 +0.0227  1113 +0.0024
+  +zzxt       0430 -0.0257  1112 +0.0228  1113 +0.0020
+  +zzyj.d     0430 -0.0259  1112 +0.0235  1113 +0.0026
+  +zzcb       0430 -0.0308  1112 +0.0138  1113 -0.0118
+  +zzzl2.c    0430 -0.0323  1112 +0.0088  1113 -0.0047
+  +zzvm       0430 -0.0308  1112 +0.0044  1113 -0.0017
+  +zzyj4.a    0430 -0.0305  1112 +0.0048  1113 -0.0011
+[16:58:12] max fingerprint score 0.03
+  (fill lines 1-21 identical to the 0.01 set above)
+  fill zzal.a     <-     id amihud_illiq_900s                           fingerprint 0.011
+  fill zzsf.c     <-    1/b x.s.wan300s                                 fingerprint 0.012
+  fill zzbo.a     <-   abs4 x.zzgh.nb|cnt/zzgh.norder                   fingerprint 0.012
+  fill zzsa2.a    <-    1/b x.s.wan300s                                 fingerprint 0.012
+  fill zzsa.a     <-    1/b x.s.wan300s                                 fingerprint 0.012
+  fill zzpp.a     <-    log x.s.wan60s                                  fingerprint 0.014
+  fill zzuc.f     <-    log x.zzgh.nb|snappx/zzgh.nb|vol                fingerprint 0.015
+  fill zzbt2.a    <-   abs4 x.zzgh.nb|cnt/zzgh.norder                   fingerprint 0.015
+  fill zzal.b     <-    -dm x.(zzxu.low-zzxu.last)/zzxu.last            fingerprint 0.016
+  fill zzag2.f    <-   abs4 mret1800                                    fingerprint 0.019
+  fill zzpe.e     <- log|b| x.zzgh.nb|ordvol/zzgh.nb|ord                fingerprint 0.021
+  fill zzgh.b     <-   abs4 x.zzba.r/px                                 fingerprint 0.021
+  fill zzhj       <-    -dm imba600                                     fingerprint 0.025
+  fill zzsa.b     <-     id order_price_aggressiveness_mean_900s        fingerprint 0.025
+  fill zzeg2      <-     id x.rema/span                                 fingerprint 0.028
+baseline 20260430 0.6282  20261112 0.6558  20261113 0.6790
+all 36 fills  20260430 0.5734 (-0.0548)  20261112 0.6250 (-0.0308)  20261113 0.6329 (-0.0461)
+leave one out (joint minus without it; + = the fill helps inside the set):
+  zzab2      0430 +0.0066  1112 +0.0198  1113 +0.0190
+  zzwa.c     0430 +0.0006  1112 +0.0014  1113 +0.0018
+  zzuc.c     0430 -0.0001  1112 -0.0004  1113 +0.0008
+  zzxc.a     0430 -0.0009  1112 -0.0010  1113 -0.0013
+  zzor2.a    0430 -0.0000  1112 +0.0001  1113 -0.0000
+  zzyj2.a    0430 -0.0001  1112 -0.0005  1113 -0.0005
+  zzie5.c    0430 +0.0000  1112 -0.0000  1113 -0.0000
+  zzop.i     0430 -0.0048  1112 +0.0004  1113 -0.0079
+  zzzl2.g    0430 +0.0001  1112 -0.0001  1113 -0.0001
+  zzzl.f     0430 -0.0001  1112 +0.0001  1113 +0.0001
+  zzwa.b     0430 -0.0099  1112 -0.0191  1113 -0.0200
+  zzxt6      0430 -0.0000  1112 +0.0000  1113 +0.0000
+  zzyj5.c    0430 -0.0002  1112 +0.0003  1113 +0.0002
+  zzeg       0430 +0.0753  1112 +0.1169  1113 +0.0995
+  zzwa.a     0430 -0.0001  1112 +0.0020  1113 +0.0019
+  zzxt       0430 -0.0003  1112 +0.0002  1113 -0.0003
+  zzyj.d     0430 +0.0002  1112 +0.0012  1113 +0.0010
+  zzcb       0430 -0.0000  1112 -0.0019  1113 -0.0098
+  zzzl2.c    0430 +0.0026  1112 -0.0009  1113 +0.0132
+  zzvm       0430 +0.0032  1112 -0.0096  1113 -0.0015
+  zzyj4.a    0430 +0.0010  1112 +0.0003  1113 +0.0006
+  zzal.a     0430 -0.0049  1112 -0.0102  1113 -0.0096
+  zzsf.c     0430 -0.0014  1112 -0.0014  1113 -0.0019
+  zzbo.a     0430 -0.0003  1112 +0.0003  1113 +0.0003
+  zzsa2.a    0430 +0.0001  1112 +0.0001  1113 +0.0003
+  zzsa.a     0430 +0.0001  1112 +0.0004  1113 +0.0009
+  zzpp.a     0430 -0.0016  1112 +0.0038  1113 -0.0005
+  zzuc.f     0430 -0.0001  1112 -0.0000  1113 -0.0002
+  zzbt2.a    0430 +0.0000  1112 -0.0005  1113 -0.0005
+  zzal.b     0430 -0.0013  1112 -0.0021  1113 -0.0020
+  zzag2.f    0430 -0.0003  1112 +0.0019  1113 +0.0005
+  zzpe.e     0430 -0.0006  1112 -0.0015  1113 -0.0023
+  zzgh.b     0430 -0.0060  1112 -0.0128  1113 -0.0120
+  zzhj       0430 -0.0016  1112 +0.0007  1113 -0.0009
+  zzsa.b     0430 -0.0004  1112 -0.0021  1113 -0.0008
+  zzeg2      0430 -0.0125  1112 -0.0170  1113 -0.0189
+cumulative, fingerprint order:
+  (first 21 rows, +zzab2 .. +zzyj4.a, identical to the 0.01 set's cumulative rows)
+  +zzal.a     0430 -0.0334  1112 -0.0045  1113 -0.0093
+  +zzsf.c     0430 -0.0343  1112 -0.0054  1113 -0.0107
+  +zzbo.a     0430 -0.0345  1112 -0.0050  1113 -0.0104
+  +zzsa2.a    0430 -0.0344  1112 -0.0049  1113 -0.0102
+  +zzsa.a     0430 -0.0345  1112 -0.0048  1113 -0.0095
+  +zzpp.a     0430 -0.0350  1112 -0.0009  1113 -0.0107
+  +zzuc.f     0430 -0.0352  1112 -0.0009  1113 -0.0108
+  +zzbt2.a    0430 -0.0351  1112 -0.0012  1113 -0.0112
+  +zzal.b     0430 -0.0357  1112 -0.0022  1113 -0.0125
+  +zzag2.f    0430 -0.0363  1112 -0.0008  1113 -0.0130
+  +zzpe.e     0430 -0.0368  1112 -0.0022  1113 -0.0148
+  +zzgh.b     0430 -0.0406  1112 -0.0119  1113 -0.0246
+  +zzhj       0430 -0.0421  1112 -0.0118  1113 -0.0266
+  +zzsa.b     0430 -0.0423  1112 -0.0138  1113 -0.0272
+  +zzeg2      0430 -0.0548  1112 -0.0308  1113 -0.0461
+[17:00:31] done

@@ -1,0 +1,87 @@
+[16:58:25] 20261106
+  zzhj.p vs mean of sampled quarter volume, half      0s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter volume, half   3600s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter volume, half  14400s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter volume, half  28800s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter volume, half  57600s: value equal 0.003  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter volume, half  86400s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter amount, half      0s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter amount, half   3600s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter amount, half  14400s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter amount, half  28800s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter amount, half  57600s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter amount, half  86400s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  e.g. 1: PM zzhj.p 5.63004e+06 wgt 14.934248664057469; sampled volumes [20509586, 13949546, 11875600, 7385600, 7650112, 6223214, 5395604, 8346398, 10744852, 15240432, 8809600, 9010590, 8274596, 7949300, 8003710, 12717199]
+  e.g. 1: zzhj.c bins [('zzhj.c.0', 11.684999999999999), ('zzhj.c.1', 11.675), ('zzhj.c.10', 11.795), ('zzhj.c.100', 0.0), ('zzhj.c.101', 0.0), ... (all following shown 0.0; line cut at 235 chars on screen)
+20261106: 72,000 rows; last/mean-1 quantiles -0.823 -0.711 -0.480 0.087 nan -> data/side_r115/zzhj_20261106.parquet
+[16:58:26] 20261112
+  zzhj.p vs mean of sampled quarter volume, half      0s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter volume, half   3600s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter volume, half  14400s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter volume, half  28800s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter volume, half  57600s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter volume, half  86400s: value equal 0.003  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter amount, half      0s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter amount, half   3600s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter amount, half  14400s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter amount, half  28800s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter amount, half  57600s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter amount, half  86400s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  e.g. 1: PM zzhj.p 2.72454e+06 wgt 14.933204264590058; sampled volumes [16037901, 8676500, 8619420, 6524227, 3857410, 7096114, 6054761, 3590400, 5214008, 4981668, 4850000, 3304000, 5354700, 6457500, 10682000, 5538441]
+  e.g. 1: zzhj.c bins [('zzhj.c.0', 11.735), ('zzhj.c.1', 11.695), ('zzhj.c.10', 11.785), ('zzhj.c.100', 0.0), ... ('zzhj.c.106', 0.0)]
+20261112: 72,000 rows; last/mean-1 quantiles -0.763 -0.624 -0.326 0.393 nan -> data/side_r115/zzhj_20261112.parquet
+[16:58:28] 20261113
+  zzhj.p vs mean of sampled quarter volume, half      0s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter volume, half   3600s: value equal 0.003  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter volume, half  14400s: value equal 0.003  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter volume, half  28800s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter volume, half  57600s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter volume, half  86400s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter amount, half      0s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter amount, half   3600s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter amount, half  14400s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter amount, half  28800s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter amount, half  57600s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  zzhj.p vs mean of sampled quarter amount, half  86400s: value equal 0.000  wgt equal 0.000  (300 stocks)
+  e.g. 1: PM zzhj.p 4.68966e+06 wgt 14.93395722429825; sampled volumes [11715150, 10969200, 6613596, 14548957, 8871671, 9728080, 15298587, 19534590, 20510330, 19235220, 22242756, 12149235, 10828553, 12722080, 12209650, 9774205]
+  e.g. 1: zzhj.c bins [('zzhj.c.0', 11.825), ('zzhj.c.1', 11.815000000000001), ('zzhj.c.10', 12.085), ('zzhj.c.100', 0.0), ... ('zzhj.c.105', 0.0), ...
+20261113: 72,000 rows; last/mean-1 quantiles -0.765 -0.621 -0.229 0.686 nan -> data/side_r115/zzhj_20261113.parquet
+20260430: 72,000 rows; last/mean-1 quantiles -0.808 -0.694 -0.449 0.266 nan -> data/side_r115/zzhj_20260430.parquet
+94 candidates x 3 transforms, days ['20260430', '20261112', '20261113']
+-- zzhj: thresholds 126 in [-0.97286, 1.5925], root points [(0.390131295, 0.9299)]; best of 282:
+    0.051    -id net_buy_amount_share_orders_over_200k_cny_120s |b0.000 a0.000 i0.98 g0.014
+    0.074     id imbn120 |b0.001 a0.000 i0.98 g0.029
+    0.086     id net_buy_amount_share_orders_over_200k_cny_120s |b0.001 a0.000 i0.98 g0.031
+    0.089    -id lpev60 |b0.021 a0.022 i0.99 g0.019
+    0.094    -id flow_ord_imb300 |b0.001 a0.000 i0.97 g0.031
+    0.101     id lpev60 |b0.024 a0.020 i0.99 g0.025
+    0.105     id imba600 |b0.001 a0.000 i0.98 g0.040
+    0.105     id imbn90 |b0.001 a0.000 i0.98 g0.044
+    0.114     id flow_ord_imb300 |b0.000 a0.000 i0.97 g0.041
+    0.133     id x.hj.run_full/mean-1 |b0.005 a0.023 i0.99 g0.048
+baseline similarity 20260430 0.6282 (bases found at 1.000 of rows), 20261112 0.6558 (bases found at 1.000 of rows), 20261113 0.6790 (bases found at 1.000 of rows)
+5 candidate bases (5 from --extra)
+-- zzhj: 10 candidates in 7s; best by the smaller day gain:
+   -hj.last/mean-1        min -0.0017  20260430 -0.0004  20261112 +0.0014  20261113 -0.0017
+   -hj.last/mean          min -0.0036  20260430 -0.0036  20261112 +0.0008  20261113 +0.0014
+   -hj.run_full/mean-1    min -0.0037  20260430 -0.0024  20261112 +0.0007  20261113 -0.0037
+   hj.run/mean-1          min -0.0042  20260430 -0.0042  20261112 +0.0012  20261113 +0.0001
+   hj.last/mean-1         min -0.0043  20260430 -0.0043  20261112 +0.0024  20261113 -0.0026
+   -hj.run/mean-1         min -0.0046  20260430 -0.0025  20261112 -0.0022  20261113 -0.0046
+   -hj.run/mean           min -0.0053  20260430 -0.0053  20261112 -0.0014  20261113 +0.0001
+   hj.run/mean            min -0.0060  20260430 -0.0009  20261112 -0.0057  20261113 -0.0060
+   hj.run_full/mean-1     min -0.0070  20260430 -0.0070  20261112 +0.0023  20261113 -0.0028
+   hj.last/mean           min -0.0076  20260430 -0.0014  20261112 -0.0039  20261113 -0.0076
+   share of candidates helping on every day: 0.000
+   best on 20260430:
+   -hj.last/mean-1        20260430 -0.0004  min -0.0017  1112 +0.0014  1113 -0.0017
+   hj.run/mean            20260430 -0.0009  min -0.0060  1112 -0.0057  1113 -0.0060
+   hj.last/mean           20260430 -0.0014  min -0.0076  1112 -0.0039  1113 -0.0076
+   -hj.run_full/mean-1    20260430 -0.0024  min -0.0037  1112 +0.0007  1113 -0.0037
+   -hj.run/mean-1         20260430 -0.0025  min -0.0046  1112 -0.0022  1113 -0.0046
+   -hj.last/mean          20260430 -0.0036  min -0.0036  1112 +0.0008  1113 +0.0014
+   hj.run/mean-1          20260430 -0.0042  min -0.0042  1112 +0.0012  1113 +0.0001
+   hj.last/mean-1         20260430 -0.0043  min -0.0043  1112 +0.0024  1113 -0.0026
+   -hj.run/mean           20260430 -0.0053  min -0.0053  1112 -0.0014  1113 +0.0001
+   hj.run_full/mean-1     20260430 -0.0070  min -0.0070  1112 +0.0023  1113 -0.0028
+[16:58:47] done
