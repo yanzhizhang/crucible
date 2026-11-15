@@ -1,0 +1,19 @@
+R128 DONE 22:53:46 18 lines (first 2 header lines scrolled off screen; 2 lines cut at 235 chars, marked [cut])
+-- 0-5m: 29,873 rows, 100 marks; residual vs quantity, mean per-mark rank corr:
+   rete50 +0.386  rete75 +0.385  rpe75 +0.375  lpe100 +0.374  lpe50 +0.364  rete30 +0.362  rete150 +0.358  lpe200 +0.354  ret90 +0.351  ret120 +0.349  lpek50 +0.342  lpev60 +0.338
+-- 5-15m: 59,698 rows, 200 marks; residual vs quantity, mean per-mark rank corr:
+   ret1800 +0.675  mret1800 +0.675  lpe50 +0.261  rete50 +0.261  microprice_minus_mid_rel -0.260  lpev60 +0.259  rpe75 +0.255  rete75 +0.253  ret90 +0.247  ret120 +0.244  lpe100 +0.238  rete30 +0.237
+-- 15-30m: 89,275 rows, 300 marks; residual vs quantity, mean per-mark rank corr:
+   microprice_minus_mid_rel -0.319  rpe75 +0.299  rete75 +0.299  lpev60 +0.297  lpe100 +0.296  imb1 -0.288  lpe50 +0.286  rete50 +0.286  ret120 +0.283  lpek50 +0.278  rete150 +0.278  lpe200 +0.260
+-- 30-120m: 526,911 rows, 1800 marks; residual vs quantity, mean per-mark rank corr:
+   imb1 -0.271  microprice_minus_mid_rel -0.270  lpe100 +0.235  rpe75 +0.231  rete75 +0.231  lpek50 +0.230  rete150 +0.230  lpe200 +0.222  lpev60 +0.214  lpe50 +0.212  rete50 +0.212  rete30 +0.182
+-- 120-240m: 685,317 rows, 2340 marks; residual vs quantity, mean per-mark rank corr:
+   microprice_minus_mid_rel -0.261  imb1 -0.259  rpe75 +0.200  rete75 +0.199  lpev60 +0.198  lpe100 +0.195  lpe50 +0.193  rete50 +0.192  lpek50 +0.180  rete150 +0.179  imbn10 -0.177  rete30 +0.176
+-- dd<0.2%: 76,076 rows, 627 marks; residual vs quantity, mean per-mark rank corr:
+   microprice_minus_mid_rel -0.264  imb1 -0.249  imbv30 -0.170  imba30 -0.170  imbn10 -0.159  imba10 -0.154  imbv10 -0.154  nam15 -0.151  imb5 -0.131  net_buy_amount_share_orders_under_40k_cny_300s -0.131  simba10 -0.124  amihud_illiq_[cut]
+-- dd0.2-1%: 481,314 rows, 4738 marks; residual vs quantity, mean per-mark rank corr:
+   imb1 -0.268  microprice_minus_mid_rel -0.259  rpe75 +0.194  rete75 +0.194  lpe100 +0.193  imbn10 -0.190  lpev60 +0.183  lpek50 +0.183  rete150 +0.182  lpe50 +0.181  rete50 +0.181  lpe200 +0.174
+-- dd>=1%: 833,680 rows, 4719 marks; residual vs quantity, mean per-mark rank corr:
+   microprice_minus_mid_rel -0.255  imb1 -0.250  rpe75 +0.223  rete75 +0.222  lpe100 +0.220  lpev60 +0.218  lpe50 +0.215  rete50 +0.214  lpek50 +0.206  rete150 +0.204  rete30 +0.193  lpe200 +0.193
+-- strongest over all slices (mean |corr|): microprice_minus_mid_rel 0.259  imb1 0.248  rete75 0.225  rpe75 0.224  lpe100 0.221  rete50 0.219  lpev60 0.216  lpe50 0.216  lpek50 0.204  rete150 0.204  ret120 0.197  rete30 0.196  lpe200 0[cut]
+[22:53:46] done
