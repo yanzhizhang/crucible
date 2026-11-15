@@ -65,7 +65,9 @@ def main() -> None:
         cands = {"price": P, "hm-p": HM - P, "(hm-p)/p": (HM - P) / P, "(hm-p)/hm": (HM - P) / HM, "(hm-p)/pc": (HM - P) / PC, "high-low": H - L,
                  "(high-low)/p": (H - L) / P, "high-p": H - P, "p-low": P - L, "spread": A - B, "spread/mid": (A - B) / ((A + B) / 2), "|p-pc|": (P - PC).abs(),
                  "|p-pc|/pc": ((P - PC) / PC).abs(), "|p-open|": (P - O).abs(), "depth1": pl.col("bv1") + pl.col("av1"), "bv1": pl.col("bv1"), "av1": pl.col("av1"),
-                 "vol": pl.col("total_volume"), "amt": pl.col("total_amount"), "pc": PC, "hm": HM, "p-pc": P - PC, "hm-pc": HM - PC}
+                 "vol": pl.col("total_volume"), "amt": pl.col("total_amount"), "pc": PC, "hm": HM, "p-pc": P - PC, "hm-pc": HM - PC,
+                 "((hm-p)/hm)^2": ((HM - P) / HM) ** 2, "((hm-p)/p)^2": ((HM - P) / P) ** 2, "((hm-p)/pc)^2": ((HM - P) / PC) ** 2,
+                 "log(hm/p)^2": (HM / P).log() ** 2, "((hm-p)/(hm+p))^2": ((HM - P) / (HM + P)) ** 2}
         d = d.with_columns([e.alias(f"q.{n}") for n, e in cands.items()])
         pm = d["pm"].to_numpy()
         print(f"-- {a.date} {key}: {d.height} stocks; PM value q10/50/90 {np.quantile(pm, .1):.5g} {np.median(pm):.5g} {np.quantile(pm, .9):.5g}")
