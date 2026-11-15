@@ -1,0 +1,23 @@
+[18:34:10] seed zzeg:1/b:x.rema/span
+198 options over 52 columns, days ['20260430', '20261112', '20261113']
+baseline 20260430 0.6282  20261112 0.6558  20261113 0.6790
+seeded zzeg <- 1/b x.rema/span  now 0430 0.6195 (-0.0088)  1112 0.6713 (+0.0155)  1113 0.6882 (+0.0092)
+step 1: best zzjx3.b <- -dm ret90 min +0.0005 | zzag2.f <- abs4 x.(px-zzgh.nb|cnt)/zzgh.ntrade min +0.0004 | zzag2.f <- abs4 mret1800 min +0.0001
+  KEEP zzjx3.b    <-    -dm ret90                                      (fingerprint -1.000)  now 0430 0.6200 (-0.0082)  1112 0.6733 (+0.0175)  1113 0.6897 (+0.0107)
+step 2: best zzag2.f <- abs4 x.(px-zzgh.nb|cnt)/zzgh.ntrade min +0.0005 | zzxt <- id net_buy_amount_share_orders_under_40k_cny_120s min +0.0000 | zzag2.f <- abs4 mret1800 min +0.0000
+  KEEP zzag2.f    <-   abs4 x.(px-zzgh.nb|cnt)/zzgh.ntrade             (fingerprint 0.024)  now 0430 0.6206 (-0.0077)  1112 0.6738 (+0.0180)  1113 0.6904 (+0.0114)
+step 3: best zzxt <- id net_buy_amount_share_orders_under_40k_cny_120s min +0.0000 | zzor2.a <- srank simba10 min +0.0000 | zzuc.f <- id x.(zzgh.nb|snappx-zzgh.nb|vol)/zzgh.nb|vol min +0.0000
+  stop: no option raises every day by --min-gain
+final 20260430 0.6282 -> 0.6206 (-0.0077)  20261112 0.6558 -> 0.6738 (+0.0180)  20261113 0.6790 -> 0.6904 (+0.0114)
+[18:39:53] seed zzeg:-id:x.(zzgh.nb|cnt-zzgh.nsnap)/zzgh.nsnap
+198 options over 52 columns, days ['20260430', '20261112', '20261113']
+baseline 20260430 0.6282  20261112 0.6558  20261113 0.6790
+seeded zzeg <- -id x.(zzgh.nb|cnt-zzgh.nsnap)/zzgh.nsnap  now 0430 0.6165 (-0.0117)  1112 0.6777 (+0.0220)  1113 0.6871 (+0.0080)
+step 1: best zzjx3.b <- -dm ret90 min +0.0007 | zzag2.f <- abs4 x.(px-zzgh.nb|cnt)/zzgh.ntrade min +0.0004 | zzie.c <- -dm imb5 min +0.0002
+  KEEP zzjx3.b    <-    -dm ret90                                      (fingerprint -1.000)  now 0430 0.6172 (-0.0110)  1112 0.6793 (+0.0235)  1113 0.6886 (+0.0095)
+step 2: best zzag2.f <- abs4 x.(px-zzgh.nb|cnt)/zzgh.ntrade min +0.0004 | zzop.i <- abs4 x.s.ret300s min +0.0002 | zzie.c <- -dm imb5 min +0.0001
+  KEEP zzag2.f    <-   abs4 x.(px-zzgh.nb|cnt)/zzgh.ntrade             (fingerprint 0.024)  now 0430 0.6178 (-0.0104)  1112 0.6797 (+0.0239)  1113 0.6893 (+0.0102)
+step 3: best zzop.i <- abs4 x.s.ret300s min +0.0002 | zzel.a <- -dm microprice_minus_mid_rel min +0.0001 | zzie.c <- -dm imb5 min +0.0001
+  stop: no option raises every day by --min-gain
+final 20260430 0.6282 -> 0.6178 (-0.0104)  20261112 0.6558 -> 0.6797 (+0.0239)  20261113 0.6790 -> 0.6893 (+0.0102)
+[18:45:40] done

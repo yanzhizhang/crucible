@@ -1,0 +1,40 @@
+[18:23:03] 20261106
+20261106: 300 stocks, 1,488,121 snapshots, 24,412,719 trades; keys ['zzmh.r', 'zzcb.r', 'zzeb.r', 'zztx.r', 'zzvm.c.re', 'zzhj.p', 'zzup.ps', 'zzba.p', 'zzui.r', 'zzqj.r', 'zzeg.c.rEma']
+-- zzmh.r: 300 stocks; best by value equal (rel 1e-3): trade/450s |logret| 0.003  trade/300s logret 0.003  trade/90s logret 0.003  trade/15s signed_qty 0.003  snapchg/360s logret 0.003
+-- zzcb.r: 300 stocks; best by value equal (rel 1e-3): snapchg/100s spread_ticks 0.007  snapchg/1200s 100(hm/p-1) 0.003  snapchg/600s p/hm 0.003  snapchg/450s p/hm 0.003  snapchg/360s p/hm 0.003
+-- zzeb.r: 300 stocks; best by value equal (rel 1e-3): snapchg/7200s log_bv1/av1 0.003  snapchg/1800s imb1 0.003  snapchg/1200s hl 0.003  snapchg/900s imb1 0.003  snapchg/600s log_bv1/av1 0.003
+-- zztx.r: 300 stocks; best by value equal (rel 1e-3): snapchg/900s (hm-p)/hm 0.003  snapchg/600s (hm-p)/p 0.003  snapchg/200s imb1 0.003  snapchg/100s (hm-p)/hm 0.003  snapchg/90s imb1 0.003
+-- zzvm.c.re: 300 stocks; best by value equal (rel 1e-3): trade/7200s price 0.353  both/7200s price 0.350  snapchg/7200s price 0.317  snap/7200s price 0.297  trade/3600s price 0.217
+-- zzhj.p: 300 stocks; best by value equal (rel 1e-3): snapchg/100s depth1 0.003  snapchg/20s bv1 0.003  snap/200s depth1 0.003  snap/180s av1 0.003  snap/60s av1 0.003
+-- zzup.ps: 300 stocks; best by value equal (rel 1e-3): snap/600s price 1.000  snap/450s price 0.987  both/900s price 0.987  snapchg/600s price 0.983  trade/900s price 0.980
+-- zzba.p: 300 stocks; best by value equal (rel 1e-3): trade/360s price 0.993  trade/300s price 0.993  both/360s price 0.993  both/300s price 0.993  trade/240s price 0.990
+-- zzui.r: 300 stocks; best by value equal (rel 1e-3): snapchg/45s price 0.973  snap/60s mid 0.973  snap/45s mid 0.973  snapchg/60s price 0.970  snap/30s mid 0.967
+-- zzqj.r: 300 stocks; best by value equal (rel 1e-3): trade/7200s price 0.383  both/7200s price 0.370  snapchg/7200s mid 0.330  snap/7200s price 0.327  trade/3600s price 0.243
+-- zzeg.c.rEma: 300 stocks; best by value equal (rel 1e-3): snapchg/100s price 0.057  snap/90s price 0.057  snapchg/60s mid 0.057  snapchg/10s price 0.057  snapchg/5s price 0.057
+[18:30:17] 20261112
+20261112: 300 stocks, 1,489,156 snapshots, 24,128,723 trades; keys [same 11]
+-- zzmh.r: 300 stocks; best by value equal (rel 1e-3): trade/45s |logret| 0.003  snapchg/240s |dp| 0.003  snapchg/200s |dp| 0.003  snapchg/180s |dp| 0.003  snapchg/150s spread/mid 0.003
+-- zzcb.r: 300 stocks; best by value equal (rel 1e-3): trade/300s signed_amt 0.003  snapchg/7200s 100(hm/p-1) 0.003  snapchg/3600s 100(hm/p-1) 0.003  snapchg/150s spread_ticks 0.003  snapchg/120s 100(hm/p-1) 0.003
+-- zzeb.r: 300 stocks; best by value equal (rel 1e-3): snapchg/1800s log_bv1/av1 0.003  snapchg/1200s |dp| 0.003  snapchg/900s hl 0.003  snapchg/360s log_bv1/av1 0.003  snapchg/30s log_bv1/av1 0.003
+-- zztx.r: 300 stocks; best by value equal (rel 1e-3): snapchg/3600s |dp| 0.003  snapchg/240s (hm-p)/hm 0.003  snapchg/45s (hm-p)/p 0.003  snapchg/20s |dp| 0.003  snap/1800s log(hm/p) 0.003
+-- zzvm.c.re: 300 stocks; best by value equal (rel 1e-3): snap/7200s price 0.267  trade/7200s price 0.247  snapchg/7200s price 0.243  both/7200s price 0.243  snap/3600s price 0.157
+-- zzhj.p: 300 stocks; best by value equal (rel 1e-3): snapchg/900s av1 0.003  snapchg/100s av1 0.003  snap/7200s depth1 0.003  snap/3600s av1 0.003  snap/1200s av1 0.003
+-- zzup.ps: 300 stocks; best by value equal (rel 1e-3): snap/600s price 1.000  snapchg/600s price 0.990  snap/450s price 0.983  snapchg/450s price 0.980  trade/600s price 0.970
+-- zzba.p: 300 stocks; best by value equal (rel 1e-3): trade/360s price 1.000  trade/300s price 1.000  both/360s price 1.000  both/300s price 1.000  trade/450s price 0.993
+-- zzui.r: 300 stocks; best by value equal (rel 1e-3): snapchg/90s price 0.977  snapchg/45s price 0.977  snapchg/60s price 0.973  snap/90s mid 0.973  snap/60s mid 0.973
+-- zzqj.r: 300 stocks; best by value equal (rel 1e-3): snap/7200s price 0.297  trade/7200s price 0.277  both/7200s price 0.267  snapchg/7200s price 0.263  snap/3600s price 0.173
+-- zzeg.c.rEma: 300 stocks; best by value equal (rel 1e-3): snap/300s mid 0.043  snap/240s mid 0.043  trade/1800s price 0.040  snapchg/1200s price 0.040  snap/360s mid 0.040
+[18:37:30] 20261113
+20261113: 300 stocks, 1,486,876 snapshots, 22,941,617 trades; keys [same 11]
+-- zzmh.r: 300 stocks; best by value equal (rel 1e-3): snapchg/180s spread/mid 0.007  snapchg/90s |logret| 0.007  snapchg/30s spread/mid 0.007  trade/900s |logret| 0.003  trade/5s logret 0.003
+-- zzcb.r: 300 stocks; best by value equal (rel 1e-3): trade/100s signed_qty 0.003  trade/45s signed_qty 0.003  snapchg/3600s spread_ticks 0.003  snapchg/90s log_depth1 0.003  snapchg/60s log_depth1 0.003
+-- zzeb.r: 300 stocks; best by value equal (rel 1e-3): snapchg/90s hm-p 0.007  snapchg/3600s hl 0.003  snapchg/600s imb1 0.003  snapchg/450s hm-p 0.003  snapchg/15s hm-p 0.003
+-- zztx.r: 300 stocks; best by value equal (rel 1e-3): snapchg/20s spread 0.003  snap/1800s |dp| 0.003  snap/900s spread 0.003  trade/7200s price 0.000  trade/3600s price 0.000
+-- zzvm.c.re: 300 stocks; best by value equal (rel 1e-3): snap/7200s price 0.330  snapchg/7200s price 0.273  both/7200s price 0.213  trade/7200s price 0.207  snap/3600s price 0.160
+-- zzhj.p: 300 stocks; best by value equal (rel 1e-3): snapchg/1200s av1 0.003  snapchg/45s av1 0.003  trade/7200s price 0.000  trade/3600s price 0.000  trade/1800s price 0.000
+-- zzup.ps: 300 stocks; best by value equal (rel 1e-3): snap/600s price 1.000  snap/450s price 0.997  trade/900s price 0.990  both/600s price 0.990  trade/600s price 0.987
+-- zzba.p: 300 stocks; best by value equal (rel 1e-3): trade/450s price 0.987  trade/360s price 0.987  trade/300s price 0.987  both/450s price 0.987  both/360s price 0.987
+-- zzui.r: 300 stocks; best by value equal (rel 1e-3): snap/45s price 0.973  snapchg/45s price 0.970  snapchg/60s price 0.967  snap/30s price 0.967  snap/60s price 0.957
+-- zzqj.r: 300 stocks; best by value equal (rel 1e-3): snap/7200s price 0.367  snapchg/7200s mid 0.323  both/7200s price 0.260  trade/7200s price 0.243  snap/3600s mid 0.180
+-- zzeg.c.rEma: 300 stocks; best by value equal (rel 1e-3): trade/7200s price 0.033  snapchg/7200s price 0.033  snapchg/30s price 0.033  snap/200s mid 0.033  snap/180s mid 0.033
+[18:44:35] done
