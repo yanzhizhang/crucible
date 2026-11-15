@@ -91,6 +91,7 @@ def main() -> None:
     ap.add_argument("--transforms", default="b,-b,|b|,rank,-rank", help="subset of b, -b, |b|, rank, -rank")
     ap.add_argument("--top", type=int, default=8)
     ap.add_argument("--work", type=Path, default=Path("data/implied_scan_work"))
+    ap.add_argument("--rank-day", default="", help="also list the best candidates on this one day (the trusted one); every gain goes to <work>/gains_<col>.csv")
     ap.add_argument("--cal-implied", default="", help="for a target without training-CDF points: invert_cols implied_{date}.parquet, pooled over --days, as the CDF")
     ap.add_argument("--threads", type=int, default=32)
     a = ap.parse_args()
@@ -176,6 +177,12 @@ def main() -> None:
         for mn, name, gain in rows[: a.top]:
             print(f"   {name:<52} min {mn:+.4f}  " + "  ".join(f"{d} {g:+.4f}" for d, g in gain.items()))
         print(f"   share of candidates helping on every day: {np.mean([r[0] > 0 for r in rows]) if rows else float('nan'):.3f}", flush=True)
+        if a.rank_day and rows and a.rank_day in rows[0][2]:  # the trusted day first (0430: PM's production alpha)
+            print(f"   best on {a.rank_day}:")
+            for mn, name, gain in sorted(rows, key=lambda r: -r[2][a.rank_day])[: a.top]:
+                print(f"   {name:<52} {a.rank_day} {gain[a.rank_day]:+.4f}  min {mn:+.4f}  " + "  ".join(f"{d[4:]} {g:+.4f}" for d, g in gain.items() if d != a.rank_day))
+        if rows:
+            pl.DataFrame([{"cand": n, "min": m, **g} for m, n, g in rows]).write_csv(a.work / f"gains_{tgt}.csv")
     (a.work / "x.bin").unlink(missing_ok=True)
     for f in ("p.bin", "c.bin", "b.bin"):
         (a.work / f).unlink(missing_ok=True)
