@@ -11,7 +11,7 @@ DAYS=20260430,20261102,20261103,20261104,20261105,20261106,20261109,20261110,202
 mkdir -p data/side_r102
 python - <<'PY'
 import numpy as np, polars as pl
-cs = np.round(np.concatenate([np.arange(0.95, 0.98, 0.005), np.arange(0.98, 1.02, 0.001), np.arange(1.02, 1.0501, 0.005)]), 4)
+cs = np.unique(np.round(np.concatenate([np.arange(0.95, 0.98, 0.005), np.arange(0.98, 1.02, 0.001), np.arange(1.02, 1.0501, 0.005)]), 4))
 for d in "20260430,20261102,20261103,20261104,20261105,20261106,20261109,20261110,20261111,20261112,20261113".split(","):
     k = pl.read_parquet(f"data/reports/stage6_r99_{d[4:]}/x.parquet", columns=["date", "sid", "mark"]).filter(pl.col("date") == int(d)).drop("date")
     k.with_columns([pl.lit(float(c)).alias(f"c{c:.4f}") for c in cs]).write_parquet(f"data/side_r102/const_{d}.parquet")
