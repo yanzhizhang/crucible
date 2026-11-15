@@ -47,6 +47,7 @@ def main() -> None:
     ap.add_argument("--date", required=True)
     ap.add_argument("--x", type=Path, required=True)
     ap.add_argument("--raw", type=Path, default=Path("/work/crucible_data/dysl2_raw"))
+    ap.add_argument("--index-raw", type=Path, default=None, help="where the index stream is, if not under --raw (e.g. pmmp_raw: PM's own mp)")
     ap.add_argument("--out", type=Path, default=Path("data/side_ratio"))
     a = ap.parse_args()
     d = a.date
@@ -54,9 +55,12 @@ def main() -> None:
     marks = np.sort(key["mark"].unique().to_numpy())
     mt = pl.DataFrame({"mark": marks, "t": mark_ns(d, marks)})
 
-    ix = pl.read_parquet(list(a.raw.glob(f"kind=index/date={d}/part-*.parquet")),
-                         columns=["symbol_id", "market_id", "time", "last_price", "open_price", "high_price", "low_price", "pre_close_price"])
-    ix = ix.filter(pl.col("last_price") > 0)
+    parts = list((a.index_raw or a.raw).glob(f"kind=index/date={d}/part-*.parquet"))
+    if not parts:
+        sys.exit(f"{d}: no index parts under {a.index_raw or a.raw}")
+    ix = pl.read_parquet(parts, columns=["symbol_id", "market_id", "time", "last_price", "open_price", "high_price", "low_price", "pre_close_price"])
+    ix = ix.filter(pl.col("last_price") > 0).unique(["symbol_id", "market_id", "time"])  # PM's mp repeats an index across pool files
+    print(f"  index stream: {len(parts)} parts, {ix.height:,} rows, codes {sorted(ix['symbol_id'].unique().to_list())[:12]}")
     per_mark = mt
     for nm, (mk, code) in INDEX.items():
         g = ix.filter((pl.col("market_id") == mk) & (pl.col("symbol_id") == code)).drop("symbol_id", "market_id")
