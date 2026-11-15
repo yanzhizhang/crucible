@@ -145,7 +145,8 @@ def main() -> None:
                 for D in days.values():
                     D.cal.setdefault(tgt, (np.quantile(v, q), q))
                 print(f"-- {tgt}: no training-CDF points on every day, using {v.size:,} implied values as the CDF")
-        if tgt not in ix or any(tgt not in D.cal for D in days.values()):
+        raw_only = set(a.transforms.split(",")) <= {"id", "1/b"}
+        if tgt not in ix or (not raw_only and any(tgt not in D.cal for D in days.values())):
             print(f"-- {tgt}: not a model column or no training-CDF points on every day, skipped")
             continue
         t0 = time.perf_counter()
@@ -156,10 +157,10 @@ def main() -> None:
             for b, tr in cands:
                 v = D.bases[b]
                 v = (-v if tr == "-b" else np.abs(v) if tr == "|b|" else per_mark_rank(v, D.marks, 1.0) if tr == "rank"
-                     else per_mark_rank(v, D.marks, -1.0) if tr == "-rank" else v)
+                     else per_mark_rank(v, D.marks, -1.0) if tr == "-rank" else 1.0 / v if tr == "1/b" else v)
                 if np.isfinite(v).sum() >= 0.5 * v.size:
                     keep.append((b, tr))
-                    cols.append(IC.calibrate(v, D.cal[tgt]))
+                    cols.append(v if tr in ("id", "1/b") else IC.calibrate(v, D.cal[tgt]))  # id, 1/b: the value as is, PM's units
             if not keep:
                 continue
             for k, sc in zip(keep, batch(d, D.X, ix[tgt], cols), strict=True):
@@ -168,7 +169,7 @@ def main() -> None:
         for (b, tr), gain in gains.items():
             if len(gain) == len(days):
                 nm = b[2:] if b.startswith("x.") else f"gen.{b}"
-                label = {"b": f"cal:{nm}", "-b": f"cal:-{nm}", "|b|": f"cal:|{nm}|", "rank": f"cal:rank:{nm}", "-rank": f"cal:rank:-{nm}"}[tr]
+                label = {"b": f"cal:{nm}", "-b": f"cal:-{nm}", "|b|": f"cal:|{nm}|", "rank": f"cal:rank:{nm}", "-rank": f"cal:rank:-{nm}", "id": nm, "1/b": f"1/{nm}"}[tr]
                 rows.append((min(gain.values()), label, gain))
         rows.sort(key=lambda r: -r[0])
         print(f"-- {tgt}: {len(rows)} candidates in {time.perf_counter() - t0:.0f}s; best by the smaller day gain:")
