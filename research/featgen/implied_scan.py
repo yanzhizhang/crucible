@@ -38,6 +38,7 @@ class Day:
         x = pl.read_parquet(x_dir / "x.parquet").filter(pl.col("date") == int(d)).drop("date").with_columns(pl.col("sid").cast(pl.Int64)).sort("sid", "mark")
         pr = pl.read_parquet(x_dir / "pred.parquet").filter(pl.col("date") == int(d)).with_columns(pl.col("sid").cast(pl.Int64))
         key = x.select("sid", "mark")
+        self.key = key
         self.pm = key.join(pr.select("sid", "mark", "pm"), on=["sid", "mark"], how="left")["pm"].to_numpy().astype(float)
         self.marks = key["mark"].to_numpy()
         b = pl.read_parquet(base).with_columns(pl.col("sid").cast(pl.Int64))
@@ -91,6 +92,8 @@ def main() -> None:
     ap.add_argument("--transforms", default="b,-b,|b|,rank,-rank", help="subset of b, -b, |b|, rank, -rank")
     ap.add_argument("--top", type=int, default=8)
     ap.add_argument("--work", type=Path, default=Path("data/implied_scan_work"))
+    ap.add_argument("--fill-from", default="", help="invert_cols implied_{date}.parquet: every other column it holds is set to its implied value first")
+    ap.add_argument("--target-nan", action="store_true", help="with --fill-from: the targets themselves start as NaN (baseline = context without them)")
     ap.add_argument("--rank-day", default="", help="also list the best candidates on this one day (the trusted one); every gain goes to <work>/gains_<col>.csv")
     ap.add_argument("--cal-implied", default="", help="for a target without training-CDF points: invert_cols implied_{date}.parquet, pooled over --days, as the CDF")
     ap.add_argument("--threads", type=int, default=32)
@@ -128,6 +131,18 @@ def main() -> None:
         n, r = (int(x) for x in np.frombuffer(raw, "<u8", 2, 8))
         return np.frombuffer(raw, "<f8", n * r, 24).reshape(n, r)
 
+    if a.fill_from:  # the other open columns at their invert_cols implied values: judge a candidate in PM-like context
+        tg = {t.strip() for t in a.target.split(",")}
+        for d, D in days.items():
+            imp = D.key.join(pl.read_parquet(a.fill_from.format(date=d, mmdd=d[4:])), on=["sid", "mark"], how="left")
+            cols = [c for c in imp.columns if c in ix and c not in ("sid", "mark") and c not in tg]
+            for c in cols:
+                D.X[:, ix[c]] = imp[c].to_numpy().astype(float)
+            print(f"  {d}: {len(cols)} columns filled from {a.fill_from.format(date=d, mmdd=d[4:])}; targets left as they were", flush=True)
+            if a.target_nan:
+                for t in tg:
+                    if t in ix:
+                        D.X[:, ix[t]] = np.nan
     s0 = {d: sim(score(d, D.X), D.pm, D.marks) for d, D in days.items()}
     print("baseline similarity " + ", ".join(f"{d} {v:.4f} (bases found at {days[d].found:.3f} of rows)" for d, v in s0.items()), flush=True)
     bases = sorted(set.intersection(*[set(D.bases) for D in days.values()]))
