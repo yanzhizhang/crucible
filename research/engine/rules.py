@@ -20,6 +20,7 @@ EMAS: dict[str, tuple[str, float, str]] = {
     "zzbd.pEmaS": ("snap", 100, "logp"), "zzeb.p": ("snap", 100, "mid"), "zzbd.rEmaS": ("snap", 200, "logret"),
     "zzba.p": ("both", 300, "snap_px"), "zzba.r": ("both", 300, "hl_trade"),  # decided on 97: 1e-4 exact every day
     "zzbd.pEmaT": ("trade", 100, "logp"), "zzbd.rEmaT": ("trade", 200, "logret"), "zzqj.r": ("trade", 30, "rvwap"),
+    "zzeg.c.rEma|c0": ("snap", 300, "span"),  # 4-day channel mid, carried from yesterday (R111: value equal 0.98-1.00)
     # variants: "<pm key>|<tag>" is scored against the PM key next to the rule above (verify strips the tag).
     # clocks: snap / trade / both (updated by every event); "_wall" = no lunch removal (afternoon t + 5400),
     # "_exch" = the exchange stamp's trading clock; "|c<N>" (none now) = seeded from yesterday's PM state decayed by N s
@@ -50,6 +51,32 @@ def clock_time(mod: str, t: float, s: float) -> float:
 
 def _log(x: float) -> float:
     return math.log(x) if x > 0 else math.nan
+
+
+def _nmax(a: float, b: float) -> float:
+    """max skipping NaN (NaN only when both are)."""
+    return b if a != a else (a if b != b else (b if b > a else a))
+
+
+def _nmin(a: float, b: float) -> float:
+    """min skipping NaN (NaN only when both are)."""
+    return b if a != a else (a if b != b else (b if b < a else a))
+
+
+def chan_high(st: Stock) -> float:
+    """zzeg.c.high: the 4-day channel's high."""
+    return _nmax(st.ch_h, st.hi_f)
+
+
+def chan_low(st: Stock) -> float:
+    """zzeg.c.low: the 4-day channel's low."""
+    return _nmin(st.ch_l, st.lo_f)
+
+
+def chan_span(st: Stock) -> float:
+    """zzeg.c.span = (high + low) / 2."""
+    h, lo = chan_high(st), chan_low(st)
+    return math.nan if h != h or lo != lo else (h + lo) / 2
 
 
 def snap_value(st: Stock, what: str) -> float:
@@ -83,6 +110,8 @@ def snap_value(st: Stock, what: str) -> float:
         return st.snap_px if st.snap_px == st.snap_px else 0.0
     if what == "price_pc":  # a price-less snapshot counts as the previous close
         return st.snap_px if st.snap_px == st.snap_px else st.pc
+    if what == "span":  # zzeg.c: (high + low) / 2 of the previous 3 days and today's snapshot high / low fields
+        return chan_span(st)
     if what == "rvwap":
         return st.amt / st.vol if st.vol > 0 else math.nan
     if what == "last_px":

@@ -22,7 +22,8 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from export import EVENT_DTYPE, write_events, write_prev, write_rules
+from export import EVENT_DTYPE, write_chan, write_events, write_prev, write_rules
+from rules import chan_high, chan_low, chan_span
 from rules import EMAS, on_cancel, on_order, on_snap, on_trade
 from run_cpp import FIVE, ensure_binary, read_marks
 from state import Stock
@@ -74,15 +75,17 @@ def mark_row(st: Stock, cnt: list[float]) -> dict[str, float]:
     nb = lambda b, s: (b - s) / (b + s) if b + s else math.nan  # noqa: E731
     out.update({"zzpk.high": st.high, "zzpk.low": st.low, "zzpk.open": st.open, "zzxu.last": st.last, "zzqj.v": st.vol, "zzqj.tpv": st.amt,
                 "zzgh.nb": nb(st.buy, st.sell), "zzgh.nb|cnt": nb(*st.nb_cnt), "zzgh.nb|ordvol": nb(*st.nb_ordvol), "zzmh.hm": st.hm,
-                "zzgh.nsnap": cnt[0], "zzgh.ntrade": cnt[1], "zzgh.norder": cnt[2], "zzgh.ncancel": cnt[3]})
+                "zzgh.nsnap": cnt[0], "zzgh.ntrade": cnt[1], "zzgh.norder": cnt[2], "zzgh.ncancel": cnt[3],
+                "zzeg.c.high": chan_high(st), "zzeg.c.low": chan_low(st), "zzeg.c.span": chan_span(st)})
     return out
 
 
-def py_run(ev: np.ndarray, prev: dict[int, dict[str, float]], marks: dict | None = None) -> dict[int, dict[str, float]]:
+def py_run(ev: np.ndarray, prev: dict[int, dict[str, float]], marks: dict | None = None, chan: dict | None = None) -> dict[int, dict[str, float]]:
     """Run the Python engine over the same records; ``marks`` (if given) collects the state at each FIVE mark per sid."""
     out = {}
     for sid in np.unique(ev["sid"]):
         st = Stock(EMAS, prev.get(int(sid)))
+        st.ch_h, st.ch_l = (chan or {}).get(int(sid), (math.nan, math.nan))
         cnt, j, rows = [0.0] * 4, 0, []
         for e in ev[ev["sid"] == sid]:
             while j < FIVE.size and FIVE[j] < e["t"]:
@@ -121,18 +124,20 @@ def main() -> None:
     bases = {p.partition("|")[0] for p in EMAS}
     prev = {s: {f"{b}{x}": v for b in bases for x, v in ((".sum", float(rng.normal(1000, 10))), (".wgt", float(rng.integers(0, 3) * 50)))}
             for s in sids[::2]}
+    chan = {s: (float(rng.normal(12, 1)), float(rng.normal(8, 1))) for s in sids[1::3]}  # zzeg.c: a previous-3-day channel for some stocks
     exe = ensure_binary()
     with tempfile.TemporaryDirectory() as d:
         w = Path(d)
         names = write_rules(EMAS, w / "rules.tsv")
         write_prev(prev, names, w / "prev.bin")
         write_events(ev, w / "events.bin")
-        subprocess.run([str(exe), str(w / "events.bin"), str(w / "rules.tsv"), str(w / "state.json"), "--prev", str(w / "prev.bin"), "--threads", "4",
+        write_chan(chan, w / "chan.bin")
+        subprocess.run([str(exe), str(w / "events.bin"), str(w / "rules.tsv"), str(w / "state.json"), "--prev", str(w / "prev.bin"), "--chan", str(w / "chan.bin"), "--threads", "4",
                         "--marks", ",".join(repr(float(x)) for x in FIVE), "--marks-out", str(w / "marks.bin")], check=True)
         cpp = {int(s): kv for s, kv in json.loads((w / "state.json").read_text()).items()}
         cmk = read_marks(w / "marks.bin")
     pmk: dict[int, list] = {}
-    py = py_run(ev, prev, pmk)
+    py = py_run(ev, prev, pmk, chan)
     bad, n = [], 0
     for sid, kv in py.items():
         ckv = cpp[sid]

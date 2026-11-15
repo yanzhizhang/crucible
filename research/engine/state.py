@@ -123,6 +123,7 @@ class Stock:
         self.trade_px = self.trade_prev = math.nan
         self.bid = self.ask = self.mid = math.nan
         self.hi_f = self.lo_f = math.nan  # the snapshot's own high / low fields
+        self.ch_h = self.ch_l = math.nan  # zzeg.c: the previous 3 trading days' snapshot high / low (chan.bin)
         self.t_fast = self.t_slow = None  # clocks: last snapshot / last trade received
         self.zzfb = LastBefore(711)
         self.jb_px = LastBefore(948, math.nan)
@@ -153,6 +154,11 @@ class Stock:
         out["zzqj.v|noclose"], out["zzqj.tpv|noclose"] = self.vol_o, self.amt_o
         out["zzqj.v|loc"], out["zzqj.tpv|loc"] = self.vol_loc, self.amt_loc
         out["zzmh.hm"] = self.hm
+        nmax = lambda a, b: b if a != a else (a if b != b else (b if b > a else a))  # noqa: E731 -- NaN-skipping, as rules.chan_*
+        nmin = lambda a, b: b if a != a else (a if b != b else (b if b < a else a))  # noqa: E731
+        h, lo = nmax(self.ch_h, self.hi_f), nmin(self.ch_l, self.lo_f)
+        out["zzeg.c.high"], out["zzeg.c.low"] = h, lo
+        out["zzeg.c.span"] = math.nan if h != h or lo != lo else (h + lo) / 2
         for fam, g in self.grid.items():
             for k, v in enumerate(g):
                 out[f"{fam}.r.{k}"] = v

@@ -1,5 +1,5 @@
 // The engine binary (C++20): events.bin + rules.tsv (+ prev.bin) -> the day-end state as JSON, one thread per stock chunk.
-//   engine <events.bin> <rules.tsv> <out.json> [--prev prev.bin] [--threads N] [--marks t1,t2,... --marks-out marks.bin]
+//   engine <events.bin> <rules.tsv> <out.json> [--prev prev.bin] [--chan chan.bin] [--threads N] [--marks t1,t2,... --marks-out marks.bin]
 // --marks also writes the state as of each trading-clock mark (every event with t <= mark applied) for the model scan.
 #include <fcntl.h>
 #include <sys/mman.h>
@@ -85,6 +85,25 @@ std::unordered_map<std::int32_t, std::vector<prev_record>> read_prev(const char*
     return out;
 }
 
+// chan.bin: 16-byte header "CRUCH001" + count, then (sid, pad, high, low) records: the previous 3 days' channel (zzeg.c).
+struct chan_record {
+    std::int32_t sid, pad;
+    double high, low;
+};
+static_assert(sizeof(chan_record) == 24, "chan record layout");
+
+std::unordered_map<std::int32_t, chan_record> read_chan(const char* path) {
+    std::unordered_map<std::int32_t, chan_record> out;
+    if (!path) return out;
+    mapped m(path);
+    if (m.n < 16 || std::memcmp(m.p, "CRUCH001", 8) != 0) throw std::runtime_error("bad chan.bin header");
+    std::uint64_t n;
+    std::memcpy(&n, m.p + 8, 8);
+    auto* rec = reinterpret_cast<const chan_record*>(m.p + 16);
+    for (std::uint64_t i = 0; i < n; ++i) out[rec[i].sid] = rec[i];
+    return out;
+}
+
 // %.17g round-trips every double exactly; NaN becomes JSON null.
 void put(std::string& o, const char* key, double v) {
     o += '"';
@@ -130,6 +149,9 @@ std::string dump(stock& st, const std::vector<rule>& rules) {
     put(o, "zzqj.v|loc", st.vol_loc);
     put(o, "zzqj.tpv|loc", st.amt_loc);
     put(o, "zzmh.hm", st.hm);
+    put(o, "zzeg.c.high", chan_high(st));
+    put(o, "zzeg.c.low", chan_low(st));
+    put(o, "zzeg.c.span", chan_span(st));
     for (int k = 0; k < n_xo; ++k) put(o, "zzxo.r." + std::to_string(k), st.xo[k]);
     for (int k = 0; k < n_ui; ++k) put(o, "zzui.r." + std::to_string(k), st.ui[k]);
     for (int k = 0; k < n_hj; ++k) put(o, "zzhj.c." + std::to_string(k), st.hj[k]);
@@ -161,7 +183,8 @@ std::vector<std::string> mark_keys(const std::vector<rule>& rules) {
     for (const auto& r : rules) k.push_back(r.name + ".sum");
     for (const char* x : {"zzpk.high", "zzvx.high", "zzxu.high", "zzpk.low", "zzvx.low", "zzxu.low", "zzpk.open", "zzxu.last", "zzxo.last",
                           "cdc.lp", "zzqj.v", "zzvm.c.v", "zzqj.tpv", "zzvm.c.tpv", "zzgh.nb", "zzgh.nb|vol", "zzgh.nb|cnt", "zzgh.nb|snappx",
-                          "zzgh.nb|ord", "zzgh.nb|ordvol", "zzmh.hm", "zzgh.nsnap", "zzgh.ntrade", "zzgh.norder", "zzgh.ncancel"})
+                          "zzgh.nb|ord", "zzgh.nb|ordvol", "zzmh.hm", "zzgh.nsnap", "zzgh.ntrade", "zzgh.norder", "zzgh.ncancel",
+                          "zzeg.c.high", "zzeg.c.low", "zzeg.c.span"})
         k.emplace_back(x);
     return k;
 }
@@ -174,7 +197,7 @@ void mark_values(const stock& st, const double* cnt, double* o) {
     const double buy_sell[2] = {st.buy, st.sell};
     for (double x : {st.high, st.high, st.high, st.low, st.low, st.low, st.open, st.last, st.last, st.last, st.vol, st.vol, st.amt, st.amt,
                      ratio(buy_sell), ratio(st.nb_vol), ratio(st.nb_cnt), ratio(st.nb_snappx), ratio(st.nb_ord), ratio(st.nb_ordvol), st.hm,
-                     cnt[0], cnt[1], cnt[2], cnt[3]})
+                     cnt[0], cnt[1], cnt[2], cnt[3], chan_high(st), chan_low(st), chan_span(st)})
         *o++ = x;
 }
 
@@ -186,11 +209,13 @@ int main(int argc, char** argv) {
         return 2;
     }
     const char* prev_path = nullptr;
+    const char* chan_path = nullptr;
     const char* marks_out = nullptr;
     std::vector<double> marks;
     int threads = static_cast<int>(std::thread::hardware_concurrency());
     for (int i = 4; i < argc; ++i) {
         if (!std::strcmp(argv[i], "--prev") && i + 1 < argc) prev_path = argv[++i];
+        else if (!std::strcmp(argv[i], "--chan") && i + 1 < argc) chan_path = argv[++i];
         else if (!std::strcmp(argv[i], "--threads") && i + 1 < argc) threads = std::atoi(argv[++i]);
         else if (!std::strcmp(argv[i], "--marks-out") && i + 1 < argc) marks_out = argv[++i];
         else if (!std::strcmp(argv[i], "--marks") && i + 1 < argc) {
@@ -206,6 +231,7 @@ int main(int argc, char** argv) {
     std::vector<rule> rules = read_rules(argv[2]);
     compiled_rules cr(rules);
     auto prev = read_prev(prev_path);
+    auto chan = read_chan(chan_path);
     mapped m(argv[1]);
     if (m.n < sizeof(file_header) || std::memcmp(m.p, magic, 8) != 0) {
         std::fprintf(stderr, "bad events header\n");
@@ -234,6 +260,10 @@ int main(int argc, char** argv) {
     auto work = [&] {
         for (std::size_t r; (r = next.fetch_add(1)) < ranges.size();) {
             stock st(rules);
+            if (auto c = chan.find(ev[ranges[r].first].sid); c != chan.end()) {
+                st.ch_h = c->second.high;
+                st.ch_l = c->second.low;
+            }
             auto it = prev.find(ev[ranges[r].first].sid);
             if (it != prev.end())
                 for (const auto& p : it->second) st.seed(p.rule, rules[p.rule].seed, p.sum, p.wgt);

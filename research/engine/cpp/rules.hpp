@@ -16,8 +16,18 @@ inline double plog(double x) { return x > 0 ? std::log(x) : qnan; }
 inline double pymax(double a, double b) { return b > a ? b : a; }
 inline double pymin(double a, double b) { return b < a ? b : a; }
 
+// zzeg.c: the 4-day channel (previous 3 days + today's snapshot high / low fields), NaN-skipping.
+inline double nmax(double a, double b) { return std::isnan(a) ? b : (std::isnan(b) ? a : (b > a ? b : a)); }
+inline double nmin(double a, double b) { return std::isnan(a) ? b : (std::isnan(b) ? a : (b < a ? b : a)); }
+inline double chan_high(const stock& st) { return nmax(st.ch_h, st.hi_f); }
+inline double chan_low(const stock& st) { return nmin(st.ch_l, st.lo_f); }
+inline double chan_span(const stock& st) {
+    double h = chan_high(st), l = chan_low(st);
+    return (std::isnan(h) || std::isnan(l)) ? qnan : (h + l) / 2;
+}
+
 enum class what : int { price, mid, logp, hl, hl0, hl_valid, tr_open, logret, one, snap_px, hl_snap, rvwap, hl_trade, tro, price0, price_pc,
-                        last_px };
+                        last_px, span };
 enum class clock_mod : int { none, wall, exch, o930 };
 
 inline double tc(double s) { return s <= 41400 ? s - 34200 : (s < 46800 ? 7200.0 : s - 46800 + 7200); }
@@ -48,6 +58,7 @@ inline what parse_what(const std::string& w) {
     if (w == "price0") return what::price0;
     if (w == "price_pc") return what::price_pc;
     if (w == "last_px") return what::last_px;
+    if (w == "span") return what::span;
     throw std::runtime_error("unknown value kind " + w);
 }
 
@@ -77,6 +88,7 @@ inline double snap_value(const stock& st, what w) {
     case what::price_pc: return std::isnan(st.snap_px) ? st.pc : st.snap_px;
     case what::rvwap: return st.vol > 0 ? st.amt / st.vol : qnan;
     case what::last_px: return st.last;
+    case what::span: return chan_span(st);
     default: throw std::runtime_error("value kind not on the snapshot clock");
     }
 }

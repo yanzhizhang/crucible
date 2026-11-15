@@ -74,6 +74,7 @@ struct stock {
     double nb_vol[2] = {0, 0}, nb_cnt[2] = {0, 0}, nb_snappx[2] = {0, 0}, nb_ord[2] = {0, 0}, nb_ordvol[2] = {0, 0};  // zzgh.nb variants
     double vol_all = 0, amt_all = 0, vol_o = 0, amt_o = 0, vol_loc = 0, amt_loc = 0;  // zzqj.v / tpv variants
     double hm = qnan, pc = qnan, op = qnan;
+    double ch_h = qnan, ch_l = qnan;  // zzeg.c: the previous 3 trading days' snapshot high / low (chan.bin)
     double snap_px = qnan, snap_prev = qnan, trade_px = qnan, trade_prev = qnan;
     double bid = qnan, ask = qnan, mid = qnan, hi_f = qnan, lo_f = qnan;
     last_before zzfb{711, 0.0}, jb_px{948, qnan};

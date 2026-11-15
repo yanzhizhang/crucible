@@ -27,6 +27,16 @@ EVENT_DTYPE = np.dtype([("sid", "<i4"), ("mkt", "<i2"), ("kind", "<i2"), ("t", "
                         ("price", "<f8"), ("f", "<f8", (7,))])
 assert EVENT_DTYPE.itemsize == 96
 PREV_DTYPE = np.dtype([("sid", "<i4"), ("rule", "<i4"), ("sum", "<f8"), ("wgt", "<f8")])
+CHAN_DTYPE = np.dtype([("sid", "<i4"), ("pad", "<i4"), ("high", "<f8"), ("low", "<f8")])
+
+
+def write_chan(chan: dict[int, tuple[float, float]], dst: Path) -> int:
+    """chan.bin: the previous 3 trading days' snapshot high / low per stock (zzeg.c), for the engine's --chan."""
+    arr = np.array([(s, 0, h, lo) for s, (h, lo) in chan.items()], dtype=CHAN_DTYPE)
+    with dst.open("wb") as f:
+        f.write(b"CRUCH001" + np.uint64(len(arr)).tobytes())
+        f.write(arr.tobytes())
+    return len(arr)
 
 
 def seed_tag(name: str) -> str:

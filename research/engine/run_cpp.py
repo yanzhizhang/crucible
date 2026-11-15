@@ -27,7 +27,7 @@ import polars as pl
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from export import load_events, write_events, write_prev, write_rules
+from export import load_events, write_chan, write_events, write_prev, write_rules
 from rules import EMAS
 from run import CATALOG, DEFAULT_STOP, load_prev
 from stream import universe_from_state
@@ -67,6 +67,28 @@ def read_marks(path: Path) -> pl.DataFrame:
     return pl.DataFrame(cols)
 
 
+def prev_channel(date: str, sids: list[int], hist: str, catalog: Path) -> dict[int, tuple[float, float]]:
+    """sid -> (max high, min low) over the previous 3 trading days with data (featgen/zzeg_channel.day_hl, cached per day)."""
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "featgen"))
+    from zzeg_channel import DATA, day_hl  # noqa: PLC0415
+
+    if hist == "auto":
+        hist = "dysl2_raw,feitu_raw" if "dysl2" in catalog.name else "feitu_raw,dysl2_raw"
+    raws = [DATA / x for x in hist.split(",") if x]
+    days = sorted({p.name[5:] for r in raws for k in ("quotation", "transaction") for p in (r / f"kind={k}").glob("date=*") if p.name[5:] < date})
+    got = []
+    for d in reversed(days):
+        hl = day_hl(d, sids, raws)
+        if hl is not None and hl.height > 0.5 * len(sids):
+            got.append(hl)
+        if len(got) == 3:
+            break
+    if not got:
+        return {}
+    g = pl.concat(got).group_by("symbol_id").agg(pl.col("h").max(), pl.col("l").min())
+    return {int(r[0]): (float(r[1]), float(r[2])) for r in g.iter_rows() if r[1] is not None and r[2] is not None}
+
+
 def ensure_binary(cpp: Path = CPP) -> Path:
     """Build cpp/build/engine when it is missing or older than any source; return its path."""
     exe = cpp / "build" / "engine"
@@ -96,6 +118,8 @@ def main() -> None:
     ap.add_argument("--out", type=Path, default=Path("data/engine"))
     ap.add_argument("--work", type=Path, default=Path("data/engine/work"), help="where events.bin / rules.tsv / prev.bin go")
     ap.add_argument("--keep", action="store_true", help="keep the work files (default: delete events.bin after the run)")
+    ap.add_argument("--chan-hist", default="auto", help="where the previous days' highs / lows come from (zzeg.c): auto = the catalog's source first, "
+                    "or a comma list of raw dirs under /work/crucible_data; 'none' = no channel")
     ap.add_argument("--marks", help="'five' (09:35 ... 14:55), 'rand:N[:seed]' or trading-clock seconds a,b,...: also the state at each mark")
     a = ap.parse_args()
     t0 = time.perf_counter()
@@ -118,10 +142,13 @@ def main() -> None:
     ev = load_events(con, int(a.date), sids, stop)
     con.close()
     write_events(ev, work / "events.bin")
+    n_chan = 0
+    if a.chan_hist != "none":
+        n_chan = write_chan(prev_channel(str(a.date), sids, a.chan_hist, a.catalog), work / "chan.bin")
     t1 = time.perf_counter()
-    print(f"{a.date}: {len(ev)} events, {len(sids)} stocks wanted, {len(names)} rules, {n_prev} carry seeds exported ({t1 - t0:.0f}s)", flush=True)
+    print(f"{a.date}: {len(ev)} events, {len(sids)} stocks wanted, {len(names)} rules, {n_prev} carry seeds, {n_chan} channel rows exported ({t1 - t0:.0f}s)", flush=True)
     cmd = [str(exe), str(work / "events.bin"), str(work / "rules.tsv"), str(work / "state.json"), "--prev", str(work / "prev.bin"),
-           "--threads", str(a.threads)]
+           "--threads", str(a.threads)] + (["--chan", str(work / "chan.bin")] if n_chan else [])
     marks = mark_grid(a.marks) if a.marks else None
     if marks is not None:
         cmd += ["--marks", ",".join(repr(float(x)) for x in marks), "--marks-out", str(work / "marks.bin")]
