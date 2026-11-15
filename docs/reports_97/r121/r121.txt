@@ -1,0 +1,88 @@
+selftest: 20 stocks, 55420 day-end values + 40420 mark values compared, 0 mismatches
+verify rows (key  n  all  SZSE  all_1e4  SZSE_1e4  mre), from verify_<D>.csv (polars had hidden middle rows on screen)
+== 20261106
+  zzba.p           300 0.1333 0.1786 0.9767 0.9554 3.93e-07
+  zzba.p.t         300 0.9633 0.9018 1.0000 1.0000 2.87e-07
+  zzba.p.t|tr300   300 0.0000 0.0000 0.0000 0.0000 0.00859
+  zzba.p.t|tr360   300 0.0000 0.0000 0.0000 0.0000 0.00859
+  zzba.p|tr300     300 0.0000 0.0000 0.7067 0.6607 5.52e-05
+  zzba.p|tr360     300 0.0000 0.0000 0.5400 0.5000 9.11e-05
+  zzeg.c.high      300 0.9900 0.9821 0.9900 0.9821 0
+  zzeg.c.low       300 0.9867 0.9732 0.9867 0.9732 0
+  zzeg.c.rEma.t|c0 300 0.9633 0.9018 1.0000 1.0000 2.87e-07
+  zzeg.c.rEma|c0   300 0.9867 0.9732 0.9867 0.9732 7.14e-16
+  zzeg.c.span      300 0.9867 0.9732 0.9867 0.9732 0
+  zzui.r.<n>      3000 1.0000 1.0000 1.0000 1.0000 0
+  zzui.r.t|s45     300 0.0000 0.0000 0.0000 0.0000 0.0224
+  zzui.r.t|s60     300 0.0000 0.0000 0.0000 0.0000 0.0224
+  zzui.r.t|s90     300 0.0000 0.0000 0.0000 0.0000 0.0224
+  zzui.r|s45       300 0.0000 0.0000 0.0933 0.0804 0.000586
+  zzui.r|s60       300 0.0000 0.0000 0.1133 0.1250 0.000512
+  zzui.r|s90       300 0.0033 0.0089 0.1333 0.1429 0.000426
+  zzup.ps          300 0.1133 0.1071 1.0000 1.0000 5e-07
+  zzup.ps.t        300 0.9633 0.9018 1.0000 1.0000 2.87e-07
+== 20261112
+  zzba.p           300 0.1133 0.1071 0.9800 0.9732 3.76e-07
+  zzba.p.t         300 0.9600 0.8929 1.0000 1.0000 1.36e-07
+  zzba.p.t|tr300   300 0.0000 0.0000 0.0000 0.0000 0.00859
+  zzba.p.t|tr360   300 0.0000 0.0000 0.0000 0.0000 0.00859
+  zzba.p|tr300     300 0.0000 0.0000 0.6633 0.6429 6.01e-05
+  zzba.p|tr360     300 0.0000 0.0000 0.5300 0.4554 8.91e-05
+  zzeg.c.high      300 0.9967 0.9911 0.9967 0.9911 0
+  zzeg.c.low       300 1.0000 1.0000 1.0000 1.0000 0
+  zzeg.c.rEma.t|c0 300 0.9600 0.8929 1.0000 1.0000 1.36e-07
+  zzeg.c.rEma|c0   300 0.9733 0.9286 0.9967 0.9911 1.17e-15
+  zzeg.c.span      300 0.9967 0.9911 0.9967 0.9911 0
+  zzui.r.<n>      3000 1.0000 1.0000 1.0000 1.0000 0
+  zzui.r.t|s45     300 0.0000 0.0000 0.0000 0.0000 0.0226
+  zzui.r.t|s60     300 0.0000 0.0000 0.0000 0.0000 0.0226
+  zzui.r.t|s90     300 0.0000 0.0000 0.0000 0.0000 0.0226
+  zzui.r|s45       300 0.0000 0.0000 0.0867 0.0893 0.000474
+  zzui.r|s60       300 0.0000 0.0000 0.1000 0.1339 0.00044
+  zzui.r|s90       300 0.0000 0.0000 0.1733 0.3036 0.000353
+  zzup.ps          300 0.0467 0.0357 1.0000 1.0000 1.07e-06
+  zzup.ps.t        300 0.9600 0.8929 1.0000 1.0000 1.36e-07
+== 20261113
+  zzba.p           300 0.1367 0.1786 0.9767 0.9464 5.61e-07
+  zzba.p.t         300 0.9533 0.8839 0.9967 1.0000 2.1e-07
+  zzba.p.t|tr300   300 0.0000 0.0000 0.0000 0.0000 0.00864
+  zzba.p.t|tr360   300 0.0000 0.0000 0.0000 0.0000 0.00864
+  zzba.p|tr300     300 0.0000 0.0000 0.7167 0.6875 5.07e-05
+  zzba.p|tr360     300 0.0000 0.0000 0.5267 0.5268 9.37e-05
+  zzeg.c.high      300 1.0000 1.0000 1.0000 1.0000 0
+  zzeg.c.low       300 1.0000 1.0000 1.0000 1.0000 0
+  zzeg.c.rEma.t|c0 300 0.9533 0.8839 0.9967 1.0000 2.1e-07
+  zzeg.c.rEma|c0   300 0.9767 0.9375 1.0000 1.0000 5.42e-11
+  zzeg.c.span      300 1.0000 1.0000 1.0000 1.0000 0
+  zzui.r.<n>      3000 0.9997 1.0000 0.9997 1.0000 0
+  zzui.r.t|s45     300 0.0000 0.0000 0.0000 0.0000 0.0226
+  zzui.r.t|s60     300 0.0000 0.0000 0.0000 0.0000 0.0226
+  zzui.r.t|s90     300 0.0000 0.0000 0.0000 0.0000 0.0226
+  zzui.r|s45       300 0.0000 0.0000 0.0867 0.0982 0.000796
+  zzui.r|s60       300 0.0000 0.0000 0.0967 0.1339 0.000661
+  zzui.r|s90       300 0.0000 0.0000 0.1533 0.2232 0.00052
+  zzup.ps          300 0.0567 0.0268 1.0000 1.0000 1.1e-06
+  zzup.ps.t        300 0.9533 0.8839 0.9967 1.0000 2.1e-07
+ema_fit (value, carried):
+[19:00:42] 20261106
+-- zzvm.c.re: trade/172800s price 0.860  trade/86400s price 0.843  both/172800s price 0.820  trade/57600s price 0.793  both/86400s price 0.777
+-- zzmh.r: trade/450s |logret||c0 0.003  trade/300s logret|c0 0.003  trade/90s logret|c0 0.003  trade/15s signed_qty|c0 0.003  snapchg/86400s spread/mid 0.003
+-- zzcb.r: snapchg/57600s hm-p|c0 0.007  snapchg/100s spread_ticks|c0 0.007  snapchg/1200s 100(hm/p-1)|c0 0.003  snapchg/600s p/hm|c0 0.003  snapchg/450s p/hm|c0 0.003
+-- zzeb.r: snapchg/57600s hm-p|c0 0.003  snapchg/14400s hm-p|c0 0.003  snapchg/7200s log_bv1/av1|c0 0.003  snapchg/1800s imb1|c0 0.003  snapchg/1200s hl|c0 0.003
+-- zztx.r: snapchg/57600s logret2|c0 0.007  snapchg/172800s spread/mid|c0 0.003  snapchg/14400s log_bv1/av1 0.003  snapchg/1200s (hm-p)/p|c0 0.003  snapchg/900s (hm-p)/hm|c0 0.003
+-- zzhj.p: snapchg/100s depth1|c0 0.003  snapchg/20s bv1|c0 0.003  snap/200s depth1|c0 0.003  snap/180s av1|c0 0.003  snap/60s av1|c0 0.003
+[19:10:31] 20261112
+-- zzvm.c.re: trade/172800s price 0.773  both/172800s price 0.747  trade/86400s price 0.733  both/86400s price 0.703  trade/57600s price 0.683
+-- zzmh.r: trade/45s |logret||c0 0.003  snapchg/240s |dp||c0 0.003  snapchg/200s |dp||c0 0.003  snapchg/180s |dp||c0 0.003  snapchg/150s spread/mid|c0 0.003
+-- zzcb.r: trade/300s signed_amt|c0 0.003  snapchg/14400s p/hm|c0 0.003  snapchg/7200s 100(hm/p-1) 0.003  snapchg/3600s 100(hm/p-1)|c0 0.003  snapchg/150s spread_ticks|c0 0.003
+-- zzeb.r: snapchg/57600s log_bv1/av1|c0 0.003  snapchg/28800s hm-p|c0 0.003  snapchg/14400s hl|c0 0.003  snapchg/1800s log_bv1/av1|c0 0.003  snapchg/1200s |dp||c0 0.003
+-- zztx.r: snapchg/172800s spread|c0 0.003  snapchg/86400s log_bv1/av1 0.003  snapchg/28800s ((hm-p)/p)^2|c0 0.003  snapchg/7200s log(hm/p)|c0 0.003  snapchg/3600s |dp| 0.003
+-- zzhj.p: snapchg/172800s depth1 0.003  snapchg/86400s depth1|c0 0.003  snapchg/28800s bv1 0.003  snapchg/900s av1|c0 0.003  snapchg/100s av1|c0 0.003
+[19:20:14] 20261113
+-- zzvm.c.re: trade/172800s price|c0 0.843  both/172800s price|c0 0.833  trade/86400s price|c0 0.823  trade/57600s price|c0 0.817  both/86400s price|c0 0.813
+-- zzmh.r: snapchg/180s spread/mid|c0 0.007  snapchg/90s |logret||c0 0.007  snapchg/30s spread/mid|c0 0.007  trade/900s |logret||c0 0.003  trade/5s logret|c0 0.003
+-- zzcb.r: trade/100s signed_qty|c0 0.003  trade/45s signed_qty|c0 0.003  snapchg/172800s 100(hm/p-1)|c0 0.003  snapchg/14400s log_bv1/av1|c0 0.003  snapchg/3600s spread_ticks|c0 0.003
+-- zzeb.r: snapchg/90s hm-p|c0 0.007  snapchg/172800s spread|c0 0.003  snapchg/86400s log_bv1/av1|c0 0.003  snapchg/57600s log_bv1/av1|c0 0.003  snapchg/3600s hl|c0 0.003
+-- zztx.r: snapchg/28800s spread 0.003  snapchg/20s spread|c0 0.003  snap/86400s |dp| 0.003  snap/57600s |dp| 0.003  snap/28800s log_bv1/av1 0.003
+-- zzhj.p: snapchg/172800s bv1|c0 0.003  snapchg/1200s av1|c0 0.003  snapchg/45s av1|c0 0.003  trade/172800s price|c0 0.000  trade/86400s price|c0 0.000
+[19:29:12] done (r121.txt 86 lines)
