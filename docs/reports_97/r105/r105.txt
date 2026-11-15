@@ -1,0 +1,84 @@
+R105 on 97 (r105.sh 135eaa76, ratio_extra.py 6715d41f, implied_scan.py f3e853c4), ended 15:27:27. 214 lines; transcribed (identical +0.0000 rows grouped).
+20260430: 72,000 rows, 63 ratios, stock rows found 0.997; i300.last/pre 0.9980..1.0027 s.last/pre 0.9700..1.0379 s.mid/vwap 0.9870..1.0118 -> data/side_r105/ratio_20260430.parquet
+20261112: 72,000 rows, 95 ratios, stock rows found 1.000; i300.last/pre 0.9913..1.0042 s.last/pre 0.9702..1.0240 s.mid/vwap 0.9780..1.0090 -> data/side_r105/ratio_20261112.parquet
+20261113: 72,000 rows, 95 ratios, stock rows found 1.000; i300.last/pre 0.9918..1.0005 s.last/pre 0.9557..1.0255 s.mid/vwap 0.9733..1.0104 -> data/side_r105/ratio_20261113.parquet
+baseline similarity 20260430 0.6282, 20261112 0.6558, 20261113 0.6790 (bases found at 1.000 of rows)
+152 candidate bases (63 from --extra)
+(format: candidate min | 0430 | 1112 | 1113)
+-- zzba: 420 candidates in 274s; best by the smaller day gain:
+ s.ret900s +0.0000 | +0.0001 +0.0000 +0.0003
+ 1/gen.trading_seconds_since_0930 +0.0000 | +0.0000 +0.0000 +0.0000
+ s.ret300s +0.0000 | +0.0000 +0.0001 +0.0001
+ -gen.amihud_illiq_900s, -gen.amount_share_orders_over_200k_cny_since_0930, -gen.bid_depth_weighted_distance_5lvl_rel, -gen.buy300, gen.depth_weighted_price_5lvl_minus_mid_rel, -gen.depth_weighted_price_5lvl_minus_mid_rel, gen.ldl1800: all +0.0000 everywhere
+ share of candidates helping on every day: 0.007
+ best on 20260430: -gen.rete50 0430 +0.0009 (min +0.0000; 1112 +0.0000 1113 +0.0000) | -gen.rete75 +0.0008 (min +0.0000) | -gen.rete30 +0.0006 (min +0.0000) | -gen.lpes600 +0.0004 (min -0.0002; 1112 -0.0000 1113 -0.0002) | -gen.lpek50 +0.0004 (min -0.0000) | -gen.lpe50 +0.0004 (min -0.0000) | -gen.lmie10 +0.0004 (min +0.0000) | -gen.lmie5 +0.0004 (+0.0000) | -gen.lpe5 +0.0004 (+0.0000) | -gen.lmie30 +0.0004 (min -0.0000)
+-- zzel.a: 420 candidates in 296s
+ -gen.microprice_minus_mid_rel +0.0008 | +0.0008 +0.0040 +0.0039
+ -gen.amihud_illiq_900s, -gen.amount_share_orders_over_200k_cny_since_0930, -gen.bid_depth_weighted_distance_5lvl_rel, -gen.buy300, gen.ldl1800, -gen.log_channel_sequence_advance_per_s_60s, -gen.log_channel_sequence_advance_per_s_900s, -gen.log_new_order_count_per_s_60s, -gen.marketable_order_amount_share_60s: all +0.0000 everywhere
+ share of candidates helping on every day: 0.002
+ best on 20260430: -gen.microprice_minus_mid_rel +0.0008 (min +0.0008; 1112 +0.0040 1113 +0.0039) | -s.wan1800s +0.0000 | -s.wan60s +0.0000 | -gen.amihud_illiq_900s +0.0000 | -gen.amount_share_orders_over_200k_cny_since_0930 +0.0000 | -gen.bid_depth_weighted_distance_5lvl_rel +0.0000 ... (all +0.0000 on all days)
+   (zzel.a best-on-0430 continues: -gen.buy300, gen.ldl1800, -gen.log_channel_sequence_advance_per_s_60s, -gen.log_channel_sequence_advance_per_s_900s: all +0.0000)
+-- zzel.b: 420 candidates in 286s
+ -gen.vfrac10, -gen.ofi_levels1to5_norm_10s, gen.amihud_illiq_900s, -gen.amihud_illiq_900s, gen.amount_share_orders_over_200k_cny_since_0930, -gen.amount_share_orders_over_200k_cny_since_0930, gen.bid_depth_weighted_distance_5lvl_rel, -gen.bid_depth_weighted_distance_5lvl_rel, -gen.buy300, gen.depth_weighted_price_5lvl_minus_mid_rel: all +0.0000 everywhere
+ share of candidates helping on every day: 0.005
+ best on 20260430: 1/gen.rpe14400 +0.0009 (min +0.0000) | 1/gen.rpe5400 +0.0009 | 1/gen.rpe10 +0.0009 | 1/gen.rpe20 +0.0009 | 1/gen.rpe25 +0.0008 | 1/gen.rpe5 +0.0008 | 1/gen.rpe75 +0.0008 | gen.rv60 +0.0003 | s.ret60s +0.0001 | s.ret900s +0.0000  (all with min +0.0000; 1112 +0.0000 1113 +0.0000)
+-- zzop.i: 420 candidates in 293s
+ gen.amihud_illiq_900s, -gen.amihud_illiq_900s, gen.amount_share_orders_over_200k_cny_since_0930, -gen.amount_share_orders_over_200k_cny_since_0930, gen.bid_depth_weighted_distance_5lvl_rel, -gen.bid_depth_weighted_distance_5lvl_rel, -gen.buy300, gen.depth_weighted_price_5lvl_minus_mid_rel, -gen.depth_weighted_price_5lvl_minus_mid_rel, gen.flow_ord_imb300: all +0.0000 everywhere
+ share of candidates helping on every day: 0.000
+ best on 20260430: 1/gen.rpe75 +0.0003 (min +0.0000) | 1/gen.rpe5 +0.0003 | 1/gen.rpe25 +0.0003 | 1/gen.rpe20 +0.0003 | 1/gen.rpe10 +0.0003 | 1/gen.rpe14400 +0.0003 | 1/gen.rpe5400 +0.0003 | 1/gen.amount_share_orders_over_200k_cny_since_0930 +0.0001 (min -0.0002; 1112 -0.0001 1113 -0.0002)
+   (zzop.i best-on-0430 continues: 1/gen.lpev3600 +0.0000 (min -0.0002; 1112 -0.0002 1113 -0.0001) | 1/s.spread_ticks +0.0000 (all +0.0000))
+-- zzzl2.c: 420 candidates in 261s
+ -gen.microprice_minus_mid_rel +0.0001 | +0.0001 +0.0004 +0.0003
+ 1/s.lots1800s -0.0001 | +0.0000 -0.0000 -0.0001
+ 1/s.wan1800s -0.0001 | +0.0001 -0.0000 -0.0001
+ s.spread/mid -0.0001 | +0.0004 -0.0001 -0.0000
+ 1/gen.buy300 -0.0001 | +0.0001 -0.0001 -0.0001
+ 1/s.wan900s -0.0001 | +0.0001 -0.0000 -0.0001
+ s.tick/px -0.0001 | +0.0003 -0.0001 -0.0001
+ 1/s.lots900s -0.0001 | +0.0000 -0.0000 -0.0001
+ 1/s.lots300s -0.0002 | +0.0000 -0.0001 -0.0002
+ -gen.rete150 -0.0002 | +0.0004 -0.0002 -0.0002
+ share of candidates helping on every day: 0.002
+ best on 20260430: -s.ret300s +0.0005 (min -0.0055; 1112 -0.0055 1113 -0.0047) | gen.bid_depth_weighted_distance_5lvl_rel +0.0004 (min -0.0003; +0.0001 -0.0003) | -gen.rete150 +0.0004 (min -0.0002) | s.spread/mid +0.0004 (min -0.0001) | -s.ret900s +0.0003 (min -0.0071; 1112 -0.0071 1113 -0.0056) | s.tick/px +0.0003 (min -0.0001) | -gen.rete75 +0.0003 (min -0.0002) | 1/s.wan300s +0.0002 (min -0.0003; -0.0000 -0.0003) | -gen.microprice_minus_mid_rel +0.0001 (min +0.0001; +0.0004 +0.0003) | 1/s.wan900s +0.0001 (min -0.0001)
+-- zzmh: 420 candidates in 260s
+ -gen.amihud_illiq_900s, -gen.amount_share_orders_over_200k_cny_since_0930, -gen.bid_depth_weighted_distance_5lvl_rel, gen.ldl1800, -gen.log_channel_sequence_advance_per_s_60s, -gen.log_channel_sequence_advance_per_s_900s, -gen.log_new_order_count_per_s_60s, -gen.marketable_order_amount_share_60s, -gen.px, -gen.rpe10: all +0.0000 everywhere
+ share of candidates helping on every day: 0.000
+ best on 20260430: -s.spread/mid +0.0001 (min +0.0000) | -s.spread_ticks +0.0001 (min +0.0000) | then the same +0.0000 list as above
+-- zzpe.e: 420 candidates in 267s
+ 1/gen.px +0.0001 | +0.0001 +0.0004 +0.0003
+ 1/gen.log_channel_sequence_advance_per_s_60s +0.0001 | +0.0001 +0.0006 +0.0006
+ 1/gen.log_channel_sequence_advance_per_s_900s +0.0000 | +0.0000 +0.0005 +0.0006
+ gen.sd_eg_rng +0.0000 | +0.0000 +0.0002 +0.0002
+ gen.bid_depth_weighted_distance_5lvl_rel +0.0000 | +0.0000 +0.0000 +0.0000
+ -gen.bid_depth_weighted_distance_5lvl_rel, gen.depth_weighted_price_5lvl_minus_mid_rel, -gen.depth_weighted_price_5lvl_minus_mid_rel +0.0000 everywhere
+ -gen.lmie10 +0.0000 | +0.0001 +0.0000 +0.0000
+ -gen.lmie30 +0.0000 | +0.0001 +0.0000 +0.0000
+ share of candidates helping on every day: 0.010
+ best on 20260430: 1/gen.ofi_levels1to6_norm_30s +0.0038 (min -0.0028; 1112 -0.0028 1113 -0.0018) | -gen.ofi_levels2to5_norm_10s +0.0012 (min -0.0026; +0.0001 -0.0026) | -gen.ofi_levels1to5_norm_10s +0.0011 (min -0.0028; +0.0001 -0.0028) | -gen.zr60 +0.0004 (min -0.0009; -0.0002 -0.0009) | gen.log_new_order_count_per_s_60s +0.0003 (min -0.0015; +0.0005 -0.0015) | -gen.lpes28800 +0.0002 (min -0.0003; +0.0001 -0.0003) | -gen.lpes14400 +0.0002 (min -0.0003; +0.0001 -0.0003) | -s.ret1800s +0.0001 (min -0.0000) | -gen.lpew14400 +0.0001 (min -0.0000) | -gen.lpew1800 +0.0001 (min -0.0000)
+-- zzjx3.b: 420 candidates in 264s
+ -gen.ret90 +0.0007 | +0.0007 +0.0019 +0.0019
+ -gen.ret120 +0.0006 | +0.0006 +0.0021 +0.0020
+ -s.ret60s +0.0005 | +0.0005 +0.0014 +0.0017
+ -gen.order_price_aggressiveness_mean_900s +0.0000 | +0.0000 +0.0016 +0.0032
+ gen.microprice_minus_mid_rel -0.0001 | +0.0001 -0.0001 +0.0003
+ gen.bid_depth_weighted_distance_5lvl_rel -0.0002 | -0.0002 -0.0002 +0.0015
+ -s.tick/px -0.0003 | +0.0001 -0.0003 -0.0003
+ -s.spread/mid -0.0004 | -0.0000 -0.0004 -0.0003
+ -gen.depth_weighted_price_5lvl_minus_mid_rel -0.0004 | -0.0003 -0.0004 +0.0000
+ -s.ret1800s -0.0004 | -0.0004 +0.0007 +0.0000
+ share of candidates helping on every day: 0.010
+ best on 20260430: -gen.ret90 +0.0007 (min +0.0007; 1112 +0.0019 1113 +0.0019) | -gen.ret120 +0.0006 (min +0.0006; +0.0021 +0.0020) | -s.ret60s +0.0005 (min +0.0005; +0.0014 +0.0017) | gen.lee30_14400 +0.0002 (min -0.0006; -0.0003 -0.0006) | -gen.bid_depth_weighted_distance_5lvl_rel +0.0002 (min -0.0006; -0.0006 -0.0006) | gen.depth_weighted_price_5lvl_minus_mid_rel +0.0002 (min -0.0009; -0.0009 +0.0001) | gen.mret1800 +0.0002 (min -0.0020; -0.0020 -0.0015) | gen.microprice_minus_mid_rel +0.0001 (min -0.0001; -0.0001 +0.0003) | gen.ret1800 +0.0001 (min -0.0020; -0.0020 -0.0015) | -s.tick/px +0.0001 (min -0.0003; -0.0003 -0.0003)
+-- zzab2: 420 candidates in 241s
+ -gen.microprice_minus_mid_rel +0.0002 | +0.0002 +0.0023 +0.0032
+ 1/s.lots900s -0.0004 | -0.0001 -0.0004 -0.0002
+ 1/s.lots1800s -0.0004 | -0.0000 -0.0004 -0.0003
+ gen.ret90 -0.0004 | -0.0004 +0.0143 +0.0130
+ 1/gen.buy300 -0.0005 | -0.0001 -0.0005 -0.0004
+ 1/gen.trading_seconds_since_0930 -0.0005 | -0.0001 -0.0005 -0.0000
+ 1/s.wan1800s -0.0006 | -0.0002 +0.0002 -0.0006
+ 1/s.lots300s -0.0007 | -0.0007 -0.0007 -0.0006
+ 1/gen.nam15 -0.0010 | -0.0007 -0.0005 -0.0010
+ 1/s.wan900s -0.0012 | -0.0006 +0.0008 -0.0012
+ share of candidates helping on every day: 0.002
+ best on 20260430: -gen.rete150 +0.0009 (min -0.0012; 1112 -0.0008 1113 -0.0012) | -gen.rete75 +0.0008 (min -0.0019; -0.0009 -0.0019) | -gen.rete50 +0.0007 (min -0.0025; -0.0012 -0.0025) | -gen.microprice_minus_mid_rel +0.0002 (min +0.0002; +0.0023 +0.0032) | -gen.rete30 +0.0001 (min -0.0036; -0.0017 -0.0036) | 1/s.lots1800s -0.0000 (min -0.0004; -0.0004 -0.0003) | -gen.lmie5 -0.0001 (min -0.0053; -0.0020 -0.0053) | 1/gen.buy300 -0.0001 (min -0.0005; -0.0005 -0.0004) | 1/s.lots900s -0.0001 (min -0.0004; -0.0004 -0.0002) | 1/gen.trading_seconds_since_0930 -0.0001 (min -0.0005; -0.0005 -0.0000)
+[15:27:27] done
