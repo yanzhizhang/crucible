@@ -41,6 +41,7 @@ for D in 20260430 20261102 20261103 20261104 20261105 20261106 20261109 20261110
   fi
 done
 DAYS=${DAYS#,}
+[ -n "$DAYS" ] || { say "no ratio file for any day: stop"; exit 1; }
 say "implied scan of zzeg, raw ratios, days $DAYS"
 python -u research/featgen/implied_scan.py --days $DAYS --target zzeg --x-dir "data/reports/stage6_r99_{mmdd}" --base "data/featgen_r99/base_{date}.parquet" \
   --extra "data/side_r100/ratio_{date}.parquet" --transforms "id,1/b" --models $DATA/models_gen/B --top 30 --work data/implied_scan_r100 2>&1 | cut -c1-600

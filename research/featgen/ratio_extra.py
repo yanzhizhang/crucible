@@ -84,7 +84,8 @@ def main() -> None:
     q = pl.read_parquet(list(a.raw.glob(f"kind=quotation/date={d}/part-*.parquet")),
                         columns=["symbol_id", "time", "pre_close", "open", "high", "low", "price", "bid_px", "ask_px", "total_volume", "total_amount"])
     q = q.filter(pl.col("symbol_id").is_in(key["sid"].unique().cast(pl.Int32).implode()) & (pl.col("price") > 0)).with_columns(
-        pl.col("symbol_id").cast(pl.Int64).alias("sid"), pl.col("bid_px").list.first().alias("b1"), pl.col("ask_px").list.first().alias("a1")).drop("bid_px", "ask_px")
+        pl.col("symbol_id").cast(pl.Int64).alias("sid"), pl.col("bid_px").cast(pl.List(pl.Float64)).list.first().alias("b1"),  # Array(10) on 97, List here
+        pl.col("ask_px").cast(pl.List(pl.Float64)).list.first().alias("a1")).drop("bid_px", "ask_px")
     grid = key.join(mt, on="mark")
     s = asof(q, ["sid"], grid)
     mid = pl.when((pl.col("b1") > 0) & (pl.col("a1") > 0)).then((pl.col("b1") + pl.col("a1")) / 2).otherwise(pl.col("price"))
