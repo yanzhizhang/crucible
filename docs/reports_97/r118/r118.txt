@@ -1,0 +1,34 @@
+R118 on 97 (71 lines, done 18:18:32). Build OK (no compiler errors). Polars repeat tables omitted where they equal the verify rows (unrounded values kept below).
+building /work/crucible/research/engine/cpp/build/engine ...
+engine: 20 stocks, 80000 events, 21 rules, 4 threads, 0.01s
+20 stocks, 55120 day-end values + 35720 mark values compared, 0 mismatches
+20 stocks, 55120 day-end values + 35720 mark values compared, 0 mismatches
+[18:17:09] 20261106
+engine: 300 stocks, 67838320 events, 21 rules, 32 threads, 0.36s
+20261106: state at 240 marks x 300 stocks -> data/engine_r118/marks_20261106.parquet
+20261106: stop 54149.941 -> data/engine_r118/engine_20261106.json.gz (26s total)
+| key             | n   | all    | SZSE   | all_1e4 | SZSE_1e4 | mre    |
+| zzeg.c.rEma.t|c0| 300 | 0.9633 | 0.9018 | 1.0000 | 1.0000 | 0.0000 |   (mre 2.8679e-7)
+| zzeg.c.low      | 300 | 0.9867 | 0.9732 | 0.9867 | 0.9732 | 0.0000 |
+| zzeg.c.rEma|c0  | 300 | 0.9867 | 0.9732 | 0.9867 | 0.9732 | 0.0000 |   (mre 7.1408e-16)
+| zzeg.c.span     | 300 | 0.9867 | 0.9732 | 0.9867 | 0.9732 | 0.0000 |
+| zzeg.c.high     | 300 | 0.9900 | 0.9821 | 0.9900 | 0.9821 | 0.0000 |
+[18:17:38] 20261112
+engine: 300 stocks, 66942140 events, 21 rules, 32 threads, 0.53s
+20261112: state at 240 marks x 300 stocks -> data/engine_r118/marks_20261112.parquet
+20261112: stop 54149.981 -> data/engine_r118/engine_20261112.json.gz (23s total)
+| zzeg.c.rEma.t|c0| 300 | 0.9600 | 0.8929 | 1.0000 | 1.0000 | 0.0000 |   (mre 1.3635e-7)
+| zzeg.c.rEma|c0  | 300 | 0.9733 | 0.9286 | 0.9967 | 0.9911 | 0.0000 |   (mre 1.1726e-15)
+| zzeg.c.high     | 300 | 0.9967 | 0.9911 | 0.9967 | 0.9911 | 0.0000 |
+| zzeg.c.span     | 300 | 0.9967 | 0.9911 | 0.9967 | 0.9911 | 0.0000 |
+| zzeg.c.low      | 300 | 1.0000 | 1.0000 | 1.0000 | 1.0000 | 0.0000 |
+[18:18:05] 20261113
+engine: 300 stocks, 64138233 events, 21 rules, 32 threads, 0.31s
+20261113: state at 240 marks x 300 stocks -> data/engine_r118/marks_20261113.parquet
+20261113: stop 54149.897 -> data/engine_r118/engine_20261113.json.gz (23s total)
+| zzeg.c.rEma.t|c0| 300 | 0.9533 | 0.8839 | 0.9967 | 1.0000 | 0.0000 |   (mre 2.1012e-7)
+| zzeg.c.rEma|c0  | 300 | 0.9767 | 0.9375 | 1.0000 | 1.0000 | 0.0000 |   (mre 5.4177e-11)
+| zzeg.c.high     | 300 | 1.0000 | 1.0000 | 1.0000 | 1.0000 | 0.0000 |
+| zzeg.c.low      | 300 | 1.0000 | 1.0000 | 1.0000 | 1.0000 | 0.0000 |
+| zzeg.c.span     | 300 | 1.0000 | 1.0000 | 1.0000 | 1.0000 | 0.0000 |
+[18:18:32] done
