@@ -44,6 +44,8 @@ def main() -> None:
     ap.add_argument("--raw", type=Path, required=True)
     ap.add_argument("--jz", type=Path, default=None)
     ap.add_argument("--halves", default="0,3600,14400,28800,57600,86400")
+    ap.add_argument("--prev-jz", type=Path, default=None, help="yesterday's .jz: zzhj.p carried over (its wgt ~14.93 for every stock = a steady state)")
+    ap.add_argument("--carry-halves", default="8000,8500,9000,9500,10000")
     ap.add_argument("--out", type=Path, default=Path("data/side_zzhj"))
     a = ap.parse_args()
     d = a.date
@@ -61,6 +63,26 @@ def main() -> None:
         cvs = np.where(okk, cv[np.maximum(i, 0)], 0.0)
         cas = np.where(okk, ca[np.maximum(i, 0)], 0.0)
         per[int(sid)] = (t, cv, np.diff(np.concatenate([[0.0], cvs])), np.diff(np.concatenate([[0.0], cas])), cvs)
+    pv = {int(s): kv for s, kv in json.loads(gzip.open(a.prev_jz).read()).items()} if a.prev_jz and a.prev_jz.exists() else {}
+    if pm and pv:  # carried average over the 16 samples a day: 1 - 1/14.934 = 2^(-900/H) gives H ~ 9000 s
+        for what, j in (("volume", 2), ("amount", 3)):
+            for half in (float(h) for h in a.carry_halves.split(",")):
+                for gap in (900.0, 1080.0):  # yesterday 14190 -> today 870 on one continuous clock (1080) or one step (900)
+                    k = math.log(2) / half
+                    okv = okw = n = 0
+                    for sid, p in per.items():
+                        kv, kp = pm.get(sid, {}), pv.get(sid, {})
+                        if not kv.get("zzhj.p.wgt") or not kp.get("zzhj.p.wgt"):
+                            continue
+                        sm, w = kp["zzhj.p.sum"], kp["zzhj.p.wgt"]
+                        for i, v in enumerate(p[j]):
+                            dt = gap if i == 0 else SAMPLE[i] - SAMPLE[i - 1]
+                            e = math.exp(-k * dt)
+                            sm, w = sm * e + v, w * e + 1.0
+                        n += 1
+                        okw += abs(w - kv["zzhj.p.wgt"]) <= 1e-4 * kv["zzhj.p.wgt"]
+                        okv += abs(sm / w - kv["zzhj.p.sum"] / kv["zzhj.p.wgt"]) <= 1e-3 * abs(kv["zzhj.p.sum"] / kv["zzhj.p.wgt"])
+                    print(f"  zzhj.p carried, {what}, half {half:.0f}s gap {gap:.0f}s: value equal {okv / max(n, 1):.3f}  wgt equal {okw / max(n, 1):.3f}  ({n} stocks)")
     if pm:
         for what, j in (("volume", 2), ("amount", 3)):
             for half in (float(h) for h in a.halves.split(",")):
