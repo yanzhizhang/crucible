@@ -67,6 +67,30 @@ class Day:
         self.cal = {k: (np.array(v[0]), np.array(v[1])) for k, v in json.loads((x_dir / f"cal_{d}.json").read_text()).items()}
 
 
+RAW_XS = {"dm", "-dm", "srank", "-srank", "abs4"}
+RAW = {"id", "1/b", "-id"} | RAW_XS
+
+
+def raw_xs(v: np.ndarray, marks: np.ndarray, tr: str) -> np.ndarray:
+    """dm / -dm: minus the mark's cross-sectional mean; srank / -srank: rank in [-1, 1] per mark; abs4: |v| * 1e4."""
+    if tr == "abs4":
+        return np.abs(v) * 1e4
+    out = np.full(v.size, np.nan)
+    if tr in ("srank", "-srank"):
+        for mk in np.unique(marks):
+            m = (marks == mk) & np.isfinite(v)
+            if m.sum() > 1:
+                r = pl.Series((1.0 if tr == "srank" else -1.0) * v[m]).rank("average").to_numpy()
+                out[m] = 2 * (r - 0.5) / m.sum() - 1
+        return out
+    sg = 1.0 if tr == "dm" else -1.0
+    for mk in np.unique(marks):
+        m = (marks == mk) & np.isfinite(v)
+        if m.any():
+            out[m] = sg * (v[m] - v[m].mean())
+    return out
+
+
 def per_mark_rank(v: np.ndarray, marks: np.ndarray, sign: float) -> np.ndarray:
     out = np.full(v.size, np.nan)
     for mk in np.unique(marks):
@@ -161,7 +185,7 @@ def main() -> None:
                 for D in days.values():
                     D.cal.setdefault(tgt, (np.quantile(v, q), q))
                 print(f"-- {tgt}: no training-CDF points on every day, using {v.size:,} implied values as the CDF")
-        raw_only = set(a.transforms.split(",")) <= {"id", "1/b", "-id"}
+        raw_only = set(a.transforms.split(",")) <= RAW
         if tgt not in ix or (not raw_only and any(tgt not in D.cal for D in days.values())):
             print(f"-- {tgt}: not a model column or no training-CDF points on every day, skipped")
             continue
@@ -174,9 +198,11 @@ def main() -> None:
                 v = D.bases[b]
                 v = (-v if tr == "-b" else np.abs(v) if tr == "|b|" else per_mark_rank(v, D.marks, 1.0) if tr == "rank"
                      else per_mark_rank(v, D.marks, -1.0) if tr == "-rank" else 1.0 / v if tr == "1/b" else -v if tr == "-id" else v)
+                if tr in RAW_XS:  # ic_score's formula prefixes, PM's units: dm: (minus the mark's mean), srank: (rank in [-1, 1]), |b|*1e4
+                    v = raw_xs(D.bases[b], D.marks, tr)
                 if np.isfinite(v).sum() >= 0.5 * v.size:
                     keep.append((b, tr))
-                    cols.append(v if tr in ("id", "1/b", "-id") else IC.calibrate(v, D.cal[tgt]))  # id, 1/b: the value as is, PM's units
+                    cols.append(v if tr in RAW else IC.calibrate(v, D.cal[tgt]))  # raw transforms: the value as is, PM's units
             if not keep:
                 continue
             for k, sc in zip(keep, batch(d, D.X, ix[tgt], cols), strict=True):
@@ -185,7 +211,7 @@ def main() -> None:
         for (b, tr), gain in gains.items():
             if len(gain) == len(days):
                 nm = b[2:] if b.startswith("x.") else f"gen.{b}"
-                label = {"b": f"cal:{nm}", "-b": f"cal:-{nm}", "|b|": f"cal:|{nm}|", "rank": f"cal:rank:{nm}", "-rank": f"cal:rank:-{nm}", "id": nm, "1/b": f"1/{nm}", "-id": f"-{nm}"}[tr]
+                label = {"b": f"cal:{nm}", "-b": f"cal:-{nm}", "|b|": f"cal:|{nm}|", "rank": f"cal:rank:{nm}", "-rank": f"cal:rank:-{nm}", "id": nm, "1/b": f"1/{nm}", "-id": f"-{nm}", "dm": f"dm:{nm}", "-dm": f"dm:-{nm}", "srank": f"srank:{nm}", "-srank": f"srank:-{nm}", "abs4": f"|{nm}|*1e4"}[tr]
                 rows.append((min(gain.values()), label, gain))
         rows.sort(key=lambda r: -r[0])
         print(f"-- {tgt}: {len(rows)} candidates in {time.perf_counter() - t0:.0f}s; best by the smaller day gain:")
