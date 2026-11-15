@@ -1,0 +1,34 @@
+R129 done 23:21:03 (read in background; the "lpes / ret bases" line and the first 8 skip lines scrolled off: by pattern zzzl2.c +-lpes300/900/7200, zzzl2.g +-lpes300)
+  skip zzzl2.g +-lpes900, zzzl2.g +-lpes7200, zzzl.f +-lpes300, +-lpes900, +-lpes7200: no candidate  (10 visible skip lines)
+20260430: 1,422,000 rows; baseline all 0.6239  first30m 0.4089  dd<0.2% 0.4530  dd 0.2-1% 0.6537  dd>=1% 0.6053
+  zzzl.f:-id:mret1800            all +0.0002  first30m +0.0001  dd<0.2% +0.0002  dd 0.2-1% +0.0003  dd>=1% -0.0003
+  zzzl.f:-id:ret1800             all +0.0001  first30m +0.0001  dd<0.2% +0.0002  dd 0.2-1% +0.0003  dd>=1% -0.0004
+  zzzl2.g:id:mret1800            all +0.0001  first30m +0.0009  dd<0.2% +0.0002  dd 0.2-1% +0.0000  dd>=1% +0.0001
+  zzzl2.g:id:ret1800             all +0.0001  first30m +0.0009  dd<0.2% +0.0002  dd 0.2-1% +0.0000  dd>=1% +0.0001
+  zzzl.f:-id:overnight_gap_log   all -0.0001  first30m +0.0009  dd<0.2% +0.0008  dd 0.2-1% +0.0001  dd>=1% -0.0002
+  zzzl.f:-id:lpes1800            all -0.0001  first30m +0.0005  dd<0.2% +0.0003  dd 0.2-1% +0.0002  dd>=1% -0.0008
+  zzzl2.g:-id:mret1800           all -0.0001  first30m -0.0000  dd<0.2% -0.0005  dd 0.2-1% -0.0001  dd>=1% -0.0002
+  zzzl.f:id:ret1800              all -0.0001  first30m -0.0014  dd<0.2% -0.0030  dd 0.2-1% +0.0002  dd>=1% -0.0002
+  zzzl2.g:-id:ret1800            all -0.0002  first30m -0.0000  dd<0.2% -0.0005  dd 0.2-1% -0.0001  dd>=1% -0.0002
+  zzzl2.g:-id:lpes1800           all -0.0002  first30m -0.0001  dd<0.2% -0.0010  dd 0.2-1% +0.0001  dd>=1% -0.0001
+  zzzl2.g:-id:lpes3600           all -0.0002  first30m +0.0001  dd<0.2% -0.0007  dd 0.2-1% +0.0002  dd>=1% -0.0003
+  zzzl.f:id:mret1800             all -0.0002  first30m -0.0015  dd<0.2% -0.0030  dd 0.2-1% +0.0000  dd>=1% -0.0002
+  zzzl.f:-id:lpes3600            all -0.0003  first30m +0.0012  dd<0.2% +0.0003  dd 0.2-1% -0.0001  dd>=1% -0.0008
+  zzzl2.g:id:overnight_gap_log   all -0.0003  first30m +0.0001  dd<0.2% +0.0001  dd 0.2-1% -0.0003  dd>=1% -0.0004
+  zzzl2.g:id:lpes3600            all -0.0004  first30m +0.0010  dd<0.2% +0.0011  dd 0.2-1% +0.0001  dd>=1% -0.0008
+  zzzl.f:id:lpes1800             all -0.0004  first30m -0.0037  dd<0.2% -0.0082  dd 0.2-1% -0.0003  dd>=1% +0.0000
+  zzzl.f:id:lpes3600             all -0.0004  first30m -0.0042  dd<0.2% -0.0106  dd 0.2-1% -0.0001  dd>=1% -0.0001
+  zzzl2.c:-id:mret1800           all -0.0006  first30m -0.0018  dd<0.2% -0.0018  dd 0.2-1% -0.0001  dd>=1% -0.0018
+  zzzl2.g:id:lpes1800            all -0.0006  first30m +0.0005  dd<0.2% -0.0001  dd 0.2-1% -0.0000  dd>=1% -0.0009
+  zzzl2.c:-id:ret1800            all -0.0007  first30m -0.0017  dd<0.2% -0.0017  dd 0.2-1% -0.0002  dd>=1% -0.0018
+  zzzl2.g:-id:overnight_gap_log  all -0.0009  first30m -0.0001  dd<0.2% +0.0000  dd 0.2-1% +0.0000  dd>=1% -0.0014
+  zzzl.f:id:overnight_gap_log    all -0.0013  first30m -0.0031  dd<0.2% -0.0034  dd 0.2-1% -0.0010  dd>=1% -0.0018
+  zzzl2.c:id:ret1800             all -0.0016  first30m -0.0032  dd<0.2% -0.0014  dd 0.2-1% -0.0014  dd>=1% -0.0009
+  zzzl2.c:-id:lpes1800           all -0.0017  first30m +0.0003  dd<0.2% -0.0037  dd 0.2-1% -0.0007  dd>=1% -0.0032
+  zzzl2.c:id:mret1800            all -0.0019  first30m -0.0036  dd<0.2% -0.0015  dd 0.2-1% -0.0021  dd>=1% -0.0012
+  zzzl2.c:id:lpes1800            all -0.0027  first30m -0.0075  dd<0.2% -0.0041  dd 0.2-1% -0.0019  dd>=1% -0.0021
+  zzzl2.c:-id:lpes3600           all -0.0027  first30m +0.0003  dd<0.2% -0.0033  dd 0.2-1% -0.0017  dd>=1% -0.0041
+  zzzl2.c:-id:overnight_gap_log  all -0.0034  first30m +0.0044  dd<0.2% +0.0020  dd 0.2-1% -0.0014  dd>=1% -0.0044
+  zzzl2.c:id:lpes3600            all -0.0036  first30m -0.0096  dd<0.2% -0.0081  dd 0.2-1% -0.0017  dd>=1% -0.0036
+  zzzl2.c:id:overnight_gap_log   all -0.0055  first30m -0.0102  dd<0.2% -0.0023  dd 0.2-1% -0.0047  dd>=1% -0.0070
+[23:21:03] done
