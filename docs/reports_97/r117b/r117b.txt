@@ -1,0 +1,33 @@
+192 options over 50 columns, days ['20260430', '20261112', '20261113']
+baseline 20260430 0.6282  20261112 0.6558  20261113 0.6790
+all 50 best fills  0430 0.5448 (-0.0834)  1112 0.4813 (-0.1745)  1113 0.5516 (-0.1274)
+  drop? best zzwa.b min +0.0100; next zzal.a +0.0090, zzhi2.c +0.0067, zzbt2.h +0.0053
+  DROP zzwa.b     now 0430 0.5548 (-0.0734)  1112 0.5026 (-0.1532)  1113 0.5732 (-0.1059)
+  drop? best zzal.a min +0.0080; next zzhi2.c +0.0063, zzbt2.h +0.0049, zzcb +0.0044
+  DROP zzal.a     now 0430 0.5628 (-0.0654)  1112 0.5161 (-0.1397)  1113 0.5865 (-0.0925)
+  drop? best zzhi2.c min +0.0069; next zzbt2.h +0.0044, zzcb +0.0038, zzaa.b +0.0033
+  DROP zzhi2.c    now 0430 0.5737 (-0.0545)  1112 0.5330 (-0.1228)  1113 0.5934 (-0.0856)
+  drop? best zzba min +0.0037; next zzaa.b +0.0034, zzcb +0.0032, zzbt2.h +0.0031
+  DROP zzba       now 0430 0.5774 (-0.0508)  1112 0.6478 (-0.0079)  1113 0.6568 (-0.0223)
+  drop? best zzgh.b min +0.0034; next zzbt2.h +0.0028, zzcb +0.0024, zzaa.b +0.0022
+  DROP zzgh.b     now 0430 0.5808 (-0.0474)  1112 0.6566 (+0.0008)  1113 0.6647 (-0.0143)
+  drop? best zzbt2.h min +0.0031; next zzcb +0.0025, zzaa.b +0.0022, zzsf.c +0.0009
+  DROP zzbt2.h    now 0430 0.5839 (-0.0443)  1112 0.6619 (+0.0061)  1113 0.6719 (-0.0071)
+  drop? best zzaa.b min +0.0021; next zzsf.c +0.0010, zzxc.a +0.0005, zzal.b +0.0004
+  DROP zzaa.b     now 0430 0.5895 (-0.0387)  1112 0.6654 (+0.0097)  1113 0.6740 (-0.0050)
+  drop? best zzsf.c min +0.0009; next zzal.b +0.0005, zzxc.a +0.0005, zzyj2.a +0.0003
+  DROP zzsf.c     now 0430 0.5904 (-0.0378)  1112 0.6665 (+0.0108)  1113 0.6753 (-0.0037)
+  drop? best zzxc.a min +0.0005; next zzal.b +0.0004, zzyj2.a +0.0002, zzts +0.0002
+  DROP zzxc.a     now 0430 0.5908 (-0.0374)  1112 0.6671 (+0.0114)  1113 0.6760 (-0.0030)
+  drop? best zzal.b min +0.0004; next zzyj2.a +0.0002, zzts +0.0002, zzuc.f +0.0001
+  DROP zzal.b     now 0430 0.5912 (-0.0370)  1112 0.6685 (+0.0127)  1113 0.6767 (-0.0023)
+  drop? best zzts min +0.0004; next zzyj2.a +0.0003, zzuc.f +0.0001, zzyj.d +0.0001
+  DROP zzts       now 0430 0.5916 (-0.0366)  1112 0.6692 (+0.0134)  1113 0.6781 (-0.0010)
+  drop? best zzyj2.a min +0.0003; next zzuc.f +0.0001, zzyj.d +0.0000, zzxt6 +0.0000
+  DROP zzyj2.a    now 0430 0.5926 (-0.0356)  1112 0.6696 (+0.0138)  1113 0.6784 (-0.0007)
+  drop? best zzyj.d min +0.0001; next zzuc.f +0.0001, zzxt6 +0.0000, zzie5.c -0.0000
+kept after backward: zzab2 <- id ret120, zzag.a <- id x.(px-zzgh.ncancel)/zzgh.ntrade, zzag2.f <- abs4 mret1800, zzbo.a <- abs4 x.zzgh.nb|cnt/zzgh.norder, zzbs2.b <- -id ret90, zzbt2.a <- abs4 x.zzgh.nb|cnt/zzgh.norder, zzcb <- abs4 order_price_aggressiveness_mean_900s, zzeg <- -id x.(zzgh.nb|cnt-zz   [line cut at 300 chars by r117b.sh]
+step 1: best zzyj2.a <- -dm flow_ord_imb60 min -0.0004 | zzyj2.a <- -id flow_ord_imb60 min -0.0004 | zzts <- -id imb1 min -0.0004
+  stop: no option raises every day by --min-gain
+final 20260430 0.6282 -> 0.5926 (-0.0356)  20261112 0.6558 -> 0.6696 (+0.0138)  20261113 0.6790 -> 0.6784 (-0.0007)
+[18:02:07] done
