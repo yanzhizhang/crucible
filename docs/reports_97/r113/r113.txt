@@ -1,0 +1,322 @@
+938 candidates x 2 transforms, days ['20260430', '20261112']
+-- zzel.a: thresholds 127 in [1e-35, 0.0023733], root points [(0.000174158, 0.0322)]
+    0.939     log x.zzxu.last/zzxu.low |b0.057 a0.804 i0.98 g0.028
+    0.939  log|b| x.zzxu.last/zzxu.low |b0.057 a0.804 i0.98 g0.028
+    0.940     log x.s.last/low |b0.057 a0.803 i0.98 g0.028
+    0.940  log|b| x.s.last/low |b0.057 a0.803 i0.98 g0.028
+-- zzop.i: thresholds 127 in [1e-35, 2792.3], root points []
+    0.984     log x.zzpk.p/zzpk.low |b0.000 a0.000 i0.02 g0.000
+    0.984  log|b| x.zzpk.p/zzpk.low |b0.000 a0.000 i0.02 g0.000
+    0.984     log x.zzxu.p/zzxu.low |b0.000 a0.000 i0.02 g0.000
+    0.984  log|b| x.zzxu.p/zzxu.low |b0.000 a0.000 i0.02 g0.000
+-- zzel.b: thresholds 119 in [11.904, 62.137], root points []
+    0.478  log|b| x.(px-zzbd.rEmaS)/zzbd.rEmaT |b0.003 a0.000 i0.53 g0.000
+    0.478  log|b| x.(px-zzbd.rEmaT)/zzbd.rEmaT |b0.003 a0.000 i0.53 g0.000
+    0.479  log|b| x.(px-zzbd.pEmaT)/zzbd.rEmaT |b0.004 a0.000 i0.53 g0.000
+    0.479  log|b| x.(px-zzbd.pEmaS)/zzbd.rEmaT |b0.004 a0.000 i0.53 g0.000
+-- zzpe.e: thresholds 123 in [-2.793, 2.2265], root points [(2.226500034, 0.9927)]
+    0.021  log|b| x.zzgh.nb|ordvol/zzgh.nb|ord |b0.004 a0.006 i0.99 g0.001
+    0.021  log|b| x.zzgh.nb|ord/zzgh.nb|ordvol |b0.004 a0.007 i0.99 g0.001
+    0.022     log x.zzgh.nb|ordvol/zzgh.nb|ord |b0.002 a0.003 i0.99 g0.004
+    0.022     log x.zzgh.nb|ord/zzgh.nb|ordvol |b0.002 a0.004 i0.99 g0.004
+-- zzmh: thresholds 119 in [1e-35, 0.1131], root points [(0.004501138, 0.1111), (0.004724223, 0.119)]
+    0.213     log x.zzpk.high/zzpk.p |b0.017 a0.000 i0.98 g0.090
+    0.213  log|b| x.zzpk.high/zzpk.p |b0.017 a0.000 i0.98 g0.090
+    0.213     log x.zzxu.high/zzxu.p |b0.017 a0.000 i0.98 g0.090
+    0.213  log|b| x.zzxu.high/zzxu.p |b0.017 a0.000 i0.98 g0.090
+-- zzba: thresholds 92 in [0.0055063, 0.063741], root points []
+    0.067     log x.zzpk.high/zzpk.low |b0.011 a0.056 i1.00 g0.000
+    0.067  log|b| x.zzpk.high/zzpk.low |b0.011 a0.056 i1.00 g0.000
+    0.067     log x.zzvx.high/zzvx.low |b0.011 a0.056 i1.00 g0.000
+    0.067  log|b| x.zzvx.high/zzvx.low |b0.011 a0.056 i1.00 g0.000
+-- zzeg: thresholds 124 in [0.98497, 1.0301], root points []
+    1.171     log x.(zzgh.norder-zzgh.ncancel)/zzgh.ncancel |b0.221 a0.758 i0.81 g0.000
+    1.171  log|b| x.(zzgh.norder-zzgh.ncancel)/zzgh.ncancel |b0.221 a0.758 i0.81 g0.000
+    1.185     log x.zzgh.ntrade/zzgh.ncancel |b0.498 a0.471 i0.78 g0.000
+    1.185  log|b| x.zzgh.ntrade/zzgh.ncancel |b0.498 a0.471 i0.78 g0.000
+-- zzvm: thresholds 124 in [0.99641, 1.0074], root points []
+    1.334     log x.(px-zzbd.rEmaT)/zzbd.pEmaT |b0.000 a0.990 i0.66 g0.000
+    1.334  log|b| x.(px-zzbd.rEmaT)/zzbd.pEmaT |b0.000 a0.990 i0.66 g0.000
+    1.358     log x.(px-zzbd.rEmaS)/zzbd.pEmaT |b0.000 a0.990 i0.63 g0.000
+    1.358  log|b| x.(px-zzbd.rEmaS)/zzbd.pEmaT |b0.000 a0.990 i0.63 g0.000
+-- zzjx3.b: thresholds 121 in [-0.043293, 0.059014], root points [(0.001382307, 0.6604), (0.002116575, 0.6931)]
+    0.115     log x.s.rel300 |b0.017 a0.011 i0.99 g0.039
+    0.115  log|b| x.s.rel300 |b0.017 a0.011 i0.99 g0.039
+    0.128     log x.s.last/open |b0.014 a0.007 i1.00 g0.054
+    0.128  log|b| x.s.last/open |b0.014 a0.007 i1.00 g0.054
+-- zzab2: thresholds 117 in [-0.027407, 0.03664], root points []
+    0.001  log|b| x.(zzgh.nb|cnt-zzgh.nsnap)/zzgh.nsnap |b0.000 a0.000 i1.00 g0.000
+    0.001  log|b| x.(zzgh.nb|vol-zzgh.nsnap)/zzgh.nsnap |b0.000 a0.001 i1.00 g0.000
+    0.009  log|b| x.(zzgh.nb|ordvol-zzgh.nsnap)/zzgh.nsnap |b0.000 a0.000 i0.99 g0.000
+    0.009  log|b| x.(zzgh.nb|ord-zzgh.nsnap)/zzgh.nsnap |b0.000 a0.000 i0.99 g0.000
+-- zzzl2.g: thresholds 107 in [-0.089059, 0.11631], root points []
+    0.003     log x.(px-zzgh.nb|ordvol)/px |b0.000 a0.003 i1.00 g0.000
+    0.003  log|b| x.(px-zzgh.nb|ordvol)/px |b0.000 a0.003 i1.00 g0.000
+    0.003     log x.(px-zzgh.nb|ord)/px |b0.000 a0.003 i1.00 g0.000
+    0.003  log|b| x.(px-zzgh.nb|ord)/px |b0.000 a0.003 i1.00 g0.000
+-- zzsf.c: thresholds 83 in [1e-35, 0.041897], root points []
+    0.059     log x.zzpk.p/zzpk.low |b0.000 a0.059 i1.00 g0.000
+    0.059  log|b| x.zzpk.p/zzpk.low |b0.000 a0.059 i1.00 g0.000
+    0.059     log x.zzxu.p/zzxu.low |b0.000 a0.059 i1.00 g0.000
+    0.059  log|b| x.zzxu.p/zzxu.low |b0.000 a0.059 i1.00 g0.000
+-- zzzl2.c: thresholds 124 in [-0.06026, 0.081589], root points []
+    0.007     log x.s.last/open |b0.004 a0.002 i1.00 g0.000
+    0.007  log|b| x.s.last/open |b0.004 a0.002 i1.00 g0.000
+    0.012     log x.s.last/pre |b0.007 a0.005 i1.00 g0.000
+    0.012  log|b| x.s.last/pre |b0.007 a0.005 i1.00 g0.000
+-- zzhj: thresholds 126 in [-0.97286, 1.5925], root points [(0.390131295, 0.9299)]
+    0.055  log|b| x.zzgh.nb|ord/zzgh.nb|ordvol |b0.025 a0.013 i0.99 g0.004
+    0.055     log x.zzgh.nb|ord/zzgh.nb|ordvol |b0.017 a0.008 i0.98 g0.007
+    0.061  log|b| x.zzgh.nb|ordvol/zzgh.nb|ord |b0.027 a0.012 i0.99 g0.007
+    0.075     log x.zzgh.nb|ordvol/zzgh.nb|ord |b0.019 a0.007 i0.98 g0.017
+-- zzzl.f: thresholds 104 in [-0.072011, 0.095311], root points []
+    0.005     log x.s.last/open |b0.002 a0.002 i1.00 g0.000
+    0.005  log|b| x.s.last/open |b0.002 a0.002 i1.00 g0.000
+    0.005     log x.(px-zzgh.nb|ord)/px |b0.001 a0.004 i1.00 g0.000
+    0.005  log|b| x.(px-zzgh.nb|ord)/px |b0.001 a0.004 i1.00 g0.000
+-- zzsf.d: thresholds 72 in [1e-35, 0.038379], root points [(0.00186233, 0.0209)]
+    0.129     log x.zzpk.high/zzpk.p |b0.017 a0.087 i0.99 g0.006
+    0.129  log|b| x.zzpk.high/zzpk.p |b0.017 a0.087 i0.99 g0.006
+    0.129     log x.zzxu.high/zzxu.p |b0.017 a0.087 i0.99 g0.006
+    0.129  log|b| x.zzxu.high/zzxu.p |b0.017 a0.087 i0.99 g0.006
+-- zzcb: thresholds 123 in [0.18057, 280.42], root points []
+    0.176     log x.zzbd.rEmaS/zzbd.rEmaT |b0.015 a0.000 i0.84 g0.000
+    0.183  log|b| x.zzbd.rEmaS/zzbd.rEmaT |b0.021 a0.000 i0.84 g0.000
+    0.186     log x.s.wan60s |b0.000 a0.000 i0.81 g0.000
+    0.186  log|b| x.s.wan60s |b0.000 a0.000 i0.81 g0.000
+-- zzwa.b: thresholds 114 in [1e-35, 3.9632], root points []
+    0.062  log|b| x.(px-zzgh.norder)/zzgh.ntrade |b0.001 a0.000 i0.94 g0.000
+    0.070     log x.zzgh.norder/zzgh.ntrade |b0.000 a0.000 i0.93 g0.000
+    0.070  log|b| x.zzgh.norder/zzgh.ntrade |b0.000 a0.000 i0.93 g0.000
+    0.097     log x.(zzgh.ncancel-zzgh.nsnap)/zzgh.nsnap |b0.072 a0.016 i0.99 g0.000
+-- zzxo: thresholds 116 in [-15.618, -15.409], root points [(-15.497191906, 0.5577), (-15.496895313, 0.5656)]
+    1.441     log x.zzbd.rEmaT/zzbd.pEmaT |b0.382 a0.622 i0.99 g0.214
+    1.463     log x.zzbd.rEmaT/zzbd.pEmaS |b0.387 a0.622 i0.97 g0.214
+    1.497  log|b| x.zzbd.rEmaT/zzbd.pEmaS |b0.389 a0.642 i1.00 g0.233
+    1.501  log|b| x.zzbd.rEmaT/zzbd.pEmaT |b0.384 a0.642 i0.99 g0.233
+-- zzwa.c: thresholds 113 in [1e-35, 8.0616], root points []
+    0.011     log x.(zzgh.ntrade-zzgh.nsnap)/zzgh.nsnap |b0.002 a0.000 i0.99 g0.000
+    0.011  log|b| x.(zzgh.ntrade-zzgh.nsnap)/zzgh.nsnap |b0.002 a0.000 i0.99 g0.000
+    0.020     log x.zzbd.rEmaS/zzbd.rEmaT |b0.010 a0.010 i1.00 g0.000
+    0.029     log x.zzgh.nsnap/px |b0.019 a0.001 i0.99 g0.000
+-- zzag.a: thresholds 117 in [-0.83991, 0.41268], root points [(-0.637228698, 0.047)]
+    0.077  log|b| x.(zzbd.rEmaT-zzbd.rEmaS)/zzbd.rEmaS |b0.027 a0.017 i0.99 g0.012
+    0.092  log|b| x.(px-zzgh.nsnap)/zzgh.nsnap |b0.019 a0.007 i0.99 g0.028
+    0.113  log|b| x.zzgh.nb|ordvol/zzgh.nb|ord |b0.032 a0.065 i0.99 g0.003
+    0.115     log x.zzgh.nb|ordvol/zzgh.nb|ord |b0.025 a0.055 i0.99 g0.013
+-- zzuc.f: thresholds 123 in [-0.46432, 1.5026], root points [(-0.464324132, 0.0078)]
+    0.015     log x.zzgh.nb|snappx/zzgh.nb|vol |b0.002 a0.001 i1.00 g0.006
+    0.017  log|b| x.zzgh.nb|snappx/zzgh.nb|vol |b0.004 a0.002 i1.00 g0.006
+    0.020     log x.zzgh.nb|vol/zzgh.nb|snappx |b0.007 a0.001 i1.00 g0.006
+    0.022     log x.zzgh.nb/zzgh.nb|vol |b0.003 a0.001 i0.99 g0.005
+-- zzuc.c: thresholds 121 in [-20.012, 21.206], root points []
+    0.221  log|b| x.(zzgh.nb|cnt-zzgh.nb)/zzgh.nb |b0.000 a0.000 i0.78 g0.000
+    0.230  log|b| x.zzgh.nb|ord/zzgh.nb |b0.000 a0.000 i0.77 g0.000
+    0.230  log|b| x.zzgh.nb|ordvol/zzgh.nb |b0.000 a0.000 i0.77 g0.000
+    0.230  log|b| x.zzgh.nb|ordvol/zzgh.nb|snappx |b0.000 a0.000 i0.77 g0.000
+-- zzwa.a: thresholds 99 in [1e-35, 2.83], root points []
+    0.020     log x.zzgh.norder/zzgh.ntrade |b0.000 a0.000 i0.98 g0.000
+    0.020  log|b| x.zzgh.norder/zzgh.ntrade |b0.000 a0.000 i0.98 g0.000
+    0.041  log|b| x.(px-zzgh.norder)/zzgh.ntrade |b0.001 a0.000 i0.96 g0.000
+    0.166     log x.(zzgh.ntrade-zzgh.ncancel)/zzgh.ncancel |b0.156 a0.000 i0.99 g0.000
+-- zzaa.b: thresholds 121 in [-1198.5, 1552.5], root points [(-493.5, 0.0398)]
+    0.744  log|b| rete30 |b0.000 a0.000 i0.34 g0.040
+    0.809  log|b| rete50 |b0.000 a0.000 i0.27 g0.040
+    0.826     log rete30 |b0.000 a0.000 i0.25 g0.040
+    0.858  log|b| rete75 |b0.000 a0.000 i0.22 g0.040
+-- zzri2.a: thresholds 124 in [1e-35, 0.10633], root points [(0.018049708, 0.012)]
+    0.992     log x.zzpk.high/zzpk.low |b0.000 a0.007 i0.98 g0.484
+    0.992  log|b| x.zzpk.high/zzpk.low |b0.000 a0.007 i0.98 g0.484
+    0.992     log x.zzvx.high/zzvx.low |b0.000 a0.007 i0.98 g0.484
+    0.992  log|b| x.zzvx.high/zzvx.low |b0.000 a0.007 i0.98 g0.484
+-- zzbo.a: thresholds 116 in [-1e-35, 1.9334], root points []
+    0.012     log x.zzgh.norder/zzgh.ntrade |b0.000 a0.003 i0.99 g0.000
+    0.012  log|b| x.zzgh.norder/zzgh.ntrade |b0.000 a0.003 i0.99 g0.000
+    0.012  log|b| x.(px-zzgh.norder)/zzgh.ntrade |b0.001 a0.003 i0.99 g0.000
+    0.019  log|b| x.(px-zzgh.ntrade)/zzgh.ncancel |b0.000 a0.001 i0.98 g0.000
+-- zzqf.q.a: thresholds 60 in [1e-35, 0.038196], root points []
+    0.085     log x.zzpk.p/zzpk.low |b0.000 a0.069 i0.98 g0.000
+    0.085  log|b| x.zzpk.p/zzpk.low |b0.000 a0.069 i0.98 g0.000
+    0.085     log x.zzxu.p/zzxu.low |b0.000 a0.069 i0.98 g0.000
+    0.085  log|b| x.zzxu.p/zzxu.low |b0.000 a0.069 i0.98 g0.000
+-- zzal.a: thresholds 126 in [-1e-35, 0.1227], root points []
+    0.041     log x.s.last/low |b0.000 a0.002 i0.96 g0.000
+    0.041  log|b| x.s.last/low |b0.000 a0.002 i0.96 g0.000
+    0.041     log x.zzxu.last/zzxu.low |b0.000 a0.002 i0.96 g0.000
+    0.041  log|b| x.zzxu.last/zzxu.low |b0.000 a0.002 i0.96 g0.000
+-- zzsa2.a: thresholds 87 in [-1e-35, 0.032733], root points []
+    0.082     log x.zzpk.open/zzpk.low |b0.000 a0.071 i0.99 g0.000
+    0.082  log|b| x.zzpk.open/zzpk.low |b0.000 a0.071 i0.99 g0.000
+    0.088     log x.zzxu.last/zzxu.low |b0.000 a0.077 i0.99 g0.000
+    0.088  log|b| x.zzxu.last/zzxu.low |b0.000 a0.077 i0.99 g0.000
+-- zzpp.b: thresholds 111 in [1e-35, 9.5038], root points [(6.197707891, 0.0325), (6.197707891, 0.0326), (6.262753248, 0.0405)]
+    0.183     log x.s.tsec_since_high |b0.006 a0.009 i1.00 g0.084
+    0.183  log|b| x.s.tsec_since_high |b0.006 a0.009 i1.00 g0.084
+    0.267     log x.s.wan900s |b0.000 a0.236 i0.99 g0.011
+    0.267  log|b| x.s.wan900s |b0.000 a0.236 i0.99 g0.011
+-- zzhi2.c: thresholds 103 in [1e-35, 2.9502], root points [(0.327863172, 0.0094), (0.391149625, 0.017), (0.436148494, 0.0252)]
+    0.081     log x.zzgh.ntrade/zzgh.ncancel |b0.000 a0.000 i0.99 g0.035
+    0.081  log|b| x.zzgh.ntrade/zzgh.ncancel |b0.000 a0.000 i0.99 g0.035
+    0.082  log|b| x.(px-zzgh.ntrade)/zzgh.ncancel |b0.000 a0.000 i0.99 g0.036
+    0.304     log x.zzbd.pEmaT |b0.017 a0.000 i0.92 g0.105
+-- zzpp.a: thresholds 115 in [1e-35, 9.4338], root points []
+    0.014     log x.s.wan60s |b0.000 a0.014 i1.00 g0.000
+    0.014  log|b| x.s.wan60s |b0.000 a0.014 i1.00 g0.000
+    0.037     log x.zzgh.ntrade/px |b0.000 a0.037 i1.00 g0.000
+    0.037  log|b| x.zzgh.ntrade/px |b0.000 a0.037 i1.00 g0.000
+-- zzag2.f: thresholds 116 in [1e-35, 554.83], root points []
+    0.983     log x.zzpk.p/zzpk.low |b0.000 a0.000 i0.02 g0.000
+    0.983  log|b| x.zzpk.p/zzpk.low |b0.000 a0.000 i0.02 g0.000
+    0.983     log x.zzxu.p/zzxu.low |b0.000 a0.000 i0.02 g0.000
+    0.983  log|b| x.zzxu.p/zzxu.low |b0.000 a0.000 i0.02 g0.000
+-- zzsa.b: thresholds 96 in [-0.038293, 1e-35], root points []
+    0.033  log|b| x.(px-zzgh.ntrade)/zzgh.ntrade |b0.022 a0.000 i0.99 g0.000
+    0.033  log|b| x.(px-zzgh.norder)/zzgh.norder |b0.012 a0.000 i0.98 g0.000
+    0.057     log x.zzpk.low/zzpk.open |b0.047 a0.000 i0.99 g0.000
+    0.057  log|b| x.zzpk.low/zzpk.open |b0.047 a0.000 i0.99 g0.000
+-- zzjx2.a: thresholds 101 in [-0.048725, 0.066025], root points [(0.00333155, 0.7491), (0.003731775, 0.7614), (0.005744992, 0.8137)]
+    0.088     log x.zzgh.nb|vol/zzgh.nb|snappx |b0.032 a0.018 i1.00 g0.019
+    0.094  log|b| x.zzgh.nb|vol/zzgh.nb|snappx |b0.034 a0.020 i1.00 g0.020
+    0.133     log x.zzgh.nb|snappx/zzgh.nb |b0.019 a0.017 i0.99 g0.043
+    0.136  log|b| x.zzgh.nb|snappx/zzgh.nb |b0.020 a0.020 i0.99 g0.043
+-- zzsa.a: thresholds 88 in [-1e-35, 0.035761], root points []
+    0.071     log x.zzpk.open/zzpk.low |b0.000 a0.049 i0.98 g0.000
+    0.071  log|b| x.zzpk.open/zzpk.low |b0.000 a0.049 i0.98 g0.000
+    0.075     log x.s.last/low |b0.000 a0.064 i0.99 g0.000
+    0.075  log|b| x.s.last/low |b0.000 a0.064 i0.99 g0.000
+-- zzjb2.b: thresholds 81 in [-0.046702, 0.066681], root points [(-0.008234992, 0.1948), (-0.007446576, 0.2174), (-0.005262361, 0.2926)]
+    0.128     log x.zzgh.nb/zzgh.nb|vol |b0.037 a0.026 i0.99 g0.026
+    0.131  log|b| x.zzgh.nb/zzgh.nb|vol |b0.038 a0.027 i0.99 g0.027
+    0.133     log x.s.last/vwap |b0.003 a0.007 i0.98 g0.049
+    0.133  log|b| x.s.last/vwap |b0.003 a0.007 i0.98 g0.049
+-- zzgh.b: thresholds 107 in [1e-35, 936.5], root points []
+    0.982     log x.zzpk.p/zzpk.low |b0.000 a0.000 i0.02 g0.000
+    0.982  log|b| x.zzpk.p/zzpk.low |b0.000 a0.000 i0.02 g0.000
+    0.982     log x.zzxu.p/zzxu.low |b0.000 a0.000 i0.02 g0.000
+    0.982  log|b| x.zzxu.p/zzxu.low |b0.000 a0.000 i0.02 g0.000
+-- zzts: thresholds 88 in [-1, 37.364], root points [(13.740088463, 0.9849)]
+    0.184  log|b| x.zzgh.nb|snappx/zzgh.nb|ord |b0.109 a0.000 i0.96 g0.015
+    0.188     log x.zzgh.nb|snappx/zzgh.nb|cnt |b0.090 a0.000 i0.93 g0.015
+    0.191  log|b| x.zzgh.nb/zzgh.nb|ordvol |b0.104 a0.000 i0.94 g0.015
+    0.191  log|b| x.zzgh.nb|vol/zzgh.nb|ordvol |b0.105 a0.000 i0.94 g0.015
+-- zzal.b: thresholds 105 in [-0.014804, 0.049855], root points []
+    0.042     log x.(px-zzgh.nb|ord)/px |b0.031 a0.012 i1.00 g0.000
+    0.042  log|b| x.(px-zzgh.nb|ord)/px |b0.031 a0.012 i1.00 g0.000
+    0.045     log x.(px-zzgh.nb|ordvol)/px |b0.034 a0.011 i1.00 g0.000
+    0.045  log|b| x.(px-zzgh.nb|ordvol)/px |b0.034 a0.011 i1.00 g0.000
+-- zzbt2.h: thresholds 75 in [-0.019925, 0.0011963], root points [(0.0, 0.9785), (0.000492733, 0.9854)]
+    0.116  log|b| x.(px-zzgh.norder)/zzgh.norder |b0.021 a0.000 i0.95 g0.021
+    0.121  log|b| x.(px-zzgh.ntrade)/zzgh.ntrade |b0.038 a0.000 i0.96 g0.021
+    0.180  log|b| x.(px-zzgh.ncancel)/zzgh.ncancel |b0.097 a0.001 i0.96 g0.021
+    0.228     log x.zzpk.low/px |b0.184 a0.002 i1.00 g0.021
+-- zzlk3: thresholds 94 in [-0.74952, 0.4361], root points [(0.015915232, 0.8644), (0.069335546, 0.9022), (0.081143785, 0.9094)]
+    0.178  log|b| x.zzgh.nb/zzgh.nb|vol |b0.002 a0.005 i0.99 g0.080
+    0.190     log x.zzgh.nb|vol/zzgh.nb |b0.002 a0.003 i0.97 g0.077
+    0.190  log|b| x.zzgh.nb|vol/zzgh.nb |b0.003 a0.004 i0.97 g0.076
+    0.192  log|b| x.(zzbd.rEmaT-zzbd.rEmaS)/zzbd.rEmaS |b0.032 a0.016 i0.99 g0.067
+-- zzjx.a: thresholds 72 in [-0.047986, 0.065772], root points [(-0.016528405, 0.0607)]
+    0.072     log x.zzgh.nb|vol/zzgh.nb|snappx |b0.032 a0.018 i1.00 g0.011
+    0.079     log x.zzgh.nb|snappx/zzgh.nb|vol |b0.026 a0.026 i1.00 g0.014
+    0.079     log x.zzgh.nb/zzgh.nb|snappx |b0.022 a0.015 i0.99 g0.015
+    0.081  log|b| x.zzgh.nb|vol/zzgh.nb|snappx |b0.034 a0.020 i1.00 g0.013
+-- zzxt2: thresholds 90 in [-0.89323, 0.502], root points [(-0.893231541, 0.0078), (-0.057641966, 0.8806)]
+    0.284  log|b| x.(zzgh.nsnap-zzgh.ncancel)/zzgh.ncancel |b0.051 a0.000 i0.88 g0.056
+    0.399     log x.zzgh.ntrade/zzgh.norder |b0.062 a0.000 i0.90 g0.119
+    0.399  log|b| x.zzgh.ntrade/zzgh.norder |b0.062 a0.000 i0.90 g0.119
+    0.423  log|b| x.(px-zzgh.ntrade)/zzgh.norder |b0.064 a0.000 i0.88 g0.119
+-- zzbs2.b: thresholds 87 in [-0.01643, 0.019377], root points [(0.01937708, 0.993)]
+    0.076     log rpe75 |b0.006 a0.011 i0.95 g0.007
+    0.076  log|b| rpe75 |b0.006 a0.011 i0.95 g0.007
+    0.083  log|b| x.(zzgh.nb|cnt-zzgh.nsnap)/zzgh.nsnap |b0.001 a0.002 i0.93 g0.006
+    0.084  log|b| x.(zzgh.nb|vol-zzgh.nsnap)/zzgh.nsnap |b0.001 a0.002 i0.93 g0.006
+-- zzxt: thresholds 93 in [-0.79527, 0.50281], root points []
+    0.038  log|b| x.(px-zzgh.nsnap)/zzgh.nsnap |b0.020 a0.007 i0.99 g0.000
+    0.054  log|b| x.(zzbd.rEmaT-zzbd.rEmaS)/zzbd.rEmaS |b0.029 a0.014 i0.99 g0.000
+    0.058     log x.zzgh.nb/zzgh.nb|vol |b0.002 a0.003 i0.95 g0.000
+    0.059  log|b| x.zzgh.nb/zzgh.nb|vol |b0.002 a0.004 i0.95 g0.000
+-- zzhi2.f: thresholds 85 in [1e-35, 2.2519], root points [(0.261754543, 0.006), (0.333581567, 0.011)]
+    0.033     log x.zzgh.ntrade/zzgh.ncancel |b0.000 a0.000 i1.00 g0.016
+    0.033  log|b| x.zzgh.ntrade/zzgh.ncancel |b0.000 a0.000 i1.00 g0.016
+    0.042  log|b| x.(px-zzgh.ntrade)/zzgh.ncancel |b0.000 a0.000 i1.00 g0.021
+    0.060     log x.(zzgh.norder-zzgh.ncancel)/zzgh.ncancel |b0.000 a0.003 i0.97 g0.011
+-- zzko: thresholds 84 in [-66.556, 66.502], root points [(-1.067996681, 0.388), (-0.902543724, 0.404), (-0.826102048, 0.4117)]
+    0.425  log|b| ofi_levels1to6_norm_30s |b0.000 a0.000 i0.66 g0.042
+    0.461     log ofi_levels1to6_norm_30s |b0.000 a0.000 i0.64 g0.048
+    0.555     log x.(zzgh.nb|ordvol-zzgh.nb)/zzgh.nb |b0.000 a0.000 i0.71 g0.131
+    0.567     log x.(zzgh.nb|ordvol-zzgh.nb|snappx)/zzgh.nb|snappx |b0.000 a0.000 i0.69 g0.131
+-- zzav2: thresholds 80 in [-186.86, 146.94], root points [(-17.113918304, 0.1996), (6.958449841, 0.7542), (20.355282784, 0.8842)]
+    1.047  log|b| x.(zzvx.trDEmaD-zzvx.rEmaD)/zzvx.rEmaD |b0.000 a0.000 i0.44 g0.246
+    1.047  log|b| x.(zzvx.trDEmaD-zzvx.rEmaO)/zzvx.rEmaO |b0.000 a0.000 i0.44 g0.246
+    1.047  log|b| x.(zzvx.trDEmaO-zzvx.rEmaD)/zzvx.rEmaD |b0.000 a0.000 i0.44 g0.246
+    1.047  log|b| x.(zzvx.trDEmaO-zzvx.rEmaO)/zzvx.rEmaO |b0.000 a0.000 i0.44 g0.246
+-- zzbt2.a: thresholds 58 in [1e-35, 0.57192], root points []
+    0.196  log|b| x.(px-zzgh.norder)/zzgh.ntrade |b0.001 a0.195 i1.00 g0.000
+    0.197     log x.zzgh.norder/zzgh.ntrade |b0.000 a0.197 i1.00 g0.000
+    0.197  log|b| x.zzgh.norder/zzgh.ntrade |b0.000 a0.197 i1.00 g0.000
+    0.413  log|b| x.zzgh.nb|snappx/zzgh.nb |b0.371 a0.007 i0.97 g0.000
+-- zzxt6: thresholds 38 in [-0.98182, 0.69754], root points []
+    0.003     log x.zzgh.nb|vol/zzgh.nb |b0.001 a0.002 i1.00 g0.000
+    0.003     log x.zzgh.nb/zzgh.nb|snappx |b0.002 a0.002 i1.00 g0.000
+    0.003     log x.zzgh.nb|vol/zzgh.nb|snappx |b0.002 a0.002 i1.00 g0.000
+    0.004  log|b| x.zzgh.nb|vol/zzgh.nb |b0.002 a0.002 i1.00 g0.000
+-- zzxc.a: thresholds 85 in [-167.5, 350.5], root points []
+    0.654  log|b| rete30 |b0.003 a0.000 i0.35 g0.000
+    0.663     log rete30 |b0.000 a0.000 i0.34 g0.000
+    0.663  log|b| rete50 |b0.000 a0.000 i0.34 g0.000
+    0.674  log|b| rete75 |b0.000 a0.000 i0.33 g0.000
+-- zzbt.b: thresholds 97 in [1e-35, 0.69527], root points [(0.00315927, 0.0213), (0.004875249, 0.0291), (0.006626368, 0.037)]
+    1.281  log|b| x.(zzgh.ntrade-zzgh.ncancel)/zzgh.ncancel |b0.157 a0.378 i1.00 g0.373
+    1.281     log x.(zzgh.ntrade-zzgh.ncancel)/zzgh.ncancel |b0.156 a0.378 i1.00 g0.373
+    1.399  log|b| x.zzgh.nb|snappx/zzgh.nb|ordvol |b0.274 a0.560 i1.00 g0.283
+    1.400  log|b| x.zzgh.nb/zzgh.nb|ordvol |b0.277 a0.560 i1.00 g0.282
+-- zzso: thresholds 63 in [-4.9999, 4.9994], root points [(-1.18709904, 0.172), (-1.123056471, 0.1796), (-1.123056471, 0.1797)]
+    0.173     log x.(zzgh.nb|ord-zzgh.nb|cnt)/zzgh.nb|cnt |b0.008 a0.007 i1.00 g0.079
+    0.185     log x.(zzgh.nb|ord-zzgh.nb|vol)/zzgh.nb|vol |b0.008 a0.009 i1.00 g0.084
+    0.188     log x.(zzgh.nb|ordvol-zzgh.nb|cnt)/zzgh.nb|cnt |b0.007 a0.007 i1.00 g0.087
+    0.190     log x.(zzgh.nb|ord-zzgh.nb|snappx)/zzgh.nb|snappx |b0.007 a0.009 i1.00 g0.087
+-- zzie.c: thresholds 55 in [-0.83991, 0.89213], root points [(-0.317990005, 0.2809), (-0.263966352, 0.32), (-0.199766628, 0.3709)]
+    0.392  log|b| x.(zzbd.rEmaT-zzbd.rEmaS)/zzbd.rEmaS |b0.027 a0.007 i0.98 g0.170
+    0.464  log|b| x.(zzgh.nb|ord-zzgh.nb|snappx)/zzgh.nb|snappx |b0.109 a0.153 i0.98 g0.092
+    0.465  log|b| x.(zzgh.nb|ord-zzgh.nb)/zzgh.nb |b0.110 a0.154 i0.98 g0.091
+    0.467  log|b| x.(zzgh.nb|ord-zzgh.nb|vol)/zzgh.nb|vol |b0.111 a0.154 i0.98 g0.092
+-- zzyj4.a: thresholds 38 in [-0.98938, 0.99188], root points [(-0.989376843, 0.0079)]
+    0.036  log|b| x.(px-zzgh.nsnap)/zzgh.nsnap |b0.016 a0.005 i1.00 g0.008
+    0.043  log|b| x.zzgh.nb|vol/zzgh.nb |b0.002 a0.002 i0.97 g0.007
+    0.050  log|b| x.(zzbd.rEmaT-zzbd.rEmaS)/zzbd.rEmaS |b0.020 a0.006 i1.00 g0.012
+    0.053     log x.zzgh.nb|ord/zzgh.nb|ordvol |b0.017 a0.018 i1.00 g0.009
+-- zzor2.a: thresholds 43 in [-0.97778, 0.98864], root points []
+    0.003     log x.zzgh.nb|snappx/zzgh.nb|vol |b0.001 a0.002 i1.00 g0.000
+    0.006  log|b| x.zzgh.nb|snappx/zzgh.nb|vol |b0.002 a0.003 i1.00 g0.000
+    0.006  log|b| x.zzgh.nb|vol/zzgh.nb|snappx |b0.004 a0.002 i1.00 g0.000
+    0.025     log x.zzgh.nb|vol/zzgh.nb |b0.001 a0.001 i0.98 g0.000
+-- zzyj5.c: thresholds 52 in [-0.98851, 0.99323], root points []
+    0.002     log x.zzgh.nb|vol/zzgh.nb |b0.001 a0.001 i1.00 g0.000
+    0.003     log x.zzgh.nb/zzgh.nb|snappx |b0.001 a0.001 i1.00 g0.000
+    0.003  log|b| x.zzgh.nb|vol/zzgh.nb |b0.002 a0.002 i1.00 g0.000
+    0.005  log|b| x.zzgh.nb/zzgh.nb|snappx |b0.003 a0.002 i1.00 g0.000
+-- zzxc.d: thresholds 39 in [-7.1571e-06, 3.5372e-06], root points [(-2e-09, 0.253)]
+    0.344     log x.(px-zzbd.rEmaT)/px |b0.001 a0.003 i0.97 g0.158
+    0.344  log|b| x.(px-zzbd.rEmaT)/px |b0.001 a0.003 i0.97 g0.158
+    0.444  log|b| x.(zzbd.rEmaT-zzbd.pEmaS)/zzbd.pEmaS |b0.004 a0.012 i0.97 g0.202
+    0.445  log|b| x.(zzbd.rEmaT-zzbd.pEmaT)/zzbd.pEmaT |b0.004 a0.012 i0.97 g0.202
+-- zzyj2.a: thresholds 50 in [-0.92955, 0.97683], root points []
+    0.002     log x.zzgh.nb|vol/zzgh.nb |b0.001 a0.001 i1.00 g0.000
+    0.003     log x.zzgh.nb|snappx/zzgh.nb |b0.001 a0.002 i1.00 g0.000
+    0.003     log x.zzgh.nb|snappx/zzgh.nb|vol |b0.001 a0.002 i1.00 g0.000
+    0.003     log x.zzgh.nb/zzgh.nb|snappx |b0.002 a0.001 i1.00 g0.000
+-- zzxc.c: thresholds 41 in [-0.92855, 0.95353], root points [(-0.529062569, 0.307), (-0.510280758, 0.3116), (-0.485446587, 0.3209)]
+    0.563  log|b| x.(zzgh.nb|ord-zzgh.nb|snappx)/zzgh.nb|snappx |b0.099 a0.142 i1.00 g0.161
+    0.566  log|b| x.(zzgh.nb|ord-zzgh.nb)/zzgh.nb |b0.101 a0.143 i1.00 g0.161
+    0.568  log|b| x.(zzgh.nb|ord-zzgh.nb|vol)/zzgh.nb|vol |b0.102 a0.143 i1.00 g0.161
+    0.575     log x.zzgh.nb|cnt/zzgh.nb|vol |b0.140 a0.095 i1.00 g0.170
+-- zzyj.d: thresholds 14 in [-0.99458, 0.8988], root points []
+    0.002     log x.zzgh.nb|vol/zzgh.nb |b0.001 a0.001 i1.00 g0.000
+    0.002     log x.zzgh.nb/zzgh.nb|vol |b0.001 a0.001 i1.00 g0.000
+    0.003     log x.zzgh.nb/zzgh.nb|snappx |b0.001 a0.001 i1.00 g0.000
+    0.003     log x.zzgh.nb|vol/zzgh.nb|snappx |b0.002 a0.001 i1.00 g0.000
+-- zzie5.c: thresholds 30 in [-0.84435, 0.69554], root points []
+    0.003     log x.zzgh.nb|vol/zzgh.nb |b0.001 a0.002 i1.00 g0.000
+    0.004     log x.zzgh.nb/zzgh.nb|vol |b0.001 a0.002 i1.00 g0.000
+    0.004     log x.zzgh.nb/zzgh.nb|snappx |b0.003 a0.002 i1.00 g0.000
+    0.005  log|b| x.zzgh.nb|vol/zzgh.nb |b0.002 a0.002 i1.00 g0.000
+[16:36:19] done
