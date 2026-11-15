@@ -1,0 +1,66 @@
+[16:24:13] fit on 1105, 1106 (PM state in /data/prod/h/HS300/p1_intrading_dcp) and 1112, 1113 (seed_probe)
+  half   300s start 0930 seed prev: wgt equal 0.573  value equal 0.993  (300 stocks)
+  half   300s start 0930 seed none: wgt equal 0.573  value equal 0.993  (300 stocks)
+  half   300s start 0925 seed prev: wgt equal 0.573  value equal 0.993  (300 stocks)
+  half   300s start 0925 seed none: wgt equal 0.573  value equal 0.993  (300 stocks)
+  half   250s start 0930 seed prev: wgt equal 0.007  value equal 0.993  (300 stocks)
+  half   250s start 0930 seed none: wgt equal 0.007  value equal 0.993  (300 stocks)
+  half   250s start 0925 seed prev: wgt equal 0.007  value equal 0.993  (300 stocks)
+  half   250s start 0925 seed none: wgt equal 0.007  value equal 0.993  (300 stocks)
+  half   270s start 0930 seed prev: wgt equal 0.000  value equal 0.993  (300 stocks)
+  half   270s start 0930 seed none: wgt equal 0.000  value equal 0.993  (300 stocks)
+  half   270s start 0925 seed prev: wgt equal 0.000  value equal 0.993  (300 stocks)
+  half   270s start 0925 seed none: wgt equal 0.000  value equal 0.993  (300 stocks)
+20261105: best half 300s start 0930 seed prev; rema/span quantiles 0.9957 0.9997 1.0000 1.0000 1.0007 -> data/side_r111/zzrema_20261105.parquet
+  half   300s start 0930 seed prev: wgt equal 0.047  value equal 0.987  (300 stocks)
+  half   300s start 0930 seed none: wgt equal 0.047  value equal 0.987  (300 stocks)
+  half   300s start 0925 seed prev: wgt equal 0.047  value equal 0.987  (300 stocks)
+  half   300s start 0925 seed none: wgt equal 0.047  value equal 0.987  (300 stocks)
+  half   250s start 0930 seed prev: wgt equal 0.007  value equal 0.987  (300 stocks)
+  half   250s start 0930 seed none: wgt equal 0.007  value equal 0.987  (300 stocks)
+  half   250s start 0925 seed prev: wgt equal 0.007  value equal 0.987  (300 stocks)
+  half   250s start 0925 seed none: wgt equal 0.007  value equal 0.987  (300 stocks)
+  half   360s start 0930 seed prev: wgt equal 0.000  value equal 0.987  (300 stocks)
+  half   360s start 0930 seed none: wgt equal 0.000  value equal 0.987  (300 stocks)
+  half   360s start 0925 seed prev: wgt equal 0.000  value equal 0.987  (300 stocks)
+  half   360s start 0925 seed none: wgt equal 0.000  value equal 0.987  (300 stocks)
+20261106: best half 300s start 0930 seed prev; rema/span quantiles 0.9994 1.0000 1.0000 1.0000 1.0001 -> data/side_r111/zzrema_20261106.parquet
+  half   300s start 0930 seed prev: wgt equal 0.243  value equal 0.997  (300 stocks)
+  half   300s start 0930 seed none: wgt equal 0.243  value equal 0.997  (300 stocks)
+  half   300s start 0925 seed prev: wgt equal 0.243  value equal 0.997  (300 stocks)
+  half   300s start 0925 seed none: wgt equal 0.243  value equal 0.997  (300 stocks)
+  half   270s start 0930 seed prev: wgt equal 0.000  value equal 0.997  (300 stocks)
+  half   270s start 0930 seed none: wgt equal 0.000  value equal 0.997  (300 stocks)
+  half   270s start 0925 seed prev: wgt equal 0.000  value equal 0.997  (300 stocks)
+  half   270s start 0925 seed none: wgt equal 0.000  value equal 0.997  (300 stocks)
+  half   250s start 0930 seed prev: wgt equal 0.000  value equal 0.980  (300 stocks)
+  half   250s start 0930 seed none: wgt equal 0.000  value equal 0.980  (300 stocks)
+  half   250s start 0925 seed prev: wgt equal 0.000  value equal 0.980  (300 stocks)
+  half   250s start 0925 seed none: wgt equal 0.000  value equal 0.980  (300 stocks)
+20261112: best half 300s start 0930 seed prev; rema/span quantiles 0.9977 1.0000 1.0000 1.0002 1.0014 -> data/side_r111/zzrema_20261112.parquet
+  half   300s start 0930 seed prev: wgt equal 0.007  value equal 1.000  (300 stocks)
+  half   300s start 0930 seed none: wgt equal 0.007  value equal 1.000  (300 stocks)
+  half   300s start 0925 seed prev: wgt equal 0.007  value equal 1.000  (300 stocks)
+  half   300s start 0925 seed none: wgt equal 0.007  value equal 1.000  (300 stocks)
+  half   270s start 0930 seed prev: wgt equal 0.000  value equal 1.000  (300 stocks)
+  half   270s start 0930 seed none: wgt equal 0.000  value equal 1.000  (300 stocks)
+  half   270s start 0925 seed prev: wgt equal 0.000  value equal 1.000  (300 stocks)
+  half   270s start 0925 seed none: wgt equal 0.000  value equal 1.000  (300 stocks)
+  half   250s start 0930 seed prev: wgt equal 0.003  value equal 0.977  (300 stocks)
+  half   250s start 0930 seed none: wgt equal 0.003  value equal 0.977  (300 stocks)
+  half   250s start 0925 seed prev: wgt equal 0.003  value equal 0.977  (300 stocks)
+  half   250s start 0925 seed none: wgt equal 0.003  value equal 0.977  (300 stocks)
+20261113: best half 300s start 0930 seed prev; rema/span quantiles 0.9989 1.0000 1.0000 1.0002 1.0018 -> data/side_r111/zzrema_20261113.parquet
+[16:26:14] 0430 with half 300s start 0930 (fitted on 1113)
+Traceback (most recent call last):
+  File "/work/crucible/research/featgen/zzeg_rema.py", line 144, in <module>
+    main()
+  File "/work/crucible/research/featgen/zzeg_rema.py", line 87, in main
+    L = np.minimum(np.where(lo > 0, lo, np.inf), ph[sid][1])
+TypeError: '<=' not supported between instances of 'float' and 'NoneType'
+Traceback (most recent call last):  [fingerprint.py line 108 main -> line 55 Day(...) -> implied_scan.py line 49 __init__ pl.read_parquet(f) -> polars]
+FileNotFoundError: No such file or directory (os error 2): data/side_r111/zzrema_20260430.parquet
+Traceback (most recent call last):  [implied_scan.py line 233 main -> line 131 Day(...) -> line 49 __init__ pl.read_parquet(f) -> polars]
+FileNotFoundError: No such file or directory (os error 2): data/side_r111/zzrema_20260430.parquet
+[16:26:18] done
+(r111.txt 112 lines; polars-internal traceback frames abbreviated above)
