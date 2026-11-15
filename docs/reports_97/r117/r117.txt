@@ -1,0 +1,6 @@
+192 options over 50 columns, days ['20260430', '20261112', '20261113']
+baseline 20260430 0.6282  20261112 0.6558  20261113 0.6790
+step 1: best zzag2.f <- abs4 mret1800 min +0.0002 | zzwa.c <- abs4 x.zzgh.nb|cnt/zzgh.norder min +0.0001 | zzwa.c <- abs4 x.zzgh.nb|vol/zzgh.ntrade min +0.0001
+  stop: no option raises every day by --min-gain
+final 20260430 0.6282 -> 0.6282 (+0.0000)  20261112 0.6558 -> 0.6558 (+0.0000)  20261113 0.6790 -> 0.6790 (+0.0000)
+[17:21:07] done
