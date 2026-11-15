@@ -57,6 +57,7 @@ def main() -> None:
     ap.add_argument("--jz", type=Path, default=None, help="PM's day-end state of --date, to fit the clock")
     ap.add_argument("--prev-jz", type=Path, default=None, help="PM's state of the previous day, for the seeded variants")
     ap.add_argument("--halves", default="60,120,180,200,225,240,250,270,300,360,600")
+    ap.add_argument("--seed-wgt", type=float, default=108.0, help="seed weight when no previous .jz: yesterday's span x this")
     ap.add_argument("--start", default="0930", help="with no --jz to fit against: 0925 (auction included) or 0930")
     ap.add_argument("--out", type=Path, default=Path("data/side_rema"))
     a = ap.parse_args()
@@ -70,10 +71,12 @@ def main() -> None:
         hl = day_hl(dd, sids, raws)
         if hl is not None and hl.height > 0.5 * len(sids):
             prev.append(hl)
-        if len(prev) == 3:
+        if len(prev) == 4:
             break
-    ph = pl.concat(prev).group_by("symbol_id").agg(pl.col("h").max().alias("ph"), pl.col("l").min().alias("pl"))
-    ph = {int(r[0]): (r[1], r[2]) for r in ph.iter_rows()}
+    agg = lambda fr: {int(r[0]): (r[1], r[2]) for r in pl.concat(fr).group_by("symbol_id").agg(  # noqa: E731
+        pl.col("h").max(), pl.col("l").min()).iter_rows() if r[1] is not None and r[2] is not None}
+    ph = agg(prev[:3])  # today's channel: the previous 3 days + today
+    yspan = {s: (h + lo) / 2 for s, (h, lo) in agg(prev[1:4]).items()} if len(prev) == 4 else {}  # yesterday's close span (days D-4..D-1)
     q = (pl.read_parquet(list(a.raw.glob(f"kind=quotation/date={d}/part-*.parquet")), columns=["symbol_id", "time", "spider_ts", "high", "low", "price"])
          .filter(pl.col("symbol_id").is_in(sids) & (pl.col("price") > 0)).sort("symbol_id", "spider_ts"))
     pm = {int(s): kv for s, kv in json.loads(gzip.open(a.jz).read()).items()} if a.jz and a.jz.exists() else {}
@@ -126,13 +129,20 @@ def main() -> None:
         m = exch >= (33300 if start == "0925" else 34200)
         if not m.any():
             continue
-        S, W = ema(t[m], span[m], half, 0.0, 0.0, None)
-        rows.append(pl.DataFrame({"sid": np.full(m.sum(), sid, np.int64), "time": texch[m], "rema": S / W, "span": span[m], "px": px[m]}))
+        s0 = w0 = 0.0  # carry yesterday's average: PM's .jz when given, else yesterday's span at a typical day-end weight
+        if seed == "prev" and sid in pv and pv[sid].get("zzeg.c.rEma.wgt"):
+            s0, w0 = pv[sid]["zzeg.c.rEma.sum"], pv[sid]["zzeg.c.rEma.wgt"]
+        elif sid in yspan:
+            w0 = a.seed_wgt
+            s0 = yspan[sid] * w0
+        S, W = ema(t[m], span[m], half, s0, w0, None)
+        S0, W0 = ema(t[m], span[m], half, 0.0, 0.0, None)  # the same average started cold today
+        rows.append(pl.DataFrame({"sid": np.full(m.sum(), sid, np.int64), "time": texch[m], "rema": S / W, "rema0": S0 / W0, "span": span[m], "px": px[m]}))
     ev = pl.concat(rows)
     g = asof(ev, ["sid"], key.join(pl.DataFrame({"mark": marks, "t": mark_ns(d, marks)}), on="mark"))
-    R, Sp, P = pl.col("rema"), pl.col("span"), pl.col("px")
+    R, R0, Sp, P = pl.col("rema"), pl.col("rema0"), pl.col("span"), pl.col("px")
     out = g.select("sid", "mark", (R / Sp).alias("rema/span"), (Sp / R).alias("span/rema"), (P / R).alias("px/rema"), (R / P).alias("rema/px"),
-                   ((P - R) / R).alias("(px-rema)/rema"))
+                   ((P - R) / R).alias("(px-rema)/rema"), (R0 / Sp).alias("rema0/span"), (Sp / R0).alias("span/rema0"), (P / R0).alias("px/rema0"))
     a.out.mkdir(parents=True, exist_ok=True)
     dst = a.out / f"zzrema_{d}.parquet"
     out.write_parquet(dst)
