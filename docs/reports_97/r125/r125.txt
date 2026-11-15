@@ -1,0 +1,31 @@
+R125 on 97 (20 lines, done 20:39:13). Verify tuples were cut on screen; re-printed from verify_<D>.csv below.
+20 stocks, 55180 day-end values + 36660 mark values compared, 0 mismatches
+20261106: stop 54149.941 -> data/engine_r125/engine_20261106.json.gz (22s total)
+20261112: stop 54149.981 -> data/engine_r125/engine_20261112.json.gz (22s total)
+20261113: stop 54149.897 -> data/engine_r125/engine_20261113.json.gz (21s total)
+verify (key n all SZSE all_1e4 SZSE_1e4 mre):
+20261106 zzmh.hm    300 0.9967 1.0000 0.9967 1.0000 0
+20261106 zzmh.r     300 0.9867 0.9911 0.9867 0.9911 1.9e-05
+20261106 zzmh.r.t   300 0.9633 0.9018 1.0000 1.0000 2.87e-07
+20261112 zzmh.hm    300 0.9933 1.0000 0.9933 1.0000 0
+20261112 zzmh.r     300 0.9867 1.0000 0.9900 1.0000 1.55e-05
+20261112 zzmh.r.t   300 0.9600 0.8929 1.0000 1.0000 1.36e-07
+20261113 zzmh.hm    300 0.9967 1.0000 0.9967 1.0000 0
+20261113 zzmh.r     300 0.9867 0.9732 0.9867 0.9732 1.63e-05
+20261113 zzmh.r.t   300 0.9533 0.8839 0.9967 1.0000 2.1e-07
+830 candidates x 6 transforms, days ['20260430', '20261112', '20261113']
+-- zzmh: thresholds 119 in [1e-35, 0.1131], root points [(0.004501138, 0.1111), (0.004724223, 0.119)]; best of 4884:
+    0.081    sqrt lmie30                              below 0.000 above 0.023 intervals 0.98 root gap 0.021
+    0.087    sqrt lpe50                               below 0.004 above 0.023 intervals 1.00 root gap 0.030
+    0.117     -2b x.(zzpk.low-zzpk.p)/zzpk.p          below 0.000 above 0.024 intervals 1.00 root gap 0.046
+    0.117     -2b x.(zzxu.low-zzxu.p)/zzxu.p          below 0.000 above 0.024 intervals 1.00 root gap 0.046
+    0.120    sqrt lpe100                              below 0.001 above 0.024 intervals 1.00 root gap 0.047
+    0.120      2b x.(zzpk.p-zzpk.low)/zzpk.low        below 0.000 above 0.027 intervals 1.00 root gap 0.047
+    0.120      2b x.(zzxu.p-zzxu.low)/zzxu.low        below 0.000 above 0.027 intervals 1.00 root gap 0.047
+    0.175    sqrt lpek50                              below 0.000 above 0.027 intervals 0.99 root gap 0.070
+    0.191    sqrt x.(zzup.pf-zzup.ps)/zzup.ps         below 0.000 above 0.000 intervals 0.98 root gap 0.087
+    0.194     -2b x.(zzpk.low-zzpk.open)/zzpk.open    below 0.043 above 0.056 intervals 1.00 root gap 0.048
+(implied_scan step printed nothing: r125.sh's grep hid its error. Rerun of that one command, timeout 120, saved to data/reports/r125_scan_err.txt:)
+implied_scan.py: error: argument --transforms: expected one argument   (rc=2)
+-> argparse reads "-2b,4b2" as an option because it starts with "-"; needs --transforms=-2b,4b2
+[20:39:13] done
