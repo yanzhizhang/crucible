@@ -1,0 +1,14 @@
+R97c on 97 (decode_datayes_day.py b5adf35f, catalog.py a05937a3; user asked for DataYes on the 224 days), ended 12:40:49. data/reports/r97c_decode.txt, 28 lines, full:
+decode (tail -15; begins mid-table, header cut by tail):
+| 3554 | 2014 | 38256639 | 38269561 | 38256639 | 0.000338 |
+| 3554 | 2015 | 39944119 | 39945558 | 39944119 | 0.000036 |
+| 3554 | 2016 | 41165095 | 41167600 | 41165095 | 0.000061 |
+== snapshots per symbol (feitu reference: SZSE ~4700-4800 at 3 s, SSE similar):
+shape: (2, 5)  market_id | snap_median | snap_min | snap_p05 | symbols
+ 3553 | 4791.0 | 812 | 2984.0 | 2318
+ 3554 | 4415.5 | 405 | 2721.0 | 2906
+  summary_inventory: no pub_tdx_daily, left out
+catalog (tail -3):
+[catalog.build] wall=8.90s rows=26,059 (0.00M/s) cpu avg=11% peak=37% of 384 cores rss_peak=6687MB read=6165MB (693MB/s) n=34
+catalog: /work/crucible_data/catalog_dysl2.duckdb
+ls dysl2_raw/kind=quotation: date=20261102 date=20261103 date=20261104 date=20261105 date=20261106 date=20261109 date=20261110 date=20261111 date=20261112 date=20261113
