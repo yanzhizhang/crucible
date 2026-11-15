@@ -1,0 +1,94 @@
+R97 on 97 (r97.sh 315a1f91, dy_exact_probe.py 644ea685), run in parallel with R96 at the user's request, 12:05:01 - 12:06:13. 256 lines; transcribed (lists joined with ' | ', paths under the listed top dir shortened to the last name).
+[12:05:01] 1 days
+ DataYesSharesL2 (last 30): 20260928 20260929 20260930 20261008 20261009 20261012 20261013 20261014 20261015 20261016 20261019 20261020 20261021 20261022 20261023 20261026 20261027 20261028 20261029 20261030 20261102 20261103 20261104 20261105 20261106 20261109 20261110 20261111 20261112 20261113
+ ReadyFlag (last 10): dys_finish.20261102 dys_finish.20261103 dys_finish.20261104 dys_finish.20261105 dys_finish.20261106 dys_finish.20261109 dys_finish.20261110 dys_finish.20261111 dys_finish.20261112 dys_finish.20261113
+ dysl2_raw/quotation: 20261104 20261105 20261106 20261109 20261110 20261111 20261112 20261113
+ dysl2_raw/order: (same 8 days)
+ dysl2_raw/transaction: (same 8 days)
+ dysl2_raw/index: (same 8 days)
+ feitu_raw/quotation: 20260429 20260430 20260901 20260902 20260903 20260904 20260907 20260908 20260909 20260910 20260911 20260914 20260915 20260916 20260917 20260918 20260921 20260922 20260923 20260924 20260928 20260929 20260930 20261008 20261009 20261012 20261013 20261014 20261015 20261016 20261019 20261020 20261021 20261022 20261023 20261026 20261027 20261028 20261029 20261030 20261102 20261103 20261104 20261105 20261106 20261109
+ feitu_raw/order: 20260428 + the quotation list (20260429 .. 20261109)
+ feitu_raw/transaction: 20260401 20260402 20260403 20260407 20260408 20260409 20260410 20260413 20260414 20260415 20260416 20260417 20260420 20260421 20260422 20260423 20260424 20260427 20260428 + the quotation list (20260429 .. 20261109)
+ feitu_raw/index: 20260901 .. 20261109 as in quotation but WITHOUT 20260429, 20260430 and WITHOUT 20260921
+ 224 log days: 2026-11-02 2026-11-03 2026-11-04 2026-11-05 2026-11-06 2026-11-09 2026-11-10 2026-11-11 2026-11-12 2026-11-13
+[12:05:01] 2 space and inodes
+Filesystem Size Used Avail Use% Mounted on: /dev/sda1 25T 8.1T 17T 34% /work
+Filesystem Inodes IUsed IFree IUse% Mounted on: /dev/sda1 2625070464 7392089 2617678375 1% /work
+ -- /work/crucible_data (size, inodes, path), sorted by inodes
+ 0 1 duckdb_tmp | 0 1 seed_224 | 2.3M 1 catalog_dysl2.duckdb | 7.1M 1 catalog.duckdb | 780K 1 catalog_pmmp.duckdb | 0 2 pm_target_prod | 22M 2 pm_alpha
+ 356K 2 bench | 8.0K 3 chrono_cfg | 0 5 feitu_check_raw | 38M 5 sod_dcp | 20M 6 pm_livev1 | 728K 6 zyq_stocks | 0 7 models_gen
+ 1.1G 10 mp | 4.0K 10 pm_target_r22 | 1.8G 19 pm_mp | 539M 22 pm_signals | 1.3M 24 logs | 214M 32 pm_orders | 9.8G 37 chrono_logs
+ 17M 49 hstats_0430 | 1.1G 56 mp_raw | 97M 57 chrono_poslog
+ 82M 177 hstats_extra | 46G 369 old_xtp_tdf | 46G 616 cache | 80G 621 dysl2_raw | 7.8G 625 tmp | 68K 796 hstats_view | 285G 2194 xtp_raw | 52G 5846 store | 581G 36023 feitu_raw
+ -- /work/crucible/data (size, inodes, path), sorted by inodes
+ 0 1 implied_scan_r95 | 0 1 implied_scan_work | 0 1 missing_damage_work | 11M 2 featpred_3s | 36M 2 featgen_r65 | 4.0M 2 featgen_book_3s | 655M 2 featgen_3s
+ 33M 3 side_r92 | 66M 3 side_r95 | 71M 3 featgen_r62 | 71M 3 featgen_r63 | 71M 3 featgen_r64 | 71M 3 featgen_r67 | 71M 3 featgen_x0 | 71M 3 featgen_x1 | 448K 3 featgen_book
+ 23M 4 bookgen_work | 2.4M 4 invert_r96_1112 | 48M 5 featgen_selftest | 696K 5 side_r79 | 50M 6 featvec_r63_double | 53M 6 featvec_selftest | 950M 6 featvec_3s
+ 36M 7 featgen | 32M 8 engine_m7 | 32M 8 engine_r68a | 32M 8 engine_r68b | 245M 8 engine_3s | 300M 8 invert_r96_0430 | 1.1M 9 side_r90
+ 80M 10 featvec_r63 | 80M 10 featvec_r64 | 80M 10 featvec_r67 | 80M 10 featvec_r69 | 80M 10 featvec_r70_float32 | 100M 10 featvec_r62 | 100M 10 featvec_r70_double | 3.2M 10 featpred_r70
+ 27M 11 lgbpred_work | 12M 19 backfill_r80 | 1.9G 32 day_r71 | 1.9G 33 day_r71_serial
+ 34M 49 backfill_r91_F | 84M 61 pm_export_sod | 87M 82 backfill_3s_r84_dysl2 | 79M 109 backfill_r91_A | 79M 124 backfill_r91_B | 79M 124 backfill_seedmap
+ 635M 127 engine_seed | 721M 147 engine | 439M 344 pm_export | 246M 368 pm_export_all | 550M 739 backfill_3s | 11M 2226 pytest_tmp_duckdb156 | 11M 2226 pytest_tmp_duckdb2 | 31G 4727 reports
+[12:05:02] 3 dy_exact_probe
+== 20261112 /mnt/TickDataRepo/DataYesSharesL2/20261112 23612 entries
+ quotation: 12 entries (largest stocks)
+  maxbiddur n= 63,514 max=4.294967E+9 >2^53=0 >2^63=0 frac=0 sci=0
+  maxselldur n= 63,514 max=4.294967E+9 >2^53=0 >2^63=0 frac=0 sci=0
+  totalaskvol n= 63,514 max=1.934903E+8 >2^53=0 >2^63=0 frac=0 sci=0
+  totalbidvol n= 63,514 max=1.928639E+8 >2^53=0 >2^63=0 frac=0 sci=0
+  turnover n= 63,514 max=1.514721E+8 >2^53=0 >2^63=0 frac=45850 sci=0
+  widbuymon n= 63,514 max=1.457230E+8 >2^53=0 >2^63=0 frac=36219 sci=0
+  volume(tradvolume) n= 63,514 max=1.365872E+8 >2^53=0 >2^63=0 frac=0 sci=0
+  widsellmon n= 63,514 max=1.300194E+8 >2^53=0 >2^63=0 frac=52795 sci=0
+  widsellvol n= 63,514 max=1.200758E+8 >2^53=0 >2^63=0 frac=0 sci=0
+  widbuyvol n= 63,514 max=1.028988E+8 >2^53=0 >2^63=0 frac=0 sci=0
+  bidvolume1 n= 63,034 max=7.187910E+7 | bidvolume2 63,034 6.691680E+7 | askvolume2 63,034 6.634410E+7 | askvolume1 63,034 5.774180E+7
+  askvolume3 59,950 4.544190E+7 | bidvolume3 59,950 3.548920E+7 | askvolume4 59,950 3.208600E+7 | bidvolume4 59,950 1.841720E+7 | askvolume5 59,950 1.816010E+7
+  bidvolume5 59,950 1.345990E+7 | askvolume6 59,950 1.344130E+7 | askvolume7 59,950 1.148880E+7 | askvolume8 59,950 1.132080E+7 | seqno 63,514 1.017114E+7
+  bidvolume6 59,950 7.489600E+6 | askvolume9 59,950 6.983910E+6 | askvolume10 59,950 5.807300E+6 | bidvolume7 59,950 4.463900E+6 | bidvolume8 59,950 2.756300E+6
+  bidvolume9 59,920 2.744000E+6 | bidvolume10 59,347 2.557400E+6
+  (all of these: >2^53=0 >2^63=0 frac=0 sci=0)
+  tradenumber(tradnumber) 63,514 1.276800E+4 | widbuynum 63,514 1.112500E+4 | widsellnum 63,514 1.046600E+4 | totalbuynum(totbidnum) 63,514 1.015900E+4
+  numordersb3 59,950 3.732000E+3 | totalsellnum(totsellnum) 63,514 3.008000E+3 | numordersb1 63,034 2.504000E+3 | numorderss2 63,034 2.237000E+3
+  numordersb4 59,950 1.870000E+3 | numordersb2 63,034 1.819000E+3 | numorderss3 59,950 1.743000E+3 | numorderss4 59,950 1.727000E+3 | numorderss1 63,034 1.198000E+3
+  numordersb5 59,950 1.080000E+3 | numordersb6 59,950 1.054000E+3 | numordersb7 59,950 1.028000E+3 | numordersb10 59,347 5.050000E+2 | numorderss6 59,950 4.650000E+2
+  numorderss5 59,950 4.620000E+2 | numorderss7 59,950 4.570000E+2 | numordersb9 59,920 4.250000E+2 | numorderss8 59,950 3.620000E+2 | numorderss9 59,950 2.990000E+2
+  numordersb8 59,950 2.680000E+2 | numorderss10 59,950 2.300000E+2 | asknum(sellnum) 63,514 5.200000E+1 | bidnum 63,514 4.700000E+1
+  (all of the above: >2^53=0 >2^63=0 frac=0 sci=0)
+  highlimitprice n= 63,514 max=4.850000E+0 frac=63514 | weightedavgaskprice(wavgaskpri) 63,514 4.570000E+0 frac=63034
+  askprice10 59,950 4.510000E+0 frac=59677 | askprice9 59,950 4.500000E+0 frac=58808 | askprice8 59,950 4.490000E+0 frac=57664 | askprice7 59,950 4.480000E+0 frac=55648
+  askprice6 59,950 4.470000E+0 frac=59505 | askprice5 59,950 4.460000E+0 frac=59929 | askprice4 59,950 4.450000E+0 frac=59929 | askprice3 59,950 4.440000E+0 frac=59944
+  askprice1 63,034 4.420000E+0 frac=60218 | bidprice1 63,034 4.420000E+0 frac=62243 | precloseprice(precloprice) 63,514 4.410000E+0 frac=63514
+  bidprice3 59,950 4.390000E+0 frac=56173 | bidprice4 59,950 4.380000E+0 frac=59388 | weightedavgbidprice(wavgbidpri) 63,514 4.370000E+0 frac=61414
+  bidprice5 59,950 4.370000E+0 frac=59950 | bidprice6 59,950 4.360000E+0 frac=59950 | bidprice7 59,950 4.350000E+0 frac=59950 | bidprice8 59,950 4.340000E+0 frac=59950 | bidprice9 59,920 4.330000E+0 frac=59920
+  (prices: >2^53=0 >2^63=0 sci=0)
+  bidprice10 59,347 4.320000E+0 frac=59347 | lowlimitprice 63,514 3.970000E+0 frac=63514 | imagestatus 63,514 1.000000E+0 frac=0
+  openprice 63,514 max=0.000000E+6 frac=60663 | highprice 63,514 0.000000E+6 frac=58881 | lowprice 63,514 0.000000E+6 frac=60381 | lastprice 63,514 0.000000E+6 frac=58905 | closeprice 63,514 0.000000E+6 frac=984
+  altwavgbidpri, altwavgaskpri, etfbuynumber, etfbuyvolume, etfbuymoney, etfsellnumber, etfsellvolume, etfsellmoney, yieldtomatu, totwarexnum, warlowerpri, warupperpri, iopv: n= 63,514 max=0.000000E+6 frac=0
+  askprice2 63,034 max=0.000000E+6 frac=58488 | bidprice2 63,034 max=0.000000E+6 frac=59377
+  (all quotation lines: >2^53=0 >2^63=0 sci=0)
+ index: 575 entries (all)
+  turnover n= 3,601,424 max=1.017631E+12 >2^53=0 >2^63=0 frac=3174972 sci=0
+  volume n= 1,811,086 max=1.032190E+11 frac=0
+  volume(tradvolume) n= 1,790,338 max=1.025152E+11 frac=0
+  tradenumber(turnnum) n= 1,811,086 max=1.263710E+7 frac=0
+  seqno n= 3,601,424 max=1.468841E+6 frac=0
+  highprice(highindex) n= 3,601,424 max=4.853722E+4 frac=3458370
+  lastprice(lastindex) n= 3,601,424 max=4.853722E+4 frac=3589457
+  openprice(openindex) n= 3,601,424 max=4.846442E+4 frac=3458392
+  lowprice(lowindex) n= 3,601,424 max=4.846442E+4 frac=3458381
+  precloseprice(precloindex) n= 1,811,086 max=4.843165E+4 frac=1811086
+  precloseprice(precloseindex) n= 1,790,338 max=1.868053E+4 frac=1789511
+  closeprice(closeindex) n= 1,790,338 max=1.832048E+4 frac=135048
+  mdstreamid n= 1,811,086 max=9.200000E+2 frac=0
+  securityidsource n= 1,811,086 max=1.020000E+2 frac=0
+  datastatus n= 1,790,338 max=0.000000E+6 frac=0
+  (index: all >2^53=0 >2^63=0 sci=0)
+ Traceback (most recent call last):
+  File "/work/crucible/research/dy_exact_probe.py", line 119, in <module> main()
+  File "/work/crucible/research/dy_exact_probe.py", line 100, in main
+    raw = pl.read_parquet(got, columns=["symbol_id", "time", "total_volume", "total_amount"]) if got else None
+  ... polars/io/parquet/functions.py line 303 read_parquet -> lazyframe/frame.py 2240 _collect_eager -> lazyframe/engine.py 443 collect
+ polars.exceptions.SchemaError: extra column in file outside of expected schema: file, hint: specify this column in the schema, or pass extra_columns='ignore' in scan options. File containing extra column: '/work/crucible_data/dysl[cut at 230 by r97.sh]
+[12:06:13] done
+(The probe only got through 20261112's quotation + index widths; 20261113 never ran.)
