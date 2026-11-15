@@ -63,6 +63,8 @@ def main() -> None:
     ap.add_argument("--max-score", type=float, default=0.10)
     ap.add_argument("--min-gain", type=float, default=0.0005)
     ap.add_argument("--steps", type=int, default=25)
+    ap.add_argument("--options", default="", help="extra options col:transform:candidate,... (e.g. the family-grammar leads)")
+    ap.add_argument("--seed", default="", help="options col:transform:candidate,... filled before the greedy starts (kept whatever they do)")
     ap.add_argument("--backward", action="store_true", help="start from every column's best option filled, drop fills while that raises the worst day")
     ap.add_argument("--x-dir", required=True)
     ap.add_argument("--base", required=True)
@@ -93,6 +95,22 @@ def main() -> None:
             with np.errstate(divide="ignore", invalid="ignore"):
                 vals[d] = v if tr == "id" else -v if tr == "-id" else 1.0 / v if tr == "1/b" else raw_xs(v, D.marks, tr)
         opts.append((col, tr, cand, sc, vals))
+    def make(col: str, tr: str, cand: str) -> tuple | None:
+        if col not in ix or tr not in RAW or any(cand not in D.bases for D in days.values()):
+            print(f"  option {col}:{tr}:{cand} skipped (not a column / transform / candidate on every day)")
+            return None
+        vals = {}
+        for d, D in days.items():
+            v = D.bases[cand]
+            with np.errstate(divide="ignore", invalid="ignore"):
+                vals[d] = v if tr == "id" else -v if tr == "-id" else 1.0 / v if tr == "1/b" else raw_xs(v, D.marks, tr)
+        return (col, tr, cand, -1.0, vals)
+
+    for spec in [x for x in a.options.split(",") if x]:
+        o = make(*spec.split(":", 2))
+        if o:
+            opts.append(o)
+    seeds = [o for o in (make(*x.split(":", 2)) for x in a.seed.split(",") if x) if o]
     print(f"{len(opts)} options over {len({o[0] for o in opts})} columns, days {ds}", flush=True)
 
     def score(d: str, M: np.ndarray) -> float:
@@ -121,6 +139,13 @@ def main() -> None:
     cur = dict(s0)
     print("baseline " + "  ".join(f"{d} {s0[d]:.4f}" for d in ds), flush=True)
     used: set[str] = set()
+    for col, tr, cand, _, vals in seeds:
+        for d in ds:
+            M[d][:, ix[col]] = vals[d]
+        used.add(col)
+    if seeds:
+        cur = {d: score(d, M[d]) for d in ds}
+        print("seeded " + ", ".join(f"{o[0]} <- {o[1]} {o[2]}" for o in seeds) + "  now " + "  ".join(f"{d[4:]} {cur[d]:.4f} ({cur[d] - s0[d]:+.4f})" for d in ds), flush=True)
     if a.backward:  # fills interact (R114): start from all of them, peel off the ones that hurt
         first: dict[str, int] = {}
         for k, o in enumerate(opts):
