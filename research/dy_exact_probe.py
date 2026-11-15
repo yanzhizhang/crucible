@@ -46,8 +46,11 @@ def scan(frames: list[pl.DataFrame]) -> dict[str, dict[str, object]]:
             if ok.mean() < 0.99:
                 continue  # a text column
             s = s.filter(ok)
-            r = out.setdefault(c, {"n": 0, "max": Decimal(0), "gt53": 0, "gt63": 0, "frac": 0, "sci": 0})
+            r = out.setdefault(c, {"n": 0, "max": Decimal(0), "gt53": 0, "gt63": 0, "frac": 0, "sci": 0, "fd": 0, "ex": ""})
             r["n"] += s.len()
+            fd = s.str.extract(r"\.(\d+)", 1).fill_null("").str.len_chars()  # digits written after the point
+            if fd.max() > r["fd"]:
+                r["fd"], r["ex"] = int(fd.max()), s[int(fd.arg_max())]
             r["sci"] += int(s.str.contains(r"[eE]").sum())
             r["frac"] += int(s.str.contains(r"\.\d*[1-9]").sum())
             ip = s.str.replace(r"^-", "").str.replace(r"[.eE].*$", "").str.len_chars()
@@ -70,7 +73,24 @@ def show(title: str, res: dict[str, dict[str, object]]) -> None:
     print(f"  {title}")
     for c, r in sorted(res.items(), key=lambda kv: -kv[1]["max"]):
         print(f"    {c:<24} n={r['n']:>11,}  max={r['max']:.6E}  >2^53={r['gt53']:<6} >2^63={r['gt63']:<6} "
-              f"frac={r['frac']:<9} sci={r['sci']}")
+              f"frac={r['frac']:<9} sci={r['sci']} decimals<={r['fd']} e.g. {r['ex']}")
+
+
+def trade_sum(trades: pl.DataFrame, quotes: pl.DataFrame) -> str:
+    """Exact sum of price x qty over the day's fills vs the last snapshot turnover / volume (is turnover exact?)."""
+    t = DY.from_datayes(trades, "transaction")
+    if "functioncode" in t.columns:
+        t = t.filter(pl.col("functioncode").is_in(["F", "70", "0", ""]) | pl.col("functioncode").is_null())
+    amt = sum((Decimal(p.strip()) * Decimal(q.strip()) for p, q in zip(t["price"].to_list(), t["volume"].to_list())
+               if p and q), Decimal(0))
+    vol = sum((Decimal(q.strip()) for q in t["volume"].to_list() if q), Decimal(0))
+    q = DY.from_datayes(quotes, "quotation")
+    m, _ = DY.quote_mapping(q.columns)
+    last = q.tail(1).to_dicts()[0]
+    ta, tv = Decimal(last[m["total_amount"]].strip()), Decimal(last[m["total_volume"]].strip())
+    codes = sorted(set(DY.from_datayes(trades, "transaction")["functioncode"].to_list())) if "type" in trades.columns else []
+    return (f"fills {t.height:,} (codes {codes}): sum px*qty={amt} vs turnover={ta} (diff {amt - ta}); "
+            f"sum qty={vol} vs volume={tv} (diff {vol - tv})")
 
 
 def main() -> None:
@@ -115,6 +135,12 @@ def main() -> None:
                         da = (dec(repr(ra)) or 0) - (dec(ta or "0") or 0)
                         line += f" | dysl2_raw volume={rv} amount={ra!r} (diff {dv} / {da})"
                 print(line)
+                hit = idx.get((sym, "3")) if kind == "quotation" else None
+                if hit:
+                    try:
+                        print(f"      {trade_sum(DY.read(pre + hit[0]), DY.read(pre + idx[(sym, '0')][0]))}")
+                    except Exception as e:  # noqa: BLE001 -- a probe: report and go on
+                        print(f"      trade sum failed: {e!r}"[:200])
 
 
 if __name__ == "__main__":
