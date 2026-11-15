@@ -1,0 +1,33 @@
+R100c on 97 (r100c.sh defbf7d4, implied_scan.py ca5827ed), ended 14:15:39. Full output transcribed (candidate min | 0430 | 1112).
+ 20260430: 64 columns filled from data/invert_r96_1112/implied_20260430.parquet; targets left as they were
+ 20261112: 64 columns filled from data/invert_r96_1112/implied_20261112.parquet; targets left as they were
+baseline similarity 20260430 0.9977 (bases found at 1.000 of rows), 20261112 0.9958 (bases found at 1.000 of rows)
+104 candidate bases (104 from --extra)
+ (RuntimeWarning line: else per_mark_rank(v, D.marks, -1.0) if tr == "-rank" else 1.0 / v if tr == "1/b" else v)
+-- zzeg: 70 candidates in 41s; best by the smaller day gain:
+ 1/zzel.b +0.0000 | +0.0000 | +0.0000
+ 1/zzop.i +0.0000 | +0.0000 | +0.0000
+ zzba -0.0005 | -0.0005 | -0.0003
+ zzel.a -0.0660 | -0.0660 | -0.0501
+ const0.99 -0.0949 | -0.0949 | -0.0844 ; 1/const1.01 same
+ const0.995 -0.1095 | -0.1095 | -0.0994 ; 1/const1.005 same
+ const0.998 -0.1278 | -0.1278 | -0.1080 ; 1/const1.002 same
+ i905.last/pre -0.1353 | -0.1353 | -0.1001
+ 1/i852.last/last30m -0.1397 | -0.1397 | -0.1309
+ 1/i852.last/last15m -0.1408 | -0.1408 | -0.1249
+ i300.last/pre -0.1409 | -0.1409 | -0.1099
+ 1/i905.last/last15m -0.1418 | -0.1418 | -0.1256
+ 1/i905.last/last30m -0.1419 | -0.1419 | -0.1309
+ 1/i852.last/last5m -0.1428 | -0.1428 | -0.1197
+ 1/i905.last/last5m -0.1432 | -0.1432 | -0.1195
+ 1/i300.last/last30m -0.1435 | -0.1435 | -0.1252
+ 1/i905.last/last1m -0.1435 | -0.1435 | -0.1180
+ 1/i852.last/last1m -0.1436 | -0.1436 | -0.1176
+ i905.last/last30m -0.1436 | -0.1436 | -0.1102
+ 1/i300.last/last15m -0.1436 | -0.1436 | -0.1205
+ 1/i300.last/last1m -0.1439 | -0.1439 | -0.1176
+ i300.last/last15m -0.1439 | -0.1439 | -0.1157
+ share of candidates helping on every day: 0.000
+ best on 20260430: same 25 in the same order, except 1/i852.last/pre (0430 -0.1243, min -0.1763, 1112 -0.1763) at place 9 and i300.last/last15m not listed.
+x.zzeg: grep finds "zzeg" only in the two "-- zzeg:" headers; no x.zzeg candidate line.
+[14:15:39] done
