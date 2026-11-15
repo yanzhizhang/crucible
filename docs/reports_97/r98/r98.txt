@@ -1,0 +1,30 @@
+R98 on 97 (r98.sh bf8e2fe5, col_probe.py 302fc00b, implied_scan.py 8dd3c2e0), 12:46:09 - 13:03:37, run in parallel with R99. 66 lines, full.
+[12:46:09] 1 col_probe zzeg, generation of 20261112
+zzeg = column 14 of 209; model files ['/work/crucible_data/models_gen/B/202501/lgb/livev1_fit1/model_s1.txt']
+== model_s1.txt: feature_names[14]=Column_14  training range feature_infos=[0.8665543794631958:1.0968681573867798]
+  trees 2000; 2410 splits, gain share 0.0262; root splits 0
+  decision_type (categorical, default_left, missing 0 none/1 zero/2 nan): (0, 1, 0)x2410
+  124 distinct thresholds in [0.984974, 1.03005]; integer-ish 0.07, half-ish 0.00; quantiles 0.985 0.995 0.9986 1 1.001 1.009 1.03
+  gaps: min 5.96e-08 median 8.42e-05; first 12 [0.984974, 0.989491, 0.991765, 0.993068, 0.993915, 0.994525, 0.994988, 0.995378, 0.995701, 0.995979, 0.996207, 0.996435]; last 6 [1.010827, 1.012439, 1.014612, 1.017451, 1.022091, 1.030053]
+  splits by depth: d1:73 d2:195 d3:390 d4:669 d5:1083
+  gain by depth (6 = 6+): d1:0.07 d2:0.13 d3:0.18 d4:0.26 d5:0.37
+  parent columns: zzpe.c 59, zzba 54, zzel.b 52, zzpe.e 50, zzxu.b 48, zzop.i 48, zzxu.a 46, zzzl2.c 44, zzzl2.g 43, zzxo 42
+  child columns:  zzpe.c 95, zzel.b 87, zzzl2.b 78, zzxu.b 69, zzpe.d 59, zzop.j 56, zzxu.a 52, zzzl2.c 46, zzzl2.e 42, zzel.a 40
+implied zzeg 20261112: 3,263 rows, 300 stocks; total var 0.01089, within-stock 0.01085 (between-stock share 0.004); quantiles -0.04508 0.9972 1.002 1.02 2.06
+implied zzeg 20260430: 2,276 rows, 298 stocks; total var 0.02039, within-stock 0.02032 (between-stock share 0.003); quantiles -0.04508 0.9965 1 1.02 2.06
+per-stock mean of implied zzeg, 20261112 vs 20260430: spearman -0.104 over 278 stocks
+[12:46:10] 1 col_probe zzeg, generation of 20260430
+ (identical to the block above line for line: the same model file 202501/lgb/livev1_fit1/model_s1.txt was used for both "generations")
+[12:46:10] 2 implied scan of zzeg, all sources
+baseline similarity 20261112 0.6558 (bases found at 1.000 of rows), 20260430 0.6282 (bases found at 1.000 of rows)
+397 candidate bases (308 from --extra)
+-- zzeg: no training-CDF points on every day, using 5,539 implied values as the CDF
+-- zzeg: 1810 candidates in 1043s; best by the smaller day gain:   (candidate | min | 1112 | 0430)
+   all 25 listed candidates: min -0.0082 | 20261112 +0.0214 | 20260430 -0.0082 --
+   cal:rank:gen.trading_seconds_since_0930, cal:rank:-gen.trading_seconds_since_0930, cal:rank:ZZWA.an@0, cal:rank:-ZZWA.an@0, cal:rank:ZZWA.an@1, cal:rank:-ZZWA.an@1,
+   cal:rank:ZZWA.aq@0, cal:rank:-ZZWA.aq@0, cal:rank:ZZWA.aq@1, cal:rank:-ZZWA.aq@1, cal:rank:ZZWA.bn@0, cal:rank:-ZZWA.bn@0, cal:rank:ZZWA.bn@1, cal:rank:-ZZWA.bn@1,
+   cal:rank:ZZWA.bq@0, cal:rank:-ZZWA.bq@0, cal:rank:ZZWA.bq@1, cal:rank:-ZZWA.bq@1, cal:exp.COUNTRY, cal:-exp.COUNTRY, cal:|exp.COUNTRY|, cal:rank:exp.COUNTRY,
+   cal:rank:-exp.COUNTRY, cal:weekday_mon0, cal:-weekday_mon0
+   share of candidates helping on every day: 0.000
+[13:03:37] done
+(supervisor note: identical numbers across all 25 suggest these candidates are constant within a cross-section, i.e. equivalent to one fill value)
