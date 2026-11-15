@@ -67,12 +67,15 @@ class Day:
         self.cal = {k: (np.array(v[0]), np.array(v[1])) for k, v in json.loads((x_dir / f"cal_{d}.json").read_text()).items()}
 
 
-RAW_XS = {"dm", "-dm", "srank", "-srank", "abs4", "log", "log|b|"}
+RAW_XS = {"dm", "-dm", "srank", "-srank", "abs4", "log", "log|b|", "-2b", "2b", "4b2", "sqrt"}
 RAW = {"id", "1/b", "-id"} | RAW_XS
 
 
 def raw_xs(v: np.ndarray, marks: np.ndarray, tr: str) -> np.ndarray:
     """dm / -dm: minus the mark's cross-sectional mean; srank / -srank: rank in [-1, 1] per mark; abs4: |v| * 1e4."""
+    if tr in ("-2b", "2b", "4b2", "sqrt"):  # scalings seen in PM's states: zzmh.r = 4 dd^2 -> zzmh ~ 2 dd = sqrt(zzmh.r)
+        with np.errstate(invalid="ignore"):
+            return -2 * v if tr == "-2b" else 2 * v if tr == "2b" else 4 * v * v if tr == "4b2" else np.sqrt(v)
     if tr in ("log", "log|b|"):  # natural log of the value (non-positive -> NaN) or of its magnitude
         with np.errstate(divide="ignore", invalid="ignore"):
             return np.log(np.abs(v)) if tr == "log|b|" else np.where(v > 0, np.log(np.where(v > 0, v, 1.0)), np.nan)
@@ -214,7 +217,7 @@ def main() -> None:
         for (b, tr), gain in gains.items():
             if len(gain) == len(days):
                 nm = b[2:] if b.startswith("x.") else f"gen.{b}"
-                label = {"b": f"cal:{nm}", "-b": f"cal:-{nm}", "|b|": f"cal:|{nm}|", "rank": f"cal:rank:{nm}", "-rank": f"cal:rank:-{nm}", "id": nm, "1/b": f"1/{nm}", "-id": f"-{nm}", "dm": f"dm:{nm}", "-dm": f"dm:-{nm}", "srank": f"srank:{nm}", "-srank": f"srank:-{nm}", "abs4": f"|{nm}|*1e4", "log": f"log:{nm}", "log|b|": f"log|{nm}|"}[tr]
+                label = {"b": f"cal:{nm}", "-b": f"cal:-{nm}", "|b|": f"cal:|{nm}|", "rank": f"cal:rank:{nm}", "-rank": f"cal:rank:-{nm}", "id": nm, "1/b": f"1/{nm}", "-id": f"-{nm}", "dm": f"dm:{nm}", "-dm": f"dm:-{nm}", "srank": f"srank:{nm}", "-srank": f"srank:-{nm}", "abs4": f"|{nm}|*1e4", "log": f"log:{nm}", "log|b|": f"log|{nm}|", "-2b": f"-2*{nm}", "2b": f"2*{nm}", "4b2": f"4*{nm}^2", "sqrt": f"sqrt:{nm}"}[tr]
                 rows.append((min(gain.values()), label, gain))
         rows.sort(key=lambda r: -r[0])
         print(f"-- {tgt}: {len(rows)} candidates in {time.perf_counter() - t0:.0f}s; best by the smaller day gain:")

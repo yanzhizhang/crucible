@@ -21,6 +21,7 @@ EMAS: dict[str, tuple[str, float, str]] = {
     "zzba.p": ("both", 300, "snap_px"), "zzba.r": ("both", 300, "hl_trade"),  # decided on 97: 1e-4 exact every day
     "zzbd.pEmaT": ("trade", 100, "logp"), "zzbd.rEmaT": ("trade", 200, "logret"), "zzqj.r": ("trade", 30, "rvwap"),
     "zzeg.c.rEma|c0": ("snap", 300, "span"),  # 4-day channel mid, carried from yesterday (R111: value equal 0.98-1.00)
+    "zzmh.r": ("snap", 1, "mh_dd2"),  # PM's weight 1.1439 at the close = 1 s on 3 s snapshots; value 4 ((hm - p) / hm)^2
     # variants: "<pm key>|<tag>" is scored against the PM key next to the rule above (verify strips the tag).
     # clocks: snap / trade / both (updated by every event); "_wall" = no lunch removal (afternoon t + 5400),
     # "_exch" = the exchange stamp's trading clock; "|c<N>" (none now) = seeded from yesterday's PM state decayed by N s
@@ -112,6 +113,9 @@ def snap_value(st: Stock, what: str) -> float:
         return st.snap_px if st.snap_px == st.snap_px else st.pc
     if what == "span":  # zzeg.c: (high + low) / 2 of the previous 3 days and today's snapshot high / low fields
         return chan_span(st)
+    if what == "mh_dd2":  # zzmh.r: (2 x drawdown from zzmh.hm)^2 (R124b: PM / ((hm - p) / hm)^2 = 4.0000 on 294 stocks)
+        d = (st.hm - st.snap_px) / st.hm
+        return 4.0 * d * d
     if what == "rvwap":
         return st.amt / st.vol if st.vol > 0 else math.nan
     if what == "last_px":

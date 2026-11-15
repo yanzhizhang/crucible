@@ -27,7 +27,7 @@ inline double chan_span(const stock& st) {
 }
 
 enum class what : int { price, mid, logp, hl, hl0, hl_valid, tr_open, logret, one, snap_px, hl_snap, rvwap, hl_trade, tro, price0, price_pc,
-                        last_px, span };
+                        last_px, span, mh_dd2 };
 enum class clock_mod : int { none, wall, exch, o930 };
 
 inline double tc(double s) { return s <= 41400 ? s - 34200 : (s < 46800 ? 7200.0 : s - 46800 + 7200); }
@@ -59,6 +59,7 @@ inline what parse_what(const std::string& w) {
     if (w == "price_pc") return what::price_pc;
     if (w == "last_px") return what::last_px;
     if (w == "span") return what::span;
+    if (w == "mh_dd2") return what::mh_dd2;
     throw std::runtime_error("unknown value kind " + w);
 }
 
@@ -89,6 +90,7 @@ inline double snap_value(const stock& st, what w) {
     case what::rvwap: return st.vol > 0 ? st.amt / st.vol : qnan;
     case what::last_px: return st.last;
     case what::span: return chan_span(st);
+    case what::mh_dd2: { double d = (st.hm - st.snap_px) / st.hm; return 4.0 * d * d; }  // zzmh.r: (2 x drawdown from zzmh.hm)^2
     default: throw std::runtime_error("value kind not on the snapshot clock");
     }
 }
