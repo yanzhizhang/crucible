@@ -1,0 +1,24 @@
+R126 DONE 22:15:54 89 lines  (only the "===== summary" block was read, from screen; full file on 97 data/reports/r126.txt)
+===== summary
+[22:14:46] A 0429 / 0430 index stream from 2.23 (read-only there)
+  -rwxr-xr-x 1 1024 users 23774268 Jul 23 22:39 v3_index_2026_04_29_SH.zst
+  -rwxr-xr-x 1 1024 users 54124724 Jul 23 22:47 v3_index_2026_04_29_SZ.zst
+[W1.decode.index] wall=1.63s rows=2,709,231 (1.66M/s) cpu avg=1% peak=1% of 384 cores rss_peak=710MB read=91MB (56MB/s) n=6
+done 20260429: 2,709,231 rows
+  -rwxr-xr-x 1 1024 users 23891886 Jul 24 01:06 v3_index_2026_04_30_SH.zst
+  -rwxr-xr-x 1 1024 users 54225246 Jul 24 01:13 v3_index_2026_04_30_SZ.zst
+[W1.decode.index] wall=1.63s rows=2,707,926 (1.66M/s) cpu avg=0% peak=1% of 384 cores rss_peak=708MB read=92MB (56MB/s) n=6
+done 20260430: 2,707,926 rows
+[22:14:53] B 0430 at 3 s
+  vec      11.0s  20260430: assemble 2.3s, featvec 6.7s; 1,422,000 rows x 144 columns -> data/day_r126/vec/vec_20260430.parquet
+  pred     11.5s  20260430: 1,422,000 rows, 144 of 209 model columns filled, models ['202501/lgb/livev1_fit1/model_s1.txt']; assemble 4.2s, lgbpred 6.6s -> data/day_r126/pred/pred_20260430.parquet
+20260430: 1,422,000 rows (300 stocks x 4740 marks), PM found 0.978 -> data/full_0430
+  per-mark rank corr PM vs ours (open columns NaN): 0.6239; residual var 0.7922
+  (a) by time of day (30 min bins): bin, rows, mean |res|, corr
+       0-30 min 178,550 0.8204 0.4087 | 30-60 177,295 0.6883 0.5911 | 60-90 175,533 0.6424 0.6480 | 90-120 174,083 0.6321 0.6550
+     120-150 175,638 0.6436 0.6477 | 150-180 175,220 0.6095 0.6865 | 180-210 174,397 0.5871 0.7073 | 210-240 160,358 0.6302 0.6492
+  (b) by drawdown from zzmh.hm: bin, rows, mean res (PM above ours = +), mean |res|
+    [0,0) 2,660 +0.3225 1.2093 | [0,0.2%) 73,416 +0.3369 0.8519 | [0.2,0.5%) 166,893 +0.0975 0.6385 | [0.5,1%) 314,421 +0.0037 0.6240
+    [1,2%) 464,680 -0.0610 0.6183 | [2,4%) 296,388 -0.0527 0.6529 | [4,100%) 72,612 +0.0124 0.8982
+  (c) residual variance share by time scale: <15s 0.175 | 15-60s 0.145 | 1-5min 0.204 | 5-30min 0.174 | >30min 0.100
+[22:15:54] done
