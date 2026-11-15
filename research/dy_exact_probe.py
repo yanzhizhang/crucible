@@ -58,7 +58,8 @@ def scan(frames: list[pl.DataFrame]) -> dict[str, dict[str, object]]:
                     continue
                 r["gt53"] += v > I53
                 r["gt63"] += v > I63
-            cand = s.gather(ip.arg_sort(descending=True).head(64)).to_list() + wide[:64]
+            fv = s.cast(pl.Float64, strict=False).abs()  # only to pick candidates; the max itself is exact
+            cand = s.gather(fv.arg_sort(descending=True, nulls_last=True).head(64)).to_list() + wide[:64]
             m = max((v for v in (dec(x) for x in cand) if v is not None), default=Decimal(0))
             r["max"] = max(r["max"], m)
     return out
@@ -94,12 +95,12 @@ def main() -> None:
                 ents = sorted((e for e in ents if STOCKS.match(e[0])), key=lambda e: -e[2])[: a.top]
             frames = {sym: DY.read(pre + ref) for sym, ref, _ in ents}
             show(f"{kind}: {len(frames)} entries ({'all' if kind == 'index' else 'largest stocks'})", scan(list(frames.values())))
-            if kind != "index":
+            if kind not in ("index", "quotation"):
                 continue
-            got = list(a.raw.glob(f"kind=index/date={d}/*.parquet"))
+            got = list(a.raw.glob(f"kind={kind}/date={d}/part-*.parquet"))  # not _manifest.parquet
             raw = pl.read_parquet(got, columns=["symbol_id", "time", "total_volume", "total_amount"]) if got else None
             for sym, df in sorted(frames.items()):
-                if not INDEXES.match(sym) or df.is_empty():
+                if (kind == "index" and not INDEXES.match(sym)) or df.is_empty():
                     continue
                 df = DY.from_datayes(df, kind)
                 m, _ = DY.quote_mapping(df.columns)
@@ -111,7 +112,8 @@ def main() -> None:
                     if r.height:
                         rv, ra = r["total_volume"][0], r["total_amount"][0]
                         dv = (dec(str(rv)) or 0) - (dec(tv or "0") or 0)
-                        line += f" | dysl2_raw volume={rv} amount={ra!r} (volume diff {dv})"
+                        da = (dec(repr(ra)) or 0) - (dec(ta or "0") or 0)
+                        line += f" | dysl2_raw volume={rv} amount={ra!r} (diff {dv} / {da})"
                 print(line)
 
 
