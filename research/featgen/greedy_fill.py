@@ -63,6 +63,7 @@ def main() -> None:
     ap.add_argument("--max-score", type=float, default=0.10)
     ap.add_argument("--min-gain", type=float, default=0.0005)
     ap.add_argument("--steps", type=int, default=25)
+    ap.add_argument("--backward", action="store_true", help="start from every column's best option filled, drop fills while that raises the worst day")
     ap.add_argument("--x-dir", required=True)
     ap.add_argument("--base", required=True)
     ap.add_argument("--extra", default="")
@@ -120,6 +121,35 @@ def main() -> None:
     cur = dict(s0)
     print("baseline " + "  ".join(f"{d} {s0[d]:.4f}" for d in ds), flush=True)
     used: set[str] = set()
+    if a.backward:  # fills interact (R114): start from all of them, peel off the ones that hurt
+        first: dict[str, int] = {}
+        for k, o in enumerate(opts):
+            first.setdefault(o[0], k)
+        for col, k in first.items():
+            for d in ds:
+                M[d][:, ix[col]] = opts[k][4][d]
+        used = set(first)
+        cur = {d: score(d, M[d]) for d in ds}
+        print(f"all {len(used)} best fills  " + "  ".join(f"{d[4:]} {cur[d]:.4f} ({cur[d] - s0[d]:+.4f})" for d in ds), flush=True)
+        nan = {d: np.full(M[d].shape[0], np.nan) for d in ds}
+        while used:
+            cols = sorted(used)
+            base_n = len(opts)
+            opts.extend((c, "nan", "-", 0.0, nan) for c in cols)  # removal = the column back to NaN
+            todo = list(range(base_n, len(opts)))
+            res = {d: batch(d, M[d], todo) for d in ds}
+            del opts[base_n:]
+            gains = sorted(((min(res[d][i] - cur[d] for d in ds), i) for i in range(len(cols))), reverse=True)
+            g, i = gains[0]
+            print(f"  drop? best {cols[i]} min {g:+.4f}; next " + ", ".join(f"{cols[j]} {gg:+.4f}" for gg, j in gains[1:4]), flush=True)
+            if g < a.min_gain:
+                break
+            for d in ds:
+                M[d][:, ix[cols[i]]] = np.nan
+                cur[d] = res[d][i]
+            used.discard(cols[i])
+            print(f"  DROP {cols[i]:<10} now " + "  ".join(f"{d[4:]} {cur[d]:.4f} ({cur[d] - s0[d]:+.4f})" for d in ds), flush=True)
+        print("kept after backward: " + ", ".join(f"{c} <- {opts[first[c]][1]} {opts[first[c]][2]}" for c in sorted(used)), flush=True)
     for step in range(a.steps):
         todo = [k for k, o in enumerate(opts) if o[0] not in used]
         if not todo:
