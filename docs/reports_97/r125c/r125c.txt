@@ -1,0 +1,36 @@
+20260430: state at 240 marks x 300 stocks -> data/engine_r125/marks_20260430.parquet
+20260430: stop 54149.762 -> data/engine_r125/engine_20260430.json.gz (27s total)
+139 candidates x 4 transforms, days ['20260430', '20261112', '20261113']
+-- zzmh: thresholds 119 in [1e-35, 0.1131], root points [(0.004501138, 0.1111), (0.004724223, 0.119)]; best of 554:
+    0.081    sqrt lmie30                                   below 0.000 above 0.023 intervals 0.98 root gap 0.021
+    0.087    sqrt lpe50                                    below 0.004 above 0.023 intervals 1.00 root gap 0.030
+    0.120    sqrt lpe100                                   below 0.001 above 0.024 intervals 1.00 root gap 0.047
+    0.175    sqrt lpek50                                   below 0.000 above 0.027 intervals 0.99 root gap 0.070
+    0.198    sqrt microprice_minus_mid_rel                 below 0.041 above 0.000 intervals 0.90 root gap 0.029
+    0.199    sqrt lpe200                                   below 0.000 above 0.027 intervals 0.99 root gap 0.082
+    0.204    sqrt depth_weighted_price_5lvl_minus_mid_rel  below 0.001 above 0.000 intervals 0.97 root gap 0.085
+    0.229    sqrt x.zzmh.r                                 below 0.001 above 0.062 intervals 1.00 root gap 0.083
+    0.240    sqrt lpe25                                    below 0.015 above 0.023 intervals 0.99 root gap 0.097
+    0.267    sqrt lpes600                                  below 0.000 above 0.048 intervals 0.99 root gap 0.105
+baseline similarity 20260430 0.6282 (bases found at 1.000 of rows), 20261112 0.6558 (bases found at 1.000 of rows), 20261113 0.6790 (bases found at 1.000 of rows)
+50 candidate bases (50 from --extra)
+-- zzmh: 92 candidates in 57s; best by the smaller day gain:
+   zzbd.rEmaT          min -0.0125  20260430 -0.0125  20261112 +0.0057  20261113 +0.0079
+   zzbd.rEmaS          min -0.0159  20260430 -0.0159  20261112 +0.0054  20261113 +0.0076
+   zzgh.nb|snappx      min -0.0172  20260430 -0.0145  20261112 -0.0172  20261113 -0.0151
+   zzgh.nb|vol         min -0.0173  20260430 -0.0141  20261112 -0.0173  20261113 -0.0151
+   zzgh.nb             min -0.0175  20260430 -0.0143  20261112 -0.0175  20261113 -0.0150
+   sqrt:zzgh.ncancel   min -0.0177  20260430 -0.0035  20261112 -0.0177  20261113 -0.0085
+   zzgh.ncancel        min -0.0177  20260430 -0.0035  20261112 -0.0177  20261113 -0.0085
+   zzgh.nb|cnt         min -0.0236  20260430 -0.0138  20261112 -0.0236  20261113 -0.0163
+   share of candidates helping on every day: 0.000
+   best on 20260430:
+   sqrt:zzgh.ncancel   20260430 -0.0035  min -0.0177  1112 -0.0177  1113 -0.0085
+   zzgh.ncancel        20260430 -0.0035  min -0.0177  1112 -0.0177  1113 -0.0085
+   zzgh.nb|ord         20260430 -0.0124  min -0.0268  1112 -0.0268  1113 -0.0132
+   zzbd.rEmaT          20260430 -0.0125  min -0.0125  1112 +0.0057  1113 +0.0079
+   zzgh.nb|ordvol      20260430 -0.0133  min -0.0290  1112 -0.0290  1113 -0.0138
+   zzgh.nb|cnt         20260430 -0.0138  min -0.0236  1112 -0.0236  1113 -0.0163
+   zzgh.nb|vol         20260430 -0.0141  min -0.0173  1112 -0.0173  1113 -0.0151
+   zzmh.r              20260430 -0.0142  min -0.0278  1112 -0.0278  1113 -0.0147
+[21:14:36] done (r125c.txt 36 lines)
