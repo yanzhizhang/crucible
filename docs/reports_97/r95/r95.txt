@@ -1,0 +1,78 @@
+R95 on 97 (r95.sh acdd0242, hstats_extra.py f8eb292e), 09:55:39 - 10:07:56. 85 lines, full (candidate | min | 1112 | 0430).
+[09:55:39] hstats cells (previous day's file) 20261112
+20261112: families ['ZZAL', 'ZZDS', 'ZZGW', 'ZZHL', 'ZZMS', 'ZZQI', 'ZZQO', 'ZZSQ', 'ZZTS', 'ZZUG', 'ZZVC', 'ZZWA', 'ZZXC'] from ['20261111'];152 cells x 72,000 rows (301 stocks with cells) -> data/side_r95/hstats_prev_20261112.parquet
+[09:55:43] hstats cells (previous day's file) 20260430
+20260430: families [same 13] from ['20260429'];152 cells x 72,000 rows (300 stocks with cells) -> data/side_r95/hstats_prev_20260430.parquet
+[09:55:48] implied scan, previous-day hstats cells, both days
+baseline similarity 20261112 0.6558 (bases found at 1.000 of rows), 20260430 0.6282 (bases found at 1.000 of rows)
+152 candidate bases (152 from --extra)
+-- zzaa.b: 304 candidates in 90s; best by the smaller day gain:   (candidate | min | 1112 | 0430)
+   cal:ZZWA.bn@1 -0.0024 +0.0053 -0.0024
+   cal:ZZWA.bn@0 -0.0025 +0.0037 -0.0025
+   cal:ZZWA.bn@-1 -0.0026 +0.0047 -0.0026
+   cal:ZZWA.an@1 -0.0026 +0.0030 -0.0026
+   cal:ZZWA.an@0 -0.0028 +0.0028 -0.0028
+   cal:ZZWA.an@-1 -0.0031 +0.0033 -0.0031
+   cal:-ZZWA.aq@-1 -0.0034 +0.0028 -0.0034
+   cal:-ZZWA.bq@-1 -0.0034 +0.0028 -0.0034
+   share of candidates helping on every day: 0.000
+-- zzhj: 304 candidates in 114s
+   cal:ZZXC.n@0 +0.0012 +0.0023 +0.0012
+   cal:ZZTS.q@0 +0.0011 +0.0020 +0.0011
+   cal:ZZAL.an@0 +0.0011 +0.0011 +0.0012
+   cal:ZZAL.an@1 +0.0011 +0.0011 +0.0012
+   cal:-ZZVC.a@1 +0.0011 +0.0037 +0.0011
+   cal:ZZXC.n@1 +0.0011 +0.0024 +0.0011
+   cal:ZZXC.n@-1 +0.0011 +0.0024 +0.0011
+   cal:-ZZVC.a@0 +0.0010 +0.0037 +0.0010
+   share of candidates helping on every day: 0.276
+-- zzbt.b: 304 candidates in 69s
+   cal:-ZZQI.m@1 -0.0215 -0.0215 -0.0199
+   cal:-ZZQI.m@0 -0.0217 -0.0217 -0.0197
+   cal:ZZWA.aq@0 -0.0222 -0.0222 -0.0190
+   cal:ZZWA.aq@1 -0.0222 -0.0222 -0.0190
+   cal:ZZWA.bq@0 -0.0222 -0.0222 -0.0190
+   cal:ZZWA.bq@1 -0.0222 -0.0222 -0.0190
+   cal:-ZZQI.m@-1 -0.0223 -0.0223 -0.0192
+   cal:-ZZWA.bn@0 -0.0225 -0.0225 -0.0198
+   share of candidates helping on every day: 0.000
+-- zzxo: 304 candidates in 108s
+   cal:-ZZSQ.b@0 -0.0079 -0.0079 -0.0069
+   cal:ZZQI.d@-1 -0.0086 -0.0086 -0.0048
+   cal:ZZQI.d@0 -0.0087 -0.0087 -0.0048
+   cal:ZZQI.d@1 -0.0087 -0.0087 -0.0047
+   cal:-ZZWA.aq@-1 -0.0087 -0.0087 -0.0040
+   cal:-ZZWA.bq@-1 -0.0087 -0.0087 -0.0040
+   cal:ZZQI.cd@-1 -0.0088 -0.0088 -0.0049
+   cal:ZZQI.cd@0 -0.0088 -0.0088 -0.0049
+   share of candidates helping on every day: 0.000
+-- zzpp.b: 304 candidates in 98s
+   cal:-ZZXC.q@-1 -0.0059 -0.0058 -0.0059
+   cal:-ZZQO.q@-1 -0.0060 -0.0060 -0.0059
+   cal:-ZZGW.qab@-1 -0.0061 -0.0061 -0.0059
+   cal:-ZZGW.qb@-1 -0.0061 -0.0061 -0.0061
+   cal:-ZZGW.qa@-1 -0.0062 -0.0062 -0.0061
+   cal:-ZZVC.ef@-1 -0.0063 -0.0063 -0.0060
+   cal:-ZZSQ.a@0 -0.0063 -0.0063 -0.0056
+   cal:-ZZGW.qb@0 -0.0063 -0.0063 -0.0061
+   share of candidates helping on every day: 0.000
+-- zzop.i: 304 candidates in 142s
+   cal:-ZZQI.a@-1 -0.0023 +0.0009 -0.0023
+   cal:-ZZQI.a@0 -0.0024 +0.0009 -0.0024
+   cal:ZZGW.nb@-1 -0.0025 +0.0006 -0.0025
+   cal:-ZZQI.a@1 -0.0025 +0.0010 -0.0025
+   cal:-ZZQI.cd@-1 -0.0025 +0.0008 -0.0025
+   cal:-ZZQI.c@-1 -0.0025 +0.0009 -0.0025
+   cal:ZZGW.nab@-1 -0.0026 +0.0007 -0.0026
+   cal:ZZGW.qab@-1 -0.0026 +0.0008 -0.0026
+   share of candidates helping on every day: 0.000
+[10:06:12] implied scan, 1112 previous-day cells alone (to set against R94's same-day result)
+baseline similarity 20261112 0.6558 (bases found at 1.000 of rows)
+152 candidate bases (152 from --extra)
+-- zzaa.b: 304 candidates in 45s
+   cal:ZZWA.bn@1 +0.0053 | cal:ZZWA.bn@-1 +0.0047 | cal:ZZWA.bn@0 +0.0037 | cal:ZZWA.an@-1 +0.0033 | cal:ZZWA.an@1 +0.0030
+   share of candidates helping on every day: 0.089
+-- zzhj: 304 candidates in 58s
+   cal:ZZDS.h@0 +0.0042 | cal:ZZDS.ms@0 +0.0041 | cal:-ZZMS.bs@-1 +0.0041 | cal:-ZZMS.bs@0 +0.0041 | cal:-ZZMS.bs@1 +0.0040
+   share of candidates helping on every day: 0.280
+[10:07:56] done
