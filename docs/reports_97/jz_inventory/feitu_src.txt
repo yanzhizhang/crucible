@@ -1,0 +1,205 @@
+feitu_raw provenance (read-only manifest scan on 97, 2026-11-15; 204 lines, transcribed from screen; full on 97 data/reports/feitu_src.txt)
+== quotation: 46 days
+  20260429 no source col | 2 parts e.g. part-SH.parquet | v3_quotation_2026_04_29_SH.zst
+  20260430 no source col | 2 parts e.g. part-SH.parquet | v3_quotation_2026_04_30_SH.zst
+  20260901 no source col | 506 parts e.g. part-0835.parquet | v3_quotation_2026_09_01_08_35.zst
+  20260902 no source col | 506 parts e.g. part-0835.parquet | v3_quotation_2026_09_02_08_35.zst
+  20260903 no source col | 506 parts e.g. part-0835.parquet | v3_quotation_2026_09_03_08_35.zst
+  20260904 no source col | 506 parts e.g. part-0835.parquet | v3_quotation_2026_09_04_08_35.zst
+  20260907 no source col | 506 parts e.g. part-0835.parquet | v3_quotation_2026_09_07_08_35.zst
+  20260908 no source col | 506 parts e.g. part-0835.parquet | v3_quotation_2026_09_08_08_35.zst
+  20260909 no source col | 506 parts e.g. part-0835.parquet | v3_quotation_2026_09_09_08_35.zst
+  20260910 no source col | 506 parts e.g. part-0835.parquet | v3_quotation_2026_09_10_08_35.zst
+  20260911 no source col | 509 parts e.g. part-0832.parquet | v3_quotation_2026_09_11_08_32.zst
+  20260914 no source col | 506 parts e.g. part-0835.parquet | v3_quotation_2026_09_14_08_35.zst
+  20260915 no source col | 506 parts e.g. part-0835.parquet | v3_quotation_2026_09_15_08_35.zst
+  20260916 no source col | 506 parts e.g. part-0835.parquet | v3_quotation_2026_09_16_08_35.zst
+  20260917 no source col | 506 parts e.g. part-0835.parquet | v3_quotation_2026_09_17_08_35.zst
+  20260918 no source col | 506 parts e.g. part-0835.parquet | v3_quotation_2026_09_18_08_35.zst
+  20260921 datayes:DataYesSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20260922 no source col | 506 parts e.g. part-0835.parquet | v3_quotation_2026_09_22_08_35.zst
+  20260923 no source col | 478 parts e.g. part-0835.parquet | v3_quotation_2026_09_23_08_35.zst
+  20260924 no source col | 506 parts e.g. part-0835.parquet | v3_quotation_2026_09_24_08_35.zst
+  20260928 no source col | 506 parts e.g. part-0835.parquet | v3_quotation_2026_09_28_08_35.zst
+  20260929 no source col | 476 parts e.g. part-0835.parquet | v3_quotation_2026_09_29_08_35.zst
+  20260930 no source col | 457 parts e.g. part-0835.parquet | v3_quotation_2026_09_30_08_35.zst
+  20261008 no source col | 476 parts e.g. part-0835.parquet | v3_quotation_2026_10_08_08_35.zst
+  20261009 no source col | 451 parts e.g. part-0835.parquet | v3_quotation_2026_10_09_08_35.zst
+  20261012 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261013 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261014 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261015 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261016 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261019 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261020 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261021 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261022 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261023 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261026 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261027 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261028 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261029 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261030 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261102 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261103 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261104 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261105 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261106 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261109 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+== transaction: 65 days
+  20260401 no source col | 2 parts e.g. part-SH.parquet | v3_transaction_2026_04_01_SH.zst
+  20260402 no source col | 2 parts e.g. part-SH.parquet | v3_transaction_2026_04_02_SH.zst
+  20260403 no source col | 2 parts e.g. part-SH.parquet | v3_transaction_2026_04_03_SH.zst
+  20260407 no source col | 2 parts e.g. part-SH.parquet | v3_transaction_2026_04_07_SH.zst
+  20260408 no source col | 2 parts e.g. part-SH.parquet | v3_transaction_2026_04_08_SH.zst
+  20260409 no source col | 2 parts e.g. part-SH.parquet | v3_transaction_2026_04_09_SH.zst
+  20260410 no source col | 2 parts e.g. part-SH.parquet | v3_transaction_2026_04_10_SH.zst
+  20260413 no source col | 2 parts e.g. part-SH.parquet | v3_transaction_2026_04_13_SH.zst
+  20260414 no source col | 2 parts e.g. part-SH.parquet | v3_transaction_2026_04_14_SH.zst
+  20260415 no source col | 2 parts e.g. part-SH.parquet | v3_transaction_2026_04_15_SH.zst
+  20260416 no source col | 2 parts e.g. part-SH.parquet | v3_transaction_2026_04_16_SH.zst
+  20260417 no source col | 2 parts e.g. part-SH.parquet | v3_transaction_2026_04_17_SH.zst
+  20260420 no source col | 2 parts e.g. part-SH.parquet | v3_transaction_2026_04_20_SH.zst
+  20260421 no source col | 2 parts e.g. part-SH.parquet | v3_transaction_2026_04_21_SH.zst
+  20260422 no source col | 2 parts e.g. part-SH.parquet | v3_transaction_2026_04_22_SH.zst
+  20260423 no source col | 2 parts e.g. part-SH.parquet | v3_transaction_2026_04_23_SH.zst
+  20260424 no source col | 2 parts e.g. part-SH.parquet | v3_transaction_2026_04_24_SH.zst
+  20260427 no source col | 2 parts e.g. part-SH.parquet | v3_transaction_2026_04_27_SH.zst
+  20260428 no source col | 2 parts e.g. part-SH.parquet | v3_transaction_2026_04_28_SH.zst
+  20260429 no source col | 2 parts e.g. part-SH.parquet | v3_transaction_2026_04_29_SH.zst
+  20260430 no source col | 2 parts e.g. part-SH.parquet | v3_transaction_2026_04_30_SH.zst
+  20260901 no source col | 279 parts e.g. part-0915.parquet | v3_transaction_2026_09_01_09_15.zst
+  20260902 no source col | 279 parts e.g. part-0915.parquet | v3_transaction_2026_09_02_09_15.zst
+  20260903 no source col | 279 parts e.g. part-0915.parquet | v3_transaction_2026_09_03_09_15.zst
+  20260904 no source col | 275 parts e.g. part-0915.parquet | v3_transaction_2026_09_04_09_15.zst
+  20260907 no source col | 279 parts e.g. part-0915.parquet | v3_transaction_2026_09_07_09_15.zst
+  20260908 no source col | 279 parts e.g. part-0915.parquet | v3_transaction_2026_09_08_09_15.zst
+  20260909 no source col | 279 parts e.g. part-0915.parquet | v3_transaction_2026_09_09_09_15.zst
+  20260910 no source col | 279 parts e.g. part-0915.parquet | v3_transaction_2026_09_10_09_15.zst
+  20260911 no source col | 279 parts e.g. part-0915.parquet | v3_transaction_2026_09_11_09_15.zst
+  20260914 no source col | 279 parts e.g. part-0915.parquet | v3_transaction_2026_09_14_09_15.zst
+  20260915 no source col | 279 parts e.g. part-0915.parquet | v3_transaction_2026_09_15_09_15.zst
+  20260916 no source col | 279 parts e.g. part-0915.parquet | v3_transaction_2026_09_16_09_15.zst
+  20260917 no source col | 279 parts e.g. part-0915.parquet | v3_transaction_2026_09_17_09_15.zst
+  20260918 no source col | 279 parts e.g. part-0915.parquet | v3_transaction_2026_09_18_09_15.zst
+  20260921 datayes:DataYesSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20260922 no source col | 279 parts e.g. part-0915.parquet | v3_transaction_2026_09_22_09_15.zst
+  20260923 no source col | 279 parts e.g. part-0915.parquet | v3_transaction_2026_09_23_09_15.zst
+  20260924 no source col | 279 parts e.g. part-0915.parquet | v3_transaction_2026_09_24_09_15.zst
+  20260928 no source col | 279 parts e.g. part-0915.parquet | v3_transaction_2026_09_28_09_15.zst
+  20260929 no source col | 279 parts e.g. part-0915.parquet | v3_transaction_2026_09_29_09_15.zst
+  20260930 no source col | 279 parts e.g. part-0915.parquet | v3_transaction_2026_09_30_09_15.zst
+  20261008 no source col | 279 parts e.g. part-0915.parquet | v3_transaction_2026_10_08_09_15.zst
+  20261009 no source col | 279 parts e.g. part-0915.parquet | v3_transaction_2026_10_09_09_15.zst
+  20261012 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600337.SH
+  20261013 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600337.SH
+  20261014 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600337.SH
+  20261015 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600337.SH
+  20261016 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600337.SH
+  20261019 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600337.SH
+  20261020 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261021 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261022 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261023 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261026 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261027 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261028 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261029 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261030 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261102 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261103 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261104 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261105 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261106 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261109 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+== order: 47 days
+  20260428 no source col | 2 parts e.g. part-SH.parquet | v3_order_2026_04_28_SH.zst
+  20260429 no source col | 2 parts e.g. part-SH.parquet | v3_order_2026_04_29_SH.zst
+  20260430 no source col | 2 parts e.g. part-SH.parquet | v3_order_2026_04_30_SH.zst
+  20260901 no source col | 285 parts e.g. part-0914.parquet | v3_order_2026_09_01_09_14.zst
+  20260902 no source col | 285 parts e.g. part-0914.parquet | v3_order_2026_09_02_09_14.zst
+  20260903 no source col | 285 parts e.g. part-0914.parquet | v3_order_2026_09_03_09_14.zst
+  20260904 no source col | 74 parts e.g. part-0914.parquet | v3_order_2026_09_04_09_14.zst
+  20260907 no source col | 286 parts e.g. part-0914.parquet | v3_order_2026_09_07_09_14.zst
+  20260908 no source col | 285 parts e.g. part-0914.parquet | v3_order_2026_09_08_09_14.zst
+  20260909 no source col | 285 parts e.g. part-0914.parquet | v3_order_2026_09_09_09_14.zst
+  20260910 no source col | 285 parts e.g. part-0914.parquet | v3_order_2026_09_10_09_14.zst
+  20260911 no source col | 285 parts e.g. part-0914.parquet | v3_order_2026_09_11_09_14.zst
+  20260914 no source col | 285 parts e.g. part-0914.parquet | v3_order_2026_09_14_09_14.zst
+  20260915 no source col | 285 parts e.g. part-0914.parquet | v3_order_2026_09_15_09_14.zst
+  20260916 no source col | 285 parts e.g. part-0914.parquet | v3_order_2026_09_16_09_14.zst
+  20260917 no source col | 285 parts e.g. part-0914.parquet | v3_order_2026_09_17_09_14.zst
+  20260918 no source col | 285 parts e.g. part-0914.parquet | v3_order_2026_09_18_09_14.zst
+  20260921 datayes:DataYesSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20260922 no source col | 284 parts e.g. part-0915.parquet | v3_order_2026_09_22_09_15.zst
+  20260923 no source col | 284 parts e.g. part-0915.parquet | v3_order_2026_09_23_09_15.zst
+  20260924 no source col | 284 parts e.g. part-0915.parquet | v3_order_2026_09_24_09_15.zst
+  20260928 no source col | 284 parts e.g. part-0915.parquet | v3_order_2026_09_28_09_15.zst
+  20260929 no source col | 284 parts e.g. part-0915.parquet | v3_order_2026_09_29_09_15.zst
+  20260930 no source col | 285 parts e.g. part-0915.parquet | v3_order_2026_09_30_09_15.zst
+  20261008 no source col | 284 parts e.g. part-0915.parquet | v3_order_2026_10_08_09_15.zst
+  20261009 no source col | 284 parts e.g. part-0915.parquet | v3_order_2026_10_09_09_15.zst
+  20261012 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600337.SH
+  20261013 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600337.SH
+  20261014 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600337.SH
+  20261015 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600337.SH
+  20261016 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600337.SH
+  20261019 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600337.SH
+  20261020 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261021 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261022 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261023 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261026 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261027 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261028 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261029 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261030 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261102 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261103 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261104 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261105 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261106 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+  20261109 datayes:XTPSharesL2 | 22 parts e.g. part-SH-000.parquet | SH:600000.SH..600336.SH
+== index: 42 days
+  20260901 no source col | 505 parts e.g. part-0835.parquet | v3_index_2026_09_01_08_35.zst
+  20260902 no source col | 505 parts e.g. part-0835.parquet | v3_index_2026_09_02_08_35.zst
+  20260903 no source col | 505 parts e.g. part-0835.parquet | v3_index_2026_09_03_08_35.zst
+  20260904 no source col | 505 parts e.g. part-0835.parquet | v3_index_2026_09_04_08_35.zst
+  20260907 no source col | 505 parts e.g. part-0835.parquet | v3_index_2026_09_07_08_35.zst
+  20260908 no source col | 505 parts e.g. part-0835.parquet | v3_index_2026_09_08_08_35.zst
+  20260909 no source col | 505 parts e.g. part-0835.parquet | v3_index_2026_09_09_08_35.zst
+  20260910 no source col | 505 parts e.g. part-0835.parquet | v3_index_2026_09_10_08_35.zst
+  20260911 no source col | 508 parts e.g. part-0832.parquet | v3_index_2026_09_11_08_32.zst
+  20260914 no source col | 505 parts e.g. part-0835.parquet | v3_index_2026_09_14_08_35.zst
+  20260915 no source col | 505 parts e.g. part-0835.parquet | v3_index_2026_09_15_08_35.zst
+  20260916 no source col | 505 parts e.g. part-0835.parquet | v3_index_2026_09_16_08_35.zst
+  20260917 no source col | 505 parts e.g. part-0835.parquet | v3_index_2026_09_17_08_35.zst
+  20260918 no source col | 506 parts e.g. part-0835.parquet | v3_index_2026_09_18_08_35.zst
+  20260922 no source col | 505 parts e.g. part-0835.parquet | v3_index_2026_09_22_08_35.zst
+  20260923 no source col | 478 parts e.g. part-0835.parquet | v3_index_2026_09_23_08_35.zst
+  20260924 no source col | 506 parts e.g. part-0835.parquet | v3_index_2026_09_24_08_35.zst
+  20260928 no source col | 505 parts e.g. part-0835.parquet | v3_index_2026_09_28_08_35.zst
+  20260929 no source col | 476 parts e.g. part-0835.parquet | v3_index_2026_09_29_08_35.zst
+  20260930 no source col | 457 parts e.g. part-0835.parquet | v3_index_2026_09_30_08_35.zst
+  20261008 no source col | 476 parts e.g. part-0835.parquet | v3_index_2026_10_08_08_35.zst
+  20261009 no source col | 445 parts e.g. part-0835.parquet | v3_index_2026_10_09_08_35.zst
+  20261012 datayes:XTPSharesL2 | 2 parts e.g. part-SH-000.parquet | SH:000001.SH..000905.SH
+  20261013 datayes:XTPSharesL2 | 2 parts e.g. part-SH-000.parquet | SH:000001.SH..000905.SH
+  20261014 datayes:XTPSharesL2 | 2 parts e.g. part-SH-000.parquet | SH:000001.SH..000905.SH
+  20261015 datayes:XTPSharesL2 | 2 parts e.g. part-SH-000.parquet | SH:000001.SH..000905.SH
+  20261016 datayes:XTPSharesL2 | 2 parts e.g. part-SH-000.parquet | SH:000001.SH..000905.SH
+  20261019 datayes:XTPSharesL2 | 2 parts e.g. part-SH-000.parquet | SH:000001.SH..000905.SH
+  20261020 datayes:XTPSharesL2 | 2 parts e.g. part-SH-000.parquet | SH:000001.SH..000905.SH
+  20261021 datayes:XTPSharesL2 | 2 parts e.g. part-SH-000.parquet | SH:000001.SH..000905.SH
+  20261022 datayes:XTPSharesL2 | 2 parts e.g. part-SH-000.parquet | SH:000001.SH..000905.SH
+  20261023 datayes:XTPSharesL2 | 2 parts e.g. part-SH-000.parquet | SH:000001.SH..000905.SH
+  20261026 datayes:XTPSharesL2 | 2 parts e.g. part-SH-000.parquet | SH:000001.SH..000905.SH
+  20261027 datayes:XTPSharesL2 | 2 parts e.g. part-SH-000.parquet | SH:000001.SH..000905.SH
+  20261028 datayes:XTPSharesL2 | 2 parts e.g. part-SH-000.parquet | SH:000001.SH..000905.SH
+  20261029 datayes:XTPSharesL2 | 2 parts e.g. part-SH-000.parquet | SH:000001.SH..000905.SH
+  20261030 datayes:XTPSharesL2 | 2 parts e.g. part-SH-000.parquet | SH:000001.SH..000905.SH
+  20261102 datayes:XTPSharesL2 | 2 parts e.g. part-SH-000.parquet | SH:000001.SH..000905.SH
+  20261103 datayes:XTPSharesL2 | 2 parts e.g. part-SH-000.parquet | SH:000001.SH..000905.SH
+  20261104 datayes:XTPSharesL2 | 2 parts e.g. part-SH-000.parquet | SH:000001.SH..000905.SH
+  20261105 datayes:XTPSharesL2 | 2 parts e.g. part-SH-000.parquet | SH:000001.SH..000905.SH
+  20261106 datayes:XTPSharesL2 | 2 parts e.g. part-SH-000.parquet | SH:000001.SH..000905.SH

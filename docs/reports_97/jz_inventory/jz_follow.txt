@@ -1,0 +1,142 @@
+.jz follow-up (read-only; output saved on 97 as data/reports/jz_follow.txt, 140 lines), transcribed from screen
+== 20261104.jz 300 stocks
+  zzcb.r.sum           n 300 distinct 300  min 0.48479338  med 9.6207126  max 4894.3226
+  zzcb.r.t             n 300 distinct 248  min 14490.161  med 14529.831  max 14549.757
+  zzcb.r.wgt           n 300 distinct 300  min 1.3692863  med 2.5066974  max 2.8090419
+  zzeb.r.sum           n 300 distinct 300  min 1.7419074  med 2.6912553  max 2.9423298
+  zzeb.r.t             n 300 distinct 248  min 14490.161  med 14529.831  max 14549.757
+  zzeb.r.wgt           n 300 distinct 300  min 10.693454  med 21.509242  max 24.161626
+  zzeg.c.high          n 300 distinct 289  min 1.22  med 23.945  max 1480.6
+  zzeg.c.low           n 300 distinct 288  min 1.14  med 22.02  max 1352.98
+  zzeg.c.rEma.sum      n 300 distinct 300  min 126.284  med 2236.5787  max 155530.22
+  zzeg.c.rEma.t        n 300 distinct 248  min 14490.161  med 14529.831  max 14549.757
+  zzeg.c.rEma.wgt      n 300 distinct 300  min 77.136387  med 108.32596  max 113.49724
+  zzeg.c.span          n 300 distinct 295  min 1.18  med 23.0425  max 1416.79
+  zzhj.p.sum           n 300 distinct 300  min 2502413.3  med 36355094  max 7.8173519e+08
+  zzhj.p.t             n 300 distinct 235  min 14190.016  med 14191  max 14192.999
+  zzhj.p.wgt           n 300 distinct 300  min 14.73032  med 14.831525  max 14.837921
+  zzhj.r.wgt           n 300 distinct   1  min 0  med 0  max 0
+  zztx.r.sum           n 300 distinct 300  min -3785.4966  med -19.598471  max 781.28903
+  zztx.r.t             n 300 distinct 293  min 14400.782  med 14403.799  max 14411.203
+  zztx.r.wgt           n 300 distinct 300  min 43.674671  med 686.1784  max 6771.5185
+  zzui.er              n 300 distinct 125  min 0  med 0.22514071  max 1
+  zzui.k               n 300 distinct 300  min 1.2130226  med 23.608517  max 1444.2367
+  zzxu.dir             n 300 distinct   2  min -1  med 1  max 1
+  zzxu.lower           n 300 distinct 300  min 1.1495194  med 22.189099  max 1419.6928
+  zzxu.upper           n 300 distinct 300  min 1.295  med 25.859212  max 1584.593
+  600519: zzeg.c.high=1480.6 zzeg.c.low=1352.98 zzeg.c.rEma.sum=155530.22 zzeg.c.rEma.t=14538.297 zzeg.c.rEma.wgt=109.77648 zzeg.c.span=1416.79
+  300750: zzeg.c.high=255 zzeg.c.low=228.02 zzeg.c.rEma.sum=20448.893 zzeg.c.rEma.t=14533.361 zzeg.c.rEma.wgt=84.671002 zzeg.c.span=241.51
+  zzhj.c.# keys: 474, first ['zzhj.c.0', 'zzhj.c.1', 'zzhj.c.10', 'zzhj.c.100', 'zzhj.c.101', 'zzhj.c.102']
+== 20261105.jz 300 stocks
+  zzcb.r.sum           n 300 distinct 300  min 0.51048844  med 10.264431  max 3516.7471
+  zzcb.r.t             n 300 distinct 258  min 14490.161  med 14531.176  max 14549.936
+  zzcb.r.wgt           n 300 distinct 300  min 1.3372876  med 2.4734952  max 2.8093338
+  zzeb.r.sum           n 300 distinct 300  min 1.7398877  med 2.6650033  max 2.9408684
+  zzeb.r.t             n 300 distinct 258  min 14490.161  med 14531.176  max 14549.936
+  zzeb.r.wgt           n 300 distinct 300  min 10.962905  med 21.123567  max 24.1607
+  zzeg.c.high          n 300 distinct 292  min 1.26  med 24.84  max 1480.6
+  zzeg.c.low           n 300 distinct 295  min 1.15  med 22.045  max 1395.02
+  zzeg.c.rEma.sum      n 300 distinct 300  min 130.46523  med 2275.4149  max 160787.88
+  zzeg.c.rEma.t        n 300 distinct 258  min 14490.161  med 14531.176  max 14549.936
+  zzeg.c.rEma.wgt      n 300 distinct 300  min 81.556549  med 107.45299  max 113.33195
+  zzeg.c.span          n 300 distinct 296  min 1.205  med 23.491298  max 1437.81
+  zzhj.p.sum           n 300 distinct 300  min 4085141.1  med 29036094  max 7.2417073e+08
+  zzhj.p.t             n 300 distinct 224  min 14190.004  med 14191.159  max 14192.985
+  zzhj.p.wgt           n 300 distinct 300  min 14.927791  med 14.932757  max 14.935733
+  zzhj.r.wgt           n 300 distinct   1  min 0  med 0  max 0
+  zztx.r.sum           n 300 distinct 300  min -2648.4935  med -12.148934  max 259.99113
+  zztx.r.t             n 300 distinct 283  min 14400.881  med 14403.775  max 14410.865
+  zztx.r.wgt           n 300 distinct 300  min 81.343615  med 664.91615  max 6022.1743
+  zzui.er              n 300 distinct 113  min 0  med 0.2  max 1
+  zzui.k               n 300 distinct 300  min 1.2362763  med 24.191832  max 1449.956
+  zzxu.dir             n 300 distinct   2  min -1  med 1  max 1
+  zzxu.lower           n 300 distinct 300  min 1.19  med 22.777044  max 1416.3755
+  zzxu.upper           n 300 distinct 300  min 1.335  med 26.0275  max 1556
+  600519: zzeg.c.high=1480.6 zzeg.c.low=1395.02 zzeg.c.rEma.sum=160787.88 zzeg.c.rEma.t=14531.136 zzeg.c.rEma.wgt=111.82832 zzeg.c.span=1437.81
+  300750: zzeg.c.high=272.19 zzeg.c.low=233.39 zzeg.c.rEma.sum=20792.054 zzeg.c.rEma.t=14545.362 zzeg.c.rEma.wgt=82.250303 zzeg.c.span=252.79
+  zzhj.c.# keys: 474, first ['zzhj.c.0', 'zzhj.c.1', 'zzhj.c.10', 'zzhj.c.100', 'zzhj.c.101', 'zzhj.c.102']
+== 20261106.jz 300 stocks
+  zzcb.r.sum           n 300 distinct 300  min 0.46955587  med 11.112352  max 3875.6544
+  zzcb.r.t             n 300 distinct 258  min 14490.161  med 14530.672  max 14549.674
+  zzcb.r.wgt           n 300 distinct 300  min 1.3690927  med 2.4736115  max 2.8089312
+  zzeb.r.sum           n 300 distinct 300  min 1.7422829  med 2.6665589  max 2.9479885
+  zzeb.r.t             n 300 distinct 258  min 14490.161  med 14530.672  max 14549.674
+  zzeb.r.wgt           n 300 distinct 300  min 10.95911  med 21.35248  max 24.159732
+  zzeg.c.high          n 300 distinct 289  min 1.26  med 24.915  max 1480.6
+  zzeg.c.low           n 300 distinct 294  min 1.18  med 22.365  max 1430
+  zzeg.c.rEma.sum      n 300 distinct 300  min 131.81258  med 2309.4839  max 162749.39
+  zzeg.c.rEma.t        n 300 distinct 258  min 14490.161  med 14530.672  max 14549.674
+  zzeg.c.rEma.wgt      n 300 distinct 300  min 81.454345  med 107.65607  max 113.33147
+  zzeg.c.span          n 300 distinct 299  min 1.22  med 23.565  max 1455.3
+  zzhj.p.sum           n 300 distinct 300  min 3342877.1  med 32218589  max 9.0694652e+08
+  zzhj.p.t             n 300 distinct 251  min 14190.017  med 14191.189  max 14193.995
+  zzhj.p.wgt           n 300 distinct 300  min 14.836839  med 14.932748  max 14.936458
+  zzhj.r.wgt           n 300 distinct   1  min 0  med 0  max 0
+  zztx.r.sum           n 300 distinct 300  min -4492.5784  med -9.6643101  max 769.66757
+  zztx.r.t             n 300 distinct 285  min 14400.778  med 14403.458  max 14410.217
+  zztx.r.wgt           n 300 distinct 300  min 95.197471  med 650.60633  max 5551.0044
+  zzui.er              n 300 distinct 120  min 0  med 0.2  max 1
+  zzui.k               n 300 distinct 300  min 1.2153461  med 23.805816  max 1450.4615
+  zzxu.dir             n 300 distinct   2  min -1  med 1  max 1
+  zzxu.lower           n 300 distinct 300  min 1.175  med 22.666885  max 1399.7794
+  zzxu.upper           n 300 distinct 300  min 1.27  med 25.982216  max 1512.02
+  600519: zzeg.c.high=1480.6 zzeg.c.low=1430 zzeg.c.rEma.sum=162749.39 zzeg.c.rEma.t=14529.323 zzeg.c.rEma.wgt=111.83219 zzeg.c.span=1455.3
+  300750: zzeg.c.high=272.19 zzeg.c.low=240.2 zzeg.c.rEma.sum=22173.863 zzeg.c.rEma.t=14518.362 zzeg.c.rEma.wgt=86.550725 zzeg.c.span=256.195
+  zzhj.c.# keys: 474, first ['zzhj.c.0', 'zzhj.c.1', 'zzhj.c.10', 'zzhj.c.100', 'zzhj.c.101', 'zzhj.c.102']
+== 20261112.jz 300 stocks
+  zzcb.r.sum           n 300 distinct 300  min 0.42020228  med 10.72587  max 5125.7043
+  zzcb.r.t             n 300 distinct 247  min 14490.309  med 14531.354  max 14549.892
+  zzcb.r.wgt           n 300 distinct 300  min 1.3705663  med 2.4913293  max 2.8087829
+  zzeb.r.sum           n 300 distinct 300  min 1.7416029  med 2.6677879  max 2.947654
+  zzeb.r.t             n 300 distinct 247  min 14490.309  med 14531.354  max 14549.892
+  zzeb.r.wgt           n 300 distinct 300  min 10.957251  med 21.198147  max 24.159761
+  zzeg.c.high          n 300 distinct 294  min 1.23  med 24.725  max 1449.99
+  zzeg.c.low           n 300 distinct 295  min 1.18  med 22.91  max 1388.11
+  zzeg.c.rEma.sum      n 300 distinct 300  min 135.57728  med 2312.364  max 154417.19
+  zzeg.c.rEma.t        n 300 distinct 247  min 14490.309  med 14531.354  max 14549.892
+  zzeg.c.rEma.wgt      n 300 distinct 300  min 81.658695  med 107.45386  max 113.33164
+  zzeg.c.span          n 300 distinct 294  min 1.205  med 23.9575  max 1419.05
+  zzhj.p.sum           n 300 distinct 300  min 2604348.3  med 25358725  max 6.8571292e+08
+  zzhj.p.t             n 300 distinct 229  min 14190.092  med 14191.036  max 14192.893
+  zzhj.p.wgt           n 300 distinct 300  min 14.928773  med 14.932688  max 14.938297
+  zzhj.r.wgt           n 300 distinct   1  min 0  med 0  max 0
+  zztx.r.sum           n 300 distinct 300  min -762.98127  med -10.198242  max 1525.4131
+  zztx.r.t             n 300 distinct 285  min 14400.76  med 14403.613  max 14410.905
+  zztx.r.wgt           n 300 distinct 300  min 112.57107  med 616.28746  max 4435.3405
+  zzui.er              n 300 distinct 117  min 0  med 0.2  max 1
+  zzui.k               n 300 distinct 300  min 1.1856639  med 23.239034  max 1403.9634
+  zzxu.dir             n 300 distinct   2  min -1  med 1  max 1
+  zzxu.lower           n 300 distinct 300  min 1.175  med 22.108225  max 1370.1172
+  zzxu.upper           n 300 distinct 300  min 1.2849994  med 24.99907  max 1468.225
+  600519: zzeg.c.high=1449.99 zzeg.c.low=1388.11 zzeg.c.rEma.sum=154417.19 zzeg.c.rEma.t=14542.339 zzeg.c.rEma.wgt=108.8173 zzeg.c.span=1419.05
+  300750: zzeg.c.high=258.79 zzeg.c.low=240 zzeg.c.rEma.sum=21220.018 zzeg.c.rEma.t=14530.359 zzeg.c.rEma.wgt=85.077636 zzeg.c.span=249.395
+  zzhj.c.# keys: 474, first ['zzhj.c.0', 'zzhj.c.1', 'zzhj.c.10', 'zzhj.c.100', 'zzhj.c.101', 'zzhj.c.102']
+== 20261113.jz 300 stocks
+  zzcb.r.sum           n 300 distinct 300  min 0.44943429  med 13.51311  max 4213.381
+  zzcb.r.t             n 300 distinct 248  min 14490.149  med 14531.674  max 14549.984
+  zzcb.r.wgt           n 300 distinct 300  min 1.3683802  med 2.473483  max 2.8090574
+  zzeb.r.sum           n 300 distinct 300  min 1.7419448  med 2.6662404  max 2.9425321
+  zzeb.r.t             n 300 distinct 248  min 14490.149  med 14531.674  max 14549.984
+  zzeb.r.wgt           n 300 distinct 300  min 10.962784  med 21.157398  max 24.159969
+  zzeg.c.high          n 300 distinct 295  min 1.23  med 24.545  max 1445.62
+  zzeg.c.low           n 300 distinct 294  min 1.16  med 22.825  max 1388.11
+  zzeg.c.rEma.sum      n 300 distinct 300  min 131.86924  med 2271.041  max 160544.98
+  zzeg.c.rEma.t        n 300 distinct 248  min 14490.149  med 14531.674  max 14549.984
+  zzeg.c.rEma.wgt      n 300 distinct 300  min 81.568833  med 107.45356  max 113.33131
+  zzeg.c.span          n 300 distinct 298  min 1.195  med 23.71  max 1416.865
+  zzhj.p.sum           n 300 distinct 300  min 3262025.8  med 28934683  max 5.8308823e+08
+  zzhj.p.t             n 300 distinct 233  min 14190.033  med 14191.14  max 14192.982
+  zzhj.p.wgt           n 300 distinct 300  min 14.929349  med 14.932721  max 14.939164
+  zzhj.r.wgt           n 300 distinct   1  min 0  med 0  max 0
+  zztx.r.sum           n 300 distinct 300  min -1850.4867  med -9.798743  max 1065.0498
+  zztx.r.t             n 300 distinct 291  min 14400.689  med 14403.379  max 14410.139
+  zztx.r.wgt           n 300 distinct 300  min 92.371417  med 617.75624  max 5403.8877
+  zzui.er              n 300 distinct 132  min 0  med 0.20942982  max 1
+  zzui.k               n 300 distinct 300  min 1.1635689  med 22.961094  max 1433.4448
+  zzxu.dir             n 300 distinct   2  min -1  med 1  max 1
+  zzxu.lower           n 300 distinct 300  min 1.155  med 21.266043  max 1371.1615
+  zzxu.upper           n 300 distinct 300  min 1.265  med 24.776462  max 1546.8988
+  600519: zzeg.c.high=1445.62 zzeg.c.low=1388.11 zzeg.c.rEma.sum=160544.98 zzeg.c.rEma.t=14525.094 zzeg.c.rEma.wgt=113.31001 zzeg.c.span=1416.865
+  300750: zzeg.c.high=253.11 zzeg.c.low=236.66 zzeg.c.rEma.sum=21782.543 zzeg.c.rEma.t=14506.349 zzeg.c.rEma.wgt=88.950071 zzeg.c.span=244.885
+  zzhj.c.# keys: 474, first ['zzhj.c.0', 'zzhj.c.1', 'zzhj.c.10', 'zzhj.c.100', 'zzhj.c.101', 'zzhj.c.102']
+(no 000001 line on any day: neither "000001" nor int 1 is a key)
