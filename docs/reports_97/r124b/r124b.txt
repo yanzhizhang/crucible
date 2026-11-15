@@ -1,0 +1,23 @@
+-- 20261106 zzmh.r: 300 stocks; PM value q10/50/90 3.321e-05 0.00064665 0.0040928
+   ((hm-p)/hm)^2      PM/q median 4  IQR/median 0.0000  log-log slope 0.999 R2 1.000  (294)
+   ((hm-p)/(hm+p))^2  PM/q median 15.794  IQR/median 0.0182  log-log slope 0.993 R2 1.000  (294)
+   log(hm/p)^2        PM/q median 3.94839  IQR/median 0.0183  log-log slope 0.993 R2 1.000  (294)
+   ((hm-p)/p)^2       PM/q median 3.89659  IQR/median 0.0367  log-log slope 0.987 R2 1.000  (294)
+   ((hm-p)/pc)^2      PM/q median 3.97104  IQR/median 0.0416  log-log slope 1.003 R2 1.000  (294)
+   hm-p               PM/q median 0.00204438  IQR/median 1.3387  log-log slope 0.859 R2 0.658  (294)
+   high-p             PM/q median 0.00200927  IQR/median 1.3593  log-log slope 0.857 R2 0.640  (294)
+   (hm-p)/p           PM/q median 0.0513825  IQR/median 1.3704  log-log slope 1.975 R2 1.000  (294)
+   (hm-p)/pc          PM/q median 0.0519061  IQR/median 1.3796  log-log slope 2.007 R2 1.000  (294)
+   (hm-p)/hm          PM/q median 0.0520602  IQR/median 1.3944  log-log slope 1.998 R2 1.000  (294)
+-- 20261113 zzmh.r: 300 stocks; PM value q10/50/90 3.8447e-05 0.00068319 0.010901
+   ((hm-p)/hm)^2      PM/q median 4  IQR/median 0.0001  log-log slope 1.000 R2 1.000  (294)
+   ((hm-p)/(hm+p))^2  PM/q median 15.7862  IQR/median 0.0235  log-log slope 0.990 R2 1.000  (294)
+   log(hm/p)^2        PM/q median 3.94642  IQR/median 0.0237  log-log slope 0.989 R2 1.000  (294)
+   ((hm-p)/pc)^2      PM/q median 3.88908  IQR/median 0.0335  log-log slope 0.998 R2 1.000  (294)
+   ((hm-p)/p)^2       PM/q median 3.89305  IQR/median 0.0474  log-log slope 0.979 R2 1.000  (294)
+   hm-p               PM/q median 0.00287298  IQR/median 1.5392  log-log slope 0.922 R2 0.664  (294)
+   high-p             PM/q median 0.00271565  IQR/median 1.5765  log-log slope 0.974 R2 0.632  (296)
+   (hm-p)/p           PM/q median 0.0533105  IQR/median 1.7001  log-log slope 1.958 R2 1.000  (294)
+   (hm-p)/pc          PM/q median 0.0531695  IQR/median 1.7336  log-log slope 1.996 R2 1.000  (294)
+   (hm-p)/hm          PM/q median 0.0540405  IQR/median 1.7392  log-log slope 2.000 R2 1.000  (294)
+[20:34:00] done
