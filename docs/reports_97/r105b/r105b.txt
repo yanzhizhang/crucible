@@ -1,0 +1,200 @@
+R105b on 97 (217 lines, done 17:13:32). Transcribed; runs of identical +0.0000 rows compressed with their names listed. Day labels 0430/1112/1113 = 20260430/20261112/20261113.
+total 24544
+lrwxrwxrwx 1 root root      52 Nov 15 15:32 engine_20260430.parquet -> /work/crucible/data/engine_m7/marks_20260430.parquet
+lrwxrwxrwx 1 root root      49 Nov 15 15:32 engine_20261112.parquet -> /work/crucible/data/engine/marks_20261112.parquet
+lrwxrwxrwx 1 root root      49 Nov 15 15:32 engine_20261113.parquet -> /work/crucible/data/engine/marks_20261113.parquet
+-rw-r--r-- 1 root root 8387074 Nov 15 14:46 ratio_20260430.parquet
+-rw-r--r-- 1 root root 8326528 Nov 15 14:46 ratio_20261112.parquet
+-rw-r--r-- 1 root root 8416321 Nov 15 14:46 ratio_20261113.parquet
+baseline similarity 20260430 0.6282 (bases found at 1.000 of rows), 20261112 0.6558 (bases found at 1.000 of rows), 20261113 0.6790 (bases found at 1.000 of rows)
+197 candidate bases (108 from --extra)
+-- zzba: 925 candidates in 680s; best by the smaller day gain:
+dm:s.ret900s  min +0.0000  0430 +0.0001  1112 +0.0000  1113 +0.0002
+dm:s.ret300s  min +0.0000  0430 +0.0000  1112 +0.0001  1113 +0.0000
+dm:s.ret60s  min +0.0000  0430 +0.0000  1112 +0.0000  1113 +0.0000
+dm:-gen.bid_depth_weighted_distance_5lvl_rel  min +0.0000  0430 +0.0000  1112 +0.0000  1113 +0.0000
+dm:gen.depth_weighted_price_5lvl_minus_mid_rel  min +0.0000  0430 +0.0000  1112 +0.0000  1113 +0.0000
+dm:-gen.depth_weighted_price_5lvl_minus_mid_rel  min +0.0000  0430 +0.0000  1112 +0.0000  1113 +0.0000
+dm:-gen.lmie10  min +0.0000  0430 +0.0003  1112 +0.0000  1113 +0.0000
+dm:-gen.lmie5  min +0.0000  0430 +0.0003  1112 +0.0000  1113 +0.0000
+dm:-gen.lpe5  min +0.0000  0430 +0.0003  1112 +0.0000  1113 +0.0000
+dm:gen.microprice_minus_mid_rel  min +0.0000  0430 +0.0000  1112 +0.0000  1113 +0.0000
+share of candidates helping on every day: 0.003
+best on 20260430:
+dm:-gen.rete50  0430 +0.0009  min +0.0000  1112 +0.0000  1113 +0.0000
+dm:-gen.rete75  0430 +0.0008  min +0.0000  1112 +0.0000  1113 +0.0000
+dm:-gen.rete30  0430 +0.0006  min +0.0000  1112 +0.0000  1113 +0.0000
+dm:-gen.lpes600  0430 +0.0005  min -0.0002  1112 -0.0000  1113 -0.0002
+dm:-gen.lpew1800  0430 +0.0004  min -0.0002  1112 -0.0000  1113 -0.0002
+dm:-gen.lpek50  0430 +0.0004  min -0.0000  1112 -0.0000  1113 -0.0000
+dm:-gen.lpe200  0430 +0.0004  min -0.0000  1112 +0.0000  1113 -0.0000
+dm:-gen.rpe25  0430 +0.0004  min -0.0000  1112 -0.0000  1113 -0.0000
+dm:-gen.rpe20  0430 +0.0004  min +0.0000  1112 +0.0000  1113 +0.0000
+dm:-gen.lpes1200  0430 +0.0004  min -0.0008  1112 -0.0001  1113 -0.0008
+-- zzel.a: 925 candidates in 728s; best by the smaller day gain:
+dm:-gen.microprice_minus_mid_rel  min +0.0006  0430 +0.0006  1112 +0.0042  1113 +0.0042
+dm:i852.last/last15m  min +0.0000  0430 +0.0000  1112 +0.0000  1113 +0.0000
+dm:i905.last/last5m  min +0.0000  0430 +0.0000  1112 +0.0000  1113 +0.0000
+dm:gen.trading_seconds_since_0930  min +0.0000  0430 +0.0000  1112 +0.0000  1113 +0.0000
+dm:-gen.trading_seconds_since_0930  min +0.0000  0430 +0.0000  1112 +0.0000  1113 +0.0000
+srank:gen.trading_seconds_since_0930  min +0.0000  0430 +0.0000  1112 +0.0000  1113 +0.0000
+srank:-gen.trading_seconds_since_0930  min +0.0000  0430 +0.0000  1112 +0.0000  1113 +0.0000
+dm:const0.99  min +0.0000  0430 +0.0000  1112 +0.0000  1113 +0.0000
+dm:-const0.99  min +0.0000  0430 +0.0000  1112 +0.0000  1113 +0.0000
+srank:const0.99  min +0.0000  0430 +0.0000  1112 +0.0000  1113 +0.0000
+share of candidates helping on every day: 0.003
+best on 20260430:
+dm:-gen.microprice_minus_mid_rel  0430 +0.0006  min +0.0006  1112 +0.0042  1113 +0.0042
+dm:i852.last/last15m  0430 +0.0000  min +0.0000  1112 +0.0000  1113 +0.0000
+dm:i905.last/last5m  0430 +0.0000  min +0.0000  1112 +0.0000  1113 +0.0000
+dm:gen.trading_seconds_since_0930  0430 +0.0000  min +0.0000  1112 +0.0000  1113 +0.0000
+dm:-gen.trading_seconds_since_0930  0430 +0.0000  min +0.0000  1112 +0.0000  1113 +0.0000
+srank:gen.trading_seconds_since_0930  0430 +0.0000  min +0.0000  1112 +0.0000  1113 +0.0000
+srank:-gen.trading_seconds_since_0930  0430 +0.0000  min +0.0000  1112 +0.0000  1113 +0.0000
+dm:const0.99  0430 +0.0000  min +0.0000  1112 +0.0000  1113 +0.0000
+dm:-const0.99  0430 +0.0000  min +0.0000  1112 +0.0000  1113 +0.0000
+srank:const0.99  0430 +0.0000  min +0.0000  1112 +0.0000  1113 +0.0000
+-- zzel.b: 925 candidates in 707s; best by the smaller day gain:
+|gen.microprice_minus_mid_rel|*1e4  min +0.0000  0430 +0.0000  1112 +0.0001  1113 +0.0000
+dm:-gen.ofi_levels1to5_norm_10s  min +0.0000  0430 +0.0000  1112 +0.0000  1113 +0.0000
+dm:gen.amihud_illiq_900s  min +0.0000  0430 +0.0000  1112 +0.0000  1113 +0.0000
+dm:-gen.amihud_illiq_900s  min +0.0000  0430 +0.0000  1112 +0.0000  1113 +0.0000
+srank:gen.amihud_illiq_900s  min +0.0000  0430 +0.0000  1112 +0.0000  1113 +0.0000
+srank:-gen.amihud_illiq_900s  min +0.0000  0430 +0.0000  1112 +0.0000  1113 +0.0000
+dm:gen.amount_share_orders_over_200k_cny_since_0930  min +0.0000  0430 +0.0000  1112 +0.0000  1113 +0.0000
+dm:-gen.amount_share_orders_over_200k_cny_since_0930  min +0.0000  0430 +0.0000  1112 +0.0000  1113 +0.0000
+srank:gen.amount_share_orders_over_200k_cny_since_0930  min +0.0000  0430 +0.0000  1112 +0.0000  1113 +0.0000
+srank:-gen.amount_share_orders_over_200k_cny_since_0930  min +0.0000  0430 +0.0000  1112 +0.0000  1113 +0.0000
+share of candidates helping on every day: 0.002
+best on 20260430:
+dm:zzba.r  0430 +0.0003  min -0.0038  1112 -0.0038  1113 -0.0014
+dm:gen.rv60  0430 +0.0002  min +0.0000  1112 +0.0000  1113 +0.0000
+dm:s.ret60s  0430 +0.0001  min +0.0000  1112 +0.0000  1113 +0.0000
+dm:gen.ofi_levels1to6_norm_30s  0430 +0.0000  min -0.0000  1112 +0.0000  1113 -0.0000
+dm:s.ret900s  0430 +0.0000  min +0.0000  1112 +0.0000  1113 +0.0000
+dm:s.ret1800s  0430 +0.0000  min +0.0000  1112 +0.0000  1113 +0.0000
+dm:s.ret300s  0430 +0.0000  min +0.0000  1112 +0.0000  1113 +0.0000
+|gen.microprice_minus_mid_rel|*1e4  0430 +0.0000  min +0.0000  1112 +0.0001  1113 +0.0000
+dm:gen.ofi_levels1to5_norm_10s  0430 +0.0000  min -0.0000  1112 +0.0000  1113 -0.0000
+dm:gen.amihud_illiq_900s  0430 +0.0000  min +0.0000  1112 +0.0000  1113 +0.0000
+-- zzop.i: 925 candidates in 719s; best by the smaller day gain:
+|s.ret300s|*1e4  min +0.0001  0430 +0.0003  1112 +0.0001  1113 +0.0005
+|gen.bid_depth_weighted_distance_5lvl_rel|*1e4  min +0.0000  0430 +0.0000  1112 +0.0005  1113 +0.0003
+|gen.lpe200|*1e4  min +0.0000  0430 +0.0004  1112 +0.0000  1113 +0.0000
+|gen.lpe100|*1e4  min +0.0000  0430 +0.0003  1112 +0.0000  1113 +0.0000
+|gen.lpe50|*1e4  min +0.0000  0430 +0.0003  1112 +0.0000  1113 +0.0000
+|gen.lpek50|*1e4  min +0.0000  0430 +0.0004  1112 +0.0000  1113 +0.0000
+|gen.lpma60|*1e4  min +0.0000  0430 +0.0003  1112 +0.0000  1113 +0.0000
+dm:gen.amihud_illiq_900s  min +0.0000  0430 +0.0000  1112 +0.0000  1113 +0.0000
+dm:-gen.amihud_illiq_900s  min +0.0000  0430 +0.0000  1112 +0.0000  1113 +0.0000
+srank:gen.amihud_illiq_900s  min +0.0000  0430 +0.0000  1112 +0.0000  1113 +0.0000
+share of candidates helping on every day: 0.008
+best on 20260430:
+|zzbd.rEmaS|*1e4  0430 +0.0006  min +0.0000  1112 +0.0000  1113 +0.0000
+|gen.rete150|*1e4  0430 +0.0006  min +0.0000  1112 +0.0000  1113 +0.0000
+|gen.lpes600|*1e4  0430 +0.0004  min -0.0007  1112 -0.0007  1113 -0.0002
+|gen.lpe200|*1e4  0430 +0.0004  min +0.0000  1112 +0.0000  1113 +0.0000
+|gen.lpek50|*1e4  0430 +0.0004  min +0.0000  1112 +0.0000  1113 +0.0000
+|gen.lmie5|*1e4  0430 +0.0003  min +0.0000  1112 +0.0000  1113 +0.0000
+|gen.lpe5|*1e4  0430 +0.0003  min +0.0000  1112 +0.0000  1113 +0.0000
+|gen.lmie10|*1e4  0430 +0.0003  min -0.0000  1112 -0.0000  1113 -0.0000
+|gen.lpe50|*1e4  0430 +0.0003  min +0.0000  1112 +0.0000  1113 +0.0000
+|gen.lpe25|*1e4  0430 +0.0003  min -0.0000  1112 +0.0000  1113 -0.0000
+-- zzzl2.c: 925 candidates in 653s; best by the smaller day gain:
+dm:-gen.microprice_minus_mid_rel  min +0.0001  0430 +0.0001  1112 +0.0004  1113 +0.0003
+dm:i905.last/last30m  min +0.0001  0430 +0.0001  1112 +0.0001  1113 +0.0001
+dm:-i905.last/last5m  min +0.0000  0430 +0.0000  1112 +0.0001  1113 +0.0001
+dm:-i852.last/last30m  min +0.0000  0430 +0.0000  1112 +0.0001  1113 +0.0001
+dm:const0.998  min +0.0000  0430 +0.0000  1112 +0.0004  1113 +0.0003
+dm:-const1.005  min +0.0000  0430 +0.0000  1112 +0.0004  1113 +0.0003
+dm:-i300.last/last1m  min +0.0000  0430 +0.0000  1112 +0.0001  1113 +0.0001
+dm:i905.last/pre  min +0.0000  0430 +0.0000  1112 +0.0001  1113 +0.0001
+dm:i852.last/last15m  min +0.0000  0430 +0.0000  1112 +0.0001  1113 +0.0001
+dm:i300.last/last15m  min +0.0000  0430 +0.0000  1112 +0.0001  1113 +0.0001
+share of candidates helping on every day: 0.036
+best on 20260430:
+dm:gen.bid_depth_weighted_distance_5lvl_rel  0430 +0.0007  min -0.0007  1112 +0.0016  1113 -0.0007
+dm:s.spread/mid  0430 +0.0006  min -0.0021  1112 +0.0008  1113 -0.0021
+dm:-gen.rete150  0430 +0.0005  min -0.0002  1112 -0.0002  1113 -0.0002
+dm:s.tick/px  0430 +0.0004  min -0.0004  1112 +0.0019  1113 -0.0004
+dm:-zzbd.rEmaS  0430 +0.0003  min -0.0001  1112 -0.0001  1113 -0.0001
+dm:-gen.rete75  0430 +0.0003  min -0.0002  1112 -0.0002  1113 -0.0002
+dm:-gen.microprice_minus_mid_rel  0430 +0.0001  min +0.0001  1112 +0.0004  1113 +0.0003
+dm:i905.last/last30m  0430 +0.0001  min +0.0001  1112 +0.0001  1113 +0.0001
+dm:-i905.last/last5m  0430 +0.0000  min +0.0000  1112 +0.0001  1113 +0.0001
+dm:-i852.last/last30m  0430 +0.0000  min +0.0000  1112 +0.0001  1113 +0.0001
+-- zzmh: 925 candidates in 652s; best by the smaller day gain:
+dm:gen.trading_seconds_since_0930  min +0.0000  all days +0.0000
+dm:-gen.trading_seconds_since_0930  min +0.0000  all days +0.0000
+srank:gen.trading_seconds_since_0930  min +0.0000  all days +0.0000
+srank:-gen.trading_seconds_since_0930  min +0.0000  all days +0.0000
+dm:const0.99  min +0.0000  all days +0.0000
+dm:-const0.99  min +0.0000  all days +0.0000
+srank:const0.99  min +0.0000  all days +0.0000
+srank:-const0.99  min +0.0000  all days +0.0000
+dm:const0.995  min +0.0000  all days +0.0000
+dm:-const0.995  min +0.0000  all days +0.0000
+share of candidates helping on every day: 0.000
+best on 20260430:
+dm:gen.trading_seconds_since_0930  0430 +0.0000  (all +0.0000)
+dm:-gen.trading_seconds_since_0930  0430 +0.0000  (all +0.0000)
+srank:gen.trading_seconds_since_0930  0430 +0.0000  (all +0.0000)
+srank:-gen.trading_seconds_since_0930  0430 +0.0000  (all +0.0000)
+dm:const0.99, dm:-const0.99, srank:const0.99, srank:-const0.99, dm:const0.995, dm:-const0.995  0430 +0.0000 (all +0.0000)   [6 rows]
+-- zzpe.e: 925 candidates in 664s; best by the smaller day gain:
+srank:-gen.lpe50  min +0.0002  0430 +0.0003  1112 +0.0002  1113 +0.0009
+srank:-gen.rete30  min +0.0002  0430 +0.0008  1112 +0.0002  1113 +0.0011
+srank:-gen.lpe25  min +0.0001  0430 +0.0010  1112 +0.0001  1113 +0.0012
+srank:-gen.rpe25  min +0.0001  0430 +0.0010  1112 +0.0001  1113 +0.0012
+srank:-gen.rete50  min +0.0001  0430 +0.0002  1112 +0.0001  1113 +0.0009
+dm:s.last/low  min +0.0000  all +0.0000
+dm:s.last/low-1  min +0.0000  all +0.0000
+dm:s.(last-low)/pre  min +0.0000  all +0.0000
+dm:gen.mret1800  min +0.0000  all +0.0000
+dm:gen.ret1800  min +0.0000  all +0.0000
+share of candidates helping on every day: 0.011
+best on 20260430:
+srank:-gen.rpe5  0430 +0.0016  min -0.0018  1112 -0.0018  1113 -0.0005
+srank:-gen.lpe5  0430 +0.0016  min -0.0018  1112 -0.0018  1113 -0.0005
+srank:-gen.rpe10  0430 +0.0014  min -0.0012  1112 -0.0012  1113 -0.0000
+srank:-gen.rpe20  0430 +0.0010  min -0.0003  1112 -0.0003  1113 +0.0008
+srank:-gen.lpe25  0430 +0.0010  min +0.0001  1112 +0.0001  1113 +0.0012
+srank:-gen.rpe25  0430 +0.0010  min +0.0001  1112 +0.0001  1113 +0.0012
+srank:-gen.ofi_levels2to5_norm_10s  0430 +0.0009  min -0.0031  1112 -0.0031  1113 -0.0017
+srank:-gen.lpma60  0430 +0.0009  min -0.0010  1112 -0.0010  1113 +0.0002
+srank:-gen.rpma60  0430 +0.0009  min -0.0010  1112 -0.0010  1113 +0.0002
+dm:-gen.rpe5400  0430 +0.0008  min -0.0000  1112 +0.0000  1113 -0.0000
+-- zzjx3.b: 925 candidates in 654s; best by the smaller day gain:
+dm:-gen.ret90  min +0.0005  0430 +0.0005  1112 +0.0019  1113 +0.0020
+dm:-gen.ret120  min +0.0003  0430 +0.0003  1112 +0.0023  1113 +0.0021
+dm:gen.trading_seconds_since_0930, dm:-gen.trading_seconds_since_0930, srank:gen.trading_seconds_since_0930, srank:-gen.trading_seconds_since_0930, dm:const0.99, dm:-const0.99, srank:const0.99, srank:-const0.99  min +0.0000 all +0.0000  [8 rows]
+share of candidates helping on every day: 0.002
+best on 20260430:
+dm:-gen.ret90  0430 +0.0005  min +0.0005  1112 +0.0019  1113 +0.0020
+dm:gen.amihud_illiq_900s  0430 +0.0005  min -0.0020  1112 -0.0020  1113 -0.0008
+dm:-gen.bid_depth_weighted_distance_5lvl_rel  0430 +0.0005  min -0.0014  1112 -0.0012  1113 -0.0014
+dm:-gen.ret120  0430 +0.0003  min +0.0003  1112 +0.0023  1113 +0.0021
+dm:gen.mret1800  0430 +0.0003  min -0.0021  1112 -0.0021  1113 -0.0015
+dm:gen.depth_weighted_price_5lvl_minus_mid_rel  0430 +0.0002  min -0.0013  1112 -0.0013  1113 +0.0000
+dm:gen.ret1800  0430 +0.0002  min -0.0022  1112 -0.0022  1113 -0.0016
+dm:gen.lee30_14400  0430 +0.0002  min -0.0016  1112 -0.0016  1113 -0.0009
+dm:gen.ret120  0430 +0.0002  min -0.0041  1112 -0.0041  1113 -0.0025
+dm:gen.microprice_minus_mid_rel  0430 +0.0001  min -0.0000  1112 -0.0000  1113 +0.0003
+-- zzab2: 925 candidates in 601s; best by the smaller day gain:
+dm:-gen.microprice_minus_mid_rel  min +0.0003  0430 +0.0003  1112 +0.0023  1113 +0.0033
+dm:const0.998  min +0.0001  0430 +0.0001  1112 +0.0005  1113 +0.0001
+dm:-const1.005  min +0.0001  0430 +0.0001  1112 +0.0005  1113 +0.0001
+dm:gen.trading_seconds_since_0930, dm:-gen.trading_seconds_since_0930, srank:gen.trading_seconds_since_0930, srank:-gen.trading_seconds_since_0930, dm:const0.99, dm:-const0.99, srank:const0.99  min +0.0000 all +0.0000  [7 rows]
+share of candidates helping on every day: 0.003
+best on 20260430:
+dm:-zzbd.rEmaS  0430 +0.0007  min -0.0010  1112 -0.0008  1113 -0.0010
+dm:-gen.rete150  0430 +0.0006  min -0.0012  1112 -0.0009  1113 -0.0012
+dm:-gen.rete75  0430 +0.0004  min -0.0019  1112 -0.0010  1113 -0.0019
+dm:-gen.microprice_minus_mid_rel  0430 +0.0003  min +0.0003  1112 +0.0023  1113 +0.0033
+dm:-gen.rete50  0430 +0.0002  min -0.0025  1112 -0.0013  1113 -0.0025
+dm:-gen.rete30  0430 +0.0001  min -0.0035  1112 -0.0018  1113 -0.0035
+dm:const0.998  0430 +0.0001  min +0.0001  1112 +0.0005  1113 +0.0001
+dm:-const1.005  0430 +0.0001  min +0.0001  1112 +0.0005  1113 +0.0001
+dm:-zzbd.rEmaT  0430 +0.0000  min -0.0006  1112 -0.0005  1113 -0.0006
+dm:i905.last/pre  0430 +0.0000  min -0.0001  1112 -0.0000  1113 -0.0001
+[17:13:32] done
