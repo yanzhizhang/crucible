@@ -1,0 +1,13 @@
+R99 on 97 (r99.sh 98fc77d6; gates ic_score 37d2fc42, full_book aa289167, run_cpp a542e01a, run_day cde608f4, dcp_build 39c3d7bb), 12:46:48 - 13:23:15, run in parallel with R98. No FAILED / Error / Traceback lines (grep count 0).
+Per day: [time] D / similarity X / D: done in Ns (run_day) / ls of the 4 outputs (all present every day):
+ [12:46:48] 20261102 similarity 0.2120; done in 15s; data/featgen_r99/base_20261102.parquet, stage6_r99_1102/{cal_20261102.json, pred.parquet, x.parquet}
+ [12:51:57] 20261103 similarity 0.0802; done in 15s; same 4 files
+ [12:56:55] 20261104 similarity 0.4940; done in 15s; same 4 files
+ [13:01:19] 20261105 similarity 0.5862; done in 15s; same 4 files
+ [13:05:15] 20261106 similarity 0.5694; done in 13s; same 4 files
+ [13:08:45] 20261109 similarity 0.6206; done in 12s; same 4 files
+ [13:12:01] 20261110 similarity 0.6468; done in 13s; same 4 files
+ [13:15:13] 20261111 similarity 0.4727; done in 12s; same 4 files
+ [13:18:30] 20261112 similarity 0.6558; done in 13s; same 4 files   (= R70's .6558: sanity check passes)
+ [13:19:50] 20261113 similarity 0.6790; done in 13s; same 4 files
+[13:23:15] done

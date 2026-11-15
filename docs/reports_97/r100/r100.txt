@@ -1,0 +1,13 @@
+R100 (updated, 8b334e9) on 97 (r100.sh c7170802, ratio_extra.py c12de6cb, implied_scan.py f891c1fb; gate decode_pm_mp.py 126df788), 13:34:12 - 13:34:34. 81 lines. The user approved the possible 0430 *_index.mp copy from 2.23; it was NOT needed (files local).
+[13:34:12] 0 0430: PM's index mp
+  40 /data/prod/mp/20260430/SH_HS300_index.mp | 41 SH_ZZ1000_index.mp | 40 SH_ZZ500_index.mp | 40 SZ_HS300_index.mp | 41 SZ_ZZ1000_index.mp | 40 SZ_ZZ500_index.mp   (sizes as printed: symlink sizes)
+  ... SH_ZZ500_index.mp: 8,970 rows 0.2s | SZ_ZZ500_index.mp: 4,612 rows 0.0s
+  20260430: 40,748 rows -> /work/crucible_data/pmmp_raw
+  ls pmmp_raw/kind=index/date=20260430: _manifest.parquet part-SH_HS300-000.parquet part-SH_ZZ1000-000.parquet part-SH_ZZ500-000.parquet part-SZ_HS300-000.parquet part-SZ_ZZ1000-000.parquet part-SZ_ZZ500-000.parquet
+[13:34:12] ratios 20260430 .. [13:34:32] ratios 20261113 (all 11 days, 2 s apart): each ends
+  polars.exceptions.InvalidOperationError: expected List data type for list operation, got: Array(Float64, 10)
+  (one-day rerun on 1112: ratio_extra.py line 109 main() -> line 86 in main:
+   q = q.filter(pl.col("symbol_id").is_in(key["sid"].unique().cast(pl.Int32).implode()) & (pl.col("price") > 0)).with_columns( ...)
+[13:34:34] implied scan of zzeg, raw ratios, days        <- empty: no ratio files
+implied_scan.py: error: argument --days: expected one argument
+[13:34:34] done
