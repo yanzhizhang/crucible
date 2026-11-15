@@ -1,0 +1,21 @@
+R101a on 97 (index_probe.py d023ef8c), ended 14:08:25. 42 lines, full.
+1 official index cadence  (per line: day market code: rows 09:30-15:00; exch gap median / p90; arrival gap median / p90; last changed share)
+ 20260430 from pmmp_raw:
+  3553 300: 7244 rows; 3.00s/3.00s; 3.00s/3.00s; 0.65 | 3553 852: 7245; same; 0.65 | 3553 905: 7245; same; 0.65
+  3554 399300: 4497 rows; 3.00s/3.00s; 3.00s/3.00s; 0.98 | 3554 399852: 4497; 0.98 | 3554 399905: 4497; 0.98
+ 20261112 from pmmp_raw:
+  3553 300: 7210; 3.00/3.00; 3.00/3.00; 0.66 | 3554 399300: 4495; 3.00/3.00; arrival 3.00/3.13; 0.98
+ 20261112 from dysl2_raw:
+  3553 1: 7211; 3.00/3.00; 3.00/3.00; 0.66 | 3553 16: 7211; 0.66 | 3553 300: 7210; 0.66 | 3553 852: 7211; 0.66 | 3553 905: 7210; 0.66
+  3554 399001: 4836; arrival p90 3.06s; 0.98 | 3554 399006: 4836; arrival p90 3.06s; 0.98 | 3554 399300: 4495; arrival p90 3.13s; 0.98
+ 20261113 from dysl2_raw:
+  3553 1: 7210; 0.66 | 3553 16: 7210; 0.66 | 3553 300: 7210; 0.66 | 3553 852: 7210; 0.66 | 3553 905: 7210; 0.66
+  3554 399001: 4836; arrival p90 3.06s; 0.98 | 3554 399006: 4836; arrival p90 3.06s; 0.98 | 3554 399300: 4495; arrival p90 3.16s; 0.98
+  (all exch gaps median 3.00s p90 3.00s)
+2 /work/crucible_data/pm_stsfile/index
+ 26 files: ['index-20261008.xr', 'index-20261009.xr', 'index-20261012.xr', 'index-20261013.xr', 'index-20261014.xr'] ... ['index-20261106.xr', 'index-20261109.xr', 'index-20261110.xr', 'index-20261111.xr', 'index-20261113.xr']
+ /work/crucible_data/pm_stsfile/index/index-20261113.xr 298,960 bytes; first bytes b'\x89HDF\r\n\x1a\n...' (HDF5)
+ xarray: <xarray.Dataset> Size: 282kB
+ Dimensions: (S: 3914, D: 1, I: 1, V: 6)
+ Coordinates: S (S) <U6 94kB '1' '2' '9' '11' ... '688819' '688981' '689009'; D (D) <U8 '20261113'; I (I) <U8 '09:00:00'; V (V) <U6 'SH50' 'HS300' 'A500' 'ZZ500' 'ZZ1000' 'ZZ2000'
+ Data variables: x (S, D, I, V) float64 188kB ...; x e.g. [ nan 0.00497004 0.00444881 nan nan nan]
