@@ -67,12 +67,15 @@ class Day:
         self.cal = {k: (np.array(v[0]), np.array(v[1])) for k, v in json.loads((x_dir / f"cal_{d}.json").read_text()).items()}
 
 
-RAW_XS = {"dm", "-dm", "srank", "-srank", "abs4"}
+RAW_XS = {"dm", "-dm", "srank", "-srank", "abs4", "log", "log|b|"}
 RAW = {"id", "1/b", "-id"} | RAW_XS
 
 
 def raw_xs(v: np.ndarray, marks: np.ndarray, tr: str) -> np.ndarray:
     """dm / -dm: minus the mark's cross-sectional mean; srank / -srank: rank in [-1, 1] per mark; abs4: |v| * 1e4."""
+    if tr in ("log", "log|b|"):  # natural log of the value (non-positive -> NaN) or of its magnitude
+        with np.errstate(divide="ignore", invalid="ignore"):
+            return np.log(np.abs(v)) if tr == "log|b|" else np.where(v > 0, np.log(np.where(v > 0, v, 1.0)), np.nan)
     if tr == "abs4":
         return np.abs(v) * 1e4
     out = np.full(v.size, np.nan)
@@ -211,7 +214,7 @@ def main() -> None:
         for (b, tr), gain in gains.items():
             if len(gain) == len(days):
                 nm = b[2:] if b.startswith("x.") else f"gen.{b}"
-                label = {"b": f"cal:{nm}", "-b": f"cal:-{nm}", "|b|": f"cal:|{nm}|", "rank": f"cal:rank:{nm}", "-rank": f"cal:rank:-{nm}", "id": nm, "1/b": f"1/{nm}", "-id": f"-{nm}", "dm": f"dm:{nm}", "-dm": f"dm:-{nm}", "srank": f"srank:{nm}", "-srank": f"srank:-{nm}", "abs4": f"|{nm}|*1e4"}[tr]
+                label = {"b": f"cal:{nm}", "-b": f"cal:-{nm}", "|b|": f"cal:|{nm}|", "rank": f"cal:rank:{nm}", "-rank": f"cal:rank:-{nm}", "id": nm, "1/b": f"1/{nm}", "-id": f"-{nm}", "dm": f"dm:{nm}", "-dm": f"dm:-{nm}", "srank": f"srank:{nm}", "-srank": f"srank:-{nm}", "abs4": f"|{nm}|*1e4", "log": f"log:{nm}", "log|b|": f"log|{nm}|"}[tr]
                 rows.append((min(gain.values()), label, gain))
         rows.sort(key=lambda r: -r[0])
         print(f"-- {tgt}: {len(rows)} candidates in {time.perf_counter() - t0:.0f}s; best by the smaller day gain:")
