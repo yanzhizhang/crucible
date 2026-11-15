@@ -48,6 +48,8 @@ class Day:
         for f in extra or []:  # more candidate sources: per (sid, mark) like engine marks, or per sid (a daily table)
             e = pl.read_parquet(f).with_columns(pl.col("sid").cast(pl.Int64))
             on = ["sid", "mark"] if "mark" in e.columns else ["sid"]
+            if "mark" in e.columns and e.schema["mark"] != key.schema["mark"]:  # engine marks are float seconds, the matrix's are ints
+                e = e.with_columns(pl.col("mark").round().cast(key.schema["mark"]))
             ej = key.join(e, on=on, how="left")
             sums = {c[:-4] for c in e.columns if c.endswith(".sum") and f"{c[:-4]}.wgt" in e.columns}
             for c in e.columns:
