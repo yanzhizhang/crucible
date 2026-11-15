@@ -1,0 +1,86 @@
+R104 probe on 97 (col_probe.py 302fc00b, gen B, --date 20261112, implied from R96), done 14:38:07. 121 lines; transcribed with long threshold lists trimmed (..). decision_type is (categorical, default_left, missing 0 none/1 zero/2 nan).
+-- zzba (Column_11) training range feature_infos=[0:0.17646180093288422]
+ trees 2000; 1794 splits, gain share 0.0196; root splits 0
+ decision_type (0, 1, 0)x1794
+ 92 distinct thresholds in [0.00550631, 0.0637412]; integer-ish 0.00, half-ish 0.00; quantiles 0.005506 0.01093 0.01528 0.01946 0.02622 0.04178 0.06374
+ gaps: min 0.00013 median 0.000276; first 12 [0.005506, 0.008403, 0.008817, 0.009733, 0.010845, 0.010994, 0.011433, ..]; last 6 [0.04085, 0.042916, 0.045541, 0.048943, 0.054282, 0.063741..]
+ splits by depth: d1:18 d2:152 d3:247 d4:452 d5:925 | gain by depth: d1:0.04 d2:0.13 d3:0.19 d4:0.26 d5:0.38
+ implied zzba 20261112: 44,042 rows, 300 stocks; total var 0.006982, within-stock 0.006955 (between-stock share 0.004); quantiles -0.9945 0.009275 0.01694 0.01849 1.064
+ implied zzba 20260430: 43,389 rows, 299 stocks; total var 0.008111, within-stock 0.008063 (between 0.006); quantiles -0.9945 0.009275 0.01694 0.01849 1.064
+ per-stock mean of implied zzba, 1112 vs 0430: spearman 0.061 over 279 stocks
+-- zzel.a (Column_0) training range [0:0.0057713156566023827]
+ trees 2000; 2390 splits, gain share 0.0195; root splits 7
+ decision_type (0, 1, 0)x2390
+ 127 distinct thresholds in [1e-35, 0.00237335]; integer-ish 0.01, half-ish 0.00; quantiles 1e-35 0.0001956 0.0003194 0.0004561 0.0007102 0.001396 0.002373
+ gaps: min 3.63e-06 median 6.45e-06; first 12 [0.0, 0.000127, 0.000148, 0.000163, 0.000174, 0.000184, 0.000193, 0.000..]; last 6 [0.001501, 0.001605, 0.001717, 0.001866, 0.002068, 0.002373..]
+ splits by depth: d0:7 d1:84 d2:160 d3:331 d4:621 d5:1187 | gain by depth: d0:0.00 d1:0.09 d2:0.06 d3:0.15 d4:0.27 d5:0.43
+ root CDF P(x<=t) [default_left, missing]: 0.00017416:0.0322[1,0] (x7, all the same)
+ implied zzel.a 20261112: 50,775 rows, 300 stocks; total var 0.1347, within 0.1304 (between 0.032); quantiles -1 0.0002406 0.00138 1.002 1.002
+ implied zzel.a 20260430: 51,253 rows, 299 stocks; total var 0.1337, within 0.1312 (between 0.018); quantiles -1 0.0002353 0.001256 1.002 1.002
+ spearman 0.071 over 279 stocks
+-- zzel.b (Column_5) training range [7.2028989791870117:107.31047058105469]
+ trees 2000; 2139 splits, gain share 0.0142; root splits 0
+ decision_type (0, 1, 0)x2139
+ 119 distinct thresholds in [11.9043, 62.1367]; integer-ish 0.00, half-ish 0.00; quantiles 11.9 15.61 20.87 26.63 34.2 47.47 62.14
+ gaps: min 0.176 median 0.235; first 12 [11.904282, 13.048154, 14.228817, 14.555466, 15.118208, 15.38073, 15.64..]; last 6 [48.662138, 50.089441, 51.800406, 54.028784, 57.128601, 62.13..]
+ splits by depth: d1:20 d2:101 d3:281 d4:544 d5:1193 | gain by depth: d1:0.01 d2:0.05 d3:0.16 d4:0.26 d5:0.53
+ implied zzel.b 20261112: 56,339 rows, 300 stocks; total var 326.8, within 316.7 (between 0.031); quantiles -50.23 17.59 24.28 44.78 124.3
+ implied zzel.b 20260430: 55,632 rows, 299 stocks; total var 287.7, within 282.9 (between 0.017); quantiles -50.23 17.59 24.28 43.97 124.3
+ spearman 0.240 over 279 stocks
+-- zzop.i (Column_4) training range [0:12562.443359375]
+ trees 2000; 2321 splits, gain share 0.0175; root splits 0
+ decision_type (0, 1, 0)x2321
+ 127 distinct thresholds in [1e-35, 2792.3]; integer-ish 0.01, half-ish 0.00; quantiles 1e-35 103.2 190.2 298.7 473.8 1068 2792
+ gaps: min 3.01 median 4.41; first 12 [0.0, 67.790672, 78.231323, 85.518917, 91.427578, 96.834782, 101.757145..]; last 6 [1183.432434, 1300.029724, 1457.478394, 1677.701233, 2030.506..]
+ splits by depth: d1:42 d2:110 d3:266 d4:593 d5:1310 | gain by depth: d1:0.01 d2:0.05 d3:0.13 d4:0.29 d5:0.53
+ implied zzop.i 20261112: 41,287 rows, 300 stocks; total var 7.607e+05, within 7.385e+05 (between 0.029); quantiles -2792 81.88 288.7 1137 5585
+ implied zzop.i 20260430: 40,040 rows, 299 stocks; total var 8.621e+05, within 8.509e+05 (between 0.013); quantiles -2792 81.88 288.7 1137 5585
+ spearman 0.283 over 279 stocks
+-- zzzl2.c (Column_24) training range [-0.26581066846847534:0.48698526620864868]
+ trees 2000; 1579 splits, gain share 0.0152; root splits 0
+ decision_type (0, 1, 0)x1579
+ 124 distinct thresholds in [-0.06026, 0.0815889]; integer-ish 0.02, half-ish 0.00; quantiles -0.06026 -0.02898 -0.01055 -0.0009325 0.009061 0.03177 0.08159
+ gaps: min 2e-35 median 0.000414; first 12 [-0.06026, -0.047989, -0.041277, -0.037048, -0.033778, -0.031325, -0.02..]; last 6 [0.035126, 0.038714, 0.043678, 0.050529, 0.060584, 0.081589..]
+ splits by depth: d1:25 d2:105 d3:243 d4:450 d5:756 | gain by depth: d1:0.02 d2:0.07 d3:0.25 d4:0.29 d5:0.37
+ implied zzzl2.c 20261112: 11,437 rows, 300 stocks; total var 0.02799, within 0.02794 (between 0.002); quantiles -1.06 -0.01926 -0.005071 0.01726 1.082
+ implied zzzl2.c 20260430: 12,447 rows, 299 stocks; total var 0.0203, within 0.02017 (between 0.007); quantiles -1.06 -0.01644 -0.005071 0.01726 1.082
+ spearman 0.068 over 279 stocks
+-- zzmh (Column_8) training range [0:1.0028657913208008]
+ trees 2000; 1492 splits, gain share 0.0147; root splits 2
+ decision_type (0, 1, 0)x1492
+ 119 distinct thresholds in [1e-35, 0.113095]; integer-ish 0.01, half-ish 0.00; quantiles 1e-35 0.002613 0.008455 0.01697 0.03019 0.06004 0.1131
+ gaps: min 0.000218 median 0.000356; first 12 [0.0, 0.001027, 0.001461, 0.001813, 0.002108, 0.002387, 0.002638, 0.002..]; last 6 [0.063118, 0.067318, 0.07289, 0.080199, 0.091847, 0.113095..]
+ splits by depth: d0:2 d1:37 d2:100 d3:209 d4:413 d5:731 | gain by depth: d0:0.00 d1:0.02 d2:0.17 d3:0.19 d4:0.26 d5:0.36
+ root CDF P(x<=t) [default_left, missing]: 0.0045011:0.1111[1,0] 0.0047242:0.1190[1,0]
+ implied zzmh 20261112: 15,513 rows, 300 stocks; total var 0.2978, within 0.2822 (between 0.052); quantiles -1 0.0005135 0.04552 1.113 1.113
+ implied zzmh 20260430: 15,038 rows, 299 stocks; total var 0.3017, within 0.2913 (between 0.035); quantiles -1 0.0005135 0.05532 1.113 1.113
+ spearman 0.170 over 279 stocks
+-- zzpe.e (Column_7) training range [-3.5550000667572021:2.628000020980835]
+ trees 2000; 1827 splits, gain share 0.0137; root splits 16
+ decision_type (0, 1, 0)x1827
+ 123 distinct thresholds in [-2.793, 2.2265]; integer-ish 0.02, half-ish 0.00; quantiles -2.793 -1.604 -0.9125 -0.3915 0.215 1.361 2.227
+ gaps: min 2e-35 median 0.021; first 12 [-2.793, -2.4235, -2.1475, -1.9395, -1.8105, -1.6985, -1.6115, -1.5365,..]; last 6 [1.4795, 1.5995, 1.7255, 1.8165, 1.9565, 2.2265..]
+ splits by depth: d0:16 d1:55 d2:77 d3:180 d4:437 d5:1062 | gain by depth: d0:0.00 d1:0.04 d2:0.05 d3:0.11 d4:0.26 d5:0.54
+ root CDF P(x<=t) [default_left, missing]: 2.2265:0.9927[1,0] repeated for each of the 16 root splits (line cut at 330)
+ implied zzpe.e 20261112: 55,993 rows, 300 stocks; total var 9.276, within 8.446 (between 0.090); quantiles -5.586 -1.332 0.646 5.02 5.02
+ implied zzpe.e 20260430: 55,889 rows, 299 stocks; total var 9, within 8.349 (between 0.072); quantiles -5.586 -1.332 0.3545 5.02 5.02
+ spearman 0.090 over 279 stocks
+-- zzjx3.b (Column_16) training range [-0.22325724363327026:0.1825697273015976]
+ trees 2000; 1558 splits, gain share 0.0125; root splits 5
+ decision_type (0, 1, 0)x1558
+ 121 distinct thresholds in [-0.0432927, 0.0590137]; integer-ish 0.02, half-ish 0.00; quantiles -0.04329 -0.01642 -0.00622 -0.00105 0.004945 0.0183 0.05901
+ gaps: min 2e-35 median 0.000238; first 12 [-0.043293, -0.030532, -0.025304, -0.021907, -0.019519, -0.017779, -0.0..]; last 6 [0.020206, 0.022767, 0.026076, 0.03099, 0.039375, 0.059014..]
+ splits by depth: d0:5 d1:23 d2:114 d3:189 d4:395 d5:832 | gain by depth: d0:0.00 d1:0.01 d2:0.09 d3:0.13 d4:0.26 d5:0.49
+ root CDF P(x<=t) [default_left, missing]: 0.0013823:0.6604[1,0] 0.0021166:0.6931[1,0] (x4)
+ implied zzjx3.b 20261112: 35,081 rows, 300 stocks; total var 0.09254, within 0.08604 (between 0.070); quantiles -1.043 -0.03691 -0.009117 0.01753 1.059
+ implied zzjx3.b 20260430: 34,383 rows, 299 stocks; total var 0.08935, within 0.08806 (between 0.014); quantiles -1.043 -0.03691 -0.00851 0.01753 1.059
+ spearman 0.136 over 279 stocks
+-- zzab2 (Column_20) training range [-0.13793219625944986:0.17768748104572296]
+ trees 2000; 1265 splits, gain share 0.0111; root splits 0
+ decision_type (0, 1, 0)x1265
+ 117 distinct thresholds in [-0.0274066, 0.0366396]; integer-ish 0.02, half-ish 0.00; quantiles -0.02741 -0.01131 -0.003358 1e-35 0.003653 0.01303 0.03664
+ gaps: min 2e-35 median 0.00017; first 12 [-0.027407, -0.020121, -0.01682, -0.01464, -0.013136, -0.012029, -0.011..]; last 6 [0.014071, 0.015714, 0.017904, 0.020929, 0.026175, 0.03664..]
+ splits by depth: d1:21 d2:74 d3:176 d4:363 d5:631 | gain by depth: d1:0.01 d2:0.06 d3:0.17 d4:0.31 d5:0.44
+ implied zzab2 20261112: 16,010 rows, 300 stocks; total var 0.09618, within 0.09008 (between 0.063); quantiles -1.027 -0.02376 -5.17e-05 0.000463 1.037
+ implied zzab2 20260430: 14,226 rows, 299 stocks; total var 0.08486, within 0.0827 (between 0.025); quantiles -1.027 -0.01847 -5.17e-05 0.0005657 1.037
+ spearman 0.194 over 279 stocks
