@@ -23,7 +23,7 @@ import polars as pl
 
 CST_NS = 8 * 3600 * 10**9
 KEYS = "zzvm.c.re,zzmh.r,zzhj.p,zzcb.r,zzeb.r,zztx.r,zzui.r,zzup.ps,zzba.p,zzeg.c.rEma,zzqj.r,zzup.pf"
-HALVES = [5, 10, 15, 20, 30, 45, 60, 90, 100, 120, 150, 180, 200, 240, 300, 360, 450, 600, 900, 1200, 1800, 3600, 7200, 14400, 28800, 57600, 86400, 172800]
+HALVES = [5, 10, 15, 20, 30, 45, 60, 90, 100, 120, 150, 180, 200, 240, 300, 360, 450, 600, 900, 1200, 1800, 3600, 7200, 14400, 28800, 57600, 86400, 172800, 259200, 432000, 864000, 1728000]
 
 
 def tclock(ns: np.ndarray) -> np.ndarray:
@@ -104,7 +104,8 @@ def main() -> None:
                 v = h["volume"].to_numpy().astype(float)
                 sg = np.where(h["dir"].to_numpy() == 1063, 1.0, np.where(h["dir"].to_numpy() == 1550, -1.0, 0.0))
                 lp = np.log(p)
-                cand = {"price": p, "tqty": v, "tamt": p * v, "signed_qty": sg * v, "signed_amt": sg * p * v, "one": np.ones(p.size),
+                cand = {"price": p, "tqty": v, "tamt": p * v, "signed_qty": sg * v, "signed_amt": sg * p * v, "one": np.ones(p.size), "side": sg,
+                        "side*|logret|": sg * np.abs(np.concatenate([[0.0], np.diff(np.log(p))])), "log_tqty": np.log(np.maximum(v, 1.0)),
                         "logret": np.concatenate([[0.0], np.diff(lp)]), "|logret|": np.abs(np.concatenate([[0.0], np.diff(lp)]))}
                 out_t.append(tclock(h["spider_ts"].to_numpy())[m])
                 for k, x in cand.items():
@@ -118,6 +119,12 @@ def main() -> None:
     cache = {}
     for key in keys:
         pm = {s: (kv[f"{key}.sum"], kv[f"{key}.wgt"], kv.get(f"{key}.t")) for s, kv in st.items() if kv.get(f"{key}.wgt")}
+        if pm:  # what PM holds: the value (sum / wgt), the weight, the last update time
+            v = np.array([sm / w for sm, w, _ in pm.values()])
+            w = np.array([w for _, w, _ in pm.values()])
+            tt = np.array([t for *_, t in pm.values() if t is not None])
+            q = lambda x: " ".join(f"{np.quantile(x, z):.5g}" for z in (0, 0.1, 0.5, 0.9, 1)) if x.size else "-"  # noqa: E731
+            print(f"   {key}: value q0/10/50/90/100 {q(v)} | wgt {q(w)} | t {q(tt)}")
         res = []
         for clock in ("snap", "snapchg", "trade", "both"):
             for start in ("0925", "0930"):

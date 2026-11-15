@@ -21,10 +21,6 @@ EMAS: dict[str, tuple[str, float, str]] = {
     "zzba.p": ("both", 300, "snap_px"), "zzba.r": ("both", 300, "hl_trade"),  # decided on 97: 1e-4 exact every day
     "zzbd.pEmaT": ("trade", 100, "logp"), "zzbd.rEmaT": ("trade", 200, "logret"), "zzqj.r": ("trade", 30, "rvwap"),
     "zzeg.c.rEma|c0": ("snap", 300, "span"),  # 4-day channel mid, carried from yesterday (R111: value equal 0.98-1.00)
-    # R119 (value match, rel 1e-3): zzba.p fits a trade-clock price average at 300-360 s (0.99-1.00), zzui.r a snapshot price
-    # average at 45-90 s (~0.97); scored here at the engine's 1e-6 against PM next to the current rules
-    "zzba.p|tr300": ("trade", 300, "price"), "zzba.p|tr360": ("trade", 360, "price"),
-    "zzui.r|s45": ("snap", 45, "price"), "zzui.r|s60": ("snap", 60, "price"), "zzui.r|s90": ("snap", 90, "price"),
     # variants: "<pm key>|<tag>" is scored against the PM key next to the rule above (verify strips the tag).
     # clocks: snap / trade / both (updated by every event); "_wall" = no lunch removal (afternoon t + 5400),
     # "_exch" = the exchange stamp's trading clock; "|c<N>" (none now) = seeded from yesterday's PM state decayed by N s
