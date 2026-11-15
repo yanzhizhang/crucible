@@ -1,0 +1,17 @@
+.jz key inventory (read-only, run 2026-11-15 ~15:58 on 97). Families: trailing digits collapsed to '#'
+(crucible's regex only collapsed .c.N/.r.N, which listed ~2100 zzfb.cN.NNN keys individually).
+/work/crucible_data/seed_probe/HS300/20261113.jz 300 stocks 7498 keys 121 families
+  zzab2.r.sum:1  zzab2.r.t:1  zzab2.r.wgt:1  zzba.p.sum:1  zzba.p.t:1  zzba.p.wgt:1  zzba.r.sum:1  zzba.r.t:1  zzba.r.wgt:1  zzbd.drSumS:1  zzbd.drSumT:1  zzbd.pEmaS.sum:1  zzbd.pEmaS.t:1
+  zzbd.pEmaS.wgt:1  zzbd.pEmaT.sum:1  zzbd.pEmaT.t:1  zzbd.pEmaT.wgt:1  zzbd.rEmaS.sum:1  zzbd.rEmaS.t:1  zzbd.rEmaS.wgt:1  zzbd.rEmaT.sum:1  zzbd.rEmaT.t:1  zzbd.rEmaT.wgt:1  zzcb.r.sum:1
+  zzcb.r.t:1  zzcb.r.wgt:1  zzeb.p.sum:1  zzeb.p.t:1  zzeb.p.wgt:1  zzeb.r.sum:1  zzeb.r.t:1  zzeb.r.wgt:1  zzeg.c.high:1  zzeg.c.low:1  zzeg.c.rEma.sum:1  zzeg.c.rEma.t:1  zzeg.c.rEma.wgt:1
+  zzeg.c.span:1  zzfb.c.#:711  zzfb.c3.#:711  zzfb.c5.#:711  zzgh.c.#:948  zzgh.nb:1  zzgh2.c.#:1422  zzgh2.nb:1  zzhj.c.#:474  zzhj.p.sum:1  zzhj.p.t:1  zzhj.p.wgt:1  zzhj.r.wgt:1
+  zzjb.c.#:948  zzjb2.c.#:1422  zzmh.hm:1  zzmh.r.sum:1  zzmh.r.t:1  zzmh.r.wgt:1  zzpk.high:1  zzpk.low:1  zzpk.open:1  zzpk.p.sum:1  zzpk.p.t:1  zzpk.p.wgt:1  zzqj.r.sum:1  zzqj.r.t:1
+  zzqj.r.wgt:1  zzqj.tpv:1  zzqj.v:1  zztx.r.sum:1  zztx.r.t:1  zztx.r.wgt:1  zzui.er:1  zzui.k:1  zzui.r.#:10  zzui.r.sum:1  zzui.r.t:1  zzui.r.wgt:1  zzup.pf.sum:1  zzup.pf.t:1
+  zzup.pf.wgt:1  zzup.ps.sum:1  zzup.ps.t:1  zzup.ps.wgt:1  zzvm.c.re.sum:1  zzvm.c.re.t:1  zzvm.c.re.wgt:1  zzvm.c.tpv:1  zzvm.c.v:1  zzvx.high:1  zzvx.low:1  zzvx.rEmaD.sum:1
+  zzvx.rEmaD.t:1  zzvx.rEmaD.wgt:1  zzvx.rEmaO.sum:1  zzvx.rEmaO.t:1  zzvx.rEmaO.wgt:1  zzvx.trDEmaD.sum:1  zzvx.trDEmaD.t:1  zzvx.trDEmaD.wgt:1  zzvx.trDEmaO.sum:1  zzvx.trDEmaO.t:1
+  zzvx.trDEmaO.wgt:1  zzvx.trEmaD.sum:1  zzvx.trEmaD.t:1  zzvx.trEmaD.wgt:1  zzvx.trEmaO.sum:1  zzvx.trEmaO.t:1  zzvx.trEmaO.wgt:1  zzxo.last:1  zzxo.r.#:30  zzxu.a.sum:1  zzxu.a.t:1
+  zzxu.a.wgt:1  zzxu.dir:1  zzxu.high:1  zzxu.last:1  zzxu.low:1  zzxu.lower:1  zzxu.p.sum:1  zzxu.p.t:1  zzxu.p.wgt:1  zzxu.upper:1
+  keys equal to a model column: []
+  model families present: ['zzab2', 'zzba', 'zzcb', 'zzeg', 'zzfb', 'zzgh', 'zzgh2', 'zzhj', 'zzjb', 'zzjb2', 'zzmh', 'zzpk', 'zzup', 'zzvm', 'zzvx', 'zzxo', 'zzxu']
+/data/prod/h/HS300/p1_intrading_dcp/20260430.jz missing
+ls tail -3 of that dir: 20261104.jz 20261105.jz 20261106.jz
