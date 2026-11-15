@@ -1,0 +1,29 @@
+[19:35:23] 20261106
+20261106: 300 stocks, 1,488,121 snapshots, 24,412,719 trades; keys ['zzvm.c.re', 'zzmh.r', 'zzcb.r', 'zzeb.r', 'zztx.r', 'zzhj.p']
+   zzvm.c.re: value q0/10/50/90/100 1.2109 5.2953 23.851 105.27 1446.3 | wgt 238.52 850.63 2015.7 5064.3 14447 | t 14401 14401 14403 14408 14410
+-- zzvm.c.re: 300 stocks; best by value equal (rel 1e-3): trade/1728000s price 0.887  trade/864000s price 0.887  trade/432000s price 0.877  trade/259200s price 0.867  trade/172800s price 0.860
+   zzmh.r: value q0/10/50/90/100 0 3.321e-05 0.00064665 0.0040928 0.024683 | wgt 1.0007 1.0019 1.1431 1.1439 1.1439 | t 14490 14503 14531 14546 14550
+-- zzmh.r: 300 stocks; best by value equal (rel 1e-3): trade/450s |logret||c0 0.003  trade/300s logret|c0 0.003  trade/90s logret|c0 0.003  trade/15s signed_qty|c0 0.003  trade/5s side*|logret||c0 0.003
+   zzcb.r: value q0/10/50/90/100 0.34279 1.1812 5.018 99.968 1566.7 | wgt 1.3691 1.462 2.4736 2.7964 2.8089 | t 14490 14503 14531 14546 14550
+-- zzcb.r: 300 stocks; best by value equal (rel 1e-3): snapchg/57600s hm-p|c0 0.007  snapchg/100s spread_ticks|c0 0.007  trade/28800s log_tqty|c0 0.003  snapchg/259200s hm-p|c0 0.003  snapchg/1200s 100(hm/p-1)|c0 0.003
+   zzeb.r: value q0/10/50/90/100 0.12147 0.12191 0.12537 0.15475 0.159 | wgt 10.959 11.979 21.352 23.889 24.16 | t 14490 14503 14531 14546 14550
+-- zzeb.r: 300 stocks; best by value equal (rel 1e-3): trade/259200s side|c0 0.003  snapchg/1728000s hm-p|c0 0.003  snapchg/864000s spread|c0 0.003  snapchg/432000s spread|c0 0.003  snapchg/57600s hm-p|c0 0.003
+   zztx.r: value q0/10/50/90/100 -1.2557 -0.12194 -0.015874 0.0020997 0.15276 | wgt 95.197 300.13 650.61 1714.7 5551 | t 14401 14401 14403 14408 14410
+-- zztx.r: 300 stocks; best by value equal (rel 1e-3): snapchg/259200s logret|c0 0.007  snapchg/57600s logret2|c0 0.007  trade/172800s side|c0 0.003  trade/259200s side|c0 0.003  trade/600s side|c0 0.003
+   zzhj.p: value q0/10/50/90/100 2.2384e+05 5.9869e+05 2.1575e+06 9.2985e+06 6.0734e+07 | wgt 14.837 14.931 14.933 14.935 14.936 | t 14190 14190 14191 14193 14194
+-- zzhj.p: 300 stocks; best by value equal (rel 1e-3): snapchg/100s depth1|c0 0.003  snapchg/20s bv1|c0 0.003  snap/200s depth1|c0 0.003  snap/180s av1|c0 0.003  snap/60s av1|c0 0.003
+[19:47:47] 20261113
+20261113: 300 stocks, 1,486,876 snapshots, 22,941,617 trades; keys ['zzvm.c.re', 'zzmh.r', 'zzcb.r', 'zzeb.r', 'zztx.r', 'zzhj.p']
+   zzvm.c.re: value q0/10/50/90/100 1.1716 5.1832 23.169 106.85 1424.9 | wgt 269.15 787.89 1917.7 4210.9 13413 | t 14401 14401 14403 14408 14410
+-- zzvm.c.re: 300 stocks; best by value equal (rel 1e-3): trade/259200s price|c0 0.843  trade/172800s price|c0 0.843  both/172800s price|c0 0.833  trade/864000s price|c0 0.827  trade/432000s price|c0 0.827
+   zzmh.r: value q0/10/50/90/100 0 3.8447e-05 0.00068319 0.010901 0.063879 | wgt 1.0007 1.0019 1.1431 1.1439 1.1439 | t 14490 14503 14532 14546 14550
+-- zzmh.r: 300 stocks; best by value equal (rel 1e-3): trade/5s side*|logret||c0 0.010  snapchg/180s spread/mid|c0 0.007  snapchg/90s |logret||c0 0.007  snapchg/30s spread/mid|c0 0.007  trade/900s |logret||c0 0.003
+   zzcb.r: value q0/10/50/90/100 0.29746 1.1503 5.6007 98.633 1622.2 | wgt 1.3684 1.4557 2.4735 2.7701 2.8091 | t 14490 14503 14532 14546 14550
+-- zzcb.r: 300 stocks; best by value equal (rel 1e-3): trade/100s signed_qty|c0 0.003  trade/45s signed_qty|c0 0.003  snapchg/1728000s spread_ticks|c0 0.003  snapchg/864000s spread_ticks|c0 0.003  snapchg/432000s spread_ticks|c0 0.003
+   zzeb.r: value q0/10/50/90/100 0.1215 0.12229 0.12586 0.15471 0.15922 | wgt 10.963 11.984 21.157 23.732 24.16 | t 14490 14503 14532 14546 14550
+-- zzeb.r: 300 stocks; best by value equal (rel 1e-3): snapchg/90s hm-p|c0 0.007  snapchg/1728000s log_bv1/av1|c0 0.003  snapchg/864000s log_bv1/av1|c0 0.003  snapchg/432000s log_bv1/av1|c0 0.003  snapchg/259200s log_bv1/av1|c0 0.003
+   zztx.r: value q0/10/50/90/100 -1.527 -0.107 -0.014791 0.0078384 0.52084 | wgt 92.371 271.53 617.76 1483.5 5403.9 | t 14401 14401 14403 14408 14410
+-- zztx.r: 300 stocks; best by value equal (rel 1e-3): trade/57600s side|c0 0.003  trade/150s side|c0 0.003  snapchg/28800s spread 0.003  snapchg/20s spread|c0 0.003  snap/864000s logret|c0 0.003
+   zzhj.p: value q0/10/50/90/100 2.1845e+05 6.0806e+05 1.9377e+06 7.7311e+06 3.9051e+07 | wgt 14.929 14.932 14.933 14.934 14.939 | t 14190 14190 14191 14193 14193
+-- zzhj.p: 300 stocks; best by value equal (rel 1e-3): snapchg/864000s bv1 0.003  snapchg/432000s bv1|c0 0.003  snapchg/259200s bv1|c0 0.003  snapchg/172800s bv1|c0 0.003  snapchg/1200s av1|c0 0.003
+[19:59:42] done
