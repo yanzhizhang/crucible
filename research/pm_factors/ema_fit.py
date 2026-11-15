@@ -40,6 +40,7 @@ def main() -> None:
     ap.add_argument("--raw", type=Path, default=Path("/work/crucible_data/dysl2_raw"))
     ap.add_argument("--keys", default=KEYS)
     ap.add_argument("--top", type=int, default=4)
+    ap.add_argument("--by", default="wgt", choices=["wgt", "value"], help="value: rank clock x half by the best input's value match (rel 1e-3), ignoring the weight")
     a = ap.parse_args()
     d = a.date
     st = {int(s): kv for s, kv in json.loads(gzip.open(a.jz).read()).items()}
@@ -80,6 +81,15 @@ def main() -> None:
                     "logret2": np.concatenate([[0.0], np.diff(lp)]) ** 2, "dvol": vol, "damt": amt, "one": np.ones(p.size),
                     "bv1": g["bv1"].to_numpy().astype(float), "av1": g["av1"].to_numpy().astype(float), "depth1": (g["bv1"] + g["av1"]).to_numpy().astype(float),
                     "|dp|": np.abs(np.concatenate([[0.0], np.diff(p)]))}
+            ex = sod
+            hm = np.maximum.accumulate(np.where((ex >= 34200) & (ex < 53820), p, -np.inf))  # zzmh.hm: highest snapshot price 09:30-14:57
+            hm = np.where(np.isfinite(hm), hm, np.nan)
+            bv, av = g["bv1"].to_numpy().astype(float), g["av1"].to_numpy().astype(float)
+            with np.errstate(divide="ignore", invalid="ignore"):
+                cand.update({"hm-p": hm - p, "(hm-p)/p": (hm - p) / p, "(hm-p)/hm": (hm - p) / hm, "100(hm/p-1)": 100 * (hm / p - 1),
+                             "((hm-p)/p)^2": ((hm - p) / p) ** 2, "log(hm/p)": np.log(hm / p), "spread_ticks": (a1 - b1) / 0.01,
+                             "depth1_lots": (bv + av) / 100, "log_depth1": np.log(bv + av), "mid/spread": mid / (a1 - b1),
+                             "imb1": (bv - av) / (bv + av), "log_bv1/av1": np.log(bv / av), "p/hm": p / hm})
             out_t.append(tclock(g["spider_ts"].to_numpy())[m])
             for k, v in cand.items():
                 xs.setdefault(k, []).append(v[m])
@@ -125,6 +135,35 @@ def main() -> None:
                         ok += abs(np.exp(-k * (t[-1] - t)).sum() - w) <= 1e-4 * w
                     if n:
                         res.append((ok / n, clock, start, half))
+        if a.by == "value":  # the weight depends on the feed's update count (DataYes vs PM's colo feed); the value much less
+            vres = []
+            for clock in ("snap", "snapchg", "trade", "both"):
+                for start in ("0930",):
+                    for half in HALVES:
+                        k = math.log(2) / half
+                        hit: dict[str, int] = {}
+                        n = 0
+                        for s, (sm, w, tl) in pm.items():
+                            t, xs = cache[(s, clock, start)]
+                            m = t <= (tl if tl is not None else np.inf) + 1e-6
+                            if not m.any():
+                                continue
+                            n += 1
+                            wt = np.exp(-k * (t[m][-1] - t[m]))
+                            tgt = sm / w
+                            for name, x in xs.items():
+                                xm = x[m]
+                                f = np.isfinite(xm)
+                                if not f.any():
+                                    continue
+                                v = float((xm[f] * wt[f]).sum() / wt[f].sum())
+                                hit[name] = hit.get(name, 0) + (abs(v - tgt) <= 1e-3 * max(abs(tgt), 1e-12))
+                        if n and hit:
+                            nm, h = max(hit.items(), key=lambda kv: kv[1])
+                            vres.append((h / n, clock, start, half, nm))
+            vres.sort(reverse=True)
+            print(f"-- {key}: {len(pm)} stocks; best by value equal (rel 1e-3): " + "  ".join(f"{c}/{h}s {nm} {f:.3f}" for f, c, _, h, nm in vres[: a.top]))
+            continue
         res.sort(reverse=True)
         print(f"-- {key}: {len(pm)} stocks; best clocks by wgt equal: " + "  ".join(f"{c}/{s}/{h}s {f:.3f}" for f, c, s, h in res[: a.top]))
         if not res or res[0][0] < 0.2:
