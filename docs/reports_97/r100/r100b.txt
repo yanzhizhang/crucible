@@ -1,0 +1,25 @@
+R100 rerun (b62a33b: r100.sh de8c0d21, ratio_extra.py 1586ba95), 13:39:32 - 13:50:11, 80 lines. Step 0 skipped itself (pmmp_raw 0430 index present).
+[13:39:32] ratios 20260430
+  ish: no rows | isz: no rows | icy: no rows
+20260430: 72,000 rows, 39 ratios, stock rows found 0.997; i300.last/pre 0.9980..1.0027 s.last/pre 0.9700..1.0379 s.mid/vwap 0.9870..1.0119 -> data/side_r100/ratio_20260430.parquet
+For 1102..1113 each: "index stream: 2 parts, N rows, codes [1, 16, 300, 852, 905, 399001, 399006, 399300]" then "D: 72,000 rows, 71 ratios, stock rows found 1.000; i300.last/pre a..b s.last/pre c..d s.mid/vwap e..f -> data/side_r100/ratio_D.parquet":
+ 1102 57,482 rows; i300 1.0018..1.0110 s.last/pre 0.9686..1.0581 s.mid/vwap 0.9881..1.0228
+ 1103 57,509; 0.9904..1.0004; 0.9462..1.0380; 0.9795..1.0137
+ 1104 57,514; 0.9955..1.0225; 0.9789..1.0651; 0.9877..1.0369
+ 1105 57,490; 0.9967..1.0063; 0.9593..1.0592; 0.9891..1.0172
+ 1106 57,326; 0.9832..0.9879; 0.9381..1.0199; 0.9885..1.0146
+ 1109 57,519; 1.0011..1.0051; 0.9780..1.0358; 0.9840..1.0098
+ 1110 57,519; 1.0009..1.0049; 0.9804..1.0389; 0.9890..1.0083
+ 1111 57,548; 0.9956..1.0057; 0.9739..1.0346; 0.9913..1.0181
+ 1112 57,540; 0.9913..1.0042; 0.9702..1.0240; 0.9780..1.0090
+ 1113 (index stream line not captured); 0.9918..1.0005; 0.9557..1.0255; 0.9733..1.0104
+[13:39:56] implied scan of zzeg, raw ratios, days 20260430,20261102,20261103,20261104,20261105,20261106,20261109,20261110,20261111,20261112,20261113
+baseline similarity 20260430 0.6282, 20261102 0.2063, 20261103 0.1087, 20261104 0.4968, 20261105 0.5862, 20261106 0.5694, 20261109 0.6206, 20261110 0.6468, 20261111 0.4727, 20261112 0.6558, 20261113 0.6790 (bases found at 1.000 of rows on every day)
+128 candidate bases (39 from --extra)
+implied_scan.py:160: RuntimeWarning: divide by zero encountered in divide (1/b transform)
+-- zzeg: 232 candidates in 602s; best by the smaller day gain:
+ top 30: every candidate has min +/-0.0000 and +/-0.0000 on every one of the 11 days. Listed: gen.bid_depth_weighted_distance_5lvl_rel, gen.depth_weighted_price_5lvl_minus_mid_rel, gen.ldl1800, 1/gen.log_channel_sequence_advance_per_s_900s, gen.lpe200, gen.lpek50, gen.marketable_order_amount_share_60s, gen.microprice_minus_mid_rel, gen.net_buy_amount_share_orders_over_200k_cny_120s, gen.net_buy_amount_share_orders_under_40k_cny_300s, gen.order_price_aggressiveness_mean_900s, gen.overnight_gap_log, 1/gen.px, gen.rete150, gen.rete30, gen.rete50, gen.rete75, gen.sd_eg_rng, 1/gen.trading_seconds_since_0930, gen.vfrac10, gen.lee30_14400 (-0.0000), gen.lpe100, gen.lmie30, gen.lpe50, gen.lpe25, gen.lmie10, gen.lmie5, gen.lpe5, gen.lpew1800, gen.ret120 (the -0.0000 group)
+ share of candidates helping on every day: 0.000
+[13:50:11] done
+NOTE: no ratio_* candidate is in the visible top 30; all 232 move similarity by < 0.00005 on every day.
+Separate: the VS Code terminal on 97 prints "bash: gettext:" at each prompt -- gettext is not on PATH (type: not found) and VS Code's shell hook (PROMPT_COMMAND=__vsc_prompt_cmd_original, DEBUG trap __vsc_preexec_only) calls it; r100.txt has 0 such lines.
