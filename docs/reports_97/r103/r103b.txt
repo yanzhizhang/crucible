@@ -1,0 +1,24 @@
+R103b (crucible's read-only check, col_probe.py 302fc00b, --date 20261231), 14:32:19. Full output (parent/child lines dropped).
+/work/crucible_data/models_gen/A: 202501
+/work/crucible_data/models_gen/B: 202501
+/work/crucible_data/models_gen/C: 202501
+== gen A
+zzeg = column 14 of 209; model files ['/work/crucible_data/models_gen/A/202501/lgb/livev1_fit1/model_s1.txt']
+== model_s1.txt: feature_names[14]=Column_14  training range feature_infos=[0.8665543794631958:1.0968681573867798]
+  trees 2000; 2410 splits, gain share 0.0262; root splits 0
+  decision_type (categorical, default_left, missing 0 none/1 zero/2 nan): (0, 1, 0)x2410
+  124 distinct thresholds in [0.984974, 1.03005]; integer-ish 0.07, half-ish 0.00; quantiles 0.985 0.995 0.9986 1 1.001 1.009 1.03
+  gaps: min 5.96e-08 median 8.42e-05; first 12 [0.984974, 0.989491, 0.991765, 0.993068, 0.993915, 0.994525, 0.994988, 0.995378, 0.995701, 0.995979, 0.996207, 0.996435]; last 6 [1.010827, 1.012439, 1.014612, 1.017451, 1.022091, 1.0[cut]
+  splits by depth: d1:73 d2:195 d3:390 d4:669 d5:1083
+  gain by depth (6 = 6+): d1:0.07 d2:0.13 d3:0.18 d4:0.26 d5:0.37
+== gen C
+zzeg = column 14 of 209; model files ['/work/crucible_data/models_gen/C/202501/lgb/livev1_fit1/model_s1.txt']
+== model_s1.txt: feature_names[14]=Column_14  training range feature_infos=[0.86865377426147461:1.1133099794387817]
+  trees 2000; 2149 splits, gain share 0.0220; root splits 2
+  decision_type (categorical, default_left, missing 0 none/1 zero/2 nan): (0, 1, 0)x2149
+  126 distinct thresholds in [0.984276, 1.02998]; integer-ish 0.06, half-ish 0.00; quantiles 0.9843 0.9944 0.9986 1 1.001 1.01 1.03
+  gaps: min 5.96e-08 median 8.96e-05; first 12 [0.984276, 0.988556, 0.9908, 0.992104, 0.993038, 0.993717, 0.994276, 0.994731, 0.995114, 0.995435, 0.995752, 0.996038]; last 6 [1.012012, 1.013777, 1.015963, 1.019102, 1.023216, 1.029[cut]
+  splits by depth: d0:2 d1:41 d2:123 d3:339 d4:597 d5:1047
+  gain by depth (6 = 6+): d0:0.00 d1:0.04 d2:0.07 d3:0.18 d4:0.28 d5:0.42
+  root CDF P(x<=t) [default_left, missing]: 1.016:0.9901[1,0]  1.016:0.9901[1,0]
+(gen A is identical to gen B as read in R98.)
