@@ -36,6 +36,12 @@ def mark_ns(d: str, marks: np.ndarray) -> np.ndarray:
     return day0 + sec.astype(np.int64) * 10**9 - CST_NS
 
 
+def tclock(t: pl.Expr) -> pl.Expr:
+    """UTC epoch ns -> trading-clock seconds (0 at 09:30, 7200 at 11:30 = 13:00), clipped to the session."""
+    sec = ((t + CST_NS) // 10**9) % 86400
+    return pl.when(sec <= 41400).then((sec - 34200).clip(0, 7200)).otherwise((sec - 46800).clip(0, 7200) + 7200)
+
+
 def asof(df: pl.DataFrame, by: list[str], grid: pl.DataFrame) -> pl.DataFrame:
     """The last row with time <= each grid time, per key."""
     return grid.sort("t").join_asof(df.sort("time"), left_on="t", right_on="time", by=by or None, strategy="backward")
@@ -86,13 +92,33 @@ def main() -> None:
     q = q.filter(pl.col("symbol_id").is_in(key["sid"].unique().cast(pl.Int32).implode()) & (pl.col("price") > 0)).with_columns(
         pl.col("symbol_id").cast(pl.Int64).alias("sid"), pl.col("bid_px").cast(pl.List(pl.Float64)).list.first().alias("b1"),  # Array(10) on 97, List here
         pl.col("ask_px").cast(pl.List(pl.Float64)).list.first().alias("a1")).drop("bid_px", "ask_px")
+    q = q.sort("sid", "time").with_columns(  # when the day's high / low was last set (a new extreme)
+        pl.when(pl.col("high").shift(1).over("sid").is_null() | (pl.col("high") != pl.col("high").shift(1).over("sid"))).then(pl.col("time")).forward_fill().over("sid").alias("t_high"),
+        pl.when(pl.col("low").shift(1).over("sid").is_null() | (pl.col("low") != pl.col("low").shift(1).over("sid"))).then(pl.col("time")).forward_fill().over("sid").alias("t_low"))
     grid = key.join(mt, on="mark")
     s = asof(q, ["sid"], grid)
+    lagged = []
+    for lag in (60, 300, 900, 1800):  # the same stock lag seconds earlier: returns, traded volume / amount in the window
+        g2 = asof(q.select("sid", "time", "price", "total_volume", "total_amount"), ["sid"], grid.with_columns((pl.col("t") - lag * 10**9).alias("t")))
+        lagged.append(g2.select("sid", "mark", pl.col("price").alias(f"p@{lag}"), pl.col("total_volume").alias(f"v@{lag}"), pl.col("total_amount").alias(f"a@{lag}")))
+    for g2 in lagged:
+        s = s.join(g2, on=["sid", "mark"], how="left")
+    extra = [((pl.col("high") - pl.col("low")) / pl.col("pre_close")).alias("s.range/pre"), (1 - pl.col("price") / pl.col("high")).alias("s.1-last/high"),
+             (pl.col("price") / pl.col("low") - 1).alias("s.last/low-1"), (0.01 / pl.col("price")).alias("s.tick/px"),
+             ((pl.col("a1") - pl.col("b1")) / ((pl.col("a1") + pl.col("b1")) / 2)).alias("s.spread/mid"), ((pl.col("a1") - pl.col("b1")) / 0.01).alias("s.spread_ticks"),
+             ((pl.col("high") - pl.col("price")) / pl.col("pre_close")).alias("s.(high-last)/pre"), ((pl.col("price") - pl.col("low")) / pl.col("pre_close")).alias("s.(last-low)/pre"),
+             ((pl.col("t") - pl.col("t_high")) / 1e9).alias("s.sec_since_high"), ((pl.col("t") - pl.col("t_low")) / 1e9).alias("s.sec_since_low"),
+             (pl.col("mark") - tclock(pl.col("t_high"))).alias("s.tsec_since_high"), (pl.col("mark") - tclock(pl.col("t_low"))).alias("s.tsec_since_low")]
+    for lag in (60, 300, 900, 1800):
+        extra += [(pl.col("price") / pl.col(f"p@{lag}") - 1).alias(f"s.ret{lag}s"), ((pl.col("total_volume") - pl.col(f"v@{lag}")) / 100).alias(f"s.lots{lag}s"),
+                  ((pl.col("total_amount") - pl.col(f"a@{lag}")) / 1e4).alias(f"s.wan{lag}s")]
+    s = s.with_columns(extra)
+    keep_extra = [e.meta.output_name() for e in extra]
     mid = pl.when((pl.col("b1") > 0) & (pl.col("a1") > 0)).then((pl.col("b1") + pl.col("a1")) / 2).otherwise(pl.col("price"))
     vwap = pl.when(pl.col("total_volume") > 0).then(pl.col("total_amount") / pl.col("total_volume")).otherwise(None)
     s = s.select("sid", "mark", (pl.col("price") / pl.col("pre_close")).alias("s.last/pre"), (mid / pl.col("pre_close")).alias("s.mid/pre"),
                  (pl.col("price") / pl.col("open")).alias("s.last/open"), (pl.col("price") / vwap).alias("s.last/vwap"), (mid / vwap).alias("s.mid/vwap"),
-                 (pl.col("price") / pl.col("high")).alias("s.last/high"), (pl.col("price") / pl.col("low")).alias("s.last/low"))
+                 (pl.col("price") / pl.col("high")).alias("s.last/high"), (pl.col("price") / pl.col("low")).alias("s.last/low"), *keep_extra)
     rows = rows.join(s, on=["sid", "mark"], how="left")
     if "i300.last/pre" in rows.columns:
         rows = rows.with_columns((pl.col("s.last/pre") / pl.col("i300.last/pre")).alias("s.rel300"))
