@@ -1,0 +1,26 @@
+R127 DONE 22:46:23 30 lines (read in background from screen)
+base engine keys: ['zzeg.c.rEma|c0.sum', 'zzeg.c.rEma|c0.wgt', 'zzmh.r.sum', 'zzmh.r.wgt', 'zzmh.hm', 'zzeg.c.high', 'zzeg.c.low', ... [line cut at screen edge]
+shape: (9, 7)
+statistic   sid            mark          mh.dd     mh.2dd    eg.span/rema  eg.rema/span
+count       1.422e6        1.422e6       1.422e6   1.422e6   1.422e6       1.422e6
+null_count  0.0            0.0           0.0       0.0       0.0           0.0
+mean        421711.896667  7111.5        NaN       NaN       NaN           NaN
+std         262106.956257  4104.961766   NaN       NaN       NaN           NaN
+min         1.0            3.0           0.0       0.0       0.990255      0.939441
+25%         300014.0       3558.0        0.006674  0.013349  1.0           1.0
+50%         600372.0       7113.0        0.012329  0.024658  1.0           1.0
+75%         601377.0       10665.0       0.020736  0.041472  1.0           1.0
+max         688981.0       14220.0       0.974253  1.948505  1.064463      1.009841
+  skip zzop.i:abs4:ret300: no candidate
+20260430: 1,422,000 rows; baseline all 0.6239  first30m 0.4089  dd<0.2% 0.4530  dd 0.2-1% 0.6537  dd>=1% 0.6053
+  zzel.a:-dm:microprice_minus_mid_rel   all +0.0005  first30m +0.0016  dd<0.2% +0.0035  dd 0.2-1% +0.0011  dd>=1% +0.0002
+  zzjx3.b:-dm:ret90                     all +0.0005  first30m -0.0010  dd<0.2% -0.0022  dd 0.2-1% +0.0003  dd>=1% +0.0010
+  zzpe.e:-srank:rete30                  all +0.0003  first30m -0.0002  dd<0.2% -0.0037  dd 0.2-1% +0.0004  dd>=1% -0.0006
+  zzpe.e:-srank:lpe50                   all -0.0002  first30m -0.0014  dd<0.2% -0.0052  dd 0.2-1% -0.0004  dd>=1% -0.0009
+  zzab2:id:ret120                       all -0.0020  first30m -0.0130  dd<0.2% -0.0048  dd 0.2-1% -0.0040  dd>=1% +0.0019
+  zzeg:id:x.eg.span/rema                all -0.0097  first30m -0.0042  dd<0.2% +0.0078  dd 0.2-1% -0.0082  dd>=1% -0.0093
+  zzeg:id:x.eg.rema/span                all -0.0106  first30m -0.0029  dd<0.2% -0.0006  dd 0.2-1% -0.0090  dd>=1% -0.0109
+  zzmh:id:x.mh.dd                       all -0.0128  first30m -0.0093  dd<0.2% -0.0125  dd 0.2-1% -0.0121  dd>=1% -0.0122
+  zzmh:4b2:x.mh.dd                      all -0.0144  first30m -0.0148  dd<0.2% -0.0125  dd 0.2-1% -0.0136  dd>=1% -0.0130
+  zzmh:id:x.mh.2dd                      all -0.0162  first30m -0.0106  dd<0.2% -0.0119  dd 0.2-1% -0.0133  dd>=1% -0.0167
+[22:46:23] done
