@@ -6,4 +6,5 @@ set -u
 cd /work/crucible
 python -u research/audit_sources.py --jz /work/crucible_data/seed_probe/HS300/20261113.jz --verify data/reports/r125/verify_20261113.csv \
   --hstats /work/crucible_data/hstats_view/HS300 --models /work/crucible_data/models_gen/B --date 20261113 --out data/reports/audit 2>&1 | cut -c1-250
+python -u research/range_check.py --x data/reports/stage6_r99_1113/x.parquet --models /work/crucible_data/models_gen/B --date 20261113 2>&1 | cut -c1-250
 echo "[$(date +%T)] done; full table in data/reports/audit/audit.md (and audit.csv)"
