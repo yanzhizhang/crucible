@@ -545,3 +545,4 @@ R76: settled 144 columns carry 62% of model gain (gen B .6211, prod 202611 .6251
 hstats listing (user approved screen): /work/prod/hstats has no 20260430; hstats_view ZZWA dates 20260429, 0901-0904 ... 1111-1113 (0429 -> /data/prod/hstats link; 1112 -> hstats_extra link); no 0430.
 2.23 read-only listing (user approved): /data/share/data/prod/hstats/HS300 has no 20260430 (0/0/0). Screen kept for the session (user).
 2.23 listings (user approved both): hstats/HS300 16 families, ZZWA 0429, 0901.. 1112, 1113 (samplerS.nc only); /data/share/data/prod has 1min_src, CEDxr4d, h, hstats(HS300, sod), index, models, mp, test; grep for samplerS in /data/share,/root printed nothing in 60 s.
+2.23 ls (user approved): hdfs_data/2026/20260429 and 20260430 hold v3_index/order/quotation/transaction SH+SZ .zst (index ~24 MB SH + ~54 MB SZ per day); 0430 quotation sizes equal our feitu_raw manifest.
