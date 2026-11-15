@@ -25,18 +25,36 @@ from ratio_extra import asof, mark_ns  # noqa: E402
 DATA = Path(__import__("os").environ.get("CRUCIBLE_DATA", "/work/crucible_data"))
 
 
+CACHE = DATA / "cache" / "daily_hl"  # one parquet per day and source: computed once, reused by every later round
+
+
 def day_hl(d: str, sids: list[int], raws: list[Path]) -> pl.DataFrame | None:
-    """The day's high / low per stock: quotation high / low fields, else traded prices."""
+    """The day's high / low per stock (all stocks of the stream, cached), filtered to sids."""
     for r in raws:
-        q = list((r / f"kind=quotation/date={d}").glob("part-*.parquet"))
-        if q:
-            return (pl.scan_parquet(q).select("symbol_id", "high", "low", "price").filter(pl.col("symbol_id").is_in(sids) & (pl.col("price") > 0))
-                    .group_by("symbol_id").agg(pl.col("high").max().alias("h"), pl.col("low").filter(pl.col("low") > 0).min().alias("l")).collect())
-    for r in raws:
-        t = list((r / f"kind=transaction/date={d}").glob("part-*.parquet"))
-        if t:
-            return (pl.scan_parquet(t).select("symbol_id", "price", "trade_type").filter(pl.col("symbol_id").is_in(sids) & (pl.col("price") > 0) & (pl.col("trade_type") == 1))
-                    .group_by("symbol_id").agg(pl.col("price").max().alias("h"), pl.col("price").min().alias("l")).collect())
+        f = CACHE / f"date={d}" / f"{r.name}.parquet"
+        if f.exists():
+            return pl.read_parquet(f).filter(pl.col("symbol_id").is_in(sids))
+        hl = _day_hl(d, r)
+        if hl is not None:
+            try:
+                f.parent.mkdir(parents=True, exist_ok=True)
+                hl.write_parquet(f)
+            except OSError:  # read-only data root: just do without the cache
+                pass
+            return hl.filter(pl.col("symbol_id").is_in(sids))
+    return None
+
+
+def _day_hl(d: str, r: Path) -> pl.DataFrame | None:
+    """One source's day high / low per stock: quotation high / low fields, else traded prices."""
+    q = list((r / f"kind=quotation/date={d}").glob("part-*.parquet"))
+    if q:
+        return (pl.scan_parquet(q).select("symbol_id", "high", "low", "price").filter(pl.col("price") > 0)
+                .group_by("symbol_id").agg(pl.col("high").max().alias("h"), pl.col("low").filter(pl.col("low") > 0).min().alias("l")).collect())
+    t = list((r / f"kind=transaction/date={d}").glob("part-*.parquet"))
+    if t:
+        return (pl.scan_parquet(t).select("symbol_id", "price", "trade_type").filter((pl.col("price") > 0) & (pl.col("trade_type") == 1))
+                .group_by("symbol_id").agg(pl.col("price").max().alias("h"), pl.col("price").min().alias("l")).collect())
     return None
 
 
