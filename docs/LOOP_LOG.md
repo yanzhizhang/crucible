@@ -542,3 +542,4 @@ Cron daily pull moved to 16:00 Mon-Fri (user approved); other crontab entries un
 R74: log(-lthr) ~ 2 log vpen (R^2 0.98-0.997); lthr == 0 before noon, < 0 after; gate made-rate rises with a live order / recent orders.
 R75: lthr == 0 all morning (09-11h), < 0 afternoon; 71% of orders in 09h; 1,827 order episodes over 245 stocks.
 R76: settled 144 columns carry 62% of model gain (gen B .6211, prod 202611 .6251); top not-settled: zzeg, zzba/zzop.i, zzel.a/b.
+hstats listing (user approved screen): /work/prod/hstats has no 20260430; hstats_view ZZWA dates 20260429, 0901-0904 ... 1111-1113 (0429 -> /data/prod/hstats link; 1112 -> hstats_extra link); no 0430.
