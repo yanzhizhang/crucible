@@ -23,7 +23,7 @@ import polars as pl
 
 CST_NS = 8 * 3600 * 10**9
 KEYS = "zzvm.c.re,zzmh.r,zzhj.p,zzcb.r,zzeb.r,zztx.r,zzui.r,zzup.ps,zzba.p,zzeg.c.rEma,zzqj.r,zzup.pf"
-HALVES = [5, 10, 15, 20, 30, 45, 60, 90, 100, 120, 150, 180, 200, 240, 300, 360, 450, 600, 900, 1200, 1800, 3600, 7200]
+HALVES = [5, 10, 15, 20, 30, 45, 60, 90, 100, 120, 150, 180, 200, 240, 300, 360, 450, 600, 900, 1200, 1800, 3600, 7200, 14400, 28800, 57600, 86400, 172800]
 
 
 def tclock(ns: np.ndarray) -> np.ndarray:
@@ -39,11 +39,13 @@ def main() -> None:
     ap.add_argument("--jz", type=Path, required=True)
     ap.add_argument("--raw", type=Path, default=Path("/work/crucible_data/dysl2_raw"))
     ap.add_argument("--keys", default=KEYS)
+    ap.add_argument("--prev-jz", type=Path, default=None, help="yesterday's .jz: the value test also tries the average carried over undecayed (the engine's c0)")
     ap.add_argument("--top", type=int, default=4)
     ap.add_argument("--by", default="wgt", choices=["wgt", "value"], help="value: rank clock x half by the best input's value match (rel 1e-3), ignoring the weight")
     a = ap.parse_args()
     d = a.date
     st = {int(s): kv for s, kv in json.loads(gzip.open(a.jz).read()).items()}
+    pv = {int(s): kv for s, kv in json.loads(gzip.open(a.prev_jz).read()).items()} if a.prev_jz and a.prev_jz.exists() else {}
     sids = sorted(st)
     q = (pl.read_parquet(list(a.raw.glob(f"kind=quotation/date={d}/part-*.parquet")),
                          columns=["symbol_id", "time", "spider_ts", "price", "high", "low", "bid_px", "ask_px", "bid_vol", "ask_vol", "total_volume", "total_amount"])
@@ -151,12 +153,18 @@ def main() -> None:
                             n += 1
                             wt = np.exp(-k * (t[m][-1] - t[m]))
                             tgt = sm / w
+                            kp = pv.get(s, {})
+                            s0, w0 = (kp.get(f"{key}.sum", 0.0), kp.get(f"{key}.wgt", 0.0)) if kp.get(f"{key}.wgt") else (0.0, 0.0)
                             for name, x in xs.items():
                                 xm = x[m]
                                 f = np.isfinite(xm)
                                 if not f.any():
                                     continue
                                 v = float((xm[f] * wt[f]).sum() / wt[f].sum())
+                                if w0:  # carried: yesterday's sum / wgt enter before the first update and decay with it
+                                    d0 = math.exp(-k * (t[m][f][-1] - t[m][f][0]))
+                                    vc = float(((xm[f] * wt[f]).sum() + s0 * d0) / (wt[f].sum() + w0 * d0))
+                                    hit[name + "|c0"] = hit.get(name + "|c0", 0) + (abs(vc - tgt) <= 1e-3 * max(abs(tgt), 1e-12))
                                 hit[name] = hit.get(name, 0) + (abs(v - tgt) <= 1e-3 * max(abs(tgt), 1e-12))
                         if n and hit:
                             nm, h = max(hit.items(), key=lambda kv: kv[1])
