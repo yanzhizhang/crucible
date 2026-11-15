@@ -1,0 +1,51 @@
+[16:35:10] 20261106
+20261106: 300 stocks, 1,488,121 snapshots, 24,412,719 trades; keys ['zzvm.c.re', 'zzmh.r', 'zzhj.p', 'zzcb.r', 'zzeb.r', 'zztx.r', 'zzui.r', 'zzup.ps', 'zzba.p', 'zzeg.c.rEma', 'zzqj.r', 'zzup.pf']
+-- zzvm.c.re: 300 stocks; best clocks by wgt equal: trade/0930/7200s 0.000  trade/0930/3600s 0.000  trade/0930/1800s 0.000  trade/0930/1200s 0.000
+-- zzmh.r: 300 stocks; best clocks by wgt equal: snap/0930/10s 0.057  snap/0925/10s 0.057  snapchg/0930/30s 0.003  snapchg/0930/15s 0.003
+-- zzhj.p: 300 stocks; best clocks by wgt equal: snap/0930/30s 0.590  snap/0925/30s 0.590  trade/0930/7200s 0.000  trade/0930/3600s 0.000
+   inputs at snap/0930/30s, value equal: |logret| 0.000  |dp| 0.000  spread/mid 0.000  spread 0.000  price 0.000  one 0.000
+-- zzcb.r: 300 stocks; best clocks by wgt equal: snap/0930/30s 0.040  snap/0925/30s 0.040  trade/0930/7200s 0.000  trade/0930/3600s 0.000
+-- zzeb.r: 300 stocks; best clocks by wgt equal: snap/0930/100s 0.043  snap/0925/100s 0.043  snap/0930/90s 0.003  snap/0925/90s 0.003
+-- zztx.r: 300 stocks; best clocks by wgt equal: trade/0930/100s 0.003  trade/0925/100s 0.003  trade/0930/7200s 0.000  trade/0930/3600s 0.000
+-- zzui.r: 300 stocks; best clocks by wgt equal: trade/0930/7200s 0.000  trade/0930/3600s 0.000  trade/0930/1800s 0.000  trade/0930/1200s 0.000
+-- zzup.ps: 300 stocks; best clocks by wgt equal: trade/0930/7200s 0.000  trade/0930/3600s 0.000  trade/0930/1800s 0.000  trade/0930/1200s 0.000
+-- zzba.p: 300 stocks; best clocks by wgt equal: trade/0930/7200s 0.000  trade/0930/3600s 0.000  trade/0930/1800s 0.000  trade/0930/1200s 0.000
+-- zzeg.c.rEma: 300 stocks; best clocks by wgt equal: snap/0930/300s 0.047  snap/0925/300s 0.047  trade/0930/7200s 0.000  trade/0930/3600s 0.000
+-- zzqj.r: 300 stocks; best clocks by wgt equal: trade/0930/7200s 0.000  trade/0930/3600s 0.000  trade/0930/1800s 0.000  trade/0930/1200s 0.000
+-- zzup.pf: 300 stocks; best clocks by wgt equal: snap/0930/300s 0.047  snap/0925/300s 0.047  trade/0930/7200s 0.000  trade/0930/3600s 0.000
+[16:36:47] 20261112
+20261112: 300 stocks, 1,489,156 snapshots, 24,128,723 trades; keys [same 12]
+-- zzvm.c.re: 300 stocks; best clocks by wgt equal: trade/0930/7200s 0.000  trade/0930/3600s 0.000  trade/0930/1800s 0.000  trade/0930/1200s 0.000
+-- zzmh.r: 300 stocks; best clocks by wgt equal: snap/0930/10s 0.253  snap/0925/10s 0.253  snapchg/0930/15s 0.010  snapchg/0925/15s 0.010
+   inputs at snap/0930/10s, value equal: |logret| 0.000  |dp| 0.000  spread/mid 0.000  spread 0.000  price 0.000  one 0.000
+-- zzhj.p: 300 stocks; best clocks by wgt equal: snap/0930/30s 0.583  snap/0925/30s 0.583  trade/0930/7200s 0.000  trade/0930/3600s 0.000
+   inputs at snap/0930/30s, value equal: |logret| 0.000  |dp| 0.000  spread/mid 0.000  spread 0.000  price 0.000  one 0.000
+-- zzcb.r: 300 stocks; best clocks by wgt equal: snap/0930/30s 0.243  snap/0925/30s 0.243  trade/0930/7200s 0.000  trade/0930/3600s 0.000
+   inputs at snap/0930/30s, value equal: |logret| 0.000  |dp| 0.000  spread/mid 0.000  spread 0.000  price 0.000  one 0.000
+-- zzeb.r: 300 stocks; best clocks by wgt equal: snap/0930/100s 0.243  snap/0925/100s 0.243  trade/0930/7200s 0.000  trade/0930/3600s 0.000
+   inputs at snap/0930/100s, value equal: |logret| 0.000  |dp| 0.000  spread/mid 0.000  spread 0.000  price 0.000  one 0.000
+-- zztx.r: 300 stocks; best clocks by wgt equal: trade/0930/100s 0.003  trade/0925/100s 0.003  snapchg/0925/3600s 0.003  trade/0930/7200s 0.000
+-- zzui.r: 300 stocks; best clocks by wgt equal: trade/0930/7200s 0.000  trade/0930/3600s 0.000  trade/0930/1800s 0.000  trade/0930/1200s 0.000
+-- zzup.ps: 300 stocks; best clocks by wgt equal: trade/0930/7200s 0.000  trade/0930/3600s 0.000  trade/0930/1800s 0.000  trade/0930/1200s 0.000
+-- zzba.p: 300 stocks; best clocks by wgt equal: trade/0930/240s 0.003  trade/0925/240s 0.003  trade/0930/7200s 0.000  trade/0930/3600s 0.000
+-- zzeg.c.rEma: 300 stocks; best clocks by wgt equal: snap/0930/300s 0.243  snap/0925/300s 0.243  trade/0930/7200s 0.000  trade/0930/3600s 0.000
+   inputs at snap/0930/300s, value equal: mid 0.007  |logret| 0.000  |dp| 0.000  spread/mid 0.000  spread 0.000  price 0.000
+-- zzqj.r: 300 stocks; best clocks by wgt equal: trade/0930/7200s 0.000  trade/0930/3600s 0.000  trade/0930/1800s 0.000  trade/0930/1200s 0.000
+-- zzup.pf: 300 stocks; best clocks by wgt equal: snap/0930/300s 0.243  snap/0925/300s 0.243  trade/0930/7200s 0.000  trade/0930/3600s 0.000
+   inputs at snap/0930/300s, value equal: price 1.000  mid 0.403  |logret| 0.000  |dp| 0.000  spread/mid 0.000  spread 0.000
+[16:38:21] 20261113
+20261113: 300 stocks, 1,486,876 snapshots, 22,941,617 trades; keys [same 12]
+-- zzvm.c.re: 300 stocks; best clocks by wgt equal: trade/0930/7200s 0.000  trade/0930/3600s 0.000  trade/0930/1800s 0.000  trade/0930/1200s 0.000
+-- zzmh.r: 300 stocks; best clocks by wgt equal: snap/0930/10s 0.013  snap/0925/10s 0.013  snapchg/0930/15s 0.003  snapchg/0925/15s 0.003
+-- zzhj.p: 300 stocks; best clocks by wgt equal: snap/0930/30s 0.607  snap/0925/30s 0.607  trade/0930/7200s 0.000  trade/0930/3600s 0.000
+   inputs at snap/0930/30s, value equal: |logret| 0.000  |dp| 0.000  spread/mid 0.000  spread 0.000  price 0.000  one 0.000
+-- zzcb.r: 300 stocks; best clocks by wgt equal: snap/0930/30s 0.007  snap/0925/30s 0.007  trade/0930/7200s 0.000  trade/0930/3600s 0.000
+-- zzeb.r: 300 stocks; best clocks by wgt equal: snap/0930/100s 0.007  snap/0925/100s 0.007  snap/0930/90s 0.003  snap/0925/90s 0.003
+-- zztx.r: 300 stocks; best clocks by wgt equal: trade/0930/7200s 0.000  trade/0930/3600s 0.000  trade/0930/1800s 0.000  trade/0930/1200s 0.000
+-- zzui.r: 300 stocks; best clocks by wgt equal: trade/0930/7200s 0.000  trade/0930/3600s 0.000  trade/0930/1800s 0.000  trade/0930/1200s 0.000
+-- zzup.ps: 300 stocks; best clocks by wgt equal: trade/0930/7200s 0.000  trade/0930/3600s 0.000  trade/0930/1800s 0.000  trade/0930/1200s 0.000
+-- zzba.p: 300 stocks; best clocks by wgt equal: trade/0930/7200s 0.000  trade/0930/3600s 0.000  trade/0930/1800s 0.000  trade/0930/1200s 0.000
+-- zzeg.c.rEma: 300 stocks; best clocks by wgt equal: snap/0930/300s 0.007  snap/0925/300s 0.007  trade/0930/7200s 0.000  trade/0930/3600s 0.000
+-- zzqj.r: 300 stocks; best clocks by wgt equal: snapchg/0930/1800s 0.003  snapchg/0925/1800s 0.003  trade/0930/7200s 0.000  trade/0930/3600s 0.000
+-- zzup.pf: 300 stocks; best clocks by wgt equal: snap/0930/300s 0.007  snap/0925/300s 0.007  trade/0930/7200s 0.000  trade/0930/3600s 0.000
+[16:39:52] done

@@ -1,0 +1,76 @@
+20261112: best half 300s start 0930 seed prev; rema/span quantiles 0.9948 1.0000 1.0000 1.0004 1.0030 -> data/side_r111/zzrema_20261112.parquet
+20261113: best half 300s start 0930 seed prev; rema/span quantiles 0.9978 1.0000 1.0000 1.0006 1.0040 -> data/side_r111/zzrema_20261113.parquet
+20260430: best half 300s start 0930 seed none; rema/span quantiles 0.9931 0.9999 1.0000 1.0000 1.0038 -> data/side_r111/zzrema_20260430.parquet
+97 candidates x 3 transforms, days ['20260430', '20261112', '20261113']
+-- zzeg: thresholds 124 in [0.98497, 1.0301], root points []; best of 291:
+    0.003    1/b x.rema/span      below 0.001 above 0.002 intervals 1.00 root gap 0.000
+    0.003     id x.span/rema      below 0.001 above 0.002 intervals 1.00 root gap 0.000
+    0.012     id x.rema/span      below 0.004 above 0.000 intervals 0.99 root gap 0.000
+    0.012    1/b x.span/rema      below 0.004 above 0.000 intervals 0.99 root gap 0.000
+    0.049     id rpe75            below 0.006 above 0.011 intervals 0.97 root gap 0.000
+    0.057    1/b rpe75            below 0.011 above 0.006 intervals 0.96 root gap 0.000
+    0.070    1/b rpe5400          below 0.031 above 0.007 intervals 0.97 root gap 0.000
+    0.081     id rpe20            below 0.006 above 0.011 intervals 0.94 root gap 0.000
+    0.081     id rpe25            below 0.006 above 0.011 intervals 0.94 root gap 0.000
+    0.081    1/b rpe25            below 0.011 above 0.006 intervals 0.94 root gap 0.000
+-- zzeg2: thresholds 118 in [0.99482, 1.008], root points [(1.001976967, 0.9773), (1.007984281, 0.9981)]; best of 291:
+    0.028     id x.rema/span      below 0.013 above 0.004 intervals 1.00 root gap 0.005
+    0.028    1/b x.span/rema      below 0.013 above 0.004 intervals 1.00 root gap 0.005
+    0.037     id rpma60           below 0.007 above 0.011 intervals 1.00 root gap 0.010
+    0.037    1/b x.rema/span      below 0.007 above 0.008 intervals 1.00 root gap 0.011
+    0.037     id x.span/rema      below 0.007 above 0.008 intervals 1.00 root gap 0.011
+    0.039    1/b rpma60           below 0.012 above 0.006 intervals 1.00 root gap 0.010
+    0.039    1/b x.rema0/span     below 0.000 above 0.001 intervals 1.00 root gap 0.019
+    0.039     id x.span/rema0     below 0.000 above 0.001 intervals 1.00 root gap 0.019
+    0.040     id rpe25            below 0.007 above 0.011 intervals 1.00 root gap 0.011
+    0.041    1/b rpe25            below 0.012 above 0.006 intervals 1.00 root gap 0.012
+baseline similarity 20260430 0.6282 (bases found at 1.000 of rows), 20261112 0.6558 (bases found at 1.000 of rows), 20261113 0.6790 (bases found at 1.000 of rows)
+8 candidate bases (8 from --extra)
+  else per_mark_rank(v, D.marks, -1.0) if tr == "-rank" else 1.0 / v if tr == "1/b" else -v if tr == "-id" else v)
+-- zzeg: 24 candidates in 17s; best by the smaller day gain:
+   -(px-rema)/rema   min +0.0000  20260430 +0.0009  20261112 +0.0000  20261113 +0.0000
+   -px/rema          min +0.0000  20260430 +0.0000  20261112 +0.0000  20261113 +0.0000
+   -px/rema0         min +0.0000  20260430 +0.0000  20261112 +0.0000  20261113 +0.0000
+   -rema/px          min +0.0000  20260430 +0.0000  20261112 +0.0000  20261113 +0.0000
+   -rema/span        min +0.0000  20260430 +0.0000  20261112 +0.0000  20261113 +0.0000
+   -rema0/span       min +0.0000  20260430 +0.0000  20261112 +0.0000  20261113 +0.0000
+   -span/rema        min +0.0000  20260430 +0.0000  20261112 +0.0000  20261113 +0.0000
+   -span/rema0       min +0.0000  20260430 +0.0000  20261112 +0.0000  20261113 +0.0000
+   (px-rema)/rema    min -0.0003  20260430 -0.0003  20261112 +0.0000  20261113 +0.0000
+   1/rema0/span      min -0.0087  20260430 -0.0087  20261112 +0.0169  20261113 +0.0101
+   share of candidates helping on every day: 0.000
+   best on 20260430:
+   -(px-rema)/rema   20260430 +0.0009  min +0.0000  1112 +0.0000  1113 +0.0000
+   -px/rema          20260430 +0.0000  min +0.0000  1112 +0.0000  1113 +0.0000
+   -px/rema0         20260430 +0.0000  min +0.0000  1112 +0.0000  1113 +0.0000
+   -rema/px          20260430 +0.0000  min +0.0000  1112 +0.0000  1113 +0.0000
+   -rema/span        20260430 +0.0000  min +0.0000  1112 +0.0000  1113 +0.0000
+   -rema0/span       20260430 +0.0000  min +0.0000  1112 +0.0000  1113 +0.0000
+   -span/rema        20260430 +0.0000  min +0.0000  1112 +0.0000  1113 +0.0000
+   -span/rema0       20260430 +0.0000  min +0.0000  1112 +0.0000  1113 +0.0000
+   (px-rema)/rema    20260430 -0.0003  min -0.0003  1112 +0.0000  1113 +0.0000
+   1/rema0/span      20260430 -0.0087  min -0.0087  1112 +0.0169  1113 +0.0101
+-- zzeg2: 24 candidates in 12s; best by the smaller day gain:
+   (px-rema)/rema    min -0.0179  20260430 -0.0112  20261112 -0.0179  20261113 -0.0176
+   -(px-rema)/rema   min -0.0179  20260430 -0.0113  20261112 -0.0179  20261113 -0.0176
+   -px/rema          min -0.0179  20260430 -0.0113  20261112 -0.0179  20261113 -0.0176
+   -px/rema0         min -0.0179  20260430 -0.0113  20261112 -0.0179  20261113 -0.0176
+   -rema/px          min -0.0179  20260430 -0.0113  20261112 -0.0179  20261113 -0.0176
+   -rema/span        min -0.0179  20260430 -0.0113  20261112 -0.0179  20261113 -0.0176
+   -rema0/span       min -0.0179  20260430 -0.0113  20261112 -0.0179  20261113 -0.0176
+   -span/rema        min -0.0179  20260430 -0.0113  20261112 -0.0179  20261113 -0.0176
+   -span/rema0       min -0.0179  20260430 -0.0113  20261112 -0.0179  20261113 -0.0176
+   rema/span         min -0.0198  20260430 -0.0099  20261112 -0.0152  20261113 -0.0198
+   share of candidates helping on every day: 0.000
+   best on 20260430:
+   1/rema0/span      20260430 -0.0072  min -0.0213  1112 -0.0213  1113 -0.0199
+   span/rema0        20260430 -0.0072  min -0.0213  1112 -0.0213  1113 -0.0199
+   1/rema/span       20260430 -0.0074  min -0.0210  1112 -0.0210  1113 -0.0200
+   span/rema         20260430 -0.0074  min -0.0210  1112 -0.0210  1113 -0.0200
+   rema0/span        20260430 -0.0084  min -0.0200  1112 -0.0155  1113 -0.0200
+   1/span/rema0      20260430 -0.0084  min -0.0200  1112 -0.0155  1113 -0.0200
+   rema/span         20260430 -0.0099  min -0.0198  1112 -0.0152  1113 -0.0198
+   1/span/rema       20260430 -0.0099  min -0.0198  1112 -0.0152  1113 -0.0198
+   (px-rema)/rema    20260430 -0.0112  min -0.0179  1112 -0.0179  1113 -0.0176
+   -(px-rema)/rema   20260430 -0.0113  min -0.0179  1112 -0.0179  1113 -0.0176
+[16:43:01] done
