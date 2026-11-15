@@ -1,0 +1,17 @@
+R116 (70 lines, 17:16:30-17:16:36), compacted. Each day has 20 lines
+  "zzhj.p carried, {volume|amount}, half {8000,8500,9000,9500,10000}s gap {900,1080}s: value equal V  wgt equal 0.000  (300 stocks)"
+with wgt equal 0.000 on all 60 lines, and V = 0.000 except the 6 lines listed below.
+[17:16:30] 20261106 (prev /data/prod/h/HS300/p1_intrading_dcp/20261105.jz)
+  nonzero: volume half 8000s gap 1080s value 0.003; volume half 10000s gap 1080s value 0.007
+  e.g. 1: PM zzhj.p 5.63004e+06 wgt 14.934248664057469; sampled volumes [20509586, 13949546, 11875600, 7385600, 7650112, 6223214, 5395604, 8346398, 10744852, 15240432, 8809600, 9010590, 8274596, 7949300, 8003710, 12717199]
+  e.g. 1: zzhj.c bins [('zzhj.c.0', 11.684999999999999), ('zzhj.c.1', 11.675), ('zzhj.c.10', 11.795), ('zzhj.c.100', 0.0), ... 0.0 ...
+[17:16:32] 20261112 (prev /work/crucible_data/seed_probe/HS300/20261111.jz)
+  nonzero: volume half 8000s gap 1080s 0.003; volume half 9000s gap 900s 0.003; volume half 10000s gap 1080s 0.003
+  e.g. 1: PM zzhj.p 2.72454e+06 wgt 14.933204264590058; sampled volumes [16037901, 8676500, 8619420, 6524227, 3857410, 7096114, 6054761, 3590400, 5214008, 4981668, 4850000, 3304000, 5354700, 6457500, 10682000, 5538441]
+  e.g. 1: zzhj.c bins [('zzhj.c.0', 11.735), ('zzhj.c.1', 11.695), ('zzhj.c.10', 11.785), ('zzhj.c.100', 0.0), ... ('zzhj.c.106', 0.0)]
+[17:16:34] 20261113 (prev /work/crucible_data/seed_probe/HS300/20261112.jz)
+  nonzero: volume half 9000s gap 900s 0.003
+  e.g. 1: PM zzhj.p 4.68966e+06 wgt 14.93395722429825; sampled volumes [11715150, 10969200, 6613596, 14548957, 8871671, 9728080, 15298587, 19534590, 20510330, 19235220, 22242756, 12149235, 10828553, 12722080, 12209650, 9774205]
+  e.g. 1: zzhj.c bins [('zzhj.c.0', 11.825), ('zzhj.c.1', 11.815000000000001), ('zzhj.c.10', 12.085), ('zzhj.c.100', 0.0), ... ('zzhj.c.105', 0.0), ...
+[17:16:36] done
+(grep count of non-zero "value equal" lines in the file: 6)
