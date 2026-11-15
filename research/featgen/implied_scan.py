@@ -91,6 +91,7 @@ def main() -> None:
     ap.add_argument("--transforms", default="b,-b,|b|,rank,-rank", help="subset of b, -b, |b|, rank, -rank")
     ap.add_argument("--top", type=int, default=8)
     ap.add_argument("--work", type=Path, default=Path("data/implied_scan_work"))
+    ap.add_argument("--cal-implied", default="", help="for a target without training-CDF points: invert_cols implied_{date}.parquet, pooled over --days, as the CDF")
     ap.add_argument("--threads", type=int, default=32)
     a = ap.parse_args()
     import ic_score as IC
@@ -136,6 +137,14 @@ def main() -> None:
     for t in (t.strip() for t in a.target.split(",") if t.strip()):  # "zzro*" = every model column of the family (zzro, zzro2, ...)
         want += [n for n in names if n.split(".")[0].rstrip("0123456789") == t[:-1]] if t.endswith("*") else [t]
     for tgt in dict.fromkeys(want):
+        if tgt in ix and a.cal_implied and any(tgt not in D.cal for D in days.values()):  # stand-in CDF: the implied values' quantiles
+            v = np.concatenate([pl.read_parquet(a.cal_implied.format(date=d, mmdd=d[4:]), columns=[tgt])[tgt].to_numpy() for d in ds])
+            v = np.sort(v[np.isfinite(v)])
+            if v.size >= 100:
+                q = np.linspace(0, 1, 201)
+                for D in days.values():
+                    D.cal.setdefault(tgt, (np.quantile(v, q), q))
+                print(f"-- {tgt}: no training-CDF points on every day, using {v.size:,} implied values as the CDF")
         if tgt not in ix or any(tgt not in D.cal for D in days.values()):
             print(f"-- {tgt}: not a model column or no training-CDF points on every day, skipped")
             continue
