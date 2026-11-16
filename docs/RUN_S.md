@@ -1,8 +1,9 @@
 # run_s -- PM's runS, reconstructed
 
-Our rewrite lives in sht-demo branch `feat/run-s`, `chrono/cpp/strategy_plugins/run_s/run_s.cpp` (worktree
-`~/Repo/sht-demo-runs`, local only). This note gives the evidence, the filled-in configuration, the reconstructed rule,
-and the finance behind it. **Evidence** marks what was read from the binary or fitted on PM's logs. **Guess** marks a
+This is crucible's research record of the PM deep dive: the evidence, the filled-in configuration, the reconstructed
+rule, and the finance behind it. The production rewrite lives in **sht-demo `main`** at
+`chrono/cpp/strategy_plugins/run_s/run_s.cpp` (pushed 2026-11-16, commit 2e376ac). Change the plugin there; keep this
+note in step with it. **Evidence** marks what was read from the binary or fitted on PM's logs. **Guess** marks a
 hypothesis.
 
 ## 1. What runS is
