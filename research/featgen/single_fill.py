@@ -53,12 +53,15 @@ def main() -> None:
     fills = []
     for spec in [x for x in a.fills.split(",") if x]:
         col, tr, cand = spec.split(":", 2)
+        cand, _, scale = cand.partition("@")  # optional "@k": multiply the transformed value by k (seg_fit's scales)
         if col not in ix or tr not in RAW or cand not in D.bases:
             print(f"  skip {spec}: {'no column' if col not in ix else 'no transform' if tr not in RAW else 'no candidate'}")
             continue
         v = D.bases[cand]
         with np.errstate(divide="ignore", invalid="ignore"):
             v = v if tr == "id" else -v if tr == "-id" else 1.0 / v if tr == "1/b" else raw_xs(v, D.marks, tr)
+        if scale:
+            v = v * float(scale)
         fills.append((spec, ix[col], v))
     P.write_x(a.work / "x.bin", D.X)
     with (a.work / "c.bin").open("wb") as f:
