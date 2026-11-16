@@ -1,0 +1,11 @@
+# Question E (intraday checkpoints?), 97 only, 2026-11-17 ~00:10: ls -la --time-style=full-iso seed_probe/HS300 | tail -8
+# (copies made with rsync -a/-aL, which keeps 2.23's mtimes)
+ 9965454 2026-11-05 19:51:22 +0800 20261105.jz
+ 9938002 2026-11-06 19:55:41 +0800 20261106.jz
+ 9911883 2026-11-09 19:36:01 +0800 20261109.jz
+ 9886132 2026-11-10 20:54:47 +0800 20261110.jz
+ 9906436 2026-11-12 11:07:19 +0800 20261111.jz   (written the next morning)
+ 9934080 2026-11-12 20:00:40 +0800 20261112.jz
+ 9923309 2026-11-13 19:43:15 +0800 20261113.jz
+ 9947480 2026-11-16 19:46:27 +0800 20261116.jz
+-> one file per day, after the close; no intraday checkpoints here.
