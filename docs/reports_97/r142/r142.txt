@@ -1,0 +1,20 @@
+# R142 on 97 (done 00:12:39, 28 lines): zzro.a veto test with dmi / dm / neu x 0.01 vfrac10, both signs
+== 0430 full grid
+ 20260430: CED date=20260430.c5354cec: 27 industry dummies, 47 exposures
+20260430: 1,422,000 rows; baseline all 0.5680 first30m 0.3171 dd<0.2% 0.3794 dd 0.2-1% 0.5842 dd>=1% 0.5635
+ zzro.a:dmi:vfrac10@0.01 all -0.0005 first30m +0.0022 dd<0.2% +0.0065 dd 0.2-1% -0.0033 dd>=1% +0.0015
+ zzro.a:dm:vfrac10@0.01 all -0.0005 first30m +0.0033 dd<0.2% +0.0080 dd 0.2-1% -0.0034 dd>=1% +0.0015
+ zzro.a:neu:vfrac10@0.01 all -0.0006 first30m +0.0017 dd<0.2% +0.0054 dd 0.2-1% -0.0034 dd>=1% +0.0015
+ zzro.a:-neu:vfrac10@0.01 all -0.0036 first30m -0.0041 dd<0.2% -0.0114 dd 0.2-1% -0.0040 dd>=1% -0.0005
+ zzro.a:-dmi:vfrac10@0.01 all -0.0043 first30m -0.0049 dd<0.2% -0.0133 dd 0.2-1% -0.0048 dd>=1% -0.0010
+ zzro.a:-dm:vfrac10@0.01 all -0.0054 first30m -0.0064 dd<0.2% -0.0165 dd 0.2-1% -0.0059 dd>=1% -0.0018
+== 20261112 scoring matrix
+ 20261112: CED date=20261112.ec9694de: 26 industry dummies, 46 exposures
+20261112: 72,000 rows; baseline all 0.6123 first30m 0.6277
+ -neu +0.0153 (f30 +0.0026) | -dmi +0.0149 (+0.0033) | -dm +0.0137 (+0.0019) | neu +0.0077 (+0.0002) | dmi +0.0074 (-0.0009) | dm +0.0070 (-0.0001)
+== 20261113 scoring matrix
+ 20261113: CED date=20261113.a9943ea6: 26 industry dummies, 46 exposures
+20261113: 72,000 rows; baseline all 0.6582 first30m 0.6959
+ -neu +0.0115 (f30 +0.0035) | -dmi +0.0111 (+0.0028) | -dm +0.0111 (+0.0023) | neu +0.0055 (+0.0043) | dmi +0.0054 (+0.0047) | dm +0.0046 (+0.0044)
+[00:12:39] r142 done
+# crucible: plus signs pass within the +-0.001 tolerance -> zzro.a <- peer-relative vfrac10 x 0.01, provisional pin.
