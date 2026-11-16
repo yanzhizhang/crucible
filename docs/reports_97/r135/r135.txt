@@ -1,0 +1,18 @@
+# R135 on 97 (20261116) -- gdb ptype of chrono types in libcatchRun.so (static, nothing executed)
+$ gdb -batch -nx -ex "ptype /o chrono::signal" -ex "ptype /o chrono::strat::position_view" -ex "ptype /o chrono::strat::order_view" -ex "ptype cts::qlive::runS::on_position" libcatchRun.so
+No symbol "chrono" in current context.
+No symbol "chrono" in current context.
+No symbol "chrono" in current context.
+No symbol "cts" in current context.
+# follow-up variants
+$ gdb -batch -nx -ex 'info types ^chrono::(signal|strat::position_view|strat::order_view)$' -ex 'ptype /o struct chrono::signal' -ex "ptype /o 'chrono::signal'" -ex 'info functions runS::on_position' libcatchRun.so
+All types matching regular expression "^chrono::(signal|strat::position_view|strat::order_view)$":
+No struct type named chrono.
+No symbol "chrono::signal" in current context.
+All functions matching regular expression "runS::on_position":
+
+Non-debugging symbols:
+0x0000000000537020  cts::qlive::runS::on_position(chrono::strat::position_view const&)
+$ readelf --debug-dump=info libcatchRun.so | grep -A3 -E 'DW_AT_name +: (signal|position_view|order_view)$'
+(no output)
+=> PM's own code (cts::, runS) carries NO DWARF; the debug CUs are only the bundled hdf5 (C99) and netcdf-cxx4 (the 26 C++17 -O3 CUs).
