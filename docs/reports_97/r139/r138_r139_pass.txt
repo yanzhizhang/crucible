@@ -1,0 +1,19 @@
+# R138 (atlas/e5-e8) + R139 (19 trunks) on 97, 20261116 ~23:12-23:20; full outputs on 97 under data/reports/r138_*.txt,
+# r139_*.txt; digest r139_digest.txt (8432 lines), passes r139_pass.txt (100 lines, 20 columns). Transcribed: the 4 full
+# PASS(1,2) + the strongest no-root passes seen.
+== full PASS(1,2) (root points matched)
+-- zzqf5.q.c1: range [-0.28351, 0.21252] 4 segs; thr 444; root points 10; best of 4564:
+ 0.048 -dm x0.01 zr60 in 1.000 worst-seg 1.000 fp 0.048 (below 0.003 above 0.001 int 0.99 root 0.017) PASS(1,2)
+-- zzqf8.q.c1: range [-0.19374, 0.16016] 4 segs; thr 322; root points 5; best of 4564:
+ 0.038 dm x0.01 zr60 in 1.000 worst-seg 1.000 fp 0.038 (below 0.006 above 0.006 int 0.99 root 0.008) PASS(1,2)
+ 0.042 -dm x0.01 zr60 in 1.000 worst-seg 1.000 fp 0.042 (below 0.009 above 0.004 int 0.99 root 0.012) PASS(1,2)
+-- zzro.a: range [-0.11927, 0.14283] 4 segs; thr 391; root points 13; best of 4564:
+ 0.042 dm x0.01 vfrac10 in 1.000 worst-seg 1.000 fp 0.042 (below 0.007 above 0.002 int 0.99 root 0.013) PASS(1,2)
+== strongest no-root passes (page 1 of r139_pass.txt)
+R138 e5 zzrg [0, 0.40215] thr 429: 0.008 abs4 x0.001 depth_weighted_price_5lvl_minus_mid_rel; 0.010 abs4 x1e-4 mret1800; 0.013 abs4 x1e-4 lee30_14400; 0.014 abs4 x1e-4 order_price_aggressiveness_mean_900s
+R138 e6 zzba [0, 0.32208] thr 366: 0.016 id x.zzba.r/px; 0.018 1/b x.(px-zzba.r)/zzba.r; 0.018 1/b x.(zzxu.p-zzxu.a)/zzxu.a; 0.018 id x.zzxu.a/zzxu.p
+R138 e6 zzcb [0, 66294] thr 484: 0.047 1/b x.(px-zzxu.low)/zzxu.a
+R138 e7 zzwa.c [0, 508.64] thr 447: 0.033 id r.(buy300)/(x.ZZAL.bn@0); 0.046 1/b x1e4 x.ZZMS.bl@0
+R138 e7 zzwa.d [0,1]: 0.034 1/b x100 x.ZZMS.bs@1 ; zzwa.e [0,1]: 0.027 1/b x100 x.ZZMS.bs@1
+R138 e7 zzal.h [-11359, 16836]: 0.026 -id x100 r.(net_buy_amount_share_orders_under_40k_cny_300s)/(x.ZZAL.db@0)
+R138 e8 (20261112): zzba.p wgt median 1463 -> half-life 3040 s; vwap_snap PM/EMA median 0.99802, IQR/median 0.0068, log-log slope 0.998, R2 1.000 (300)
