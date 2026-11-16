@@ -82,6 +82,9 @@ def main() -> None:
         path, src = a.target.rsplit(":", 1)
         au = pl.read_csv(path)
         targets = au.filter((pl.col("source").str.contains(src)) & (pl.col("status").is_in(["open", "stand-in"])))["col"].to_list()
+    elif a.target.startswith("fam:"):  # every column of one trunk: fam:zzwa -> zzwa*, zzwa2* ...
+        stem = a.target[4:]
+        targets = [n for n in names if re.match(rf"^{re.escape(stem)}\d*(\.|$)", n)]
     else:
         targets = [t for t in a.target.split(",") if t]
     ds = [x.strip() for x in a.days.split(",") if x.strip()]
