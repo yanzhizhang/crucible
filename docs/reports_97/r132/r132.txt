@@ -1,0 +1,141 @@
+# R132 on 97 (20261116, done 20:42:57, 141 lines) -- transcribed from screen zooms, whitespace squeezed
+== model_s1.txt: feature_names[163]=Column_163 training range feature_infos=[-0.1686999648809433:0.1144501268863678]
+ trees 2000; 173 splits, gain share 0.0009; root splits 2
+ decision_type (categorical, default_left, missing 0 none/1 zero/2 nan): (0, 1, 0)x173
+ 61 distinct thresholds in [-0.0241589, 0.0267618]; integer-ish 0.03, half-ish 0.00; quantiles -0.02416 -0.01506 -0.00403 0.002547 0.005849 0.01453 0.02676
+ gaps: min 9.37e-14 median 0.000326; first 12 [-0.024159, -0.019336, -0.016786, -0.015063, -0.013855, -0.012884, -0.010242, -0.009781, -0.009346, -0.006533, -0.005632, -0.005426]; last 6 [0.012504, 0.013435, 0.014529, 0.018028, 0.021003, 0.026762]
+ splits by depth: d0:2 d1:32 d2:14 d3:21 d4:38 d5:66
+ gain by depth (6 = 6+): d0:0.00 d1:0.12 d2:0.05 d3:0.11 d4:0.22 d5:0.49
+ parent columns: zzro2.b 16, zzbs2.b 7, zzro2.c 7, zzqf7.q.c2 6, zzxu.a 5, zzqf.q.c2 5, zzsf.d 4, zzel.b 4, zzaa.a 4, zzxu.b 3
+ child columns: zzpe.d 11, zzpe.a 11, zzjx2.a 9, zzxo 8, zzeg 7, zzqf7.q.c2 6, zzmh 5, zzeg2 5, zzup 5, zzqf4.q.c2 5
+ root CDF P(x<=t) [default_left, missing]: 0.0053938:0.8055[1,0] 0.0060888:0.8292[1,0]
+
+== model_s1.txt: feature_names[77]=Column_77 training range feature_infos=[0:0.40214654803276062]
+ trees 2000; 954 splits, gain share 0.0073; root splits 0
+ decision_type (categorical, default_left, missing 0 none/1 zero/2 nan): (0, 1, 0)x954
+ 91 distinct thresholds in [1e-35, 0.0594801]; integer-ish 0.01, half-ish 0.00; quantiles 1e-35 0.003006 0.005391 0.008771 0.01444 0.0313 0.05948
+ gaps: min 7.12e-05 median 0.00023; first 12 [0.0, 0.001032, 0.001734, 0.002178, 0.002867, 0.003144, 0.003285, 0.003497, 0.003643, 0.003714, 0.003788, 0.003861]; last 6 [0.03003, 0.032575, 0.035807, 0.040334, 0.047102, 0.05948]
+ splits by depth: d1:31 d2:82 d3:133 d4:259 d5:449
+ gain by depth (6 = 6+): d1:0.03 d2:0.09 d3:0.17 d4:0.27 d5:0.44
+ parent columns: zzxu.b 24, zzel.a 23, zzxu.a 22, zzpe.a 21, zzro2.b 21, zzro2.a 20, zzbt2.h 20, zzgh2.b 19, zzeg 17, zzpe.e 17
+ child columns: zzxu.a 33, zzel.a 32, zzeg 28, zzel.b 25, zzop.i 23, zzop.j 23, zzxu.b 22, zzpe.c 17, zzpe.a 17, zzal.d 16
+
+== model_s1.txt: feature_names[125]=Column_125 training range feature_infos=[-0.0675920769572258:0.29555767774581909]
+ trees 2000; 306 splits, gain share 0.0018; root splits 0
+ decision_type (categorical, default_left, missing 0 none/1 zero/2 nan): (0, 1, 0)x306
+ 50 distinct thresholds in [-0.000544315, 0.00159815]; integer-ish 0.02, half-ish 0.00; quantiles -0.0005443 -0.0001873 2.221e-05 7.819e-05 0.0001962 0.0007315 0.001598
+ gaps: min 8.59e-07 median 9.67e-06; first 12 [-0.000544, -0.000358, -0.000224, -0.000143, -4.7e-05, -4.4e-05, -3.2e-05, -2e-06, 8e-06, 9e-06, 1e-05, 1.1e-05]; last 6 [0.000443, 0.000527, 0.000641, 0.000805, 0.001065, 0.001598]
+ splits by depth: d1:35 d2:34 d3:53 d4:71 d5:113
+ gain by depth (6 = 6+): d1:0.14 d2:0.12 d3:0.22 d4:0.20 d5:0.32
+ parent columns: zzro.e 12, zzqo.f 12, zzaa.a 9, zzyg.0.a 8, zzwj.a 8, zzko 8, zzmo 8, zzpz.a 7, zzqo.a 7, zzro2.c 7
+ child columns: zzwj.a 28, zzup 10, zzpe.d 9, zzro2.a 8, zzzl2.c 7, zzpe.a 7, zzop.j 7, zzpz.a 7, zzpe.b 7, zzel.a 7
+
+== model_s1.txt: feature_names[101]=Column_101 training range feature_infos=[0:1315.102783203125]
+ trees 2000; 493 splits, gain share 0.0050; root splits 0
+ decision_type (categorical, default_left, missing 0 none/1 zero/2 nan): (0, 1, 0)x493
+ 116 distinct thresholds in [1e-35, 888.583]; integer-ish 0.01, half-ish 0.00; quantiles 1e-35 193.2 300.8 428.9 548.8 744.9 888.6
+ gaps: min 3.53 median 4.27; first 12 [0.0, 130.767708, 153.28302, 167.04641, 177.953613, 187.338211, 195.170197, 202.195198, 208.567314, 214.392365, 220.205208, 225.41967]; last 6 [755.982208, 771.297058, 789.287628, 812.28952, 842.908173, 888.583069]
+ splits by depth: d1:7 d2:21 d3:69 d4:110 d5:286
+ gain by depth (6 = 6+): d1:0.01 d2:0.04 d3:0.21 d4:0.26 d5:0.47
+ parent columns: zzro2.c 13, zzwa.j 13, zzaa.a 13, zzpk 12, zzeg 12, zzmh 11, zzpe.c 10, zzop.j 9, zzdw 9, zzwj.a 8
+ child columns: zzag2.c 12, zzpk 11, zzop.i 9, zzba 9, zzrg 9, zzzl2.f 9, zzaa.a 8, zzal.a 7, zzeg 7, zzmh 7
+
+== model_s1.txt: feature_names[99]=Column_99 training range feature_infos=[53.65643310546875:1252.8292236328125]
+ trees 2000; 517 splits, gain share 0.0036; root splits 0
+ decision_type (categorical, default_left, missing 0 none/1 zero/2 nan): (0, 1, 0)x517
+ 95 distinct thresholds in [172.877, 921]; integer-ish 0.00, half-ish 0.00; quantiles 172.9 224.6 322.4 444.5 554.7 661.3 921
+ gaps: min 3.72 median 4.92; first 12 [172.877182, 190.943947, 202.580688, 212.316574, 219.980644, 226.644402, 232.771576, 238.176834, 243.310768, 248.339027, 253.423332, 258.361328]; last 6 [653.335388, 679.956146, 697.813904, 754.45047, 804.778595, 921.000061]
+ splits by depth: d1:14 d2:34 d3:75 d4:115 d5:279
+ gain by depth (6 = 6+): d1:0.05 d2:0.08 d3:0.13 d4:0.19 d5:0.54
+ parent columns: zzro2.a 20, zzxu.a 17, zzop.j 15, zzeg 13, zzpe.b 11, zzpe.c 10, zzzl2.b 10, zzfb2.a 9, zzba 9, zzjx3.b 9
+ child columns: zzwj.a 19, zzaa.a 14, zzxu.a 13, zzpe.b 12, zzfb2.a 10, zzel.a 9, zzpk 8, zzop.i 8, zzeg 8, zzro2.a 8
+
+== model_s1.txt: feature_names[97]=Column_97 training range feature_infos=[-0.21572715044021606:0.162947878241539]
+ trees 2000; 921 splits, gain share 0.0140; root splits 56
+ decision_type (categorical, default_left, missing 0 none/1 zero/2 nan): (0, 1, 0)x921
+ 88 distinct thresholds in [-0.00304129, 0.00310044]; integer-ish 0.03, half-ish 0.00; quantiles -0.003041 -0.001086 -0.00040250 0.0004039 0.001127 0.0031
+ gaps: min 2e-35 median 2.35e-05; first 12 [-0.003041, -0.001945, -0.001532, -0.001284, -0.001125, -0.001013, -0.000924, -0.000855, -0.0008, -0.000749, -0.000706, -0.000666]; last 6 [0.001051, 0.001168, 0.001328, 0.001563, 0.001999, 0.0031]
+ splits by depth: d0:56 d1:113 d2:110 d3:179 d4:215 d5:248
+ gain by depth (6 = 6+): d0:0.12 d1:0.28 d2:0.16 d3:0.16 d4:0.15 d5:0.13
+ parent columns: zzpz.a 42, zzyg.0.a 36, zzwj.a 35, zzpp.e 29, zzwa.j 27, zzhi.h 20, zzeg 18, zzro2.a 18, zzag2.f 18, zzpz.b 17
+ child columns: zzwj.a 40, zzeg 37, zzbt2.h 34, zzpp.e 31, zzel.a 27, zzag2.c 25, zzeu 23, zzbt.b 22, zzab2 22, zzop.j 20
+ root CDF P(x<=t) [default_left, missing]: -0.0030413:0.0080[1,0] -0.00043403:0.1655[1,0] -0.00032146:0.2209[1,0] -0.00027112:0.2517[1,0] -0.00027112:0.2517[1,0] -0.00022583:0.2830[1,0] -0.00021483:0.2911[1,0] -0.00021483:0.2912[1,0] -0.00021483:0.2912[1,0] -0.00021483:0.2912[1,0] -0.00020443:0.2990[1,0] -0.00020443:  (cut at 330 chars by the script)
+
+== model_s1.txt: feature_names[34]=Column_34 training range feature_infos=[0:8067.83935546875]
+ trees 2000; 1057 splits, gain share 0.0086; root splits 0
+ decision_type (categorical, default_left, missing 0 none/1 zero/2 nan): (0, 1, 0)x1057
+ 127 distinct thresholds in [1e-35, 767.051]; integer-ish 0.01, half-ish 0.00; quantiles 1e-35 8.04 23.51 49.15 96.99 268.4 767.1
+ gaps: min 0.572 median 1.07; first 12 [0.0, 3.503285, 4.663149, 5.591111, 6.384415, 7.131881, 7.832496, 8.525521, 9.165184, 9.802275, 10.414009, 11.017247]; last 6 [303.022125, 339.029297, 385.733093, 453.201859, 561.107452, 767.051117]
+ splits by depth: d1:27 d2:65 d3:151 d4:276 d5:538
+ gain by depth (6 = 6+): d1:0.02 d2:0.09 d3:0.18 d4:0.26 d5:0.45
+ parent columns: zzpe.d 27, zzmh 27, zzpk 24, zzop.i 24, zzeg 22, zzro2.c 20, zzal.d 20, zzxu.b 19, zzpe.a 19, zzfb.b 17
+ child columns: zzop.i 34, zzpe.c 27, zzeg 24, zzzl2.c 24, zzxu.b 23, zzpe.a 21, zzal.d 20, zzpe.e 20, zzzl2.b 19, zzqf.q.a 19
+
+== model_s1.txt: feature_names[128]=Column_128 training range feature_infos=[-0.15690477192401886:0.1564411073923111]
+ trees 2000; 176 splits, gain share 0.0009; root splits 7
+ decision_type (categorical, default_left, missing 0 none/1 zero/2 nan): (0, 1, 0)x176
+ 55 distinct thresholds in [-0.0268923, 0.0309467]; integer-ish 0.02, half-ish 0.00; quantiles -0.02689 -0.01707 -0.007123 0.0009399 0.008326 0.01889 0.03095
+ gaps: min 0.000111 median 0.000669; first 12 [-0.026892, -0.021357, -0.018385, -0.016501, -0.015062, -0.013931, -0.012992, -0.011492, -0.01088, -0.00894, -0.00855, -0.008208]; last 6 [0.014905, 0.016345, 0.018175, 0.020544, 0.024097, 0.030947]
+ splits by depth: d0:7 d1:7 d2:14 d3:22 d4:45 d5:81
+ gain by depth (6 = 6+): d0:0.01 d1:0.03 d2:0.08 d3:0.15 d4:0.28 d5:0.44
+ parent columns: zzwa.c 11, zzqf4.q.c1 6, zzqf.q.c3 6, zzqo.a 4, zzpe.d 4, zzvm2 4, zzwa.j 4, zzqf.q.c1 4, zzzl2.b 3, zzba 3
+ child columns: zzel.a 7, zzqf.q.c3 6, zzav2 6, zzpe.d 5, zzqf5.q.c4 5, zzpe.a 5, zzuc.f 4, zzsf.c 4, zzho2 4, zzpp.a 4
+ root CDF P(x<=t) [default_left, missing]: 0.016345:0.9619[1,0] 0.016345:0.9619[1,0] 0.016345:0.9619[1,0] 0.016345:0.9619[1,0] 0.016345:0.9619[1,0] 0.016345:0.9619[1,0] 0.016345:0.9619[1,0]
+1090 candidates x 8 transforms, days ['20260430', '20261112']
+-- zzqf.q.c3: thresholds 61 in [-0.024159, 0.026762], root points [(0.00539383, 0.8055), (0.006088821, 0.8292)]; best of 8492:
+ 0.087 -dm lee30_14400 below 0.018 above 0.007 intervals 0.98 root gap 0.023
+ 0.132 log x.zzgh.nb|vol/zzgh.nb|snappx below 0.053 above 0.046 intervals 0.98 root gap 0.009
+ 0.135 -id x.(zzgh.nb|snappx-zzgh.nb|vol)/zzgh.nb|vol below 0.053 above 0.049 intervals 0.98 root gap 0.008
+ 0.136 id x.(zzgh.nb|vol-zzgh.nb|snappx)/zzgh.nb|snappx below 0.057 above 0.046 intervals 0.98 root gap 0.009
+ 0.160 -id ret1800 below 0.010 above 0.004 intervals 0.98 root gap 0.065
+ 0.161 -id mret1800 below 0.010 above 0.004 intervals 0.98 root gap 0.066
+-- zzrg: thresholds 91 in [1e-35, 0.05948], root points []; best of 8492:
+ 0.012 1/b x.ZZQI.s@-1 below 0.000 above 0.001 intervals 0.99 root gap 0.000
+ 0.012 1/b x.ZZQI.s@1 below 0.000 above 0.002 intervals 0.99 root gap 0.000
+ 0.013 1/b x.s.lots60s below 0.000 above 0.002 intervals 0.99 root gap 0.000
+ 0.013 abs4 x.zzqj.r/zzqj.tpv below 0.000 above 0.002 intervals 0.99 root gap 0.000
+ 0.013 1/b x.ZZQI.s@0 below 0.000 above 0.002 intervals 0.99 root gap 0.000
+ 0.014 abs4 x.zzbd.rEmaT/px below 0.000 above 0.003 intervals 0.99 root gap 0.000
+-- zzwa.g: thresholds 50 in [-0.00054431, 0.0015981], root points []; best of 8492:
+ 0.000 -id x.zzgh.nb|cnt/zzgh.norder below 0.000 above 0.000 intervals 1.00 root gap 0.000
+ 0.000 -dm x.(zzgh.nb|cnt-zzgh.norder)/zzgh.norder below 0.000 above 0.000 intervals 1.00 root gap 0.000
+ 0.000 -dm x.zzgh.nb|cnt/zzgh.norder below 0.000 above 0.000 intervals 1.00 root gap 0.000
+ 0.000 1/b x.(px-zzgh.norder)/zzgh.nb|cnt below 0.000 above 0.000 intervals 1.00 root gap 0.000
+ 0.000 -id x.zzgh.nb|ord/zzgh.norder below 0.000 above 0.000 intervals 1.00 root gap 0.000
+ 0.000 -id x.zzgh.nb|ordvol/zzgh.norder below 0.000 above 0.000 intervals 1.00 root gap 0.000
+-- zzag2.e: thresholds 116 in [1e-35, 888.58], root points []; best of 8492:
+ 0.013 abs4 x.zzgh.nb|ordvol/px below 0.000 above 0.005 intervals 0.99 root gap 0.000
+ 0.013 abs4 x.zzgh.nb|ord/px below 0.000 above 0.005 intervals 0.99 root gap 0.000
+ 0.017 abs4 x.s.1-last/high below 0.015 above 0.002 intervals 1.00 root gap 0.000
+ 0.017 abs4 x.(px-zzgh.nb)/zzgh.ntrade below 0.000 above 0.009 intervals 0.99 root gap 0.000
+ 0.017 abs4 x.(px-zzgh.nb|snappx)/zzgh.ntrade below 0.000 above 0.009 intervals 0.99 root gap 0.000
+ 0.017 abs4 x.(px-zzgh.nb|vol)/zzgh.ntrade below 0.000 above 0.009 intervals 0.99 root gap 0.000
+-- zzag2.a: thresholds 95 in [172.88, 921], root points []; best of 8492:
+ 0.275 abs4 sd_eg_rng below 0.054 above 0.211 intervals 0.99 root gap 0.000
+ 0.409 abs4 x.zzgh.nsnap/zzgh.norder below 0.225 above 0.184 intervals 1.00 root gap 0.000
+ 0.428 abs4 x.(px-zzgh.nsnap)/zzgh.norder below 0.247 above 0.181 intervals 1.00 root gap 0.000
+ 0.439 abs4 x.zzgh.nb|ordvol below 0.217 above 0.222 intervals 1.00 root gap 0.000
+ 0.441 abs4 x.zzgh.nb|ord below 0.218 above 0.223 intervals 1.00 root gap 0.000
+ 0.462 -dm x.ZZVC.e@-1 below 0.410 above 0.000 intervals 0.95 root gap 0.000
+-- zzro2.a: thresholds 88 in [-0.0030413, 0.0031004], root points [(-0.003041287, 0.008), (-0.000434033, 0.1655), (-0.00032146, 0.2209)]; best of 8492:
+ 0.193 -id lmie30 below 0.019 above 0.011 intervals 0.99 root gap 0.076
+ 0.199 -id lpe50 below 0.025 above 0.016 intervals 1.00 root gap 0.079
+ 0.211 id lpe50 below 0.016 above 0.025 intervals 1.00 root gap 0.085
+ 0.238 -id lpe25 below 0.017 above 0.010 intervals 1.00 root gap 0.105
+ 0.238 id lmie30 below 0.011 above 0.018 intervals 0.99 root gap 0.099
+ 0.254 id lpe25 below 0.010 above 0.017 intervals 1.00 root gap 0.114
+-- zzop2.b: thresholds 127 in [1e-35, 767.05], root points []; best of 8492:
+ 0.000 -id x.(px-zzgh.ntrade)/zzgh.nsnap below 0.000 above 0.000 intervals 1.00 root gap 0.000
+ 0.001 abs4 mret1800 below 0.001 above 0.001 intervals 1.00 root gap 0.000
+ 0.005 1/b x.(px-zzxu.low)/zzxu.a below 0.003 above 0.002 intervals 1.00 root gap 0.000
+ 0.005 1/b x.(px-zzvx.low)/zzvx.trDEmaD below 0.003 above 0.002 intervals 1.00 root gap 0.000
+ 0.005 1/b x.(px-zzvx.low)/zzvx.trDEmaO below 0.003 above 0.002 intervals 1.00 root gap 0.000
+ 0.005 1/b x.(px-zzvx.low)/zzvx.trEmaD below 0.003 above 0.002 intervals 1.00 root gap 0.000
+-- zzqf7.q.c2: thresholds 55 in [-0.026892, 0.030947], root points [(0.01634469, 0.9619)]; best of 8492:
+ 0.048 id mret1800 below 0.004 above 0.006 intervals 1.00 root gap 0.019
+ 0.048 id ret1800 below 0.004 above 0.006 intervals 1.00 root gap 0.019
+ 0.056 id x.s.ret1800s below 0.003 above 0.004 intervals 1.00 root gap 0.024
+ 0.058 -id lpes3600 below 0.025 above 0.010 intervals 1.00 root gap 0.011
+ 0.058 id lpes2400 below 0.010 above 0.017 intervals 1.00 root gap 0.015
+ 0.059 -id mret1800 below 0.008 above 0.002 intervals 1.00 root gap 0.024
+[20:42:57] done
