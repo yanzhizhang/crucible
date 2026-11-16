@@ -43,12 +43,16 @@ The sizing parameters, from the binary (R133 .rodata) and PM's decision logs on 
 | `winsdQty` | emsMktVol x 0.15/0.85 | the most we may trade in the window and stay at 15 % of volume |
 | `asf` | 0.8 | constant on every decision (R33) |
 | `asq` | asf x winsdQty - emsOurVol, in lots | p50 100, p90 3900 shares (R33) |
-| `lthr` | -0.000182 - 0.2208 x hs | fit on 224 (R72); 0 in the first minute (09:30-09:31, R33) |
+| `lthr` | -0.000182 - 0.2208 x hs | fit on 224 (R72); 0 in the first minute (09:30-09:31, R33). Also fits -614 x vpen^2 (R^2 0.93, stronger); vpen's ingredients are unknown, so run_s uses the hs form |
+| size | 0.87 x (base - qty) + 0.07 x fa x winsdQty | fit on 224 after 09:31 (R^2 0.87): a continuous pull to base plus an alpha tilt, capped at asq |
+| price | ~64 % far touch, rest near touch / inside | 224 orders; the split rule is unknown |
 | `hs` | half spread / mid | "~half a tick over the price" (PM_REPRO) |
 | `pos`, `pp`, `cpos` | holding - base, pending, pos + pp | exact for 99.9 % / 100 % (R33) |
 | `vpen` | 1e-07 .. 1e-03 through the day | log p1..p99 (R72); `PosClzer::GVpen` constants 0.001 and 1 (R133) |
 | EMS windows | 20 / 60 / 30 s | constants in `ct::EMA`, `Alg::onInnerMsg` (R133); which window is which is a guess |
-| cancel | ~6 s, retry on failure | placed 09:30:00.45 -> cancel acknowledged 09:30:06.5 (R33); OnFCM retries |
+| cancel | ~5.3 s median, retry on failure | 224 orders (6 s was one sample in R33); OnFCM retries |
+| re-place | ~0.7 s after the cancel, 95 % same side, often before the ack | 224 orders |
+| send gate | only ~2.6 % of gated rows send (classifier AUC 0.65) | rule unknown |
 | stale book | skip if book age > 10 s | "book->epoch {} - book->srcEpoch {} > 10" (R136) |
 | odd lots / rounding | 100 | `round100`, `roundBy` (stage 1) |
 
@@ -64,23 +68,34 @@ lthr = 0                          for the first minute
 gap  = holding - base             (PM pos)
 cgap = gap + pending              (PM cpos)
 asq  = lots( 0.8 * emsMktVol * 0.15/0.85 - emsOurVol )      (capacity left in the window)
-cap  = base                       (may sell the whole base, or buy up to one more base)
+cap  = base                       GUESS (may sell the whole base, or buy up to one more base)
 
-if   fa >  -lthr and fa >  hs and cgap <  cap :  buy   min(asq, cap - cgap)   at ask1
-elif fa <   lthr and fa < -hs and cgap > -cap :  sell  min(asq, cgap + cap, sellable)   at bid1
-elif cgap != 0 and |fa| < vpen(t)             :  trade -sign(cgap) * min(asq, |cgap|)  (walk the gap back to base)
+size_mode "fit" (default, fitted on 224):
+  trade = clamp( 0.87 * (-cgap) + 0.07 * fa * winsdQty , -asq, +asq )
+  send if it closes the gap, or if fa clears the threshold on its side (buy: fa > -lthr, sell: fa < lthr)
+size_mode "bang" (first draft, a deliberate simplification):
+  fa > -lthr and fa > hs  -> buy  min(asq, cap - cgap);  fa < lthr and fa < -hs -> sell min(asq, cgap + cap)
+  else if |fa| < vpen(t)  -> walk the gap back by min(asq, |cgap|)
+sells are capped at sellable - pending sells (T+1); whole lots except a sale that empties the line
 after 14:45: only trades that shrink |gap|
-cancel anything still working after 6 s
+price: far touch if fa beyond the threshold >= cross_k * hs (GUESS, default 1), else the near touch
+cancel at 5.3 s; release its leaves at once; re-decide 0.7 s later (the re-place chain)
+at most one decision per stock per 3 s (GUESS: PM's send gate is unknown)
 ```
 
-PM's logs show these properties. The rule reproduces them by construction:
-- Orders are bang-bang at `executp` ~ +-asq, mostly at `lthr` = 0 near the open.
-- Order size follows the inventory gap, not the size of `fa` (corr 0.13).
+The fitted size explains two things in PM's logs:
+- Sizes are often +-asq only because the gap is usually large.
+- Order size follows the gap, not the prediction: the alpha tilt 0.07 x fa x winsdQty is a few shares to a few hundred.
 
-What it does not reproduce exactly: PM's `executp` is a continuous number (R^2 0.29 for the best linear fit), so PM
-computes a target from `fa`, `vpen`, `vr`, `poscst` and then caps it. The `vr` (a volatility ratio, p50 0.18) and
-`poscst` (position cost) terms are not in the rewrite. Once sc.p3.json is available they replace the simplified
-`|fa| < vpen` reversion test.
+**What is a guess** (each is a named parameter, to be replaced by sc.p3.json or a fit):
+- the send gate (`min_order_gap_ms`). This is the biggest behavioural difference: PM sends on only ~2.6 % of the rows that pass its gate.
+- the cross / join split (`cross_k`)
+- the vpen ramp 14:15 -> 14:45 (`vpen_*`, used in bang mode only)
+- cap = base (`gap_frac`)
+- the EMS window (`ems_tau_s`)
+- the hs form of `lthr` instead of PM's vpen^2 form
+
+Not modelled: PM's `vr` (a volatility ratio, p50 0.18) and `poscst` (position cost) terms.
 
 ## 4. The finance: why this algorithm exists
 
@@ -102,10 +117,12 @@ Each piece of the rule follows from that:
 3. **The inventory penalty is for overnight and T+1 risk.**
    - A gap left at the close is an unintended position: sold shares can only be re-bought today, and bought shares are locked until tomorrow.
    - So the penalty on carrying a gap is tiny in the morning (vpen 1e-7) and rises into the close (to 1), forcing the book back to its base.
-4. **Bang-bang at the cap** is what an alpha that is a sign more than a size implies.
-   - The model predicts a few bp over minutes (PM's alpha std is 3.4e-4).
-   - Once the edge clears the cost, the best response is to trade as much as capacity allows, not proportionally to `fa`.
-5. **Fast cancels (about 6 s)** follow from the alpha horizon (`alpha_dur`, minutes): an order that has not filled within seconds is trading on stale information.
+4. **The size is mostly a pull back to base, with a small alpha tilt.**
+   - The fitted rule is 0.87 x (base - qty) + 0.07 x fa x winsdQty.
+   - The model predicts a few bp over minutes (PM's alpha std is 3.4e-4). So the alpha decides *when* and *which side* the gap is worked (through the threshold and the gate) far more than *how much*.
+   - The base target, which moves daily with the index weights, sets how much.
+   - In effect the strategy executes the daily rebalance toward base, and times it with the alpha.
+5. **Fast cancel-and-re-place (about 5.3 s, then 0.7 s)** follows from the alpha horizon (`alpha_dur`, minutes). An order that hasn't filled within seconds is trading on stale information, so it is pulled and re-priced from the current book.
 6. **It works on CSI 300** because those names are liquid enough for 15 % of their volume to be a meaningful trade, and because their high retail participation makes their short-term moves predictable.
    - crucible's measurement agrees: at tick scale, 9-second moves continue over the next 30 seconds.
 
