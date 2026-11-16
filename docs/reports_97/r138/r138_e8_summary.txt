@@ -1,0 +1,23 @@
+# R138 e8 (ema_sweep, unbuilt averaged .jz keys vs EMA(q) at PM's implied half-life), "== summary" blocks; 97, done 23:16:15
+== summary, best candidate per key (spread < 0.01 = proportional; slope ~1 / R2 ~1 = power law fits):   [20261112]
+ zzvx.rEmaD h 4.052 s vwap_snap/p x 1 IQR/med 0.0000 slope -1523138577.718 R2 0.000 PINNED?
+ zzvx.rEmaO h 4.052 s vwap_snap/p x 1 IQR/med 0.0000 slope -1523138577.718 R2 0.000 PINNED?
+ zzmh.r h 1.001 s ((hm-p)/hm)^2 x 4 IQR/med 0.0000 slope 1.000 R2 1.000 PINNED?
+ zzui.r h 3.047 s mid x 0.999931 IQR/med 0.0006 slope 1.000 R2 1.000 PINNED?
+ zzba.p h 3040 s vwap_snap x 0.99802 IQR/med 0.0068 slope 0.998 R2 1.000 PINNED?
+ zzvm.c.re h 3779 s price x 1.00186 IQR/med 0.0080 slope 1.002 R2 1.000 PINNED?
+ zzeb.r h 43.03 s vwap_snap/p x 0.125997 IQR/med 0.1801 slope -88.051 R2 0.004
+ zzhj.p h 30 s dvol*p x 8.37646 IQR/med 0.3614 slope 0.872 R2 0.923
+ zztx.r h 1280 s vwap_snap x -0.00119641 IQR/med 1.0223 slope nan R2 nan
+ zzcb.r h 4.052 s half_spread/mid x 27492.8 IQR/med 1.4280 slope 1.411 R2 0.765
+== summary ...   [20261113]
+ zzvx.rEmaD h 4.014 s vwap_snap/p x 1 IQR/med 0.0000 slope -370392309.501 R2 0.000 PINNED?
+ zzvx.rEmaO h 4.014 s vwap_snap/p x 1 IQR/med 0.0000 slope -370392309.501 R2 0.000 PINNED?
+ zzmh.r h 1.001 s ((hm-p)/hm)^2 x 4 IQR/med 0.0000 slope 1.000 R2 1.000 PINNED?
+ zzui.r h 3.047 s mid x 0.999612 IQR/med 0.0008 slope 1.002 R2 0.998 PINNED?
+ zzba.p h 3175 s vwap_snap x 0.997468 IQR/med 0.0054 slope 0.999 R2 1.000 PINNED?
+ zzvm.c.re h 3987 s micro x 1.00097 IQR/med 0.0069 slope 1.005 R2 0.999 PINNED?
+ zzeb.r h 42.95 s vwap_snap/p x 0.125861 IQR/med 0.1769 slope -120.014 R2 0.008
+ zzhj.p h 30 s dvol*p x 8.03624 IQR/med 0.3840 slope 0.844 R2 0.921
+ zztx.r h 1284 s mid x -0.00117388 IQR/med 1.1189 slope nan R2 nan
+ zzcb.r h 4.014 s half_spread/mid x 31156.9 IQR/med 1.5256 slope 1.446 R2 0.721
