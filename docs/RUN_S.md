@@ -79,7 +79,13 @@ size_mode "bang" (first draft, a deliberate simplification):
 sells are capped at sellable - pending sells (T+1); whole lots except a sale that empties the line
 after 14:45: only trades that shrink |gap|
 price: far touch if fa beyond the threshold >= cross_k * hs (GUESS, default 1), else the near touch
-cancel at 5.3 s; release its leaves at once; re-decide 0.7 s later (the re-place chain)
+cancel at 5.3 s, then re-decide (the re-place chain):
+  replace_mode "ack" (default): at max(cancel + 0.7 s, the old order's terminal report). chrono keeps the old order
+    fully reserved until that report, so an earlier same-side re-place, and any re-sell of the same shares, would be
+    rejected. The ack normally arrives within tens of ms, so this costs almost nothing.
+  replace_mode "fixed" (PM-faithful): at cancel + 0.7 s, before the ack; a rejected re-place retries on the old
+    order's terminal report rather than ending the chain
+  each chain step costs 2 (cancel + insert) on chrono's order_rate and daily_order_limit: size the limit for it
 at most one decision per stock per 3 s (GUESS: PM's send gate is unknown)
 ```
 
