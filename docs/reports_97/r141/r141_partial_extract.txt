@@ -1,0 +1,27 @@
+# R141 extract on 97, 2026-11-17 ~00:00, PARTIAL: 15 of 19 trunks done; zzwa, zzal (and 2 more) still running.
+# research/x141.sh -> data/reports/r141_extract.txt
+== CED lines (27 = one per finished seg_fit pass)
+ 20260430: CED date=20260430.c5354cec: 27 industry dummies, 47 exposures
+ 20261112: CED date=20261112.ec9694de: 26 industry dummies, 46 exposures
+ (no "no CED dc.parquet" lines)
+== PASS(1,2)
+[r141_zzro.txt] -- zzro.a: range union [-0.11927, 0.14283] over 4 segs; thresholds 391; root points 13; best of 6852:
+ 0.034 dmi x0.01 vfrac10 in 1.000 worst-seg 1.000 fp 0.034 (below 0.004 above 0.001 int 0.99 root 0.011) PASS(1,2)
+ 0.042 dm x0.01 vfrac10 in 1.000 worst-seg 1.000 fp 0.042 (below 0.007 above 0.002 int 0.99 root 0.013) PASS(1,2)
+ 0.047 neu x0.01 vfrac10 in 1.000 worst-seg 1.000 fp 0.047 (below 0.003 above 0.001 int 1.00 root 0.020) PASS(1,2)
+== no-root passes fp < 0.02
+[r141_zzba.txt] -- zzba: range union [0, 0.32208] over 4 segs; thresholds 366; root points 0; best of 192:
+ 0.016 id x1 x.zzba.r/px fp 0.016 (below 0.000 above 0.002 int 0.99 root 0.000) pass(1,2) no-root
+ 0.018 1/b x1 x.(px-zzba.r)/zzba.r fp 0.018 (below 0.000 above 0.004 int 0.99 root 0.000) pass(1,2) no-root
+[r141_zzba.txt] -- zzba (any-key pass): best of 612:
+ 0.010 1/b x1 x.(zzba.p-zzba.r)/zzba.r fp 0.010 (below 0.000 above 0.004 int 0.99 root 0.000) pass(1,2) no-root
+ 0.013 1/b x1 x.zzba.p/zzba.r fp 0.013 (below 0.000 above 0.002) | 0.013 id x1 x.zzba.r/zzba.p fp 0.013 (below 0.000 above 0.002)
+ 0.016 id x1 x.zzba.r/px fp 0.016 | 0.018 1/b x1 x.(px-zzba.r)/zzba.r fp 0.018
+== 1116 restart check
+ 2 chrono logs: 2026-11-16_09-00-01-490.log (87,411,497 B, 09:00:01 .. 09:59:58; runS constructor 1, initialize 1)
+                2026-11-16_10-09-53-704.log (1,338,119,630 B, 10:09:53 .. 15:25:47; runS constructor 1, initialize 1)
+ -> one chrono/runS restart, gap 09:59:58 -> 10:09:53 (~10 min, no SIG in between)
+ factor lines: 1,201,642 matched (1,201,642 by order, not by epoch), 18,917 alg lines without their catchRun line
+ order match check: 0.9834 of rows on their sidIdx's main sid; book->epoch - srcEpoch (ms) p1/p50/p99 28.3/569.9/350778969.(cut)
+ factor program: 1,201,642 scored snapshots, 1,201,550 also in SIG (|prediction - fa| max 1.1e-02, corr 0.903428), 717,084 trade decisions
+ 1,400,648 signals, 300 stocks, per stock p10/p50/p90 4482/4758/4786; prediction == 0 0.000
