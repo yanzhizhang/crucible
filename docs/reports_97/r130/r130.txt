@@ -1,0 +1,71 @@
+# R130 on 97 (20261116, done 19:54:47, 70 lines) -- transcribed from screen zooms; audit.md / audit.csv stay on 97
+# Source audit: 209 model columns vs PM's factors
+
+## Gain by status x source
+
+| status | source | columns | gain |
+| --- | --- | --- | --- |
+| matched | engine | 4 | 0.0548 |
+| no-source | none | 112 | 0.4258 |
+| open | engine | 10 | 0.1196 |
+| open | hstats | 9 | 0.0319 |
+| open | none | 46 | 0.2274 |
+| stand-in | engine | 7 | 0.0682 |
+| stand-in | hstats | 21 | 0.0722 |
+
+## Families with a PM source, by gain
+
+| family | source | hstats | engine keys built | columns (settled / open / stand-in) | gain |
+| --- | --- | --- | --- | --- | --- |
+| zzwa | hstats | ZZWA | - | 8 / 3 / 8 | 0.0432 |
+| zzal | hstats | ZZAL | - | 6 / 2 / 6 | 0.0427 |
+| zzxu | engine |  | 5/8 | 2 / 0 / 0 | 0.0375 |
+| zzeg | engine |  | 4/4 | 0 / 1 / 0 | 0.0262 |
+| zzba | engine |  | 2/2 | 0 / 1 / 0 | 0.0196 |
+| zzmh | engine |  | 2/2 | 0 / 1 / 0 | 0.0147 |
+| zzfb2 | engine |  | 0/3 | 1 / 0 / 1 | 0.0144 |
+| zzpk | engine |  | 4/4 | 1 / 0 / 1 | 0.0126 |
+| zzqo | hstats | ZZQO | - | 6 / 0 / 6 | 0.0113 |
+| zzab2 | engine |  | 1/1 | 0 / 1 / 0 | 0.0111 |
+| zzvm | engine |  | 2/3 | 0 / 1 / 0 | 0.0107 |
+| zzfb | engine |  | 0/3 | 1 / 0 / 1 | 0.0104 |
+| zzjb | engine |  | 0/1 | 1 / 0 / 1 | 0.0103 |
+| zzup | engine |  | 2/2 | 1 / 0 / 0 | 0.0101 |
+| zzhj | engine |  | 0/3 | 0 / 1 / 0 | 0.0095 |
+| zzxo | engine |  | 1/2 | 0 / 1 / 0 | 0.0092 |
+| zzeg2 | engine |  | 4/4 | 1 / 0 / 1 | 0.0086 |
+| zzcb | engine |  | 0/1 | 0 / 1 / 0 | 0.0084 |
+| zzgh2 | engine |  | 0/2 | 1 / 0 / 1 | 0.0079 |
+| zzgh | engine |  | 1/2 | 0 / 1 / 0 | 0.0074 |
+| zzvx | engine |  | 8/8 | 1 / 0 / 0 | 0.0072 |
+| zzvm2 | engine |  | 2/3 | 1 / 0 / 1 | 0.0040 |
+/data/prod/models/lgb_fn_v1_209_cte.csv: 210 lines; first 5: ['name', 'zzel.a', 'zzpe.c', 'zzpe.a', 'zzop.j']; last 2: ['zzwa.i', 'zzyj5.a']
+model /work/crucible_data/models_gen/B/202501/lgb/livev1_fit1/model_s1.txt: 209 feature_names (first ['Column_0', 'Column_1', 'Column_2']), 209 feature_infos; csv names 209
+144 columns with values; settled columns flagged (inside < 0.9 or 1-99% beyond the range by > half its width): 11
+  #163 zzqf.q.c3   settled range [-0.1687, 0.11445]  ours 1%..99% [-3.1147, 3.0608]  inside 0.240
+  #101 zzag2.e     settled range [0, 1315.1]  ours 1%..99% [12456, 14135]  inside 0.000
+  #77  zzrg        settled range [0, 0.40215]  ours 1%..99% [-2.4921, 3.836]  inside 0.253
+  #125 zzwa.g      settled range [-0.067592, 0.29556]  ours 1%..99% [-2.7568, 2.8842]  inside 0.196
+  #99  zzag2.a     settled range [53.656, 1252.8]  ours 1%..99% [42.389, 8249.2]  inside 0.278
+  #156 zzpz.a      settled range [-0.99989, 0.99984]  ours 1%..99% [-10, 10]  inside 0.963
+  #97  zzro2.a     settled range [-0.21573, 0.16295]  ours 1%..99% [0, 1]  inside 0.255
+  #34  zzop2.b     settled range [0, 8067.8]  ours 1%..99% [113, 13637]  inside 0.537
+  #155 zzqf2.q.c1  settled range [-0.16489, 0.18588]  ours 1%..99% [-0.28924, 0.36717]  inside 0.885
+  #128 zzqf7.q.c2  settled range [-0.1569, 0.15644]  ours 1%..99% [0.065194, 0.26353]  inside 0.821
+  #170 zzef        settled range [-7.7264, 7.4983]  ours 1%..99% [-9.685, 9.3203]  inside 0.961
+  #159 zzht        settled range [-1, 1]  ours 1%..99% [-1.1556, 1.2423]  inside 0.821
+  #63  zzzs.a      settled range [-1, 1]  ours 1%..99% [-1.0677, 1.0468]  inside 0.960
+  #208 zzyj5.a     settled range [-1, 1]  ours 1%..99% [-0.96993, 0.98802]  inside 0.984
+  #207 zzwa.i      settled range [-1, 25]  ours 1%..99% [0, 0.0011112]  inside 1.000
+  #206 zzyj4.c     settled range [-1, 1]  ours 1%..99% [0.0083612, 0.99164]  inside 1.000
+  #205 zzqf7.q.b   settled range [-1, 1]  ours 1%..99% [-0.98, 0.98]  inside 1.000
+  #204 zzie4.c     settled range [-1, 1]  ours 1%..99% [-0.96892, 0.85085]  inside 0.992
+  #202 zzyj2.c     settled range [-1, 1]  ours 1%..99% [-0.94982, 0.96033]  inside 0.993
+  #201 zzyj.c      settled range [-1, 1]  ours 1%..99% [-0.98328, 0.98328]  inside 1.000
+  #200 zzwj.d      settled range [-1, 1]  ours 1%..99% [-1, 1]  inside 1.000
+  #197 zzpz.c      settled range [-0.99999, 0.99998]  ours 1%..99% [0.01, 0.99]  inside 0.997
+  #195 zzlf        settled range [-1, 1]  ours 1%..99% [-0.49, 0.49]  inside 1.000
+  #194 zzqf.q.c1   settled range [-0.1687, 0.089548]  ours 1%..99% [-0.0085932, -0.00015582]  inside 1.000
+  #193 zzxt5       settled range [-1, 1]  ours 1%..99% [-0.49, 0.49]  inside 1.000
+settled columns with >= 99% of our values inside the training range: 129 of 144
+[19:54:47] done; full table in data/reports/audit/audit.md (and audit.csv)
