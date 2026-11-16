@@ -1,0 +1,20 @@
+# R134 on 97 (20261116, done 21:08:36, 19 lines) -- read-only vtable + call sites of libcatchRun.so
+== 1 vtable runS
+_ZTVN3cts5qlive4runSE: addr 0x1c61e30 size 96 (12 words)
+  [ 0] (0 / offset-to-top / typeinfo)
+  [ 1] typeinfo for cts::qlive::runS
+  [ 2] cts::qlive::runS::~runS()
+  [ 3] cts::qlive::runS::~runS()
+  [ 4] cts::qlive::runS::initialize()
+  [ 5] cts::qlive::runS::on_lv2(chrono::lv2 const&)
+  [ 6] cts::qlive::runS::on_signal(chrono::signal&&)
+  [ 7] cts::qlive::runS::on_trade_event(unsigned long, double, long)
+  [ 8] cts::qlive::runS::on_order_changed(chrono::strat::order_view const&)
+  [ 9] cts::qlive::runS::on_error_cancel(chrono::strat::order_view const&, chrono::strat::cancel_error)
+  [10] chrono::strat::strategy::on_asset(chrono::strat::asset_view const&)
+  [11] cts::qlive::runS::on_position(chrono::strat::position_view const&)
+== 2 callers of insert_order/place_order/cancel_order/strategy_order_placer
+      1 <cts::qlive::LiveEs::PlaceExOrd(int, -> chrono::side_type)@plt>
+      1 <cts::qlive::LiveEs::cancelExOrd(cts::qlive::exOrdInfo*, -> long)@plt>
+      1 <main>: -> (__gnu_cxx::_Lock_policy)2>::reset<Trader>(Trader*)@plt>
+[21:08:36] done
