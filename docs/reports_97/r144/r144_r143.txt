@@ -1,0 +1,12 @@
+# R144 (cond_counts c5615998, done 00:28:37, 86 lines) + R143 1112 part (ema_fit, 1113 still running). Transcribed from screen.
+== 1 calibrate (0430, trusted zzxu.b zzxu.a zzup zzvx.a)
+zzxu.b: 7 nodes (5 roots, 2 cond); rank of matrix column among 100: 70; best: cond 0.0213 root 0.6154 id:return_open_to_1000_log; 0.0434/0.6135 lpma60; rpe* 0.0434/0.365
+zzxu.a: 0 usable nodes; rank 1 (vacuous)
+zzup: 15 roots; rank 8; zr60 0.0439, rpe75 0.0464, lpev3600 0.0525, ..., X:zzup 0.0639
+zzvx.a: 9 roots; rank 10; return_open_to_1000_log 0.0054, others 0.0056
+== 2 zzro.a: 32 roots; rank of X among 7: 5; dm 0.0020, -dm 0.0051, dmi 0.0102, -dmi 0.0104, X 0.0115, neu 0.0146, -neu 0.0154
+== 2 zzqf5.q.c1: 28 nodes (27 roots, 1 cond); rank 1; cond 0.3445 all; X 0.1482 = -id:bid_depth.. 0.1482; dm:zr60 0.0230, -dm 0.0184, dmi 0.0363, -dmi 0.0325, overnight_gap_log 0.0442
+== 2 zzqf8.q.c1: 9 nodes (7 roots, 2 cond); rank 6; all: dmi 0.0120, -dm 0.0047, dm 0.0032, -dmi 0.0117, -id:bid_depth 0.0361, X 0.0274 (= overnight_gap_log)
+== R143 20261112 (best value-equal share, rel 1e-3)
+zzui.r snapchg/90s price|c0 0.977 | zzba.p trade/360s price|c0 1.000 (also 300s, both/360s) | zzvm.c.re trade/1728000s price 0.807
+zzcb.r 0.007 | zzeb.r 0.010 | zzhj.p 0.003 | zztx.r 0.003
