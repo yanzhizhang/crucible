@@ -1,0 +1,230 @@
+# R133 (so_probe stage 2) on 97, 20261116, done 20:57:03, 374 lines -- run WITHOUT the chrono_config.json5 grep
+# (user rule). Transcribed from screen; home-directory user name masked as <user>.
+== config2_HS300.json
+{
+ "date": "20261116",
+ "univ": "HS300",
+ "NumLevels": 10,
+ "prod": true,
+ "dataPath": "/tmp/s/stsfile",
+ "streams": [
+ { "type": "snapshot", "depthLevel": 10,
+   "src": "/mnt/ssd_00_01/home_repository/<user>/workspace/chrono/release/chrono_runtime/cfg/sim_example/mp/YYYYMMDD/SH_HS300_snap.mp" },
+ { "type": "snapshot", "depthLevel": 10,
+   "src": "/mnt/ssd_00_01/home_repository/<user>/workspace/chrono/release/chrono_runtime/cfg/sim_example/mp/YYYYMMDD/SZ_HS300_snap.mp" }
+ ],
+ "trader":
+ {
+ "output_dir": "/mnt/ssd_00_01/home_repository/<user>/workspace/chrono/release/chrono_runtime/cfg/sim_example/HS300",
+ "cr": 0.0004,
+ "sim_et": 145900000,
+ "depthLevel": 10,
+ "sim_st": 93000000,
+
+ "fan": ["pqAlpha"],
+ "faw": [1.0],
+ "fac" : [
+ {
+ "alpha_name": "alpha.1",
+ "alpha_dur": 0.03
+ }
+ ],
+ "alg_cfg": "/mnt/ssd_00_01/home_repository/<user>/workspace/chrono/release/chrono_runtime/cfg/sim_example/sc.p3.json"
+ }
+ }
+
+== describe<runS> type name
+607211:runS initialize, waiting for attach
+607220:runS
+607221:runS constructor
+607223:runS deconstructor
+607353:runS_1
+121 target functions
+## cts::es::eSys::GWoq() [clone .cold] addr 0x3da8c4 size 133 src lines -..-
+## cts::es::eSys::initPos(std::string const&) [clone .cold] addr 0x3da94a size 1103 src lines -..-
+ - "cannot open stat file " lea 0x147d32f(%rip),%rsi # 1857e27 <chrono::infra:
+ - "basic_string::append" lea 0x147ab4a(%rip),%rdi # 185576c <std::_Sp_make_
+## cts::es::eSys::aAsq() [clone .cold] addr 0x3daec4 size 279 src lines -..-
+## cts::qlive::runS::signal2alpha(chrono::signal&) [clone .cold] addr 0x3dc250 size 32 src lines -..-
+## cts::qlive::runS::book2msg(chrono::lv2 const&) [clone .cold] addr 0x3dc270 size 40 src lines -..-
+## cts::qlive::runS::place_order(std::string, unsigned long, double, chrono::side_type) [clone .cold] addr 0x3dc2bc size 167 src lines -..-
+## cts::qlive::runS::initialize() [clone .cold] addr 0x3dc364 size 243 src lines -..-
+ - "Exception in initialize: {}" lea 0x147bdc6(%rip),%rcx # 1858174 <chrono::infra:
+ - "/work/sht-strategy/cpp/src/qlive/catchRun.cpp" lea 0x147bc9b(%rip),%rsi # 1858050 <chrono::infra:
+ - "\002" movdqa 0x147be99(%rip),%xmm4 # 1858260 <chrono::infra
+## cts::qlive::Engine::StartTimer() [clone .cold] addr 0x3dc458 size 24 src lines -..-
+## cts::qlive::LiveEs::dOrd(int, cts::es::Order*) [clone .cold] addr 0x3dc644 size 30 src lines -..-
+## cts::qlive::LiveEs::cancelExOrd(cts::qlive::exOrdInfo*, int, long) [clone .cold] addr 0x3dc662 size 97 src lines -..-
+## cts::qlive::LiveEs::autoCxl() [clone .cold] addr 0x3dc6c4 size 16 src lines -..-
+## cts::qlive::LiveEs::OnECM(cts::qlive::ECM*) [clone .cold] addr 0x3dc6d4 size 16 src lines -..-
+## cts::qlive::LiveEs::OnEOM(cts::qlive::EOM*) [clone .cold] addr 0x3dc6e4 size 44 src lines -..-
+## cts::qlive::LiveEs::PlaceExOrd(int, cts::es::Order*, cts::es::Order*) [clone .cold] addr 0x3dc710 size 87 src lines -..-
+## cts::qlive::LiveEs::Po(cts::es::Order*, int) [clone .cold] addr 0x3dc768 size 267 src lines -..-
+## cts::qlive::qTrader::setupAlg() [clone .cold] addr 0x3dcd4e size 21 src lines -..-
+## cts::qlive::qTrader::setupEs(misc::IConfig*) [clone .cold] addr 0x3dcd64 size 21 src lines -..-
+## cts::qlive::qTrader::loadCfgs() [clone .cold] addr 0x3dcd7a size 245 src lines -..-
+## cts::sol::Alg::GVpen(double) [clone .cold] addr 0x3ddd68 size 73 src lines -..-
+ - "posclzer is nullptr" lea 0x147af72(%rip),%rsi # 1858cef <typeinfo name
+## cts::sol::Alg::Alg(cts::sol::AlgW*, int, int, std::string const&, misc::IConfig*) [clone .cold] addr 0x3dddb2 size 115 src lines -..-
+## cts::sol::MktVolPool::MktVolPool(int) [clone .cold] addr 0x3dde26 size 112 src lines -..-
+## cts::sol::MktVolPool::AEeMktVol(int, int) [clone .cold] addr 0x3ddebe size 93 src lines -..-
+## cts::sol::MktVs::MktVs(int, std::vector<int> const&) [clone .cold] addr 0x3ddf1c size 98 src lines -..-
+
+== stage2_compact.txt (made on 97 from stage2.txt: only blocks with constants/locals/ptype; std types shortened)
+121 target functions
+## cts::es::eSys::initPos(string const&) COLD addr 0x3da94a size 1103
+ - "cannot open stat file " lea 0x147d32f(%rip),%rsi # 1857e27
+ - "basic_string::append" lea 0x147ab4a(%rip),%rdi # 185576c
+## cts::qlive::runS::initialize() COLD addr 0x3dc364 size 243
+ - "Exception in initialize: {}" lea 0x147bdc6(%rip),%rcx # 1858174
+ - "/work/sht-strategy/cpp/src/qlive/catchRun.cpp" lea 0x147bc9b(%rip),%rsi # 1858050
+ - "\002" movdqa 0x147be99(%rip),%xmm4 # 1858260
+## cts::sol::Alg::GVpen(double) COLD addr 0x3ddd68 size 73
+ - "posclzer is nullptr" lea 0x147af72(%rip),%rsi # 1858cef
+## cts::GlobalConfig::loadEx(unordered_map<int,string>&, vector<int>&, string&) COLD addr 0x3df1f4 size 515
+ - "loadEx failed to load {}, {}" ; "/work/sht-strategy/cpp/src/utils/statics/gcfg.cpp"
+## cts::GlobalConfig::Lmb(unordered_map<int,double>&, string, vector<int>, string, double) COLD addr 0x3df3f8 size 253
+ - "Lmb failed to load {}, {}" ; gcfg.cpp
+## cts::GlobalConfig::Lvr(same signature) COLD addr 0x3df4f6 size 253
+ - "Lvr failed to load {}, {}" ; gcfg.cpp
+## cts::GlobalConfig::Lmsr(same signature) COLD addr 0x3df5f4 size 253
+ - "Lmsr failed to load {}, {}" ; gcfg.cpp
+## cts::es::eSys::initPos(string const&) addr 0x528f90 size 4595
+ - "basic_string::_M_construct null not valid" ; "stoi" ; "cannot create vector larger than max_size()"
+## cts::es::eSys::aAsq() addr 0x52b7a0 size 3755
+ - 2.1318161692841808e+40 lea 0x1329538(%rip),%rdx # 1854d0a   (lea of an address -- likely a string/table, not a double)
+## cts::qlive::runS::signal2alpha(chrono::signal&) addr 0x5364b0 size 1314
+ - 1000000000 movsd 0x1321d75(%rip),%xmm1 # 1858250   (ns -> s)
+ - "plugin log line dropped: args exceed {} bytes" ; "srcEpoch: {}, recEpoch: {}, sid: {}, name: {}" ; catchRun.cpp ; "basic_string::_M_construct null not valid"
+## cts::qlive::runS::book2msg(chrono::lv2 const&) addr 0x536a70 size 1395
+ - 1000000000 divpd 0x1321793(%rip),%xmm0 # 1858250   (ns -> s, packed)
+ - "{} invalid book size {}, skip" ; catchRun.cpp ; "stoll" ; "basic_string::_M_construct null not valid"
+## cts::qlive::runS::place_order(string, unsigned long, double, chrono::side_type) addr 0x537770 size 1555
+ - (lea -> string/table addresses decoded as doubles: 1.44e+214 @185815b, 1.406e+161 @185815f, 1.126e+257 @1858164)
+ - "plugin log line dropped: args exceed {} bytes" ; "place_order symbol = {}, volume = {}, price = {}, side = {}" ; catchRun.cpp
+## cts::qlive::runS::initialize() addr 0x537d90 size 1155
+ - "runS initialize, waiting for attach" ; catchRun.cpp ; "\002" movdqa @1858260
+ - (lea 5.81e+180 @1858169, 9.78e+199 @1858173 = string addresses)
+ - 10 mov 0x13201f2(%rip),%rcx # 1858270
+## cts::qlive::Engine::TimerLoop() addr 0x53a0d0 size 1134
+ - -nan(0xfffff00000000) mov %r12 # 1858378   (sentinel)
+ - 1000000000 divsd %xmm0 # 1858000   (ns -> s)
+## cts::qlive::Engine::toAlg(int, bool) addr 0x53ad40 size 1209
+ - "Engine::toAlgo invalid msg" ; "Engine::toAlgo msg->OurEpoch {} <= lastTs[sidIdx {}] {} + EPS {}"
+ - "\273\275\327\331\337|\333=Invalid symbol: {}" movsd @1858380
+ - 1.0000000000000001e-05 movsd %xmm2 # 1858010   (EPS = 1e-5)
+ - "/work/sht-strategy/cpp/src/qlive/engine.cpp"
+ - (1.4667599552325591e-316 lea __dso_handle; 5.2635442471208903e-315 movss %xmm0 # 1857af8 -- a FLOAT constant, double decode meaningless)
+## cts::qlive::LiveEs::cancelExOrd(cts::qlive::exOrdInfo*, int, long) addr 0x53c340 size 2474
+ - (lea 9.136e+242 @18583e6 = string) ; "plugin log line dropped..." ; "cancelExOrd, sid: {}, exOid: {}, prc: {}, exSoQ: {}" ; "/work/sht-strategy/cpp/src/qlive/es.cpp"
+## cts::qlive::LiveEs::autoCxl() addr 0x53cd10 size 275
+ - 1 movsd %xmm1 # 1857ef0
+ - "cxl ords, sid: {}, exOid: {}" ; es.cpp
+## cts::qlive::LiveEs::OnFCM(cts::qlive::FCM*) addr 0x53ce30 size 369
+ - es.cpp ; ", exOid: " ; "OnFCM sid: " ; " is missing" ; "OnFCM exOid: "
+ - 10 addsd 0x131b338(%rip),%xmm0 # 1858270
+ - "OnFCM sid: {}, exOid: {}, cxl failed {} times, ttl: {}"
+ - 2 addsd 0x131b9e8(%rip),%xmm0 # 1858970
+ - 20 addsd 0x131b9e0(%rip),%xmm0 # 1858978
+## cts::qlive::LiveEs::OnECM(cts::qlive::ECM*) addr 0x53d3c0 size 1832
+ - "OnECM exSoQ - Cq < exFq" ; "OnECM sid: {}, exOid: {}" ; "OnECM sid: {}, exOid: {}, cq: {}" ; "OnECM exOid: {} is missing" ; es.cpp
+ - "OnECM erase order sid: {}, exOid: {}" ; "OnECM {}, ExOid {}, OrderId {}"
+## cts::qlive::LiveEs::OnEOM(cts::qlive::EOM*) addr 0x53daf0 size 3019
+ - "OnEOM sid: {}, exOid: {}, msg.cumQty: {}, so.qty: {}." ; "OnEOM sid: {}, exOid: {}, cumQty: {}, fPrc{}." ; "OnEOM exOid: {} is missing." ; es.cpp
+ - "plugin log line dropped..." ; "OnEOM erase order, sid: {}, exOid: {}, ExCond: {}, exFq: {}, exCq: {}, exSoQ: {}"
+ - "OnEOM sid: {}, exOid: {}, exFq: {} + exCq: {} < exSoQ: {}" ; "OnEOM {}, ExOid {}, {}, {:.4f}, {.6f}, {}" ; "PTPC"
+ - (3.458e-322 lea @18c29c9 <arrow::util::i...> = address)
+## cts::qlive::LiveEs::OnFOM(cts::qlive::FOM*) addr 0x53e6c0 size 461
+ - es.cpp ; "OnFOM sid: , exOid: " ; " is missing" ; "OnFOM exOid: " ; ", exOid: " ; "OnFOM erase order, sid: "
+## cts::qlive::LiveEs::PlaceExOrd(int, cts::es::Order*, cts::es::Order*) addr 0x53e890 size 1418
+ - (1.4667599552325591e-316 lea __dso_handle) ; 5.2635442471208903e-315 movss %xmm0 # 1857af8 (FLOAT const) ; "basic_string::_M_construct null not valid"
+## cts::qlive::LiveEs::Po(cts::es::Order*, int) addr 0x53ee20 size 3200
+ - "LiveEs::Po sid({}) not found!" ; es.cpp ; "Po unknown sid: " ; (5.83e+199 lea arrow = address) ; "nowTs:" ; "SO,"
+ - "\230|\205\001" movq 0x1710ab6(%rip),%xmm2 # 1c50010 ; "Po {}" ; "Po not available"
+ (block continues / header off-page: 1.4667599552325591e-316 lea __dso_handle ; 5.2635442471208903e-315 movss # 1857af8 FLOAT)
+## cts::qlive::qTrader::loadCfgs() addr 0x544380 size 2278
+ - (lea __dso_handle) ; 5.2635442471208903e-315 movss %xmm0 # 1857af8 (FLOAT const)
+## cts::sol::Alg::GTp(double x8) addr 0x54dbd0 size 205
+ - 1.5 movsd %xmm8 # 1858e98
+ - 3 divsd %xmm3 # 1858ea0
+ - -0 xorpd %xmm4 # 1858f00   (negate)
+## cts::sol::Alg::oqWins(double) addr 0x54dd70 size 105
+ - 200 movsd %xmm2 # 1858ec0
+ - 270000 movsd %xmm1 # 1858ea8
+ - 900000 movsd %xmm1 # 1858eb8
+ - 90000 movsd %xmm1 # 1858eb0
+## cts::sol::Alg::onWins(double, double) addr 0x54dde0 size 41
+ - 5000000 movsd %xmm2 # 1858ec8
+## cts::sol::Alg::cOrd(int, int, double x7, int, double, double) addr 0x54de10 size 1322
+ - "\377\377\377\377\377\377\377\177" andpd # 1857860   (fabs mask)
+ - 100 movsd %xmm1 # 1857e08
+ - -0 xorpd %xmm3 # 1858f00   (negate)
+ - 1 subsd %xmm0 # 1857ef0
+## cts::sol::Alg::onInnerMsg(cts::data::sBook*, double, double, double) addr 0x54e340 size 3040
+ - "order is nullptr : {}"
+ - "aIdx = {}, sid = {}, fa = {}, pos = {}, pp_ = {}, this->executp = {}, asq = {}, " (continues: lthr/hs/liid/winsdQty/asf)
+ - "mp: {}, fa: {}, vpen: {}, vr: {}, poscst: {}, cpos: {}, asq: {}, hs: {}"
+ - "sidIdx = {}, aIdx = {}, fa = {}, book->epoch = {}, emsOurVol = {}, emsMktVol = {"
+ - "333333\303?" movsd %xmm1 # 1858ed0   (= bytes 0x3FC3333333333333 = 0.15)
+ - 60 subsd %xmm0 # 1858ed8
+ - fabs mask andpd # 1857860
+ - 9.9999999999999995e-07 comisd %xmm1 # 1857c60   (1e-6 threshold)
+ - -0 movq %xmm1 # 1858f00
+ - 0.84999999999999998 divsd %xmm7 # 1858ee8   (/0.85)
+ - "/work/sht-strategy/cpp/src/sol/alg.cpp"
+ - 30 subsd %xmm1 # 1858ee0
+ - 1 movsd %xmm1 # 1857ef0
+## cts::sol::Alg::Alg(cts::sol::AlgW*, int, int, string const&, misc::IConfig*) addr 0x54ef20 size 1182
+ - 0.089999999999999997 mov %rax # 1858ef0   (0.09 default member)
+ - "basic_string::_M_construct null not valid"
+## cts::sol::MktVs::HandleSpf(int, double) addr 0x54f490 size 331
+ - fabs mask movq %xmm3 # 1857860
+## cts::sol::MktVs::SyncP(int, int, double) addr 0x54f5e0 size 340
+ - fabs mask movq %xmm4 # 1857860
+## cts::sol::AlgW::setPosLimit() addr 0x5524f0 size 281
+ - fabs mask movq %xmm4 # 1857860
+ - 5 movsd %xmm3 # 1858008
+ - "\377\377\377\377\377\377\357\177..." movsd %xmm2 # 1857870   (= 0x7FEFFFFFFFFFFFFF = DBL_MAX)
+ - 100 movsd %xmm1 # 1857e08
+## cts::sol::AlgW::onInnerMsg(misc::arch::FBB<misc::arch::SExt> const*) addr 0x5526e0 size 2754
+ - "plugin log line dropped..." ; "unsuitable updatesid={}" ; "book->epoch {} - book->srcEpoch {} > 10"
+ - 10 comisd %xmm0 # 1858270
+ - "AlgW::onInnerMsg exTimeInt = {}, sim_et = {}" ; "/work/sht-strategy/cpp/src/sol/w.cpp" ; "AlgW::onInnerMsg startupComplete = {}"
+ - 1 subsd %xmm2 # 1857ef0
+ - fabs mask andpd %xmm4 # 1857860
+ - DBL_MAX ucomisd %xmm4 # 1857870
+ - 0.25 movsd %xmm0 # 18590c8
+ - "book->IsInTrading() is false"
+## cts::sol::AlgW::loadDaily() addr 0x553200 size 1598
+ - 10 movsd %xmm1 # 1858270
+ - 0.5 movsd %xmm1 # 1857c50
+ - (lea __dso_handle ; FLOAT movss # 1857af8)
+## cts::sol::AlgW::loadCfgs() addr 0x5547e0 size 7153
+ - (lea string addresses decoded as doubles: 1.82e-306 @185903d, 6.70e+151 @1859044, 3.83e+151 @185904f, 1.25e+190 @1859052,
+    2.13e+40 @1854d0a, 1.53e-154 @185905a, 2.04e-28 @1859060 -- config key strings shorter than 3 chars or non-printable; resolve with x/s)
+ - (lea __dso_handle ; FLOAT movss # 1857af8)
+## cts::ct::EMA::Add(double, double) addr 0x55d960 size 408
+ - 20 movsd %xmm9 # 1858978
+ - fabs mask movq %xmm4 # 1857860
+ - "\273\275\327\331\337|\333=..." movsd %xmm3 # 1858380   (= bytes BB BD D7 D9 DF 7C DB 3D = 1e-10 approx (0x3DDB7CDFD9D7BDBB))
+ - 1 movsd %xmm7 # 1857ef0
+ - -0 xorpd %xmm0 # 1858f00
+## cts::ct::EMS::Update(double, double) addr 0x55db00 size 45
+ - DBL_MAX movsd %xmm3 # 1857870
+ - fabs mask andpd %xmm1 # 1857860
+## cts::ct::PosClzer::GVpen(double) const addr 0x55db50 size 182
+ - 1 movsd %xmm1 # 1857ef0
+ - 0.001 movsd %xmm2 # 1857c58
+## cts::ct::EMA::GM(double, vector<double>&) const addr 0x55dc10 size 352
+ - 20 movsd %xmm4 # 1858978
+ - -0 xorpd %xmm0 # 1858f00
+## cts::GlobalConfig::loadEx(...) addr 0x55f6b0 size 2508
+ - (1.426e-105 lea @197140a <H5P_def_char_e = address) ; "loadEx path empty, using dummy!" ; gcfg.cpp ; "basic_string::_M_construct null not valid"
+## cts::GlobalConfig::Lmb(...) addr 0x560080 size 1598 -- "Lmb path empty, using dummy!" ; gcfg.cpp
+## cts::GlobalConfig::Lvr(...) addr 0x5606c0 size 1598 -- "Lvr path empty, using dummy!" ; gcfg.cpp
+## cts::GlobalConfig::Lmsr(...) addr 0x560d00 size 1598 -- "Lmsr path empty, using dummy!" ; gcfg.cpp
+## ptype cts::GlobalConfig   (empty -- no DWARF for PM code; all 14 ptypes empty)
+[done] 121 functions, 14 classes; full asm + ptype in /work/crucible_data/so_probe/stage2
+[20:57:03] done
+# Functions among the 121 with no .rodata constants (not listed): MktVolPool::*, Estitp::*, MktVs ctor/GetGMV/..., EMS::Calc,
+# Alg::GVpen/OVld/GAlpha main bodies, LiveEs::dOrd/OnPosM, runS::on_signal, etc. -- full .asm per function on 97.
