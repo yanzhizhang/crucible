@@ -1,0 +1,38 @@
+# R140 on 97 (20261116, done 23:38:30, 37 lines): veto test -- each fill replaces the column and is scored alone vs PM
+== 0430 full grid
+20260430: 1,422,000 rows; baseline all 0.5680 first30m 0.3171 dd<0.2% 0.3794 dd 0.2-1% 0.5842 dd>=1% 0.5635
+ zzqf8.q.c1:id:overnight_gap_log all +0.0000 first30m +0.0000 dd<0.2% +0.0000 dd 0.2-1% +0.0000 dd>=1% +0.0000
+ zzqf5.q.c1:-id:bid_depth_weighted_distance_5lvl_rel all +0.0000 first30m +0.0000 dd<0.2% +0.0000 dd 0.2-1% +0.0000 dd>=1% +0.0000
+ zzqf5.q.c1:-dm:zr60@0.01 all -0.0001 first30m +0.0006 dd<0.2% +0.0009 dd 0.2-1% -0.0002 dd>=1% -0.0005
+ zzqf8.q.c1:dm:zr60@0.01 all -0.0004 first30m -0.0011 dd<0.2% -0.0004 dd 0.2-1% -0.0000 dd>=1% -0.0007
+ zzqf8.q.c1:-dm:zr60@0.01 all -0.0005 first30m -0.0014 dd<0.2% -0.0040 dd 0.2-1% -0.0004 dd>=1% -0.0000
+ zzro.a:dm:vfrac10@0.01 all -0.0005 first30m +0.0033 dd<0.2% +0.0080 dd 0.2-1% -0.0034 dd>=1% +0.0015
+ zzqf5.q.c1:dm:zr60@0.01 all -0.0007 first30m -0.0005 dd<0.2% -0.0027 dd 0.2-1% -0.0011 dd>=1% +0.0003
+ zzro.a:-dm:vfrac10@0.01 all -0.0054 first30m -0.0064 dd<0.2% -0.0165 dd 0.2-1% -0.0059 dd>=1% -0.0018
+ zzrg:abs4:depth_weighted_price_5lvl_minus_mid_rel@0.001 all -0.0090 first30m -0.0066 dd<0.2% -0.0036 dd 0.2-1% -0.0083 dd>=1% -0.0096
+ zzrg:abs4:mret1800@0.0001 all -0.0091 first30m -0.0042 dd<0.2% +0.0032 dd 0.2-1% -0.0088 dd>=1% -0.0106
+== 20261112 scoring matrix
+20261112: 72,000 rows; baseline all 0.6123 first30m 0.6277
+ zzrg:abs4:mret1800@0.0001 all +0.0340 first30m -0.0216
+ zzrg:abs4:depth_weighted_price_5lvl_minus_mid_rel@0.001 all +0.0300 first30m -0.0204
+ zzro.a:-dm:vfrac10@0.01 all +0.0137 first30m +0.0019
+ zzro.a:dm:vfrac10@0.01 all +0.0070 first30m -0.0001
+ zzqf8.q.c1:-dm:zr60@0.01 all +0.0015 first30m +0.0010
+ zzqf8.q.c1:dm:zr60@0.01 all +0.0006 first30m +0.0001
+ zzqf5.q.c1:dm:zr60@0.01 all +0.0001 first30m -0.0008
+ zzqf8.q.c1:id:overnight_gap_log all +0.0000 first30m +0.0000
+ zzqf5.q.c1:-id:bid_depth_weighted_distance_5lvl_rel all +0.0000 first30m +0.0000
+ zzqf5.q.c1:-dm:zr60@0.01 all -0.0003 first30m +0.0003
+== 20261113 scoring matrix
+20261113: 72,000 rows; baseline all 0.6582 first30m 0.6959
+ zzro.a:-dm:vfrac10@0.01 all +0.0111 first30m +0.0023
+ zzro.a:dm:vfrac10@0.01 all +0.0046 first30m +0.0044
+ zzqf8.q.c1:-dm:zr60@0.01 all +0.0007 first30m +0.0008
+ zzqf8.q.c1:dm:zr60@0.01 all +0.0001 first30m +0.0001
+ zzqf8.q.c1:id:overnight_gap_log all +0.0000 first30m +0.0000
+ zzqf5.q.c1:-id:bid_depth_weighted_distance_5lvl_rel all +0.0000 first30m +0.0000
+ zzqf5.q.c1:-dm:zr60@0.01 all -0.0006 first30m -0.0005
+ zzqf5.q.c1:dm:zr60@0.01 all -0.0009 first30m -0.0019
+ zzrg:abs4:mret1800@0.0001 all -0.0024 first30m -0.0269
+ zzrg:abs4:depth_weighted_price_5lvl_minus_mid_rel@0.001 all -0.0049 first30m -0.0312
+[23:38:30] r140 done
