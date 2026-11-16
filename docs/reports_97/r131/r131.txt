@@ -1,0 +1,180 @@
+# R131 on 97 (20261116, done 20:07:20, 178 lines) -- transcribed from screen zooms, whitespace squeezed:
+# "below"->b, "above"->a, "intervals"->i, "root gap"->g, "thresholds"->thr, "; best of 1196:" dropped
+  -rw-r--r-- 1 root root 35120249 Nov 15 09:55 data/side_r95/hstats_prev_20260430.parquet
+  -rw-r--r-- 1 root root 34046069 Nov 15 09:55 data/side_r95/hstats_prev_20261112.parquet
+241 candidates x 5 transforms, days ['20260430', '20261112']
+-- zzwa.a: thr 99 in [1e-35, 2.83], root points []
+ 0.022 abs4 rete75 b 0.002 a 0.021 i 1.00 g 0.000
+ 0.026 abs4 rete50 b 0.004 a 0.022 i 1.00 g 0.000
+ 0.029 abs4 rete150 b 0.000 a 0.019 i 0.99 g 0.000
+ 0.034 abs4 rete30 b 0.009 a 0.025 i 1.00 g 0.000
+ 0.060 -id x.ZZAL.da@-1 b 0.010 a 0.000 i 0.95 g 0.000
+-- zzwa.b: thr 114 in [1e-35, 3.9632], root points []
+ 0.020 abs4 rete75 b 0.002 a 0.018 i 1.00 g 0.000
+ 0.023 abs4 rete50 b 0.004 a 0.019 i 1.00 g 0.000
+ 0.026 abs4 rete150 b 0.000 a 0.018 i 0.99 g 0.000
+ 0.029 abs4 rete30 b 0.009 a 0.020 i 1.00 g 0.000
+ 0.062 -id x.ZZAL.da@-1 b 0.010 a 0.000 i 0.95 g 0.000
+-- zzwa.c: thr 113 in [1e-35, 8.0616], root points []
+ 0.018 1/b log_new_order_count_per_s_60s b 0.000 a 0.000 i 0.98 g 0.000
+ 0.019 abs4 rete75 b 0.002 a 0.017 i 1.00 g 0.000
+ 0.021 abs4 rete50 b 0.004 a 0.017 i 1.00 g 0.000
+ 0.026 abs4 rete150 b 0.000 a 0.017 i 0.99 g 0.000
+ 0.026 abs4 rete30 b 0.009 a 0.017 i 1.00 g 0.000
+-- zzwa.d: thr 118 in [1e-35, 0.99997], root points []
+ 0.044 abs4 rete150 b 0.000 a 0.036 i 0.99 g 0.000
+ 0.051 abs4 rete75 b 0.002 a 0.050 i 1.00 g 0.000
+ 0.067 abs4 rete50 b 0.004 a 0.063 i 1.00 g 0.000
+ 0.072 id stoch b 0.057 a 0.015 i 1.00 g 0.000
+ 0.097 abs4 rete30 b 0.009 a 0.088 i 1.00 g 0.000
+-- zzwa.e: thr 107 in [1e-35, 0.99999], root points []
+ 0.045 abs4 rete150 b 0.000 a 0.036 i 0.99 g 0.000
+ 0.051 abs4 rete75 b 0.002 a 0.050 i 1.00 g 0.000
+ 0.067 abs4 rete50 b 0.004 a 0.063 i 1.00 g 0.000
+ 0.072 id stoch b 0.057 a 0.015 i 1.00 g 0.000
+ 0.097 abs4 rete30 b 0.009 a 0.088 i 1.00 g 0.000
+-- zzwa.f: thr 50 in [-0.00047008, 0.0031287], root points []
+ 0.013 1/b nam15 b 0.007 a 0.007 i 1.00 g 0.000
+ 0.045 id lmie5 b 0.034 a 0.011 i 1.00 g 0.000
+ 0.048 id lpe5 b 0.037 a 0.011 i 1.00 g 0.000
+ 0.048 log rpe5 b 0.037 a 0.011 i 1.00 g 0.000
+ 0.049 -id lmie5 b 0.043 a 0.006 i 1.00 g 0.000
+-- zzwa.g: thr 50 in [-0.00054431, 0.0015981], root points []
+ 0.013 1/b nam15 b 0.006 a 0.007 i 1.00 g 0.000
+ 0.017 id rete75 b 0.006 a 0.011 i 1.00 g 0.000
+ 0.017 id rete50 b 0.006 a 0.011 i 1.00 g 0.000
+ 0.017 id rete30 b 0.006 a 0.011 i 1.00 g 0.000
+ 0.033 id microprice_minus_mid_rel b 0.031 a 0.002 i 1.00 g 0.000
+-- zzwa.h: thr 84 in [-0.291, 0.77712], root points [(-0.0789853, 0.0319), (-0.003235565, 0.1415), (0.000993381, 0.1907)]
+ 0.546 1/b px b 0.000 a 0.003 i 0.88 g 0.213
+ 0.560 -id net_buy_amount_share_orders_under_40k_cny_300s b 0.008 a 0.000 i 0.99 g 0.270
+ 0.578 1/b x.ZZDS.o@0 b 0.000 a 0.003 i 0.86 g 0.217
+ 0.590 1/b x.ZZDS.c@0 b 0.000 a 0.003 i 0.85 g 0.217
+ 0.595 1/b x.ZZDS.h@0 b 0.000 a 0.003 i 0.84 g 0.214
+-- zzwa.i: thr 52 in [-0.41803, 2.301], root points []
+ 0.083 -id net_buy_amount_share_orders_under_40k_cny_120s b 0.007 a 0.000 i 0.92 g 0.000
+ 0.089 -id lpev60 b 0.048 a 0.022 i 0.98 g 0.000
+ 0.093 -id net_buy_amount_share_orders_over_200k_cny_120s b 0.037 a 0.000 i 0.94 g 0.000
+ 0.097 -id net_buy_amount_share_orders_under_40k_cny_300s b 0.002 a 0.000 i 0.91 g 0.000
+ 0.097 id lpev60 b 0.059 a 0.020 i 0.98 g 0.000
+-- zzwa.j: thr 83 in [2.0261e-05, 0.0079898], root points []
+ 0.013 1/b x.ZZHL.n@-1 b 0.000 a 0.001 i 0.99 g 0.000
+ 0.013 1/b x.ZZHL.n@1 b 0.000 a 0.001 i 0.99 g 0.000
+ 0.013 1/b x.ZZHL.n@0 b 0.000 a 0.001 i 0.99 g 0.000
+ 0.016 id bid_depth_weighted_distance_5lvl_rel b 0.002 a 0.015 i 1.00 g 0.000
+ 0.024 1/b x.ZZQI.a@0 b 0.000 a 0.000 i 0.98 g 0.000
+-- zzwa.k: thr 82 in [-1.4025, 4.954], root points []
+ 0.080 -id zr60 b 0.067 a 0.001 i 0.99 g 0.000
+ 0.090 id lpev60 b 0.022 a 0.020 i 0.95 g 0.000
+ 0.098 id zr60 b 0.073 a 0.001 i 0.98 g 0.000
+ 0.102 -id lpev60 b 0.020 a 0.022 i 0.94 g 0.000
+ 0.120 -id lpev3600 b 0.081 a 0.038 i 1.00 g 0.000
+-- zzqo.a: thr 98 in [-162.5, 375.5], root points [(1.5, 0.6409), (1.5, 0.641), (74.5, 0.9907)]
+ 0.033 1/b flow_refill_imb60 b 0.002 a 0.001 i 1.00 g 0.015
+ 0.041 1/b simba180 b 0.005 a 0.003 i 1.00 g 0.017
+ 0.042 1/b imba30 b 0.004 a 0.004 i 1.00 g 0.017
+ 0.043 1/b imbv30 b 0.004 a 0.001 i 1.00 g 0.019
+ 0.045 1/b simbv120 b 0.005 a 0.002 i 1.00 g 0.019
+-- zzqo.b: thr 61 in [-0.93319, 0.91705], root points [(-0.384199589, 0.2866), (-0.384199589, 0.2867), (-0.199730463, 0.3966)]
+ 0.187 -id flow_refill_imb60 b 0.045 a 0.055 i 1.00 g 0.043
+ 0.188 id flow_refill_imb60 b 0.050 a 0.050 i 1.00 g 0.044
+ 0.241 -id imb1 b 0.052 a 0.049 i 1.00 g 0.070
+ 0.276 -id imba30 b 0.009 a 0.038 i 1.00 g 0.114
+ 0.277 -id imbv30 b 0.009 a 0.038 i 1.00 g 0.115
+-- zzqo.c: thr 107 in [-2731, 3273.5], root points [(-307.5, 0.1674), (-264.5, 0.192), (-179.5, 0.2586)]
+ 0.194 1/b lpes28800 b 0.013 a 0.011 i 0.96 g 0.066
+ 0.222 1/b lpes14400 b 0.015 a 0.013 i 0.96 g 0.079
+ 0.332 1/b return_open_to_1000_log b 0.013 a 0.001 i 0.95 g 0.136
+ 0.399 1/b ret1800 b 0.019 a 0.016 i 0.95 g 0.159
+ 0.422 1/b lpes3600 b 0.029 a 0.023 i 0.95 g 0.162
+-- zzqo.d: thr 30 in [-79.846, 24.525], root points [(-0.220925607, 0.0843)]
+ 0.336 -id lpev60 b 0.000 a 0.000 i 0.74 g 0.039
+ 0.338 -id ofi_levels2to5_norm_10s b 0.000 a 0.000 i 0.97 g 0.153
+ 0.346 id ofi_levels2to5_norm_10s b 0.000 a 0.000 i 0.97 g 0.157
+ 0.420 id lpev60 b 0.000 a 0.000 i 0.74 g 0.081
+ 0.435 log log_new_order_count_per_s_60s b 0.000 a 0.000 i 0.61 g 0.024
+-- zzqo.e: thr 35 in [-3.5035e+06, 3.0446e+06], root points [(40282.0, 0.699), (51043.234375, 0.7225), (59351.17578125, 0.7381)]
+ 0.123 1/b rete75 b 0.054 a 0.037 i 1.00 g 0.016
+ 0.160 1/b rete150 b 0.041 a 0.027 i 1.00 g 0.046
+ 0.162 1/b rete50 b 0.067 a 0.045 i 1.00 g 0.025
+ 0.211 id nam15 b 0.029 a 0.030 i 1.00 g 0.076
+ 0.223 1/b rete30 b 0.086 a 0.059 i 1.00 g 0.039
+-- zzqo.f: thr 73 in [-0.9844, 0.88196], root points [(-0.916014552, 0.1291), (-0.855139345, 0.1614), (-0.82854411, 0.1749)]
+ 0.224 -id imb1 b 0.013 a 0.066 i 1.00 g 0.072
+ 0.301 id imb1 b 0.010 a 0.086 i 1.00 g 0.103
+ 0.302 id imba10 b 0.077 a 0.075 i 1.00 g 0.075
+ 0.302 id imbv10 b 0.077 a 0.075 i 1.00 g 0.075
+ 0.305 id flow_refill_imb60 b 0.034 a 0.063 i 1.00 g 0.104
+-- zzal.a: thr 126 in [-1e-35, 0.1227], root points []
+ 0.011 id amihud_illiq_900s b 0.000 a 0.003 i 0.99 g 0.000
+ 0.066 -id ldl1800 b 0.000 a 0.011 i 0.94 g 0.000
+ 0.098 id sd_eg_rng b 0.000 a 0.083 i 0.98 g 0.000
+ 0.250 1/b px b 0.000 a 0.210 i 0.96 g 0.000
+ 0.276 1/b x.ZZQI.s@1 b 0.000 a 0.000 i 0.72 g 0.000
+-- zzal.b: thr 105 in [-0.014804, 0.049855], root points []
+ 0.022 -id order_price_aggressiveness_mean_900s b 0.002 a 0.001 i 0.98 g 0.000
+ 0.025 id lpes1200 b 0.014 a 0.011 i 1.00 g 0.000
+ 0.035 id mret1800 b 0.033 a 0.002 i 1.00 g 0.000
+ 0.035 id ret1800 b 0.033 a 0.002 i 1.00 g 0.000
+ 0.037 id lpes1800 b 0.026 a 0.012 i 1.00 g 0.000
+-- zzal.c: thr 117 in [-1.7269e+08, 1.5151e+07], root points [(-20554707.999999996, 0.2443), (-20554707.999999996, 0.2444)]
+ 0.233 -id buy300 b 0.019 a 0.000 i 0.95 g 0.082
+ 0.255 -id x.ZZTS.q@1 b 0.007 a 0.000 i 0.95 g 0.099
+ 0.262 -id x.ZZXC.n@-1 b 0.028 a 0.000 i 0.95 g 0.092
+ 0.266 -id x.ZZXC.n@0 b 0.028 a 0.000 i 0.95 g 0.093
+ 0.269 -id x.ZZTS.q@0 b 0.007 a 0.000 i 0.95 g 0.106
+-- zzal.d: thr 127 in [-0.58186, 5.2619], root points []
+ 0.108 log log_new_order_count_per_s_60s b 0.038 a 0.000 i 0.93 g 0.000
+ 0.138 -id lpev60 b 0.030 a 0.022 i 0.91 g 0.000
+ 0.148 id lpev60 b 0.035 a 0.020 i 0.91 g 0.000
+ 0.174 -id net_buy_amount_share_orders_over_200k_cny_120s b 0.010 a 0.000 i 0.84 g 0.000
+ 0.180 -id imba600 b 0.008 a 0.000 i 0.83 g 0.000
+-- zzal.e: thr 79 in [-2.6443, 5.5579], root points []
+ 0.013 id zr60 b 0.013 a 0.001 i 1.00 g 0.000
+ 0.014 -id zr60 b 0.013 a 0.000 i 1.00 g 0.000
+ 0.058 -id lpev3600 b 0.024 a 0.034 i 1.00 g 0.000
+ 0.076 -id ofi_levels1to5_norm_10s b 0.065 a 0.011 i 1.00 g 0.000
+ 0.077 id ofi_levels1to5_norm_10s b 0.066 a 0.011 i 1.00 g 0.000
+-- zzal.f: thr 89 in [-1.2227, 1.4242], root points []
+ 0.012 log log_new_order_count_per_s_60s b 0.004 a 0.009 i 1.00 g 0.000
+ 0.042 -id lpev60 b 0.020 a 0.022 i 1.00 g 0.000
+ 0.042 id lpev60 b 0.023 a 0.020 i 1.00 g 0.000
+ 0.067 -id flow_big_imb60 b 0.000 a 0.000 i 0.93 g 0.000
+ 0.067 id flow_big_imb60 b 0.000 a 0.000 i 0.93 g 0.000
+-- zzal.g: thr 74 in [-0.45104, 0.69852], root points []
+ 0.009 -id net_buy_amount_share_orders_under_40k_cny_120s b 0.006 a 0.003 i 1.00 g 0.000
+ 0.015 -id net_buy_amount_share_orders_under_40k_cny_300s b 0.002 a 0.000 i 0.99 g 0.000
+ 0.020 id net_buy_amount_share_orders_under_40k_cny_300s b 0.006 a 0.000 i 0.99 g 0.000
+ 0.022 id net_buy_amount_share_orders_under_40k_cny_120s b 0.021 a 0.001 i 1.00 g 0.000
+ 0.026 id flow_ord_imb300 b 0.024 a 0.002 i 1.00 g 0.000
+-- zzal.h: thr 114 in [-323.18, 77.958], root points []
+ 0.023 1/b lpev14400 b 0.001 a 0.014 i 0.99 g 0.000
+ 0.025 1/b lpev3600 b 0.001 a 0.015 i 0.99 g 0.000
+ 0.031 1/b imbv10 b 0.001 a 0.005 i 0.97 g 0.000
+ 0.032 1/b imb1 b 0.001 a 0.005 i 0.97 g 0.000
+ 0.033 1/b flow_big_imb60 b 0.001 a 0.006 i 0.97 g 0.000
+-- zzxc.a: thr 85 in [-167.5, 350.5], root points []
+ 0.000 1/b imbn10 b 0.000 a 0.000 i 1.00 g 0.000
+ 0.002 1/b imbv10 b 0.002 a 0.001 i 1.00 g 0.000
+ 0.002 1/b lpev14400 b 0.002 a 0.001 i 1.00 g 0.000
+ 0.003 1/b imb1 b 0.002 a 0.001 i 1.00 g 0.000
+ 0.003 1/b flow_refill_imb60 b 0.002 a 0.001 i 1.00 g 0.000
+-- zzxc.b: thr 52 in [-1.2598, 1.3717], root points [(0.0, 0.5662), (0.0, 0.5663), (0.000548946, 0.607)]
+ 0.173 id net_buy_amount_share_orders_under_40k_cny_120s b 0.000 a 0.000 i 0.94 g 0.058
+ 0.225 id net_buy_amount_share_orders_under_40k_cny_300s b 0.000 a 0.000 i 0.92 g 0.075
+ 0.315 id imba600 b 0.000 a 0.000 i 0.96 g 0.138
+ 0.317 id lpev60 b 0.023 a 0.020 i 1.00 g 0.137
+ 0.324 id net_buy_amount_share_orders_over_200k_cny_120s b 0.000 a 0.000 i 0.96 g 0.143
+-- zzxc.c: thr 41 in [-0.92855, 0.95353], root points [(-0.529062569, 0.307), (-0.510280758, 0.3116), (-0.485446587, 0.3209)]
+ 0.209 -id imb1 b 0.056 a 0.030 i 1.00 g 0.062
+ 0.283 id flow_refill_imb60 b 0.051 a 0.039 i 1.00 g 0.096
+ 0.294 id imb1 b 0.043 a 0.038 i 1.00 g 0.106
+ 0.296 -id flow_refill_imb60 b 0.047 a 0.043 i 1.00 g 0.103
+ 0.303 id imba10 b 0.107 a 0.052 i 1.00 g 0.072
+-- zzxc.d: thr 39 in [-7.1571e-06, 3.5372e-06], root points [(-2e-09, 0.253)]
+ 0.924 -id lpe5 b 0.313 a 0.354 i 1.00 g 0.128
+ 1.005 id lpe5 b 0.338 a 0.326 i 1.00 g 0.170
+ 1.005 log rpe5 b 0.338 a 0.326 i 1.00 g 0.170
+ 1.071 -id rete150 b 0.251 a 0.444 i 1.00 g 0.188
+ 1.082 -id rete30 b 0.313 a 0.417 i 1.00 g 0.177
+[20:07:20] done
