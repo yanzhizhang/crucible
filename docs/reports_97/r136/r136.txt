@@ -1,0 +1,57 @@
+# R136 on 97 (20261116, done 21:19:40, 67 lines) -- gdb x/ on libcatchRun.so + grep of stage2 .asm (read-only)
+== 1 addresses
+0x185903d: ""   0x1859044: ""   0x185904f: ""   0x1859052: ""   0x1854d0a: ""   0x185905a: ""   0x1859060: ""
+0x1857af8: 5.2635442471208903e-315
+0x1c50010: 0x0000000001857c98 0x0000000000000000
+0x1c50010: 1.2611223236356155e-316
+== 2 strings loaded per function
+== cts_sol_AlgW_loadCfgs_.asm                     (none non-empty)
+== cts_sol_AlgW_loadCfgs_clone_cold_.asm          (none)
+== cts_qlive_qTrader_loadCfgs_.asm                (none)
+== cts_qlive_qTrader_loadCfgs_clone_cold_.asm     (none)
+== cts_es_eSys_aAsq_.asm                          (none)
+== cts_es_eSys_aAsq_clone_cold_.asm               (none)
+== cts_sol_Alg_cOrd_int_int_double_double_double_double_double_double_double_int_double_double_.asm  (none)
+== cts_sol_AlgW_onInnerMsg_misc_arch_FBB_misc_arch_SExt_const_.asm
+0x1857c98: "plugin log line dropped: args exceed {} bytes"
+0x1858f48: "/work/sht-strategy/cpp/src/sol/w.cpp"
+0x1858f70: "AlgW::onInnerMsg exTimeInt = {}, sim_et = {}"
+0x1858fa0: "AlgW::onInnerMsg startupComplete = {}"
+0x1858fc8: "book->epoch {} - book->srcEpoch {} > 10"
+0x1859002: "unsuitable updatesid={}"
+0x185901a: "book->IsInTrading() is false"
+== cts_sol_AlgW_onInnerMsg_misc_arch_FBB_misc_arch_SExt_const_clone_cold_.asm  (none)
+== cts_sol_Alg_onInnerMsg_cts_data_sBook_double_double_double_.asm
+0x1858d03: "order is nullptr : {}"
+0x1858d20: "aIdx = {}, sid = {}, fa = {}, pos = {}, pp_ = {}, this->executp = {}, asq = {}, lthr = {}, hs = {}, liid = {}, winsdQty = {}, asf = {}"
+0x1858da8: "mp: {}, fa: {}, vpen: {}, vr: {}, poscst: {}, cpos: {}, asq: {}, hs: {}"
+0x1858df0: "sidIdx = {}, aIdx = {}, fa = {}, book->epoch = {}, emsOurVol = {}, emsMktVol = {}"
+0x1858e48: "/work/sht-strategy/cpp/src/sol/alg.cpp"
+== cts_sol_Alg_GTp_double_double_double_double_double_double_double_double_.asm  (none)
+== 3 integer immediates per function (count $imm)
+== cts_sol_AlgW_onInnerMsg_..._SExt_const_.asm
+ 15 $0x1 11 $0x3 6 $0x21 5 $0x10 4 $0x4 3 $0x8 3 $0x63 3 $0x3e7 3 $0x2d 3 $0x270f 3 $0x2 2 $0xcf 2 $0x2c8 2 $0x100 2 $0x0
+== cts_sol_AlgW_onInnerMsg_..._clone_cold_.asm
+ 1 $0xf8
+== cts_sol_Alg_onInnerMsg_cts_data_sBook_double_double_double_.asm
+ 10 $0x1 9 $0x2 4 $0x21 4 $0x0 2 $0x60 2 $0x40 2 $0x30 2 $0x3 2 $0x238 2 $0x186a0 1 $0xd5 1 $0xc7 1 $0xa9 1 $0x8 1 $0x102
+== cts_sol_Alg_cOrd_..._.asm
+ 3 $0x68 1 $0x3 1 $0x2 1 $0x1
+== cts_sol_Alg_GTp_..._.asm      (none)
+== cts_sol_Alg_oqWins_double_.asm
+ 2 $0x0
+== cts_sol_Alg_onWins_double_double_.asm   (none)
+== cts_ct_PosClzer_GVpen_double_const.asm
+ 2 $0x18
+== cts_ct_PosClzer_PosClzer_double_double_double_.asm   (none)
+== ptype_cts_ct_PosClzer.txt   (none)
+== cts_qlive_LiveEs_autoCxl_.asm
+ 2 $0x18 1 $0x49 1 $0x2 1 $0x0
+== cts_qlive_LiveEs_autoCxl_clone_cold_.asm   (none)
+== cts_qlive_LiveEs_OnFCM_cts_qlive_FCM_.asm
+ 3 $0x2 1 $0xa5 1 $0x93 1 $0x9 1 $0x8f 1 $0x8 1 $0x48 1 $0x13 1 $0x0
+== cts_qlive_LiveEs_PlaceExOrd_int_cts_es_Order_cts_es_Order_.asm
+ 22 $0x0 11 $0x1 2 $0xe8 2 $0x50 1 $0xf 1 $0x2
+== cts_qlive_LiveEs_PlaceExOrd_..._clone_cold_.asm
+ 1 $0x50
+[21:19:40] done
