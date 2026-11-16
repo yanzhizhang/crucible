@@ -1,0 +1,163 @@
+r"""Conditional-count test: a candidate for column k must reproduce the shares PM's training rows took at every node.
+
+LightGBM stores internal_count / leaf_count per node, so each internal node that splits on k gives
+P(x_k <= t | the path's conditions) on PM's training rows. The root gives the marginal CDF point (what fingerprint uses);
+deeper nodes give conditional points of the joint distribution with the path's columns. A correlated proxy can match
+the marginal but not the conditionals under many different parents. Usable nodes: every ancestor on the path splits
+on a TRUSTED column (one we hold exactly: --trusted, default the four PM-state columns) or on k itself. Per candidate:
+the count-weighted mean |our share - PM's share| over those nodes (missing values follow the node's default side as
+PM's 'none' missing type does: NaN -> 0). --calibrate hides each trusted column in turn and ranks its true values
+(the matrix column) among the candidates, to show the test's power. Read-only.
+
+    python research/featgen/cond_counts.py --day 20260430 --x-dir data/full_0430 --base "data/full_0430/base_{date}.parquet" \
+        --target zzro.a --cands "dmi:vfrac10@0.01,dm:vfrac10@0.01,neu:vfrac10@0.01" --models /work/crucible_data/models_gen/B
+"""
+
+from __future__ import annotations
+
+import argparse
+import sys
+from pathlib import Path
+
+import numpy as np
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(HERE.parent / "pm_factors"))
+import pred_day as P  # noqa: E402
+from col_probe import trees  # noqa: E402
+from implied_scan import RAW, Day, raw_xs  # noqa: E402
+from seg_fit import PEER, ced_rows, peer  # noqa: E402
+
+TRUSTED = "zzup,zzvx.a,zzxu.a,zzxu.b"
+
+
+def nodes(files: list[Path], trusted: set[int], k: int) -> list[tuple[list[tuple[int, float, bool]], float, float, int]]:
+    """Every internal node splitting on k whose path uses only trusted columns or k: (path, threshold, PM left share, count)."""
+    out = []
+    for f in files:
+        for kv in trees(f):
+            sf = [int(x) for x in kv["split_feature"]]
+            th = [float(x) for x in kv["threshold"]]
+            dt = [int(x) for x in kv["decision_type"]]
+            lc, rc = [int(x) for x in kv["left_child"]], [int(x) for x in kv["right_child"]]
+            ic = [int(float(x)) for x in kv.get("internal_count", [])]
+            lfc = [int(float(x)) for x in kv.get("leaf_count", [])]
+            if not ic or not lfc:
+                continue
+
+            def cnt(c: int) -> int:
+                return ic[c] if c >= 0 else lfc[~c]
+
+            stack = [(0, [])]
+            while stack:
+                n, path = stack.pop()
+                if dt[n] & 1:  # categorical: not handled
+                    continue
+                if sf[n] == k and ic[n] > 0:
+                    out.append((path, th[n], cnt(lc[n]) / ic[n], ic[n]))
+                if sf[n] not in trusted and sf[n] != k:
+                    continue  # below an untrusted split the rows are not reproducible
+                for c, left in ((lc[n], True), (rc[n], False)):
+                    if c >= 0:
+                        stack.append((c, path + [(sf[n], th[n], left, bool(dt[n] & 2))]))
+    return out
+
+
+def score(nd, X: np.ndarray, k: int, v: np.ndarray) -> tuple[float, int]:
+    """Count-weighted mean |share(v <= t | path) - PM share| on our rows; NaN -> 0 (missing type none)."""
+    Z = X.copy()
+    Z[:, k] = v
+    Z = np.nan_to_num(Z, nan=0.0)
+    err = wsum = 0.0
+    used = 0
+    for path, t, share, c in nd:
+        m = np.ones(Z.shape[0], bool)
+        for j, tj, left, _ in path:
+            m &= (Z[:, j] <= tj) if left else (Z[:, j] > tj)
+        if m.sum() < 200:
+            continue
+        ours = float((Z[m, k] <= t).mean())
+        err += c * abs(ours - share)
+        wsum += c
+        used += 1
+    return (err / wsum if wsum else np.nan), used
+
+
+def cand_values(D, spec: str) -> tuple[str, np.ndarray | None]:
+    """'tr:base@scale' -> values; 'X:<col>' = the matrix's current column."""
+    if spec.startswith("X:"):
+        return spec, None
+    tr, cand = spec.split(":", 1)
+    cand, _, sc = cand.partition("@")
+    if cand not in D.bases or (tr not in RAW and tr not in PEER):
+        return spec, None
+    v = D.bases[cand]
+    with np.errstate(divide="ignore", invalid="ignore"):
+        v = peer(v, D, tr) if tr in PEER else v if tr == "id" else -v if tr == "-id" else 1.0 / v if tr == "1/b" else raw_xs(v, D.marks, tr)
+    return spec, v * float(sc) if sc else v
+
+
+def main() -> None:
+    """CLI entry point."""
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--day", required=True)
+    ap.add_argument("--x-dir", required=True)
+    ap.add_argument("--base", required=True)
+    ap.add_argument("--extra", default="")
+    ap.add_argument("--target", default="")
+    ap.add_argument("--cands", default="", help="comma list of tr:base@scale, or X:<col> for the matrix column")
+    ap.add_argument("--trusted", default=TRUSTED)
+    ap.add_argument("--calibrate", action="store_true", help="hide each trusted column; rank its true values among --cands + all bases (id)")
+    ap.add_argument("--models", type=Path, default=Path("/work/crucible_data/models_gen/B"))
+    ap.add_argument("--fits", default="livev1_fit1")
+    ap.add_argument("--subs", default="s1,s2,s3,s4")
+    ap.add_argument("--feature-csv", type=Path, default=Path("/data/prod/models/lgb_fn_v1_209_cte.csv"))
+    ap.add_argument("--ced-dc", default="/work/crucible_data/cache/ic_build/*/date={date}.*/dc.parquet")
+    ap.add_argument("--max-bases", type=int, default=400)
+    a = ap.parse_args()
+    d = a.day
+    names = P.feature_names(a.feature_csv)
+    ix = {n: i for i, n in enumerate(names)}
+    D = Day(d, Path(a.x_dir.format(mmdd=d[4:], date=d)), Path(a.base.format(date=d, mmdd=d[4:])), names,
+            [Path(e.format(date=d, mmdd=d[4:])) for e in a.extra.split(",") if e])
+    D.ind = D.E = None
+    if any(c.split(":")[0] in PEER for c in a.cands.split(",") if c):
+        ced_rows(D, a.ced_dc, d)
+    files = P.model_files(a.models, d, a.fits.split(","), a.subs.split(","))
+    trusted = {ix[t] for t in a.trusted.split(",") if t in ix}
+    print(f"{d}: {D.X.shape[0]:,} rows, {len(files)} model files, trusted {[names[j] for j in sorted(trusted)]}")
+    runs = []
+    if a.calibrate:
+        for j in sorted(trusted):
+            pool = [f"X:{names[j]}"] + [f"id:{b}" for b in sorted(D.bases)[: a.max_bases]] + [c for c in a.cands.split(",") if c]
+            runs.append((j, trusted - {j}, pool))
+    if a.target:
+        runs.append((ix[a.target], trusted - {ix[a.target]}, [f"X:{a.target}"] + [c for c in a.cands.split(",") if c]))
+    for k, tr_set, pool in runs:
+        nd = nodes(files, tr_set, k)
+        roots = sum(1 for p, *_ in nd if not p)
+        print(f"-- {names[k]}: {len(nd)} usable nodes ({roots} roots, {len(nd) - roots} conditional), PM rows {sum(c for *_, c in nd):,}")
+        res = []
+        for spec in pool:
+            if spec.startswith("X:"):
+                v = D.X[:, k].copy()
+            else:
+                spec, v = cand_values(D, spec)
+                if v is None:
+                    continue
+            if np.isfinite(v).mean() < 0.5:
+                continue
+            e_all, n_all = score(nd, D.X, k, v)
+            e_root, _ = score([x for x in nd if not x[0]], D.X, k, v)
+            e_cond, n_cond = score([x for x in nd if x[0]], D.X, k, v)
+            res.append((e_cond if np.isfinite(e_cond) else e_all, spec, e_all, e_root, e_cond, n_all, n_cond))
+        res.sort(key=lambda r: (np.inf if not np.isfinite(r[0]) else r[0]))
+        true_rank = next((i for i, r in enumerate(res) if r[1].startswith("X:")), -1)
+        print(f"   rank of the matrix column among {len(res)}: {true_rank + 1}")
+        for r in res[:8]:
+            print(f"   cond {r[4]:.4f}  root {r[3]:.4f}  all {r[2]:.4f}  nodes {r[5]} ({r[6]} cond)  {r[1]}")
+
+
+if __name__ == "__main__":
+    main()

@@ -23,7 +23,7 @@ import polars as pl
 
 CST_NS = 8 * 3600 * 10**9
 KEYS = "zzvm.c.re,zzmh.r,zzhj.p,zzcb.r,zzeb.r,zztx.r,zzui.r,zzup.ps,zzba.p,zzeg.c.rEma,zzqj.r,zzup.pf"
-HALVES = [0.5, 1, 1.5, 2, 3, 4, 4.5, 4.7, 5, 6, 7, 8, 10, 15, 20, 30, 45, 60, 90, 100, 120, 150, 180, 200, 240, 300, 360, 450, 600, 900, 1200, 1800, 3600, 7200, 14400, 28800, 57600, 86400, 172800, 259200, 432000, 864000, 1728000]
+HALVES = [0.5, 1, 1.5, 2, 3, 4, 4.5, 4.7, 5, 6, 7, 8, 10, 15, 20, 30, 45, 60, 90, 100, 120, 150, 180, 200, 240, 300, 360, 450, 600, 900, 1200, 1800, 2400, 2700, 3000, 3300, 3600, 3900, 4200, 4500, 5400, 7200, 14400, 28800, 57600, 86400, 172800, 259200, 432000, 864000, 1728000]
 
 
 def tclock(ns: np.ndarray) -> np.ndarray:
@@ -91,7 +91,9 @@ def main() -> None:
                 cand.update({"hm-p": hm - p, "(hm-p)/p": (hm - p) / p, "(hm-p)/hm": (hm - p) / hm, "100(hm/p-1)": 100 * (hm / p - 1),
                              "((hm-p)/p)^2": ((hm - p) / p) ** 2, "log(hm/p)": np.log(hm / p), "spread_ticks": (a1 - b1) / 0.01,
                              "depth1_lots": (bv + av) / 100, "log_depth1": np.log(bv + av), "mid/spread": mid / (a1 - b1),
-                             "imb1": (bv - av) / (bv + av), "log_bv1/av1": np.log(bv / av), "p/hm": p / hm})
+                             "imb1": (bv - av) / (bv + av), "log_bv1/av1": np.log(bv / av), "p/hm": p / hm,
+                             "vwap_snap": np.where(vol > 0, amt / np.where(vol > 0, vol, 1), p), "vwap_snap/p": np.where(vol > 0, amt / np.where(vol > 0, vol, 1) / p, 1.0),
+                             "micro": np.where(bv + av > 0, (b1 * av + a1 * bv) / (bv + av), mid), "half_spread/mid": (a1 - b1) / mid / 2})
                 tcl = tclock(g["spider_ts"].to_numpy())
                 gap = np.concatenate([[np.nan], np.diff(tcl)])
                 cand.update({"gap": gap, "1/gap": 1 / gap, "log_gap": np.log(gap), "bid_amt_w": bv * b1 / 1e4, "ask_amt_w": av * a1 / 1e4,
