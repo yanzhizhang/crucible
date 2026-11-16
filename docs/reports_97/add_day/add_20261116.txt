@@ -1,0 +1,31 @@
+# add_day.sh 20261116 on 97 with SKIP23=1 (add_day adf6a779, daily_pm 34cfbff4), 23:38:30 -> 23:48:50, 85 lines.
+# 224 pulls in step 0 user-approved in the supervisor session; 2.23 not touched (1116 files copied earlier, user-approved).
+[23:38:30] 0 daily_pm 20261116
+[23:38:30] 1 logs: 224 /tmp/zyq/sht-logs -> /work/crucible_data/chrono_logs
+[23:38:30] 2 position log + base positions: 224 /tmp/o/executor/20261116
+[23:38:31] 3 pm_signals
+[23:39:58] 4 DataYesSharesL2 20261116 -> dysl2_raw, catalog_dysl2
+[23:41:35] 5 decisions + position log
+[23:41:38] 6 orders: does runS send now (base position pushed from 1110)
+[23:41:40] done 20261116
+[23:41:40] 1 2.23: hstats 20261116, stsfile, PM state files
+[23:41:40]   SKIP23 set: no 2.23 access; using what is on 97
+[23:41:40] 2 target
+[23:41:40] 3 full_book + engine state for 20261116
+[23:42:49] 4 R17 / R24 / R24 gated on 20261116
+[23:45:50]   r17 (102 columns): 20261116 0.5164
+[23:46:44]   r27both (103 columns): 20261116 0.5481
+[23:47:44]   r24 (116 columns): 20261116 0.5178
+[23:48:47]   r24g (98 columns): 20261116 0.5316
+20261116: model generation 55f31009 (202611): training-CDF points for 138 features
+[23:48:47] 5 day-end state against PM's 20261116.jz
+(first table, share of stocks exact; its top rows are not in the file -- the table starts here)
+| zzqj.v | 1.0000 | zzui.r.* (mean) | 1.0000 | zzvm.c.tpv | 1.0000 | zzvm.c.v | 1.0000 | zzvx.high | 1.0000 | zzvx.low | 1.0000 |
+| zzxo.last | 1.0000 | zzxo.r.* (mean) | 1.0000 | zzxu.high | 1.0000 | zzxu.last | 1.0000 | zzxu.low | 1.0000 |
+== median relative error (clock rows: median PM - ours, s)   shape: (18, 2)
+| clock.fast ~ *.t (mean) | -0.0010 |
+| zzgh.nb | 0.0038 |
+| zzmh.hm | zzpk.high | zzpk.low | zzpk.open | zzqj.tpv | zzqj.v | zzui.r.* (mean) | zzvm.c.tpv | zzvm.c.v | zzvx.high | zzvx.low |
+| zzxo.last | zzxo.r.* (mean) | zzxu.high | zzxu.last | zzxu.low |   all 0.0000
+scores: data/reports/stage4/dcp_build_scores.csv, built values: data/reports/stage4/dcp_build.parquet
+[23:48:50] done 20261116
