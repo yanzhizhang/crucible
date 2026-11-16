@@ -46,10 +46,51 @@ def clocks(marks: np.ndarray) -> dict[str, np.ndarray]:
     return out
 
 
-def apply(v: np.ndarray, marks: np.ndarray, tr: str, sc: float) -> np.ndarray:
-    """RAW transform then scale."""
+PEER = {"dmi", "-dmi", "neu", "-neu"}  # need the day's CED (Barra industry / exposures): --ced-dc
+
+
+def ced_rows(D, path_tmpl: str, d: str) -> None:
+    """Per scoring row: its Barra industry (argmax of the 0/1 dummies, as ic_score) and its exposure vector."""
+    import glob
+    hits = sorted(glob.glob(path_tmpl.format(date=d, mmdd=d[4:])))
+    D.ind = D.E = None
+    if not hits:
+        print(f"  {d}: no CED dc.parquet for {path_tmpl}: dmi / neu unavailable")
+        return
+    dc = pl.read_parquet(hits[-1]).with_columns(pl.col("sid").cast(pl.Int64))
+    ex = [c for c in dc.columns if c.startswith("exp.")]
+    for c in ex:
+        fv = dc[c].drop_nulls().drop_nans() if dc[c].dtype in (pl.Float32, pl.Float64) else dc[c].drop_nulls()
+        if fv.len() and fv.is_in([0.0, 1.0]).all():
+            dc = dc.with_columns(pl.col(c).fill_null(0.0).fill_nan(0.0))
+    j = D.key.select("sid").join(dc, on="sid", how="left")
+    dums = [c for c in ex if j[c].drop_nulls().is_in([0.0, 1.0]).all() and 0 < (j[c].mean() or 0) < 0.5]
+    if len(dums) >= 5:
+        st = np.nan_to_num(np.stack([j[c].to_numpy().astype(float) for c in dums]))
+        D.ind = np.where(st.max(axis=0) == 1, st.argmax(axis=0), -1)
+    ek = [c for c in ex if (j[c].std() or 0) > 0]
+    D.E = np.column_stack([j[c].to_numpy().astype(float) for c in ek]) if ek else None
+    print(f"  {d}: CED {Path(hits[-1]).parent.name}: {len(dums)} industry dummies, {len(ek)} exposures")
+
+
+def peer(v: np.ndarray, D, tr: str) -> np.ndarray:
+    """dmi: minus the industry mean per mark; neu: residual on [1, exposures] per mark (ic_score's demean / neutralize)."""
+    from ic_score import demean, neutralize
+    out = np.full(v.size, np.nan)
+    if (tr.endswith("dmi") and D.ind is None) or (tr.endswith("neu") and D.E is None):
+        return out
+    for mk in np.unique(D.marks):
+        m = D.marks == mk
+        out[m] = demean(v[m], D.ind[m]) if tr.endswith("dmi") else neutralize(v[m], D.E[m])
+    return -out if tr.startswith("-") else out
+
+
+def apply(v: np.ndarray, D, tr: str, sc: float) -> np.ndarray:
+    """RAW (or peer-relative) transform then scale."""
+    if tr in PEER:
+        return peer(v, D, tr) * sc
     with np.errstate(divide="ignore", invalid="ignore"):
-        w = v if tr == "id" else -v if tr == "-id" else 1.0 / v if tr == "1/b" else raw_xs(v, marks, tr)
+        w = v if tr == "id" else -v if tr == "-id" else 1.0 / v if tr == "1/b" else raw_xs(v, D.marks, tr)
     return w * sc
 
 
@@ -75,6 +116,8 @@ def main() -> None:
     ap.add_argument("--transforms", default="id,-id,1/b,dm,-dm,srank,log")
     ap.add_argument("--scales", default="1,1e4,1e-4,100,0.01")
     ap.add_argument("--top", type=int, default=6)
+    ap.add_argument("--ced-dc", default="/work/crucible_data/cache/ic_build/*/date={date}.*/dc.parquet",
+                    help="glob of the day's CED daily table (ic_score's build cache), for dmi / neu transforms")
     a = ap.parse_args()
     names = P.feature_names(a.feature_csv)
     ix = {n: i for i, n in enumerate(names)}
@@ -107,7 +150,11 @@ def main() -> None:
     exact = None
     if a.exact_csv and a.exact_csv.exists():
         exact = {re.sub(r"\|.*$", "", r["key"]) for r in pl.read_csv(a.exact_csv).iter_rows(named=True) if float(r.get("all_1e4") or r.get("all") or 0) >= a.exact_min}
-    for D in days.values():  # derived candidates
+    trs = [t for t in a.transforms.split(",") if t in RAW or t in PEER]
+    for d, D in days.items():  # derived candidates
+        D.ind = D.E = None
+        if PEER & set(trs):
+            ced_rows(D, a.ced_dc, d)
         if a.no_base:
             D.bases = {k: v for k, v in D.bases.items() if k.startswith("x.")}
         if a.clocks:
@@ -129,7 +176,6 @@ def main() -> None:
         bases = [b for b in bases if re.search(a.cand_re, b) or b.startswith(("clk.", "r."))]
     if exact is not None:
         bases = [b for b in bases if all(k in exact or k.rsplit(".", 1)[0] in exact for k in KEY_RE.findall(b))]
-    trs = [t for t in a.transforms.split(",") if t in RAW]
     scs = [float(s) for s in a.scales.split(",")]
     tg = [x for x in targets if x in ix and th[ix[x]].size]
     print(f"{len(bases)} candidates x {len(trs)} transforms x {len(scs)} scales, {len(tg)} targets, days {ds}, {len(files)} model files")
@@ -138,7 +184,7 @@ def main() -> None:
         for tr in trs:
             base_vs = []
             for D in days.values():
-                v = apply(D.bases[b], D.marks, tr, 1.0)
+                v = apply(D.bases[b], D, tr, 1.0)
                 v = np.sort(v[np.isfinite(v)])
                 if v.size < 1000:
                     break
