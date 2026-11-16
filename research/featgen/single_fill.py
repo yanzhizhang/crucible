@@ -25,6 +25,7 @@ sys.path.insert(0, str(HERE.parent / "pm_factors"))
 import pred_day as P  # noqa: E402
 from implied_scan import RAW, Day, raw_xs  # noqa: E402
 from missing_damage import sim  # noqa: E402
+from seg_fit import PEER, ced_rows, peer  # noqa: E402
 
 
 def main() -> None:
@@ -41,6 +42,7 @@ def main() -> None:
     ap.add_argument("--feature-csv", type=Path, default=Path("/data/prod/models/lgb_fn_v1_209_cte.csv"))
     ap.add_argument("--work", type=Path, default=Path("data/single_fill_work"))
     ap.add_argument("--threads", type=int, default=64)
+    ap.add_argument("--ced-dc", default="/work/crucible_data/cache/ic_build/*/date={date}.*/dc.parquet", help="the day's CED table, for dmi / neu fills")
     a = ap.parse_args()
     d = a.day
     names = P.feature_names(a.feature_csv)
@@ -50,16 +52,19 @@ def main() -> None:
     files = P.model_files(a.models, d, a.fits.split(","), a.subs.split(","))
     a.work.mkdir(parents=True, exist_ok=True)
     exe = P.ensure_binary()
+    D.ind = D.E = None
+    if any(sp.split(":")[1] in PEER for sp in a.fills.split(",") if sp.count(":") >= 2):
+        ced_rows(D, a.ced_dc, d)
     fills = []
     for spec in [x for x in a.fills.split(",") if x]:
         col, tr, cand = spec.split(":", 2)
         cand, _, scale = cand.partition("@")  # optional "@k": multiply the transformed value by k (seg_fit's scales)
-        if col not in ix or tr not in RAW or cand not in D.bases:
+        if col not in ix or (tr not in RAW and tr not in PEER) or cand not in D.bases:
             print(f"  skip {spec}: {'no column' if col not in ix else 'no transform' if tr not in RAW else 'no candidate'}")
             continue
         v = D.bases[cand]
         with np.errstate(divide="ignore", invalid="ignore"):
-            v = v if tr == "id" else -v if tr == "-id" else 1.0 / v if tr == "1/b" else raw_xs(v, D.marks, tr)
+            v = peer(v, D, tr) if tr in PEER else v if tr == "id" else -v if tr == "-id" else 1.0 / v if tr == "1/b" else raw_xs(v, D.marks, tr)
         if scale:
             v = v * float(scale)
         fills.append((spec, ix[col], v))
