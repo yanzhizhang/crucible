@@ -1,0 +1,9 @@
+# Copy of 20261116 from 2.23 to 97, user-approved ("Copy 1116"), 2026-11-16 23:32. research/copy1116.sh on 97; 2.23 only read.
+== 1 PM .jz
+-rw-r--r-- 1 root root 9947480 Nov 16 19:46 /work/crucible_data/seed_probe/HS300/20261116.jz
+== 2 hstats 20261116 (all families) -> hstats_extra/HS300, linked into hstats_view/HS300
+   families with 20261116 on 97: 15  files: 17
+   families with 20261116 on 2.23: 16   (the 16th, ZZUG2/20261116, is an empty directory on 2.23, made 08:45 -- nothing to copy)
+== 3 stsfile 20261116 -> pm_stsfile
+   index/index-20261116.xr 299000 | ex/ex-20261116.xr 239228 | sid2symbol/20261116.json 96833 | stats/sod/20261116.xr 149284
+== 4 verify: 20261116.jz md5 ef2d08ad109700ddc1b815b02dd049b0 on both -> MATCH
