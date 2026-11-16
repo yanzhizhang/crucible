@@ -64,24 +64,53 @@ def nodes(files: list[Path], trusted: set[int], k: int) -> list[tuple[list[tuple
     return out
 
 
-def score(nd, X: np.ndarray, k: int, v: np.ndarray) -> tuple[float, int]:
-    """Count-weighted mean |share(v <= t | path) - PM share| on our rows; NaN -> 0 (missing type none)."""
-    Z = X.copy()
-    Z[:, k] = v
-    Z = np.nan_to_num(Z, nan=0.0)
-    err = wsum = 0.0
-    used = 0
-    for path, t, share, c in nd:
-        m = np.ones(Z.shape[0], bool)
-        for j, tj, left, _ in path:
-            m &= (Z[:, j] <= tj) if left else (Z[:, j] > tj)
-        if m.sum() < 200:
-            continue
-        ours = float((Z[m, k] <= t).mean())
-        err += c * abs(ours - share)
-        wsum += c
-        used += 1
-    return (err / wsum if wsum else np.nan), used
+class Prep:
+    """Per target: each usable node's rows satisfying its trusted-column conditions, computed once on a row sample."""
+
+    def __init__(self, nd, X: np.ndarray, k: int, rows: np.ndarray, max_nodes: int) -> None:
+        nd = sorted(nd, key=lambda x: -x[3])[:max_nodes]
+        Z = np.nan_to_num(X[rows], nan=0.0)
+        self.rows, self.k, self.items = rows, k, []
+        for path, t, share, c in nd:
+            m = np.ones(rows.size, bool)
+            kc = []
+            for j, tj, left, _ in path:
+                if j == k:
+                    kc.append((tj, left))
+                else:
+                    m &= (Z[:, j] <= tj) if left else (Z[:, j] > tj)
+            idx = np.flatnonzero(m).astype(np.int32)
+            if idx.size >= 200:
+                self.items.append((idx, kc, t, share, c, not path))
+
+    def score(self, v: np.ndarray, which: str = "all") -> tuple[float, int]:
+        """Count-weighted mean |share(v <= t | path) - PM share|; which = all / root / cond. NaN -> 0 (missing type none)."""
+        vk = np.nan_to_num(v[self.rows], nan=0.0)
+        err = wsum = 0.0
+        used = 0
+        for idx, kc, t, share, c, is_root in self.items:
+            if (which == "root" and not is_root) or (which == "cond" and is_root):
+                continue
+            x = vk[idx]
+            for tj, left in kc:
+                x = x[x <= tj] if left else x[x > tj]
+            if x.size < 200:
+                continue
+            err += c * abs(float((x <= t).mean()) - share)
+            wsum += c
+            used += 1
+        return (err / wsum if wsum else np.nan), used
+
+
+_PREP: Prep | None = None
+
+
+def _one(item: tuple[str, np.ndarray]) -> tuple:
+    spec, v = item
+    e_all, n_all = _PREP.score(v, "all")
+    e_root, _ = _PREP.score(v, "root")
+    e_cond, n_cond = _PREP.score(v, "cond")
+    return (e_cond if np.isfinite(e_cond) else e_all, spec, e_all, e_root, e_cond, n_all, n_cond)
 
 
 def cand_values(D, spec: str) -> tuple[str, np.ndarray | None]:
@@ -115,6 +144,9 @@ def main() -> None:
     ap.add_argument("--feature-csv", type=Path, default=Path("/data/prod/models/lgb_fn_v1_209_cte.csv"))
     ap.add_argument("--ced-dc", default="/work/crucible_data/cache/ic_build/*/date={date}.*/dc.parquet")
     ap.add_argument("--max-bases", type=int, default=400)
+    ap.add_argument("--rows", type=int, default=200000, help="row sample (the node shares are row-count based, a sample is enough)")
+    ap.add_argument("--max-nodes", type=int, default=4000, help="keep the nodes with the most PM training rows")
+    ap.add_argument("--workers", type=int, default=32)
     a = ap.parse_args()
     d = a.day
     names = P.feature_names(a.feature_csv)
@@ -126,6 +158,8 @@ def main() -> None:
         ced_rows(D, a.ced_dc, d)
     files = P.model_files(a.models, d, a.fits.split(","), a.subs.split(","))
     trusted = {ix[t] for t in a.trusted.split(",") if t in ix}
+    rng = np.random.default_rng(0)
+    rows = np.sort(rng.choice(D.X.shape[0], min(a.rows, D.X.shape[0]), replace=False))
     print(f"{d}: {D.X.shape[0]:,} rows, {len(files)} model files, trusted {[names[j] for j in sorted(trusted)]}")
     runs = []
     if a.calibrate:
@@ -138,7 +172,10 @@ def main() -> None:
         nd = nodes(files, tr_set, k)
         roots = sum(1 for p, *_ in nd if not p)
         print(f"-- {names[k]}: {len(nd)} usable nodes ({roots} roots, {len(nd) - roots} conditional), PM rows {sum(c for *_, c in nd):,}")
-        res = []
+        global _PREP
+        _PREP = Prep(nd, D.X, k, rows, a.max_nodes)
+        print(f"   {len(_PREP.items)} nodes kept on {rows.size:,} sampled rows")
+        work = []
         for spec in pool:
             if spec.startswith("X:"):
                 v = D.X[:, k].copy()
@@ -146,12 +183,14 @@ def main() -> None:
                 spec, v = cand_values(D, spec)
                 if v is None:
                     continue
-            if np.isfinite(v).mean() < 0.5:
-                continue
-            e_all, n_all = score(nd, D.X, k, v)
-            e_root, _ = score([x for x in nd if not x[0]], D.X, k, v)
-            e_cond, n_cond = score([x for x in nd if x[0]], D.X, k, v)
-            res.append((e_cond if np.isfinite(e_cond) else e_all, spec, e_all, e_root, e_cond, n_all, n_cond))
+            if np.isfinite(v).mean() >= 0.5:
+                work.append((spec, v))
+        if a.workers > 1 and sys.platform != "win32":
+            import multiprocessing as mp
+            with mp.get_context("fork").Pool(a.workers) as pool_:
+                res = pool_.map(_one, work, chunksize=4)
+        else:
+            res = [_one(w) for w in work]
         res.sort(key=lambda r: (np.inf if not np.isfinite(r[0]) else r[0]))
         true_rank = next((i for i, r in enumerate(res) if r[1].startswith("X:")), -1)
         print(f"   rank of the matrix column among {len(res)}: {true_rank + 1}")
