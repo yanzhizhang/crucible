@@ -1,0 +1,22 @@
+# R141 FINAL extract (all 19 trunks; ALL R141 DONE 00:11:39), 97, 2026-11-17 ~00:22. Duplicates from the earlier
+# r141_extract.txt (matched by the r141_*.txt glob) removed.
+== CED: 20260430.c5354cec 27 industry / 47 exposures; 20261112.ec9694de 26 / 46 (no "no CED" lines)
+== PASS(1,2)
+-- zzqf7.q.c2: range [-0.2631, 0.21949] 4 segs; thr 216; root points 2; best of 6852:
+ 0.037 -neu x0.01 vfrac10 in 1.000 ws 1.000 fp 0.037 (below 0.007 above 0.004 int 1.00 root 0.010) PASS(1,2)
+ 0.046 neu x0.01 vfrac10 in 1.000 ws 1.000 fp 0.046 (below 0.008 above 0.003 int 0.99 root 0.010) PASS(1,2)
+-- zzqf5.q.c1: range [-0.28351, 0.21252]; thr 444; root points 10:
+ 0.048 -dm x0.01 zr60 fp 0.048 (below 0.003 above 0.001 int 0.99 root 0.017) PASS(1,2)
+-- zzqf8.q.c1: range [-0.19374, 0.16016]; thr 322; root points 5:
+ 0.038 dm x0.01 zr60 fp 0.038 (below 0.006 above 0.006 int 0.99 root 0.008) PASS(1,2)
+ 0.042 -dm x0.01 zr60 fp 0.042 (below 0.009 above 0.004 int 0.99 root 0.012) PASS(1,2)
+ 0.046 neu x0.01 vfrac10 fp 0.046 (below 0.006 above 0.002 int 1.00 root 0.019) PASS(1,2)
+-- zzro.a: range [-0.11927, 0.14283]; thr 391; root points 13:
+ 0.034 dmi x0.01 vfrac10 fp 0.034 (below 0.004 above 0.001 int 0.99 root 0.011) PASS(1,2)
+ 0.042 dm x0.01 vfrac10 fp 0.042 (below 0.007 above 0.002 int 0.99 root 0.013) PASS(1,2)
+ 0.047 neu x0.01 vfrac10 fp 0.047 (below 0.003 above 0.001 int 1.00 root 0.020) PASS(1,2)
+== no-root passes fp < 0.02
+-- zzba: range [0, 0.32208]; thr 366: 0.010 1/b x.(zzba.p-zzba.r)/zzba.r | 0.013 1/b x.zzba.p/zzba.r | 0.013 id x.zzba.r/zzba.p | 0.016 id x.zzba.r/px | 0.018 1/b x.(px-zzba.r)/zzba.r
+-- zzqf4.q.c2: range [-0.2575, 0.16713]; thr 269: 0.011 neu x0.01 zr60 | 0.011 -neu x0.01 zr60 | 0.012 -neu x0.01 vfrac10 | 0.016 neu x0.01 vfrac10 | 0.017 neu x1 x.s.1-last/high
+-- zzqf3.q.c1: range [-0.2631, 0.17365]; thr 387: 0.008 neu x0.01 zr60 | 0.009 -neu x0.01 zr60 | 0.011 dmi x0.01 zr60 | 0.011 neu x0.01 vfrac10 | 0.012 -dmi x0.01 zr60
+-- zzwa.c: range [0, 508.64]; thr 447; best of 29040: 0.014 id r.(bid_depth_weighted_distance_5lvl_rel)/(x.ZZWA.bn@0) | 0.015 .../(x.ZZWA.bn@-1) | 0.016 .../(x.ZZWA.an@-1) | 0.018 .../(x.ZZWA.an@0) | 0.019 id x100 .../(x.ZZWA.bq@0)
