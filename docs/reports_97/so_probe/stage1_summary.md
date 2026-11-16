@@ -88,3 +88,55 @@ cts::sol::sAbs: sAbs ~sAbs     cts::sync::WaitGroup: Add Done Wait WaitGroup ~Wa
 Note: the chrono session's strategy interface has on_signal/on_lv2/on_trade_event/on_order_changed/on_error_cancel; the
 runS build also has on_insert_rsp / on_cancel_rsp / on_order_event / on_portfolio_position / on_portfolio_asset /
 place_order -- i.e. built against a chrono strategy.hpp version different from the chrono session's current one.
+
+## Log / format strings (all 60 own "{}" strings from both libs, sorted; + config strings from stage1)
+, ExCond: {}, exFq: {}, exCq: {}, exSoQ: {}, because it was traded
+=Invalid symbol: {}
+AlgW::onInnerMsg exTimeInt = {}, sim_et = {}
+AlgW::onInnerMsg startupComplete = {}
+CsrcEpoch: {}, recEpoch: {}, sid: {}, name: {}
+Engine::toAlgo msg->OurEpoch {} <= lastTs[sidIdx {}] {} + EPS {}
+Exception in initialize: {}
+LiveEs::Po sid({}) not found!
+Lmb failed to load {}, {}      Lmsr failed to load {}, {}      Lvr failed to load {}, {}
+Loading alpha from {}          Loading data from {}
+OnECM erase order sid: {}, exOid: {}
+OnECM exOid: {} is missing
+OnECM sid: {}, exOid: {}       OnECM sid: {}, exOid: {}, cq: {}       OnECM {}       OnECM {}, ExOid {}, OrderId {}
+OnEOM erase order, sid: {}, exOid: {}, ExCond: {}, exFq: {}, exCq: {}, exSoQ: {}, because it was traded
+OnEOM exOid: {} is missing.
+OnEOM sid: {}, exOid: {}, cumQty: {}, fPrc{}.
+OnEOM sid: {}, exOid: {}, exFq: {} + exCq: {} < exSoQ: {}
+OnEOM sid: {}, exOid: {}, msg.cumQty: {}, so.qty: {}.
+OnEOM {}       OnEOM {}, ExOid {}, {}, {:.4f}, {.6f}, {}
+OnFCM sid: {}, exOid: {}, cxl failed {} times, ttl: {}
+OnPosM sid: {} is not in the univ
+OnPosM sid: {}, long.pos: {}, target.pos: {}, net.pos: {}, asq: {}, open.pos: {}, but not2trade
+OnPosM sid: {}, reserve.qty: {} > current.qty: {}
+OnPosM sid: {}, reserve.qty: {} > qty.avl: {}
+OnPosM sid: {}, reserve.qty: {} > target.qty: {}
+OnPosM sid: {}, reserve.qty: {}, target.qty: {}, current.qty: {}, qty.avl: {}
+Po {}
+aIdx = {}, sid = {}, fa = {}, pos = {}, pp_ = {}, this->executp = {}, asq = {}, lthr = {}, hs = {}, liid = {}, winsdQty = {}, asf = {}
+alpha adur: {}
+book->epoch {} - book->srcEpoch {} > 10
+cancelExOrd, sid: {}, exOid: {}, prc: {}, exSoQ: {}
+cxl ords, sid: {}, exOid: {}
+invalid alpha name {}
+loadEx failed to load {}, {}   loadSids failed to load {}, {}   loadSymbol failed to load {}, {}
+mp: {}, fa: {}, vpen: {}, vr: {}, poscst: {}, cpos: {}, asq: {}, hs: {}
+order is nullptr : {}
+place_order symbol = {}, volume = {}, price = {}, side = {}
+plugin log line dropped: args exceed {} bytes
+qAlpEngine::Check std::abs({} - {}) > 5
+qAlpEngine::Check {} < {} - EPS
+qAlpEngine::Check {} <= 0
+qAlpEngine::Check {} > {} + {} + EPS
+sidIdx = {}, aIdx = {}, fa = {}, book->epoch = {}, emsOurVol = {}, emsMktVol = {}
+symbol {} p.total_qty() = {}, p.yesterday_qty = {}, p.sellable_qty = {}
+unsuitable updatesid={}
+{} invalid book size {}, skip
+{} not found
+(+ 6 nlohmann template strings, regex/punctuation fragments)
+Config strings (stage1 grep): config_file_dir, "Failed to parse config:", "Failed to open config file:",
+  /sid2symbol/YYYYMMDD.json, ?/work/sht-strategy/sim_example/config2_HS300.json, config_fH, D$0vpenH, T$hs=D
