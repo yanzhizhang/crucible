@@ -1,0 +1,17 @@
+# 2.23 vs 97, list-only (ssh ls on 2.23; nothing copied), 20261116 ~23:25. research/cmp23.sh on 97.
+== PM .jz (h/HS300/p1_intrading_dcp): 2.23 77, 97 76 | 2.23 newest: 20261112.jz 20261113.jz 20261116.jz | 97 newest: 20261111.jz 20261112.jz 20261113.jz
+   on 2.23 only (1): 20261116.jz
+== hstats HS300 dates: 2.23 50, 97 49 | 2.23 newest 20261112 20261113 20261116 | 97 newest 20261111 20261112 20261113
+   on 2.23 only (1): 20261116
+   families (same on both): ZZAC ZZAL ZZCR ZZDS ZZGW ZZHL ZZMS ZZQI ZZQO ZZSQ ZZTS ZZUG ZZUG2 ZZVC ZZWA ZZXC
+== stsfile index: 2.23 27, 97 26 -> on 2.23 only: index-20261116.xr
+== stsfile ex: 2.23 27, 97 26 -> on 2.23 only: ex-20261116.xr
+== stsfile sidNsymbol: 0 / 0
+== stsfile sid2symbol: 2.23 16, 97 15 -> on 2.23 only: 20261116.json
+== stsfile stats/sod: 2.23 43, 97 42 -> on 2.23 only: 20261116.xr
+== TickRepository 2026 days: 2.23 95, 97 2 (20260429 20260430) | 2.23 newest 20260527 20260528 20260529
+   on 2.23 only (93), last 15 shown: 20260511 .. 20260529 (the archive on 2.23 appears to end 2026-05-29)
+== /data/share/data/prod top level, 2.23 vs 97: same entries (1min_src CEDxr4d h hstats index models models.zip mp test);
+   1min_src mtime 20261116 on 2.23 vs 20261105 on 97 (newer content on 2.23); all others same dates (models 20260831, models.zip 20260911)
+== files with mtime >= 2026-11-14 under 2.23 /data/share/data/prod (-type f): /data/share/data/prod/hstats/HS300/ZZQI/20261116/samplerS.nc
+   (the .jz and other hstats files are not listed, so they are probably symlinks or older-dated)
