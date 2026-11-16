@@ -30,6 +30,9 @@ bash research/daily_pm.sh $D
 
 say "1 2.23: hstats $D, stsfile, PM state files"
 mkdir -p $DATA/hstats_extra/HS300 $DATA/pm_stsfile $SEED
+if [ -n "${SKIP23:-}" ]; then  # SKIP23=1: the day's 2.23 files were already copied (user-approved), do not touch 2.23 again
+  say "  SKIP23 set: no 2.23 access; using what is on 97"
+else
 rsync -aLm -e "$SSH" --include="*/" --include="$D/***" --exclude="*" $H23:/data/share/data/prod/hstats/HS300/ $DATA/hstats_extra/HS300/ \
   > $R/add_${D}_rsync.txt 2>&1 || say "  hstats rsync failed: $(tail -1 $R/add_${D}_rsync.txt)"
 for fam in $(ls $DATA/hstats_extra/HS300); do mkdir -p $HV/$fam; for x in $DATA/hstats_extra/HS300/$fam/*; do [ -e $HV/$fam/$(basename $x) ] || ln -sfn $x $HV/$fam/; done; done
@@ -38,6 +41,7 @@ rsync -aL -e "$SSH" $H23:/data/share/s/ $DATA/pm_stsfile/ >> $R/add_${D}_rsync.t
 ls $DATA/pm_stsfile/stats/sod $DATA/pm_stsfile/index 2>/dev/null | tail -3 | sed 's/^/  stsfile /'
 rsync -aL -e "$SSH" --include="*.jz" --exclude="*" $H23:/data/share/data/prod/h/HS300/p1_intrading_dcp/ $SEED/ >> $R/add_${D}_rsync.txt 2>&1 \
   || say "  .jz rsync failed: $(tail -1 $R/add_${D}_rsync.txt)"
+fi
 P=$(ls $SEED | grep -E '^[0-9]{8}\.jz$' | sed 's/\.jz//' | awk -v d=$D '$1 < d' | tail -1)
 echo "  PM state: D-1 = ${P:-none} $([ -e $SEED/$D.jz ] && echo ", $D.jz present" || echo ", no $D.jz yet")"
 [ -n "$P" ] || { say "no PM state before $D: stop"; exit 1; }
