@@ -22,6 +22,7 @@ import numpy as np
 import polars as pl
 
 CST_NS = 8 * 3600 * 10**9
+CLOCKS = ("snap", "snapchg", "bbochg", "sprchg", "volchg", "trade", "both")
 KEYS = "zzvm.c.re,zzmh.r,zzhj.p,zzcb.r,zzeb.r,zztx.r,zzui.r,zzup.ps,zzba.p,zzeg.c.rEma,zzqj.r,zzup.pf"
 HALVES = [0.5, 1, 1.5, 2, 3, 4, 4.5, 4.7, 5, 6, 7, 8, 10, 15, 20, 30, 45, 60, 90, 100, 120, 150, 180, 200, 240, 300, 360, 450, 600, 900, 1200, 1800, 2400, 2700, 3000, 3300, 3600, 3900, 4200, 4500, 5400, 7200, 14400, 28800, 57600, 86400, 172800, 259200, 432000, 864000, 1728000]
 
@@ -67,13 +68,19 @@ def main() -> None:
             return None
         lim = 33300 if start == "0925" else 34200
         out_t, xs = [], {}
-        if clock in ("snap", "snapchg", "both"):
+        if clock in ("snap", "snapchg", "both", "bbochg", "sprchg", "volchg"):
             sod = ((g["time"].to_numpy() + CST_NS) / 1e9) % 86400
             m = sod >= lim
             p = g["price"].to_numpy()
+            b1, a1 = g["b1"].to_numpy().astype(float), g["a1"].to_numpy().astype(float)
             if clock == "snapchg":
                 m &= np.concatenate([[True], np.diff(p) != 0])
-            b1, a1 = g["b1"].to_numpy().astype(float), g["a1"].to_numpy().astype(float)
+            elif clock == "bbochg":  # best bid or ask price changed
+                m &= np.concatenate([[True], (np.diff(b1) != 0) | (np.diff(a1) != 0)])
+            elif clock == "sprchg":  # spread changed
+                m &= np.concatenate([[True], np.diff(a1 - b1) != 0])
+            elif clock == "volchg":  # the snapshot carries new volume (some trade since the last one)
+                m &= np.concatenate([[True], np.diff(g["total_volume"].to_numpy()) > 0])
             mid = np.where((b1 > 0) & (a1 > 0), (b1 + a1) / 2, p)
             lp = np.log(p)
             vol = np.diff(np.concatenate([[0], g["total_volume"].to_numpy()])).astype(float)
@@ -132,7 +139,7 @@ def main() -> None:
             q = lambda x: " ".join(f"{np.quantile(x, z):.5g}" for z in (0, 0.1, 0.5, 0.9, 1)) if x.size else "-"  # noqa: E731
             print(f"   {key}: value q0/10/50/90/100 {q(v)} | wgt {q(w)} | t {q(tt)}")
         res = []
-        for clock in ("snap", "snapchg", "trade", "both"):
+        for clock in CLOCKS:
             for start in ("0925", "0930"):
                 for half in HALVES:
                     k = math.log(2) / half
@@ -152,7 +159,7 @@ def main() -> None:
                         res.append((ok / n, clock, start, half))
         if a.by == "value":  # the weight depends on the feed's update count (DataYes vs PM's colo feed); the value much less
             vres = []
-            for clock in ("snap", "snapchg", "trade", "both"):
+            for clock in CLOCKS:
                 for start in ("0930",):
                     for half in HALVES:
                         k = math.log(2) / half
