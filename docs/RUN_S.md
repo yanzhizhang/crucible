@@ -49,7 +49,7 @@ The sizing parameters, from the binary (R133 .rodata) and PM's decision logs on 
 | price | ~64 % far touch, rest near touch / inside | 224 orders; the split rule is unknown |
 | `hs` | half spread / mid | "~half a tick over the price" (PM_REPRO) |
 | `pos`, `pp`, `cpos` | holding - base, pending, pos + pp | exact for 99.9 % / 100 % (R33) |
-| `vpen` | **1e-07, constant** | sc.p3.json; equals the logged p1 (R72). The larger logged values (to 1e-3) are PosClzer::GVpen's output, not the parameter |
+| `vpen` | **1e-07, constant** | sc.p3.json; equals the logged p1 (R72). The larger logged values (to 1e-3) are probably PosClzer::GVpen's scaled output (inference) |
 | EMS windows | 20 / 60 / 30 s | constants in `ct::EMA`, `Alg::onInnerMsg` (R133); which window is which is a guess |
 | cancel | ~5.3 s median, retry on failure | 224 orders (6 s was one sample in R33); OnFCM retries |
 | re-place | ~0.7 s after the cancel, 95 % same side, often before the ack | 224 orders |
@@ -146,7 +146,7 @@ Each piece of the rule follows from that:
    - `asf` 0.8 is a safety margin under that cap.
 3. **The inventory penalty is for overnight and T+1 risk.**
    - A gap left at the close is an unintended position: sold shares can only be re-bought today, and bought shares are locked until tomorrow.
-   - PM prices that risk with a penalty coefficient `vpen` (1e-07, a constant in sc.p3.json); the logged penalty grows (to ~1e-3) because `PosClzer::GVpen` scales it by the position, not because the coefficient ramps. What pulls the book back by the close is the gap-closing size rule and the end-of-day unwind; `rvts` (13:00) may switch on an afternoon mode.
+   - PM prices that risk with a penalty coefficient `vpen` (1e-07, a constant in sc.p3.json); the logged vpen still varies (to ~1e-3), so the logged value is probably the coefficient after `PosClzer::GVpen` scales it (by the position or time) -- an inference, not yet checked. What pulls the book back by the close is the gap-closing size rule and the end-of-day unwind; `rvts` (13:00) may switch on an afternoon mode.
 4. **The size is mostly a pull back to base, with a small alpha tilt.**
    - The fitted rule is 0.87 x (base - qty) + 0.07 x fa x winsdQty.
    - The model predicts a few bp over minutes (PM's alpha std is 3.4e-4). So the alpha decides *when* and *which side* the gap is worked (through the threshold and the gate) far more than *how much*.
