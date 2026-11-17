@@ -121,11 +121,17 @@ The fitted size explains two things in PM's logs:
 - the send gate (`min_order_gap_ms`). This is the biggest behavioural difference: PM sends on only ~2.6 % of the rows that pass its gate.
 - the cross / join split (`cross_k`)
 - the meaning of sc.p3.json's `tqub` / `nmvcst` (applied as caps) and of `tpub`, `adur`, `rvts`, `neg_nmvcst` (unused)
-- cap = base (`gap_frac`)
+- cap = base (`gap_frac`), now only the fallback for stocks without `mb`; with `mb` the cap is `poscst` (its use as the |gap| cap is the guess, its value is an identity)
 - the EMS window (`ems_tau_s`)
 - the hs form of `lthr` instead of PM's vpen^2 form
 
-Not modelled: PM's `vr` (a volatility ratio, p50 0.18) and `poscst` (position cost) terms.
+Not modelled: PM's `vr` (a volatility ratio, p50 0.18). IDENTITY (R151): `vr` = the same day's stsfile stats/sod `vr`.
+
+`poscst` (PM `Alg::poscst`, per stock). IDENTITY (R152 / R154, 1113, 300 of 300 stocks):
+`poscst = min(floor(5 x mb / 100) x 100, cap)`. Here `mb` comes from the SAME day's stats/sod and `cap = 1e7` (tqub or nmvcst: both are 1e7 and cannot be told apart).
+The 5 is a constant that is not in sc.p3.json. R152's apparent ~5 % low tail was the 1e7 clip itself: poscst/mb in 0.2-0.8 for the 5.3 % of stocks with 5 x mb > 1e7.
+In run_s: `params.mb` (symbol -> sod mb), `poscst_k` 5, `poscst_cap` 1e7, used as the per-stock |gap| cap (sht-demo feat/run-s 881fbea, local).
+Dependency: both `vr` and `poscst` need the day's stats/sod file at start-up. 97 had no 20261112.xr; what 224 does when the day's file is missing is a question for the user.
 
 ## 4. The finance: why this algorithm exists
 
@@ -163,6 +169,6 @@ Each piece of the rule follows from that:
 ## 5. Open items
 
 - sc.p3.json is now known (section 2b). Still open: what `tpub`, `adur`, `rvts`, `neg_nmvcst` do, and the exact meaning of `tqub` / `nmvcst`.
-- The `vr` / `poscst` terms (PM logs them per decision); with vpen known they can be fitted from the 224 decision logs.
+- `vr` / `poscst` values are solved (section 3); open: how `vr` enters the rule, whether poscst is exactly the |gap| cap, and 224's behaviour with no sod file for the day.
 - The `executp` target formula. With sc.p3.json and the decision logs it can be fitted directly. The logs give `fa`, `vpen`, `vr`, `poscst`, `cpos`, `asq` and `hs` per decision.
 - A replay test of `run_s` against PM's day: same signals, compare order times, sides and sizes with PM's `place_order` lines on 224.
