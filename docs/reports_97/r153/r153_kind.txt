@@ -1,0 +1,70 @@
+  20260430: CED date=20260430.c5354cec: 27 industry dummies, 47 exposures
+  20261112: CED date=20261112.ec9694de: 26 industry dummies, 46 exposures
+208 candidates x 13 transforms x 5 scales, 11 targets, days ['20260430', '20261112'], 4 model files
+-- zzqf7.q.c2: range union [-0.16208, 0.19248] over 4 segs; thresholds 217; root points 2; best of 12910:
+    0.011    id x1      x.s.ret900s                         in 0.998 worst-seg 0.998 fp 0.008 (below 0.002 above 0.002 int 1.00 root 0.002) PASS(1,2)
+    0.024  -neu x0.01   zr60                                in 1.000 worst-seg 1.000 fp 0.024 (below 0.004 above 0.001 int 1.00 root 0.009) PASS(1,2)
+    0.025   -id x1      x.s.ret900s                         in 0.998 worst-seg 0.998 fp 0.021 (below 0.003 above 0.001 int 1.00 root 0.006) PASS(1,2)
+    0.027  -dmi x1      lee30_14400                         in 0.999 worst-seg 0.998 fp 0.026 (below 0.010 above 0.003 int 1.00 root 0.004) PASS(1,2)
+    0.030  -neu x1      x.s.(high-last)/pre                 in 1.000 worst-seg 1.000 fp 0.030 (below 0.007 above 0.000 int 0.99 root 0.005) PASS(1,2)
+-- zzag2.c: range union [0, 18613] over 4 segs; thresholds 440; root points 1; best of 12910:
+    0.288  abs4 x0.0001 x.s.sec_since_low                   in 0.983 worst-seg 0.232 fp 0.254 (below 0.012 above 0.144 int 0.99 root 0.042)
+    0.288    id x1      x.s.sec_since_low                   in 0.983 worst-seg 0.232 fp 0.254 (below 0.012 above 0.144 int 0.99 root 0.042)
+    0.318  abs4 x0.0001 x.s.sec_since_high                  in 0.982 worst-seg 0.177 fp 0.282 (below 0.012 above 0.176 int 0.99 root 0.042)
+    0.318    id x1      x.s.sec_since_high                  in 0.982 worst-seg 0.177 fp 0.282 (below 0.012 above 0.176 int 0.99 root 0.042)
+    0.323  abs4 x100    order_price_aggressiveness_mean_900s in 0.991 worst-seg 0.169 fp 0.305 (below 0.000 above 0.014 int 0.99 root 0.141)
+-- zzwa.i: range union [-1, 25] over 4 segs; thresholds 324; root points 10; best of 12910:
+    0.212   dmi x100    ret120                              in 0.995 worst-seg 0.995 fp 0.201 (below 0.016 above 0.000 int 1.00 root 0.091)
+    0.212   -dm x100    ret90                               in 0.998 worst-seg 0.998 fp 0.208 (below 0.016 above 0.008 int 0.99 root 0.089)
+    0.214   dmi x100    x.s.ret60s                          in 0.996 worst-seg 0.996 fp 0.206 (below 0.010 above 0.002 int 1.00 root 0.096)
+    0.215  -dmi x100    ret120                              in 0.997 worst-seg 0.997 fp 0.208 (below 0.017 above 0.004 int 1.00 root 0.092)
+    0.217   dmi x100    ret90                               in 0.996 worst-seg 0.996 fp 0.209 (below 0.012 above 0.000 int 1.00 root 0.097)
+-- zzpe.b: range union [-2.976, 2.969] over 4 segs; thresholds 407; root points 0; best of 12910:
+    0.014    dm x1      log_new_order_count_per_s_60s       in 1.000 worst-seg 1.000 fp 0.013 (below 0.000 above 0.001 int 0.99 root 0.000) pass(1,2) no-root
+    0.018   dmi x1      log_new_order_count_per_s_60s       in 1.000 worst-seg 1.000 fp 0.018 (below 0.000 above 0.000 int 0.98 root 0.000) pass(1,2) no-root
+    0.028    id x100    x.s.ret900s                         in 0.995 worst-seg 0.995 fp 0.018 (below 0.004 above 0.004 int 0.99 root 0.000) pass(1,2) no-root
+    0.031  -dmi x1      log_new_order_count_per_s_60s       in 1.000 worst-seg 1.000 fp 0.031 (below 0.002 above 0.000 int 0.97 root 0.000) pass(1,2) no-root
+    0.032  -neu x1      zr60                                in 0.994 worst-seg 0.994 fp 0.020 (below 0.016 above 0.004 int 1.00 root 0.000) pass(1,2) no-root
+-- zzqf5.q.c1: range union [-0.21959, 0.22282] over 4 segs; thresholds 448; root points 6; best of 12910:
+    0.022   neu x0.01   vfrac10                             in 1.000 worst-seg 1.000 fp 0.022 (below 0.000 above 0.000 int 1.00 root 0.010) PASS(1,2)
+    0.024   dmi x0.01   vfrac10                             in 1.000 worst-seg 1.000 fp 0.024 (below 0.001 above 0.000 int 1.00 root 0.010) PASS(1,2)
+    0.026  -dmi x0.01   vfrac10                             in 1.000 worst-seg 1.000 fp 0.026 (below 0.000 above 0.000 int 1.00 root 0.011) PASS(1,2)
+    0.034  -neu x0.01   vfrac10                             in 1.000 worst-seg 1.000 fp 0.034 (below 0.000 above 0.000 int 0.99 root 0.012) PASS(1,2)
+    0.049   -id x0.01   zr60                                in 1.000 worst-seg 1.000 fp 0.049 (below 0.002 above 0.001 int 0.99 root 0.020) PASS(1,2)
+-- zzhi2.l: range union [-10, 10] over 4 segs; thresholds 364; root points 10; best of 12910:
+    0.208   -id x100    lpe25                               in 0.983 worst-seg 0.982 fp 0.175 (below 0.045 above 0.017 int 0.99 root 0.052)
+    0.215  -neu x0.01   x.zzba.r                            in 1.000 worst-seg 0.997 fp 0.215 (below 0.013 above 0.000 int 0.96 root 0.083)
+    0.220    id x100    microprice_minus_mid_rel            in 1.000 worst-seg 1.000 fp 0.220 (below 0.002 above 0.001 int 0.99 root 0.103)
+    0.221   log x100    rpe20                               in 0.983 worst-seg 0.983 fp 0.187 (below 0.030 above 0.023 int 0.99 root 0.063)
+    0.222   -id x100    lpma60                              in 0.983 worst-seg 0.982 fp 0.188 (below 0.048 above 0.020 int 0.99 root 0.057)
+-- zzkp: range union [-1, 1] over 4 segs; thresholds 380; root points 32; best of 12910:
+    0.212   neu x100    bid_depth_weighted_distance_5lvl_rel in 1.000 worst-seg 1.000 fp 0.212 (below 0.006 above 0.020 int 1.00 root 0.092)
+    0.236   -dm x1      net_buy_amount_share_orders_under_40k_cny_300s in 1.000 worst-seg 1.000 fp 0.236 (below 0.008 above 0.014 int 0.99 root 0.103)
+    0.253   -dm x1      x.zzgh.nb|cnt                       in 1.000 worst-seg 1.000 fp 0.253 (below 0.003 above 0.013 int 0.99 root 0.115)
+    0.258   -dm x1      net_buy_amount_share_orders_under_40k_cny_120s in 1.000 worst-seg 1.000 fp 0.258 (below 0.021 above 0.036 int 0.99 root 0.097)
+    0.259    id x100    depth_weighted_price_5lvl_minus_mid_rel in 1.000 worst-seg 1.000 fp 0.258 (below 0.013 above 0.005 int 0.99 root 0.116)
+-- zzzl2.e: range union [-0.61582, 0.61177] over 4 segs; thresholds 427; root points 11; best of 12910:
+    0.190   neu x0.01   x.zzba.r                            in 0.997 worst-seg 0.997 fp 0.184 (below 0.019 above 0.011 int 0.97 root 0.061)
+    0.197   neu x0.01   x.zzxu.a                            in 0.997 worst-seg 0.996 fp 0.190 (below 0.029 above 0.011 int 0.97 root 0.060)
+    0.216   neu x0.01   x.zzvx.trDEmaD                      in 0.997 worst-seg 0.995 fp 0.209 (below 0.031 above 0.012 int 0.95 root 0.057)
+    0.216   neu x0.01   x.zzvx.trDEmaO                      in 0.997 worst-seg 0.995 fp 0.209 (below 0.031 above 0.012 int 0.95 root 0.057)
+    0.216   neu x0.01   x.zzvx.trEmaD                       in 0.997 worst-seg 0.995 fp 0.209 (below 0.031 above 0.012 int 0.95 root 0.057)
+-- zzyj3.c: range union [-1, 1] over 4 segs; thresholds 446; root points 8; best of 12910:
+    0.340   -id x1      imb5                                in 1.000 worst-seg 1.000 fp 0.340 (below 0.008 above 0.000 int 0.99 root 0.161)
+    0.389   -id x1      stoch                               in 1.000 worst-seg 1.000 fp 0.389 (below 0.063 above 0.000 int 0.90 root 0.113)
+    0.419   -id x1      imb1                                in 1.000 worst-seg 1.000 fp 0.419 (below 0.071 above 0.000 int 0.99 root 0.167)
+    0.502 srank x1      flow_big_imb60                      in 1.000 worst-seg 1.000 fp 0.502 (below 0.016 above 0.000 int 0.91 root 0.200)
+    0.505    id x1      imbv30                              in 1.000 worst-seg 1.000 fp 0.505 (below 0.043 above 0.003 int 0.99 root 0.225)
+-- zzpp.e: range union [0, 20.793] over 4 segs; thresholds 477; root points 16; best of 12910:
+    0.772   log x1      x.s.wan900s                         in 1.000 worst-seg 0.512 fp 0.772 (below 0.000 above 0.000 int 0.63 root 0.203)
+    0.785   log x1      x.s.tsec_since_high                 in 1.000 worst-seg 0.464 fp 0.785 (below 0.006 above 0.000 int 0.51 root 0.145)
+    0.894  abs4 x0.0001 log_channel_sequence_advance_per_s_60s in 1.000 worst-seg 0.899 fp 0.894 (below 0.000 above 0.000 int 0.39 root 0.141)
+    0.894    id x1      log_channel_sequence_advance_per_s_60s in 1.000 worst-seg 0.899 fp 0.894 (below 0.000 above 0.000 int 0.39 root 0.141)
+    0.926   log x1      x.s.lots300s                        in 1.000 worst-seg 0.418 fp 0.926 (below 0.000 above 0.000 int 0.64 root 0.281)
+-- zzhi2.i: range union [-10, 10] over 4 segs; thresholds 348; root points 19; best of 12910:
+    0.131   -dm x1      x.zzgh.nb|cnt                       in 1.000 worst-seg 1.000 fp 0.131 (below 0.002 above 0.000 int 0.98 root 0.054)
+    0.133  -neu x1      net_buy_amount_share_orders_under_40k_cny_120s in 1.000 worst-seg 1.000 fp 0.133 (below 0.014 above 0.000 int 0.99 root 0.055)
+    0.137  -dmi x1      x.zzgh.nb|vol                       in 1.000 worst-seg 1.000 fp 0.137 (below 0.017 above 0.000 int 0.99 root 0.054)
+    0.137  -dmi x100    ret120                              in 0.996 worst-seg 0.996 fp 0.129 (below 0.031 above 0.006 int 1.00 root 0.045)
+    0.138  -dmi x1      net_buy_amount_share_orders_under_40k_cny_120s in 1.000 worst-seg 1.000 fp 0.138 (below 0.015 above 0.000 int 0.99 root 0.054)
+[01:33:58] r153 kind done

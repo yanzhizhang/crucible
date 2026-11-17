@@ -1,0 +1,70 @@
+  20260430: CED date=20260430.c5354cec: 27 industry dummies, 47 exposures
+  20261112: CED date=20261112.ec9694de: 26 industry dummies, 46 exposures
+208 candidates x 13 transforms x 5 scales, 11 targets, days ['20260430', '20261112'], 4 model files
+-- zzxc.b: range union [-91.184, 72.094] over 4 segs; thresholds 268; root points 19; best of 12910:
+    0.247   1/b x0.0001 ofi_levels2to5_norm_10s             in 1.000 worst-seg 0.998 fp 0.247 (below 0.005 above 0.005 int 0.97 root 0.106)
+    0.247   -id x100    lpe5                                in 0.994 worst-seg 0.983 fp 0.235 (below 0.011 above 0.006 int 0.97 root 0.094)
+    0.252    id x100    lpe5                                in 0.993 worst-seg 0.983 fp 0.237 (below 0.006 above 0.011 int 0.97 root 0.095)
+    0.252   log x100    rpe5                                in 0.993 worst-seg 0.983 fp 0.237 (below 0.006 above 0.011 int 0.97 root 0.095)
+    0.254   -id x100    lmie5                               in 0.994 worst-seg 0.983 fp 0.242 (below 0.011 above 0.006 int 0.97 root 0.098)
+-- zzro.e: range union [-0.060834, 0.043013] over 4 segs; thresholds 366; root points 12; best of 12910:
+    0.243   -id x0.0001 zr60                                in 1.000 worst-seg 1.000 fp 0.243 (below 0.000 above 0.000 int 0.97 root 0.106)
+    0.253   -dm x0.0001 zr60                                in 1.000 worst-seg 1.000 fp 0.253 (below 0.000 above 0.000 int 0.98 root 0.114)
+    0.263   -dm x0.01   amihud_illiq_900s                   in 1.000 worst-seg 0.999 fp 0.263 (below 0.001 above 0.005 int 0.98 root 0.120)
+    0.265  -dmi x0.01   amihud_illiq_900s                   in 1.000 worst-seg 0.999 fp 0.265 (below 0.001 above 0.003 int 0.99 root 0.126)
+    0.265    dm x0.0001 zr60                                in 1.000 worst-seg 1.000 fp 0.265 (below 0.000 above 0.000 int 0.98 root 0.122)
+-- zzwa.f: range union [-0.039839, 0.3276] over 4 segs; thresholds 271; root points 22; best of 12910:
+    0.248   -dm x0.0001 zr60                                in 1.000 worst-seg 1.000 fp 0.248 (below 0.001 above 0.000 int 0.98 root 0.113)
+    0.258  -dmi x0.0001 zr60                                in 1.000 worst-seg 1.000 fp 0.258 (below 0.000 above 0.000 int 0.98 root 0.118)
+    0.270  -neu x0.0001 zr60                                in 1.000 worst-seg 1.000 fp 0.270 (below 0.000 above 0.000 int 0.97 root 0.118)
+    0.284   neu x0.0001 lpev60                              in 1.000 worst-seg 1.000 fp 0.284 (below 0.022 above 0.000 int 0.98 root 0.122)
+    0.285   neu x0.0001 ofi_levels1to5_norm_10s             in 1.000 worst-seg 1.000 fp 0.285 (below 0.003 above 0.000 int 0.99 root 0.133)
+-- zzwa.h: range union [-7.195e+05, 3.1151e+05] over 4 segs; thresholds 312; root points 34; best of 12910:
+    0.396   -id x100    depth_weighted_price_5lvl_minus_mid_rel in 1.000 worst-seg 1.000 fp 0.396 (below 0.001 above 0.000 int 0.98 root 0.188)
+    0.507  -dmi x100    bid_depth_weighted_distance_5lvl_rel in 1.000 worst-seg 1.000 fp 0.507 (below 0.008 above 0.000 int 0.95 root 0.225)
+    0.529   dmi x100    order_price_aggressiveness_mean_900s in 1.000 worst-seg 1.000 fp 0.529 (below 0.034 above 0.007 int 0.99 root 0.238)
+    0.530    dm x100    depth_weighted_price_5lvl_minus_mid_rel in 1.000 worst-seg 1.000 fp 0.530 (below 0.000 above 0.001 int 0.98 root 0.253)
+    0.539  -dmi x0.0001 x.s.wan60s                          in 1.000 worst-seg 1.000 fp 0.539 (below 0.022 above 0.044 int 0.99 root 0.233)
+-- zzwa.k: range union [-74.693, 196.51] over 4 segs; thresholds 380; root points 17; best of 12910:
+    0.391   -id x100    lmie30                              in 0.993 worst-seg 0.980 fp 0.376 (below 0.011 above 0.006 int 0.97 root 0.163)
+    0.394   -id x100    lpe25                               in 0.993 worst-seg 0.981 fp 0.379 (below 0.011 above 0.006 int 0.97 root 0.167)
+    0.447    id x100    lpe25                               in 0.994 worst-seg 0.982 fp 0.435 (below 0.006 above 0.011 int 0.98 root 0.197)
+    0.447   log x100    rpe25                               in 0.994 worst-seg 0.982 fp 0.435 (below 0.006 above 0.011 int 0.98 root 0.197)
+    0.447   -id x100    lpma60                              in 0.985 worst-seg 0.981 fp 0.418 (below 0.011 above 0.006 int 0.96 root 0.178)
+-- zzqo.c: range union [-3.7231e+05, 5.0949e+05] over 4 segs; thresholds 457; root points 16; best of 12910:
+    0.313   -dm x10000  x.zzgh.nb|ord                       in 1.000 worst-seg 1.000 fp 0.313 (below 0.000 above 0.000 int 0.91 root 0.111)
+    0.313   1/b x1      mret1800                            in 0.999 worst-seg 0.996 fp 0.311 (below 0.007 above 0.005 int 0.98 root 0.140)
+    0.314   -dm x10000  x.zzgh.nb|ordvol                    in 1.000 worst-seg 1.000 fp 0.314 (below 0.000 above 0.000 int 0.90 root 0.109)
+    0.314   dmi x10000  x.zzgh.nb|ordvol                    in 1.000 worst-seg 1.000 fp 0.314 (below 0.000 above 0.000 int 0.89 root 0.104)
+    0.317  -dmi x10000  x.zzgh.nb|ordvol                    in 1.000 worst-seg 1.000 fp 0.317 (below 0.000 above 0.000 int 0.90 root 0.106)
+-- zzqo.d: range union [-10571, 32700] over 4 segs; thresholds 192; root points 16; best of 12910:
+    0.224   1/b x0.0001 ofi_levels2to5_norm_10s             in 1.000 worst-seg 0.995 fp 0.224 (below 0.000 above 0.000 int 0.98 root 0.102)
+    0.266   neu x1      amihud_illiq_900s                   in 1.000 worst-seg 0.999 fp 0.266 (below 0.000 above 0.000 int 0.92 root 0.091)
+    0.266   -id x100    lpe5                                in 1.000 worst-seg 0.983 fp 0.266 (below 0.000 above 0.006 int 0.92 root 0.091)
+    0.266   -id x100    lmie5                               in 1.000 worst-seg 0.983 fp 0.266 (below 0.000 above 0.006 int 0.92 root 0.091)
+    0.267    id x100    lpe5                                in 1.000 worst-seg 0.983 fp 0.267 (below 0.006 above 0.001 int 0.92 root 0.091)
+-- zzal.h: range union [-14999, 25527] over 4 segs; thresholds 448; root points 2; best of 12910:
+    0.064  -neu x10000  x.s.(last-low)/pre                  in 1.000 worst-seg 1.000 fp 0.064 (below 0.002 above 0.011 int 0.98 root 0.015)
+    0.066  -dmi x10000  x.s.last/low                        in 1.000 worst-seg 1.000 fp 0.066 (below 0.002 above 0.018 int 0.98 root 0.015)
+    0.066  -dmi x10000  x.s.last/low-1                      in 1.000 worst-seg 1.000 fp 0.066 (below 0.002 above 0.018 int 0.98 root 0.015)
+    0.068  -neu x10000  x.s.last/low                        in 1.000 worst-seg 1.000 fp 0.068 (below 0.001 above 0.012 int 0.98 root 0.015)
+    0.069  -dmi x10000  x.s.(last-low)/pre                  in 1.000 worst-seg 1.000 fp 0.069 (below 0.002 above 0.017 int 0.98 root 0.015)
+-- zzaa.a: range union [-7.7503e+08, 9.16e+08] over 4 segs; thresholds 465; root points 15; best of 12910:
+    0.350   1/b x10000  ofi_levels2to5_norm_10s             in 0.999 worst-seg 0.935 fp 0.348 (below 0.020 above 0.023 int 0.98 root 0.145)
+    0.434   1/b x10000  ofi_levels1to5_norm_10s             in 1.000 worst-seg 0.967 fp 0.434 (below 0.009 above 0.009 int 0.98 root 0.197)
+    0.505   1/b x10000  ofi_levels1to6_norm_30s             in 1.000 worst-seg 0.985 fp 0.504 (below 0.003 above 0.004 int 0.99 root 0.242)
+    0.580   1/b x1      lmie5                               in 1.000 worst-seg 0.995 fp 0.580 (below 0.001 above 0.001 int 0.99 root 0.284)
+    0.609   1/b x1      lmie10                              in 1.000 worst-seg 0.998 fp 0.608 (below 0.001 above 0.000 int 0.99 root 0.298)
+-- zzgh2.b: range union [0, 35545] over 4 segs; thresholds 479; root points 0; best of 12910:
+    0.075  sqrt x10000  ofi_levels1to6_norm_30s             in 0.986 worst-seg 0.181 fp 0.047 (below 0.028 above 0.014 int 1.00 root 0.000)
+    0.078  abs4 x100    lee30_14400                         in 0.991 worst-seg 0.228 fp 0.061 (below 0.000 above 0.009 int 0.95 root 0.000)
+    0.118  abs4 x100    lpes3600                            in 0.973 worst-seg 0.194 fp 0.064 (below 0.000 above 0.027 int 0.96 root 0.000)
+    0.134  abs4 x100    mret1800                            in 0.994 worst-seg 0.290 fp 0.123 (below 0.001 above 0.006 int 0.88 root 0.000)
+    0.136  abs4 x100    lpes2400                            in 0.977 worst-seg 0.234 fp 0.090 (below 0.000 above 0.023 int 0.93 root 0.000)
+-- zzop.j: range union [0, 11655] over 4 segs; thresholds 503; root points 0; best of 12910:
+    0.032  abs4 x1      x.zzgh.nb|ord                       in 1.000 worst-seg 1.000 fp 0.032 (below 0.000 above 0.016 int 0.98 root 0.000) pass(1,2) no-root
+    0.041  sqrt x0.01   x.zzqj.tpv                          in 1.000 worst-seg 1.000 fp 0.041 (below 0.003 above 0.000 int 0.96 root 0.000) pass(1,2) no-root
+    0.041  sqrt x0.01   x.zzvm.c.tpv                        in 1.000 worst-seg 1.000 fp 0.041 (below 0.003 above 0.000 int 0.96 root 0.000) pass(1,2) no-root
+    0.044  abs4 x1      x.zzgh.nb|ordvol                    in 1.000 worst-seg 1.000 fp 0.044 (below 0.000 above 0.016 int 0.97 root 0.000) pass(1,2) no-root
+    0.045  abs4 x100    depth_weighted_price_5lvl_minus_mid_rel in 1.000 worst-seg 1.000 fp 0.045 (below 0.000 above 0.027 int 0.98 root 0.000) pass(1,2) no-root
+[01:34:06] r153 scale done
