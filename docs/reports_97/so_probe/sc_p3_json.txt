@@ -1,0 +1,18 @@
+# PM's alg_cfg sc.p3.json, read on 224 (read-only, ssh cat from 97; nothing copied), 2026-11-17 ~15:05.
+# /tmp/zyq/sht-stg-lib/cfg/sim_example/sc.p3.json (270 B, mtime 2026-11-17 13:13)
+{
+    "ahubs": [
+        {
+            "tqub": 10000000,
+            "nmvcst": 10000000,
+            "tpub": 0.09,
+            "adur": 12,
+            "vpen": 1e-07,
+            "rvts": 130000000,
+            "asf": 0.8,
+            "neg_nmvcst": false
+        }
+    ]
+}
+# Also in that tree: cfg/sim_example/config2_HS300.json (1181 B, 11-17 13:13, md5 4015d2aa...) differs from the
+# top-level config2_HS300.json (1181 B, 11-16 10:41, md5 8d5d64aa...); cfg/sim_example/sid2symbol.json (89818 B).
