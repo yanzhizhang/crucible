@@ -176,6 +176,8 @@ def main() -> None:
     rows = np.sort(rng.choice(D.X.shape[0], min(a.rows, D.X.shape[0]), replace=False))
     print(f"{d}: {D.X.shape[0]:,} rows, {len(files)} model files, trusted {'ALL columns' if a.trusted == 'all' else [names[j] for j in sorted(trusted)]}")
     runs = []
+    pool_cache: dict[tuple[str, str], np.ndarray | None] = {}
+    print(f"   {len(D.bases)} bases; pool transforms {a.pool_tr}", flush=True)
     if a.calibrate:
         for j in sorted(trusted):
             pool = [f"X:{names[j]}"] + [f"id:{b}" for b in sorted(D.bases)[: a.max_bases]] + [c for c in a.cands.split(",") if c]
@@ -210,7 +212,9 @@ def main() -> None:
                     if a.pool_re and not re.search(a.pool_re, b):
                         continue
                     for tr in a.pool_tr.split(","):
-                        _, v0 = cand_values(D, f"{tr}:{b}")
+                        if (tr, b) not in pool_cache:  # the transformed base is the same for every target: build it once
+                            pool_cache[(tr, b)] = cand_values(D, f"{tr}:{b}")[1]
+                        v0 = pool_cache[(tr, b)]
                         if v0 is None:
                             continue
                         f0 = v0[rows]
@@ -224,7 +228,7 @@ def main() -> None:
                             inside = float(((f0 * c_ >= lo - tol) & (f0 * c_ <= hi + tol)).mean())
                             if inside >= a.pool_in and hi > lo and (min(a1, hi) - max(a0, lo)) / (hi - lo) >= 0.2:
                                 work.append((f"{tr}:{b}@{sc}", v0 * c_))
-                print(f"   pool: {len(work) - n0} candidates inside [{lo:.5g}, {hi:.5g}]")
+                print(f"   pool: {len(work) - n0} candidates inside [{lo:.5g}, {hi:.5g}]", flush=True)
         if a.workers > 1 and sys.platform != "win32":
             import multiprocessing as mp
             with mp.get_context("fork").Pool(a.workers) as pool_:

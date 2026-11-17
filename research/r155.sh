@@ -8,7 +8,8 @@
 #       (exact) and its own state formula must come first; how far behind the next candidate is = the test's power.
 #  a    the columns R153 passed or nearly passed: is the fingerprint's candidate also first here, and does it beat the stand-in?
 #  b    node_audit's worst stand-ins with no fingerprint candidate.
-# Day 20261112, production generation C. ~10-40 min per part (32 workers).
+# Day 20261112, production generation C. The pool's transformed bases are built once per part (single process, the slow
+# stage: peer-relative transforms per mark), then each target is scored with 32 workers. Output is line-buffered.
 #   bash research/r155.sh cal 2>&1 | tee data/reports/r155_cal.txt     (same for a, b)
 set -u
 cd /work/crucible
@@ -20,5 +21,5 @@ b)   T=zzag2.c,zzpp.e,zzhi2.b,zzwa.h,zzwa.e,zzkp,zzlk,zzxt3 ;;
 esac
 python -u research/featgen/cond_counts.py --day 20261112 --x-dir "data/reports/stage6_r99_{mmdd}" --base "data/featgen_r99/base_{date}.parquet" \
   --extra "data/side_r105/ratio_{date}.parquet,data/side_r107/state_{date}.parquet,data/side_r105/engine_{date}.parquet" \
-  --target $T --trusted all --pool --models $DATA/models_gen/C --rows 150000 --max-nodes 2500 --workers 32 --top 8 2>&1 | grep -v Warning | cut -c1-200
+  --target $T --trusted all --pool --models $DATA/models_gen/C --rows 150000 --max-nodes 2500 --workers 32 --top 8 2>&1 | grep --line-buffered -v Warning | stdbuf -oL cut -c1-200
 echo "[$(date +%T)] r155 $1 done"
