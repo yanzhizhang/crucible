@@ -121,6 +121,9 @@ class Stock:
         # zzqj.v / tpv variants: whole day, without the close auction, local-clock session
         self.vol_all = self.amt_all = self.vol_o = self.amt_o = self.vol_loc = self.amt_loc = 0.0
         self.hm = math.nan  # highest snapshot price in the continuous session (exchange time)
+        self.lm = math.nan  # lowest snapshot price in the continuous session
+        self.sp_hi = self.sp_lo = math.nan  # highest / lowest snapshot price of the whole day
+        self.c_high = self.c_low = math.nan  # highest / lowest trade price in the continuous session
         self.pc = self.op = math.nan  # previous close / open from the snapshots
         self.snap_px = self.snap_prev = math.nan  # last two snapshot prices (zzbd.rEmaS)
         self.trade_px = self.trade_prev = math.nan

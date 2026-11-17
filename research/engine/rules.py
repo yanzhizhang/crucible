@@ -83,6 +83,11 @@ def snap_value(st: Stock, what: str) -> float:
         return st.amt / st.vol if st.vol > 0 else math.nan
     if what == "last_px":
         return st.last
+    if what in ("hl_sp", "hl_spall", "hl_cont", "r_sp", "r_spall", "r_cont"):  # narrower ranges and the day range over them
+        v = {"sp": st.hm - st.lm, "spall": st.sp_hi - st.sp_lo, "cont": st.c_high - st.c_low}[what.partition("_")[2]]
+        if what.startswith("hl_"):
+            return v
+        return (st.hi_f - st.lo_f) / v if v > 0 else math.nan
     if what == "tr_pc":  # true range against the previous close: the day's range widened to include it
         return max(st.hi_f, st.pc) - min(st.lo_f, st.pc)
     if what == "tr_ratio":  # true range / the day's own range (1 unless the previous close is outside the range)
@@ -133,6 +138,13 @@ def on_snap(st: Stock, t: float, s: float, lsod: float, price: float, b1: float,
         st.pc = pc
     if 34200 <= s < 53820 and price > 0 and not (st.hm >= price):
         st.hm = price
+    if 34200 <= s < 53820 and price > 0 and not (st.lm <= price):
+        st.lm = price
+    if price > 0:
+        if not (st.sp_hi >= price):
+            st.sp_hi = price
+        if not (st.sp_lo <= price):
+            st.sp_lo = price
     for e, clock, what in st.ema.values():
         base, _, mod = clock.partition("_")
         if base != "trade":
@@ -179,6 +191,9 @@ def on_trade(st: Stock, t: float, s: float, price: float, vol: float, side: floa
         if st.open != st.open:
             st.open = price
         st.last = price
+        if 34200 <= s < 53820:
+            st.c_high = price if not (st.c_high >= price) else st.c_high
+            st.c_low = price if not (st.c_low <= price) else st.c_low
     amt = vol * price
     b, sl = (side > 0), (side < 0)
     if 34200 <= s < 53820:  # zzgh.nb variants: trade count, amount at the last snapshot price

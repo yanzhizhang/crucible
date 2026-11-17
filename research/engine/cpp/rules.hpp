@@ -17,7 +17,7 @@ inline double pymax(double a, double b) { return b > a ? b : a; }
 inline double pymin(double a, double b) { return b < a ? b : a; }
 
 enum class what : int { price, mid, logp, hl, hl0, hl_valid, tr_open, logret, one, snap_px, hl_snap, rvwap, hl_trade, tro, price0, price_pc,
-                        last_px, span, mh_dd2, tr_pc, tr_ratio, trade_ratio };
+                        last_px, span, mh_dd2, tr_pc, tr_ratio, trade_ratio, hl_sp, hl_spall, hl_cont, r_sp, r_spall, r_cont };
 enum class clock_mod : int { none, wall, exch, o930 };
 
 inline double tc(double s) { return s <= 41400 ? s - 34200 : (s < 46800 ? 7200.0 : s - 46800 + 7200); }
@@ -53,6 +53,12 @@ inline what parse_what(const std::string& w) {
     if (w == "tr_pc") return what::tr_pc;
     if (w == "tr_ratio") return what::tr_ratio;
     if (w == "trade_ratio") return what::trade_ratio;
+    if (w == "hl_sp") return what::hl_sp;
+    if (w == "hl_spall") return what::hl_spall;
+    if (w == "hl_cont") return what::hl_cont;
+    if (w == "r_sp") return what::r_sp;
+    if (w == "r_spall") return what::r_spall;
+    if (w == "r_cont") return what::r_cont;
     throw std::runtime_error("unknown value kind " + w);
 }
 
@@ -84,6 +90,12 @@ inline double snap_value(const tape& st, what w) {
     case what::last_px: return st.last;
     case what::span: return chan_span(st);
     case what::mh_dd2: { double d = (st.hm - st.snap_px) / st.hm; return 4.0 * d * d; }  // zzmh.r: (2 x drawdown from zzmh.hm)^2
+    case what::hl_sp: return st.hm - st.lm;
+    case what::hl_spall: return st.sp_hi - st.sp_lo;
+    case what::hl_cont: return st.c_high - st.c_low;
+    case what::r_sp: { double v = st.hm - st.lm; return v > 0 ? (st.hi_f - st.lo_f) / v : qnan; }
+    case what::r_spall: { double v = st.sp_hi - st.sp_lo; return v > 0 ? (st.hi_f - st.lo_f) / v : qnan; }
+    case what::r_cont: { double v = st.c_high - st.c_low; return v > 0 ? (st.hi_f - st.lo_f) / v : qnan; }
     case what::tr_pc: return pymax(st.hi_f, st.pc) - pymin(st.lo_f, st.pc);  // true range against the previous close
     case what::tr_ratio: return st.hi_f - st.lo_f > 0 ? (pymax(st.hi_f, st.pc) - pymin(st.lo_f, st.pc)) / (st.hi_f - st.lo_f) : qnan;
     case what::trade_ratio: return st.hi_f - st.lo_f > 0 ? (st.high - st.low) / (st.hi_f - st.lo_f) : qnan;
@@ -134,6 +146,11 @@ inline void on_snap(stock& st, const compiled_rules& cr, double t, double s, dou
     if (op > 0) st.op = op;
     if (pc > 0) st.pc = pc;
     if (34200 <= s && s < 53820 && price > 0 && !(st.hm >= price)) st.hm = price;
+    if (34200 <= s && s < 53820 && price > 0 && !(st.lm <= price)) st.lm = price;
+    if (price > 0) {
+        if (!(st.sp_hi >= price)) st.sp_hi = price;
+        if (!(st.sp_lo <= price)) st.sp_lo = price;
+    }
     for (std::size_t i = 0; i < st.emas.size(); ++i)
         if (cr.clock[i] != 1) {
             double tt = clock_time(cr.mod[i], t, s);
@@ -175,6 +192,10 @@ inline void on_trade(stock& st, const compiled_rules& cr, double t, double s, do
         if (!(st.low <= price)) st.low = price;
         if (std::isnan(st.open)) st.open = price;
         st.last = price;
+        if (34200 <= s && s < 53820) {
+            if (!(st.c_high >= price)) st.c_high = price;
+            if (!(st.c_low <= price)) st.c_low = price;
+        }
     }
     double amt = vol * price;
     double b = side > 0 ? 1.0 : 0.0, sl = side < 0 ? 1.0 : 0.0;
