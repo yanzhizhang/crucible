@@ -1,0 +1,111 @@
+engine: 20 stocks, 80000 events, 26 rules, 4 threads, 0.01s
+20 stocks, 55780 day-end values + 40420 mark values compared, 0 mismatches
+20261112: stop 54149.981 -> data/engine_r162/engine_20261112.json.gz (22s total)
+== 20261112  key: n, equal share at 1e-6 (all / SZSE), at 1e-4 (all / SZSE), median relative error
+   zzvx.high                n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 0
+   zzvx.low                 n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 0
+   zzvx.rEmaD               n  300  0.8900 / 0.8750   0.9400 / 0.9286   mre 0
+   zzvx.rEmaD.t             n  300  0.9600 / 0.8929   1.0000 / 1.0000   mre 1.36e-07
+   zzvx.rEmaD.t|red         n  300  0.9600 / 0.8929   1.0000 / 1.0000   mre 1.36e-07
+   zzvx.rEmaD.t|rtd         n  300  0.9600 / 0.8929   1.0000 / 1.0000   mre 1.36e-07
+   zzvx.rEmaD.t|rte         n  300  0.9600 / 0.8929   1.0000 / 1.0000   mre 1.36e-07
+   zzvx.rEmaD|red           n  300  0.9967 / 1.0000   1.0000 / 1.0000   mre 0
+   zzvx.rEmaD|rtd           n  300  0.9133 / 0.9107   0.9567 / 0.9464   mre 2.22e-16
+   zzvx.rEmaD|rte           n  300  0.8900 / 0.8750   0.9467 / 0.9375   mre 1.11e-16
+   zzvx.rEmaO               n  300  0.8900 / 0.8750   0.9400 / 0.9286   mre 0
+   zzvx.rEmaO.t             n  300  0.9600 / 0.8929   1.0000 / 1.0000   mre 1.36e-07
+   zzvx.trDEmaD             n  300  0.9167 / 0.9107   0.9567 / 0.9464   mre 1.95e-16
+   zzvx.trDEmaD.t           n  300  0.9600 / 0.8929   1.0000 / 1.0000   mre 1.36e-07
+   zzvx.trDEmaD.t|dema      n  300  0.9600 / 0.8929   1.0000 / 1.0000   mre 1.36e-07
+   zzvx.trDEmaD|dema        n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 1.97e-16
+   zzvx.trDEmaO             n  300  0.9167 / 0.9107   0.9567 / 0.9464   mre 1.95e-16
+   zzvx.trDEmaO.t           n  300  0.9600 / 0.8929   1.0000 / 1.0000   mre 1.36e-07
+   zzvx.trEmaD              n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 1.71e-16
+   zzvx.trEmaD.t            n  300  0.9600 / 0.8929   1.0000 / 1.0000   mre 1.36e-07
+   zzvx.trEmaO              n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 1.71e-16
+   zzvx.trEmaO.t            n  300  0.9600 / 0.8929   1.0000 / 1.0000   mre 1.36e-07
+   zzxu.a                   n  300  0.9967 / 0.9911   1.0000 / 1.0000   mre 8.25e-09
+   zzxu.a.t                 n  300  0.9600 / 0.8929   1.0000 / 1.0000   mre 1.36e-07
+   zzxu.dir|st1             n  300  0.6233 / 0.6161   0.6233 / 0.6161   mre 0
+   zzxu.dir|st2             n  300  0.6633 / 0.7143   0.6633 / 0.7143   mre 0
+   zzxu.dir|st3             n  300  0.5833 / 0.6071   0.5833 / 0.6071   mre 0
+   zzxu.dir|st4             n  300  0.6633 / 0.7143   0.6633 / 0.7143   mre 0
+   zzxu.dir|st5             n  300  0.6533 / 0.6607   0.6533 / 0.6607   mre 0
+   zzxu.dir|st6             n  300  0.6200 / 0.6339   0.6200 / 0.6339   mre 0
+   zzxu.high                n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 0
+   zzxu.last                n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 0
+   zzxu.low                 n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 0
+   zzxu.lower|st1           n  300  0.2533 / 0.3393   0.2800 / 0.3571   mre 0.0194
+   zzxu.lower|st2           n  300  0.0000 / 0.0000   0.0000 / 0.0000   mre 0.0191
+   zzxu.lower|st3           n  300  0.0000 / 0.0000   0.0100 / 0.0089   mre 0.0199
+   zzxu.lower|st4           n  300  0.0000 / 0.0000   0.0000 / 0.0000   mre 0.0191
+   zzxu.lower|st5           n  300  0.0033 / 0.0089   0.0033 / 0.0089   mre 0.0187
+   zzxu.lower|st6           n  300  0.2600 / 0.3571   0.2900 / 0.3750   mre 0.0194
+   zzxu.p                   n  300  0.9967 / 1.0000   1.0000 / 1.0000   mre 9.21e-10
+   zzxu.p.t                 n  300  0.9600 / 0.8929   1.0000 / 1.0000   mre 1.36e-07
+   zzxu.upper|st1           n  300  0.2967 / 0.2679   0.3467 / 0.2679   mre 0.0206
+   zzxu.upper|st2           n  300  0.0000 / 0.0000   0.0000 / 0.0000   mre 0.0376
+   zzxu.upper|st3           n  300  0.0000 / 0.0000   0.0033 / 0.0000   mre 0.0382
+   zzxu.upper|st4           n  300  0.0000 / 0.0000   0.0000 / 0.0000   mre 0.0376
+   zzxu.upper|st5           n  300  0.0133 / 0.0000   0.0233 / 0.0000   mre 0.0386
+   zzxu.upper|st6           n  300  0.2867 / 0.2589   0.3333 / 0.2589   mre 0.02
+   band st1 by (PM dir, our dir): stocks, upper equal, lower equal
+      PM -1 ours -1:   84     0    76
+      PM -1 ours +1:   11     0     0
+      PM +1 ours -1:  102     1     0
+      PM +1 ours +1:  103    88     0
+20261113: stop 54149.897 -> data/engine_r162/engine_20261113.json.gz (21s total)
+== 20261113  key: n, equal share at 1e-6 (all / SZSE), at 1e-4 (all / SZSE), median relative error
+   zzvx.high                n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 0
+   zzvx.low                 n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 0
+   zzvx.rEmaD               n  300  0.8500 / 0.8571   0.9567 / 0.9821   mre 0
+   zzvx.rEmaD.t             n  300  0.9533 / 0.8839   0.9967 / 1.0000   mre 2.1e-07
+   zzvx.rEmaD.t|red         n  300  0.9533 / 0.8839   0.9967 / 1.0000   mre 2.1e-07
+   zzvx.rEmaD.t|rtd         n  300  0.9533 / 0.8839   0.9967 / 1.0000   mre 2.1e-07
+   zzvx.rEmaD.t|rte         n  300  0.9533 / 0.8839   0.9967 / 1.0000   mre 2.1e-07
+   zzvx.rEmaD|red           n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 0
+   zzvx.rEmaD|rtd           n  300  0.9067 / 0.9464   0.9900 / 1.0000   mre 1.11e-16
+   zzvx.rEmaD|rte           n  300  0.8533 / 0.8571   0.9600 / 0.9911   mre 0
+   zzvx.rEmaO               n  300  0.8500 / 0.8571   0.9567 / 0.9821   mre 0
+   zzvx.rEmaO.t             n  300  0.9533 / 0.8839   0.9967 / 1.0000   mre 2.1e-07
+   zzvx.trDEmaD             n  300  0.9133 / 0.9286   0.9900 / 1.0000   mre 1.73e-16
+   zzvx.trDEmaD.t           n  300  0.9533 / 0.8839   0.9967 / 1.0000   mre 2.1e-07
+   zzvx.trDEmaD.t|dema      n  300  0.9533 / 0.8839   0.9967 / 1.0000   mre 2.1e-07
+   zzvx.trDEmaD|dema        n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 1.73e-16
+   zzvx.trDEmaO             n  300  0.9133 / 0.9286   0.9900 / 1.0000   mre 1.73e-16
+   zzvx.trDEmaO.t           n  300  0.9533 / 0.8839   0.9967 / 1.0000   mre 2.1e-07
+   zzvx.trEmaD              n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 1.4e-16
+   zzvx.trEmaD.t            n  300  0.9533 / 0.8839   0.9967 / 1.0000   mre 2.1e-07
+   zzvx.trEmaO              n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 1.4e-16
+   zzvx.trEmaO.t            n  300  0.9533 / 0.8839   0.9967 / 1.0000   mre 2.1e-07
+   zzxu.a                   n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 1.39e-08
+   zzxu.a.t                 n  300  0.9533 / 0.8839   0.9967 / 1.0000   mre 2.1e-07
+   zzxu.dir|st1             n  300  0.7800 / 0.7321   0.7800 / 0.7321   mre 0
+   zzxu.dir|st2             n  300  0.7633 / 0.7321   0.7633 / 0.7321   mre 0
+   zzxu.dir|st3             n  300  0.6800 / 0.6875   0.6800 / 0.6875   mre 0
+   zzxu.dir|st4             n  300  0.7633 / 0.7321   0.7633 / 0.7321   mre 0
+   zzxu.dir|st5             n  300  0.7567 / 0.7232   0.7567 / 0.7232   mre 0
+   zzxu.dir|st6             n  300  0.7533 / 0.6964   0.7533 / 0.6964   mre 0
+   zzxu.high                n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 0
+   zzxu.last                n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 0
+   zzxu.low                 n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 0
+   zzxu.lower|st1           n  300  0.1367 / 0.2232   0.2167 / 0.2768   mre 0.00604
+   zzxu.lower|st2           n  300  0.0000 / 0.0000   0.0033 / 0.0000   mre 0.0138
+   zzxu.lower|st3           n  300  0.0000 / 0.0000   0.0033 / 0.0000   mre 0.0132
+   zzxu.lower|st4           n  300  0.0000 / 0.0000   0.0033 / 0.0000   mre 0.0138
+   zzxu.lower|st5           n  300  0.0000 / 0.0000   0.0033 / 0.0000   mre 0.0137
+   zzxu.lower|st6           n  300  0.1367 / 0.2232   0.2200 / 0.2768   mre 0.00577
+   zzxu.p                   n  300  0.9633 / 0.9911   1.0000 / 1.0000   mre 1.37e-09
+   zzxu.p.t                 n  300  0.9533 / 0.8839   0.9967 / 1.0000   mre 2.1e-07
+   zzxu.upper|st1           n  300  0.5000 / 0.4464   0.5767 / 0.4643   mre 3.28e-08
+   zzxu.upper|st2           n  300  0.0000 / 0.0000   0.0067 / 0.0000   mre 0.0453
+   zzxu.upper|st3           n  300  0.0000 / 0.0000   0.0067 / 0.0000   mre 0.0422
+   zzxu.upper|st4           n  300  0.0000 / 0.0000   0.0067 / 0.0000   mre 0.0453
+   zzxu.upper|st5           n  300  0.0000 / 0.0000   0.0033 / 0.0000   mre 0.0455
+   zzxu.upper|st6           n  300  0.4800 / 0.4107   0.5500 / 0.4286   mre 4.24e-07
+   band st1 by (PM dir, our dir): stocks, upper equal, lower equal
+      PM -1 ours -1:   62     0    41
+      PM -1 ours +1:    5     0     0
+      PM +1 ours -1:   61     1     0
+      PM +1 ours +1:  172   149     0
+[04:23:54] r162 done
