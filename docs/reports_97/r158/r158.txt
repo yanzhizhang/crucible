@@ -1,0 +1,186 @@
+days ['20261105', '20261106', '20261109', '20261110', '20261111', '20261112', '20261113', '20261116']: 2400 stock-days, 44 keys
+-- keys: present share | value q1 / q50 / q99 | value / last price q1 / q50 / q99
+   zzpk.high           1.000 | 2.5382 / 23.88 / 550.089 | -
+   zzpk.low            1.000 | 2.4982 / 23.17 / 506.615 | -
+   zzpk.open           1.000 | 2.5082 / 23.455 / 529.037 | -
+   zzpk.p              1.000 | 2.50684 / 23.4362 / 538.549 | -
+   zzpk.p.t            1.000 | 14490.3 / 14531 / 14549.4 | -
+   zzpk.p.wgt          1.000 | 81.6749 / 107.518 / 113.331 | -
+   zzup.pf             1.000 | 2.50684 / 23.4362 / 538.549 | -
+   zzup.pf.t           1.000 | 14490.3 / 14531 / 14549.4 | -
+   zzup.pf.wgt         1.000 | 81.6749 / 107.518 / 113.331 | -
+   zzup.ps             1.000 | 2.5083 / 23.4318 / 538.841 | -
+   zzup.ps.t           1.000 | 14490.3 / 14531 / 14549.4 | -
+   zzup.ps.wgt         1.000 | 214.375 / 248.557 / 255.425 | -
+   zzvx.high           1.000 | 2.5382 / 23.88 / 550.089 | -
+   zzvx.low            1.000 | 2.4982 / 23.17 / 506.615 | -
+   zzvx.rEmaD          1.000 | 1 / 1 / 1.00459 | -
+   zzvx.rEmaD.t        1.000 | 14490.3 / 14531 / 14549.4 | -
+   zzvx.rEmaD.wgt      1.000 | 1.37044 / 2.47361 / 2.80861 | -
+   zzvx.rEmaO          1.000 | 1 / 1 / 1.00459 | -
+   zzvx.rEmaO.t        1.000 | 14490.3 / 14531 / 14549.4 | -
+   zzvx.rEmaO.wgt      1.000 | 1.37044 / 2.47361 / 2.80861 | -
+   zzvx.trDEmaD        1.000 | 0.03 / 0.60495 / 36.0175 | -
+   zzvx.trDEmaD.t      1.000 | 14490.3 / 14531 / 14549.4 | -
+   zzvx.trDEmaD.wgt    1.000 | 1.37044 / 2.47361 / 2.80861 | -
+   zzvx.trDEmaO        1.000 | 0.03 / 0.60495 / 36.0175 | -
+   zzvx.trDEmaO.t      1.000 | 14490.3 / 14531 / 14549.4 | -
+   zzvx.trDEmaO.wgt    1.000 | 1.37044 / 2.47361 / 2.80861 | -
+   zzvx.trEmaD         1.000 | 0.03 / 0.604994 / 36.0175 | -
+   zzvx.trEmaD.t       1.000 | 14490.3 / 14531 / 14549.4 | -
+   zzvx.trEmaD.wgt     1.000 | 1.37044 / 2.47361 / 2.80861 | -
+   zzvx.trEmaO         1.000 | 0.03 / 0.604994 / 36.0175 | -
+   zzvx.trEmaO.t       1.000 | 14490.3 / 14531 / 14549.4 | -
+   zzvx.trEmaO.wgt     1.000 | 1.37044 / 2.47361 / 2.80861 | -
+   zzxu.a              1.000 | 0.03 / 0.59999 / 36.0175 | -
+   zzxu.a.t            1.000 | 14490.3 / 14531 / 14549.4 | -
+   zzxu.a.wgt          1.000 | 81.6749 / 107.518 / 113.331 | -
+   zzxu.dir            1.000 | -1 / 1 / 1 | -
+   zzxu.high           1.000 | 2.5382 / 23.88 / 550.089 | -
+   zzxu.last           1.000 | 2.5082 / 23.44 / 538.713 | -
+   zzxu.low            1.000 | 2.4982 / 23.17 / 506.615 | -
+   zzxu.lower          1.000 | 2.46972 / 22.3301 / 477.816 | -
+   zzxu.p              1.000 | 2.50684 / 23.4362 / 538.549 | -
+   zzxu.p.t            1.000 | 14490.3 / 14531 / 14549.4 | -
+   zzxu.p.wgt          1.000 | 81.6749 / 107.518 / 113.331 | -
+   zzxu.upper          1.000 | 2.63041 / 25.345 / 632.163 | -
+-- ordered pairs K1 >= K2 on >= 99.5% of stock-days (same scale: ratio within [1, 5]): equal share | K1 / K2 where different q1 / q50 / q99 / max
+   zzpk.high >= zzpk.low: equal 0.000 | 1.00891 / 1.02639 / 1.12526 / 1.21185
+   zzpk.high >= zzpk.open: equal 0.041 | 1.00073 / 1.01301 / 1.1 / 1.1911
+   zzpk.high >= zzpk.p: equal 0.000 | 1.00115 / 1.01266 / 1.09736 / 1.15183
+   zzpk.high >= zzup.pf: equal 0.000 | 1.00115 / 1.01266 / 1.09736 / 1.15183
+   zzpk.high >= zzup.ps: equal 0.000 | 1.00147 / 1.01244 / 1.09692 / 1.15226
+   zzpk.high >= zzvx.high: equal 1.000 | never different
+   zzpk.high >= zzvx.low: equal 0.000 | 1.00891 / 1.02639 / 1.12526 / 1.21185
+   zzpk.high >= zzxu.high: equal 1.000 | never different
+   zzpk.high >= zzxu.last: equal 0.029 | 1.0007 / 1.01305 / 1.09672 / 1.14873
+   zzpk.high >= zzxu.low: equal 0.000 | 1.00891 / 1.02639 / 1.12526 / 1.21185
+   zzpk.high >= zzxu.lower: equal 0.000 | 1.0138 / 1.04552 / 1.46867 / 1.95192
+   zzpk.high >= zzxu.p: equal 0.000 | 1.00115 / 1.01266 / 1.09736 / 1.15183
+   zzpk.low >= zzvx.low: equal 1.000 | never different
+   zzpk.low >= zzxu.low: equal 1.000 | never different
+   zzpk.open >= zzpk.low: equal 0.031 | 1.00057 / 1.01069 / 1.09389 / 1.14439
+   zzpk.open >= zzvx.low: equal 0.031 | 1.00057 / 1.01069 / 1.09389 / 1.14439
+   zzpk.open >= zzxu.low: equal 0.031 | 1.00057 / 1.01069 / 1.09389 / 1.14439
+   zzpk.open >= zzxu.lower: equal 0.000 | 1.00828 / 1.02773 / 1.45483 / 1.92215
+   zzpk.p >= zzpk.low: equal 0.000 | 1.00072 / 1.00958 / 1.0784 / 1.15761
+   zzpk.p >= zzup.pf: equal 1.000 | never different
+   zzpk.p >= zzvx.low: equal 0.000 | 1.00072 / 1.00958 / 1.0784 / 1.15761
+   zzpk.p >= zzxu.low: equal 0.000 | 1.00072 / 1.00958 / 1.0784 / 1.15761
+   zzpk.p >= zzxu.lower: equal 0.000 | 1.00304 / 1.03345 / 1.35232 / 1.69463
+   zzpk.p >= zzxu.p: equal 1.000 | never different
+   zzup.pf >= zzpk.low: equal 0.000 | 1.00072 / 1.00958 / 1.0784 / 1.15761
+   zzup.pf >= zzpk.p: equal 1.000 | never different
+   zzup.pf >= zzvx.low: equal 0.000 | 1.00072 / 1.00958 / 1.0784 / 1.15761
+   zzup.pf >= zzxu.low: equal 0.000 | 1.00072 / 1.00958 / 1.0784 / 1.15761
+   zzup.pf >= zzxu.lower: equal 0.000 | 1.00304 / 1.03345 / 1.35232 / 1.69463
+   zzup.pf >= zzxu.p: equal 1.000 | never different
+   zzup.ps >= zzpk.low: equal 0.000 | 1.00096 / 1.0095 / 1.07776 / 1.15446
+   zzup.ps >= zzvx.low: equal 0.000 | 1.00096 / 1.0095 / 1.07776 / 1.15446
+   zzup.ps >= zzxu.low: equal 0.000 | 1.00096 / 1.0095 / 1.07776 / 1.15446
+   zzup.ps >= zzxu.lower: equal 0.000 | 1.00348 / 1.03334 / 1.35236 / 1.694
+   zzvx.high >= zzpk.high: equal 1.000 | never different
+   zzvx.high >= zzpk.low: equal 0.000 | 1.00891 / 1.02639 / 1.12526 / 1.21185
+   zzvx.high >= zzpk.open: equal 0.041 | 1.00073 / 1.01301 / 1.1 / 1.1911
+   zzvx.high >= zzpk.p: equal 0.000 | 1.00115 / 1.01266 / 1.09736 / 1.15183
+   zzvx.high >= zzup.pf: equal 0.000 | 1.00115 / 1.01266 / 1.09736 / 1.15183
+   zzvx.high >= zzup.ps: equal 0.000 | 1.00147 / 1.01244 / 1.09692 / 1.15226
+   zzvx.high >= zzvx.low: equal 0.000 | 1.00891 / 1.02639 / 1.12526 / 1.21185
+   zzvx.high >= zzxu.high: equal 1.000 | never different
+   zzvx.high >= zzxu.last: equal 0.029 | 1.0007 / 1.01305 / 1.09672 / 1.14873
+   zzvx.high >= zzxu.low: equal 0.000 | 1.00891 / 1.02639 / 1.12526 / 1.21185
+   zzvx.high >= zzxu.lower: equal 0.000 | 1.0138 / 1.04552 / 1.46867 / 1.95192
+   zzvx.high >= zzxu.p: equal 0.000 | 1.00115 / 1.01266 / 1.09736 / 1.15183
+   zzvx.low >= zzpk.low: equal 1.000 | never different
+   zzvx.low >= zzxu.low: equal 1.000 | never different
+   zzvx.rEmaD >= zzvx.rEmaO: equal 1.000 | never different
+   zzvx.rEmaD >= zzxu.dir: equal 0.859 | 1 / 1 / 1.03322 / 1.03883
+   zzvx.rEmaO >= zzvx.rEmaD: equal 1.000 | never different
+   zzvx.rEmaO >= zzxu.dir: equal 0.859 | 1 / 1 / 1.03322 / 1.03883
+   zzvx.trDEmaD >= zzvx.trDEmaO: equal 1.000 | never different
+   zzvx.trDEmaD >= zzxu.a: equal 0.242 | 1 / 1.00001 / 1.07497 / 1.21732
+   zzvx.trDEmaO >= zzvx.trDEmaD: equal 1.000 | never different
+   zzvx.trDEmaO >= zzxu.a: equal 0.242 | 1 / 1.00001 / 1.07497 / 1.21732
+   zzvx.trEmaD >= zzvx.trDEmaD: equal 0.834 | 1 / 1 / 1.04121 / 1.11834
+   zzvx.trEmaD >= zzvx.trDEmaO: equal 0.834 | 1 / 1 / 1.04121 / 1.11834
+   zzvx.trEmaD >= zzvx.trEmaO: equal 1.000 | never different
+   zzvx.trEmaD >= zzxu.a: equal 0.242 | 1 / 1.00001 / 1.08188 / 1.36138
+   zzvx.trEmaO >= zzvx.trDEmaD: equal 0.834 | 1 / 1 / 1.04121 / 1.11834
+   zzvx.trEmaO >= zzvx.trDEmaO: equal 0.834 | 1 / 1 / 1.04121 / 1.11834
+   zzvx.trEmaO >= zzvx.trEmaD: equal 1.000 | never different
+   zzvx.trEmaO >= zzxu.a: equal 0.242 | 1 / 1.00001 / 1.08188 / 1.36138
+   zzxu.high >= zzpk.high: equal 1.000 | never different
+   zzxu.high >= zzpk.low: equal 0.000 | 1.00891 / 1.02639 / 1.12526 / 1.21185
+   zzxu.high >= zzpk.open: equal 0.041 | 1.00073 / 1.01301 / 1.1 / 1.1911
+   zzxu.high >= zzpk.p: equal 0.000 | 1.00115 / 1.01266 / 1.09736 / 1.15183
+   zzxu.high >= zzup.pf: equal 0.000 | 1.00115 / 1.01266 / 1.09736 / 1.15183
+   zzxu.high >= zzup.ps: equal 0.000 | 1.00147 / 1.01244 / 1.09692 / 1.15226
+   zzxu.high >= zzvx.high: equal 1.000 | never different
+   zzxu.high >= zzvx.low: equal 0.000 | 1.00891 / 1.02639 / 1.12526 / 1.21185
+   zzxu.high >= zzxu.last: equal 0.029 | 1.0007 / 1.01305 / 1.09672 / 1.14873
+   zzxu.high >= zzxu.low: equal 0.000 | 1.00891 / 1.02639 / 1.12526 / 1.21185
+   zzxu.high >= zzxu.lower: equal 0.000 | 1.0138 / 1.04552 / 1.46867 / 1.95192
+   zzxu.high >= zzxu.p: equal 0.000 | 1.00115 / 1.01266 / 1.09736 / 1.15183
+   zzxu.last >= zzpk.low: equal 0.039 | 1.00047 / 1.01081 / 1.07838 / 1.16495
+   zzxu.last >= zzvx.low: equal 0.039 | 1.00047 / 1.01081 / 1.07838 / 1.16495
+   zzxu.last >= zzxu.low: equal 0.039 | 1.00047 / 1.01081 / 1.07838 / 1.16495
+   zzxu.last >= zzxu.lower: equal 0.000 | 1.00229 / 1.03375 / 1.35647 / 1.6992
+   zzxu.low >= zzpk.low: equal 1.000 | never different
+   zzxu.low >= zzvx.low: equal 1.000 | never different
+   zzxu.p >= zzpk.low: equal 0.000 | 1.00072 / 1.00958 / 1.0784 / 1.15761
+   zzxu.p >= zzpk.p: equal 1.000 | never different
+   zzxu.p >= zzup.pf: equal 1.000 | never different
+   zzxu.p >= zzvx.low: equal 0.000 | 1.00072 / 1.00958 / 1.0784 / 1.15761
+   zzxu.p >= zzxu.low: equal 0.000 | 1.00072 / 1.00958 / 1.0784 / 1.15761
+   zzxu.p >= zzxu.lower: equal 0.000 | 1.00304 / 1.03345 / 1.35232 / 1.69463
+   zzxu.upper >= zzpk.high: equal 0.000 | 1.01821 / 1.0591 / 1.24443 / 1.43703
+   zzxu.upper >= zzpk.low: equal 0.000 | 1.02874 / 1.08785 / 1.38681 / 1.74146
+   zzxu.upper >= zzpk.open: equal 0.000 | 1.02118 / 1.07234 / 1.35435 / 1.71164
+   zzxu.upper >= zzpk.p: equal 0.000 | 1.02426 / 1.07386 / 1.31805 / 1.52244
+   zzxu.upper >= zzup.pf: equal 0.000 | 1.02426 / 1.07386 / 1.31805 / 1.52244
+   zzxu.upper >= zzup.ps: equal 0.000 | 1.02415 / 1.07366 / 1.31553 / 1.52487
+   zzxu.upper >= zzvx.high: equal 0.000 | 1.01821 / 1.0591 / 1.24443 / 1.43703
+   zzxu.upper >= zzvx.low: equal 0.000 | 1.02874 / 1.08785 / 1.38681 / 1.74146
+   zzxu.upper >= zzxu.high: equal 0.000 | 1.01821 / 1.0591 / 1.24443 / 1.43703
+   zzxu.upper >= zzxu.last: equal 0.000 | 1.02394 / 1.07328 / 1.31241 / 1.52471
+   zzxu.upper >= zzxu.low: equal 0.000 | 1.02874 / 1.08785 / 1.38681 / 1.74146
+   zzxu.upper >= zzxu.lower: equal 0.000 | 1.03745 / 1.11287 / 1.70414 / 2.39052
+   zzxu.upper >= zzxu.p: equal 0.000 | 1.02426 / 1.07386 / 1.31805 / 1.52244
+-- zzvx.a: training thresholds q1 / q50 / q99 = 1 / 1.0044 / 1.139; closest day-end ratios (distance in threshold-range units):
+   0.258  (zzpk.high-zzxu.a)/(zzpk.low-zzxu.a)           1.00899 / 1.02711 / 1.1432
+   0.258  (zzpk.high-zzxu.a)/(zzvx.low-zzxu.a)           1.00899 / 1.02711 / 1.1432
+   0.258  (zzvx.high-zzxu.a)/(zzpk.low-zzxu.a)           1.00899 / 1.02711 / 1.1432
+   0.258  (zzvx.high-zzxu.a)/(zzvx.low-zzxu.a)           1.00899 / 1.02711 / 1.1432
+   0.258  (zzxu.high-zzxu.a)/(zzpk.low-zzxu.a)           1.00899 / 1.02711 / 1.1432
+   0.258  (zzxu.high-zzxu.a)/(zzvx.low-zzxu.a)           1.00899 / 1.02711 / 1.1432
+   0.258  (zzpk.high-zzvx.trDEmaD)/(zzpk.low-zzvx.trDEmaD) 1.00899 / 1.02711 / 1.1432
+   0.258  (zzpk.high-zzvx.trDEmaD)/(zzvx.low-zzvx.trDEmaD) 1.00899 / 1.02711 / 1.1432
+-- zzxu.a: training thresholds q1 / q50 / q99 = 0.119 / 0.212 / 0.405; closest day-end ratios (distance in threshold-range units):
+   0.686  (zzxu.lower-zzxu.upper)/(zzxu.dir-zzxu.upper)  0.0403117 / 0.108395 / 0.418945
+   0.724  (zzxu.lower-zzxu.upper)/(zzvx.rEmaD-zzxu.upper) 0.0403419 / 0.110324 / 0.431723
+   0.724  (zzxu.lower-zzxu.upper)/(zzvx.rEmaO-zzxu.upper) 0.0403419 / 0.110324 / 0.431723
+   0.813  (zzxu.upper-zzvx.low)/zzpk.low                 0.0287381 / 0.0878486 / 0.386808
+   0.813  (zzxu.upper-zzxu.low)/zzpk.low                 0.0287381 / 0.0878486 / 0.386808
+   0.813  (zzxu.upper-zzxu.low)/zzvx.low                 0.0287381 / 0.0878486 / 0.386808
+   0.846  (zzxu.lower-zzxu.upper)/(zzxu.a-zzxu.upper)    0.0364271 / 0.103897 / 0.456277
+   0.847  (zzxu.lower-zzxu.upper)/(zzvx.trDEmaD-zzxu.upper) 0.0364271 / 0.103897 / 0.456438
+-- zzxu.b: training thresholds q1 / q50 / q99 = 0.848 / 0.981 / 1.261; closest day-end ratios (distance in threshold-range units):
+   0.432  (zzvx.trEmaD-zzxu.a)/(zzvx.trDEmaD-zzxu.a)     0.991874 / 1 / 1.24548
+   0.432  (zzvx.trEmaD-zzxu.a)/(zzvx.trDEmaO-zzxu.a)     0.991874 / 1 / 1.24548
+   0.432  (zzvx.trEmaO-zzxu.a)/(zzvx.trDEmaD-zzxu.a)     0.991874 / 1 / 1.24548
+   0.432  (zzvx.trEmaO-zzxu.a)/(zzvx.trDEmaO-zzxu.a)     0.991874 / 1 / 1.24548
+   0.489  (zzup.ps-zzxu.lower)/(zzpk.p-zzxu.lower)       0.934727 / 1.00281 / 1.16745
+   0.489  (zzup.ps-zzxu.lower)/(zzup.pf-zzxu.lower)      0.934727 / 1.00281 / 1.16745
+   0.523  (zzpk.p-zzxu.lower)/(zzup.ps-zzxu.lower)       0.856572 / 0.997199 / 1.06983
+   0.523  (zzup.pf-zzxu.lower)/(zzup.ps-zzxu.lower)      0.856572 / 0.997199 / 1.06983
+-- zzup: training thresholds q1 / q50 / q99 = 0.99336 / 0.99999 / 1.00819; closest day-end ratios (distance in threshold-range units):
+   0.166  (zzxu.last-zzvx.rEmaD)/(zzup.ps-zzvx.rEmaD)    0.995217 / 1.00005 / 1.00764
+   0.166  (zzxu.last-zzvx.rEmaO)/(zzup.ps-zzvx.rEmaO)    0.995217 / 1.00005 / 1.00764
+   0.175  (zzxu.last-zzxu.dir)/(zzup.ps-zzxu.dir)        0.995252 / 1.00005 / 1.00754
+   0.219  (zzxu.last-zzvx.trEmaD)/(zzup.ps-zzvx.trEmaD)  0.995759 / 1.00005 / 1.00739
+   0.219  (zzxu.last-zzvx.trEmaO)/(zzup.ps-zzvx.trEmaO)  0.995759 / 1.00005 / 1.00739
+   0.219  (zzxu.last-zzvx.trDEmaD)/(zzup.ps-zzvx.trDEmaD) 0.995759 / 1.00005 / 1.00739
+   0.219  (zzxu.last-zzvx.trDEmaO)/(zzup.ps-zzvx.trDEmaO) 0.995759 / 1.00005 / 1.00739
+   0.220  (zzxu.last-zzxu.a)/(zzup.ps-zzxu.a)            0.995759 / 1.00005 / 1.00739
+[done]
+[03:45:50] r158 done
