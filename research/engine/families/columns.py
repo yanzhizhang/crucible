@@ -13,8 +13,9 @@ from pathlib import Path
 from .base import GUESSED, PINNED, WRONG, Family
 
 BASELINE = Path(__file__).resolve().parent.parent / "baseline_r41c.txt"
-EXACT = {"zzup", "zzvx.a", "zzxu.a", "zzxu.b"}
-PROVEN_WRONG = {"zzqf.q.c3", "zzrg", "zzwa.g", "zzag2.e", "zzag2.a", "zzro2.a", "zzop2.b", "zzqf7.q.c2"}  # wrong units (R132)
+EXACT = {"zzup"}  # zzvx.a / zzxu.a / zzxu.b were taken as exact until R148: their scale does not match the training ranges
+PROVEN_WRONG = {"zzqf.q.c3", "zzrg", "zzwa.g", "zzag2.e", "zzag2.a", "zzro2.a", "zzop2.b", "zzqf7.q.c2",  # wrong units (R132)
+                "zzvx.a", "zzxu.a", "zzxu.b"}  # wrong scale against the training thresholds (R148 / R156)
 
 
 def stem_of(col: str) -> str:

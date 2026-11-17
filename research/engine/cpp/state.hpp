@@ -120,8 +120,13 @@ struct tape {
     double snap_px = qnan, snap_prev = qnan, trade_px = qnan, trade_prev = qnan;
     double bid = qnan, ask = qnan, mid = qnan, hi_f = qnan, lo_f = qnan;
 
+    int ix_zzxu_a = -1;  // index of the "zzxu.a" rule (the zzxu band's width), -1 when the table has none
+
     explicit tape(const std::vector<rule>& rules) : emas(rules.size()) {
-        for (std::size_t i = 0; i < rules.size(); ++i) emas[i].k = std::log(2.0) / rules[i].half;
+        for (std::size_t i = 0; i < rules.size(); ++i) {
+            emas[i].k = std::log(2.0) / rules[i].half;
+            if (rules[i].name == "zzxu.a") ix_zzxu_a = static_cast<int>(i);
+        }
     }
     // Seed rule i from yesterday's sum / wgt per its seed tag (Python Stock.__init__).
     void seed(std::size_t i, const std::string& tag, double sum, double wgt) {

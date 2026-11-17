@@ -17,7 +17,7 @@ inline double pymax(double a, double b) { return b > a ? b : a; }
 inline double pymin(double a, double b) { return b < a ? b : a; }
 
 enum class what : int { price, mid, logp, hl, hl0, hl_valid, tr_open, logret, one, snap_px, hl_snap, rvwap, hl_trade, tro, price0, price_pc,
-                        last_px, span, mh_dd2 };
+                        last_px, span, mh_dd2, tr_pc, tr_ratio, trade_ratio };
 enum class clock_mod : int { none, wall, exch, o930 };
 
 inline double tc(double s) { return s <= 41400 ? s - 34200 : (s < 46800 ? 7200.0 : s - 46800 + 7200); }
@@ -50,6 +50,9 @@ inline what parse_what(const std::string& w) {
     if (w == "last_px") return what::last_px;
     if (w == "span") return what::span;
     if (w == "mh_dd2") return what::mh_dd2;
+    if (w == "tr_pc") return what::tr_pc;
+    if (w == "tr_ratio") return what::tr_ratio;
+    if (w == "trade_ratio") return what::trade_ratio;
     throw std::runtime_error("unknown value kind " + w);
 }
 
@@ -81,6 +84,9 @@ inline double snap_value(const tape& st, what w) {
     case what::last_px: return st.last;
     case what::span: return chan_span(st);
     case what::mh_dd2: { double d = (st.hm - st.snap_px) / st.hm; return 4.0 * d * d; }  // zzmh.r: (2 x drawdown from zzmh.hm)^2
+    case what::tr_pc: return pymax(st.hi_f, st.pc) - pymin(st.lo_f, st.pc);  // true range against the previous close
+    case what::tr_ratio: return st.hi_f - st.lo_f > 0 ? (pymax(st.hi_f, st.pc) - pymin(st.lo_f, st.pc)) / (st.hi_f - st.lo_f) : qnan;
+    case what::trade_ratio: return st.hi_f - st.lo_f > 0 ? (st.high - st.low) / (st.hi_f - st.lo_f) : qnan;
     default: throw std::runtime_error("value kind not on the snapshot clock");
     }
 }

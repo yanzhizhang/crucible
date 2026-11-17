@@ -83,6 +83,12 @@ def snap_value(st: Stock, what: str) -> float:
         return st.amt / st.vol if st.vol > 0 else math.nan
     if what == "last_px":
         return st.last
+    if what == "tr_pc":  # true range against the previous close: the day's range widened to include it
+        return max(st.hi_f, st.pc) - min(st.lo_f, st.pc)
+    if what == "tr_ratio":  # true range / the day's own range (1 unless the previous close is outside the range)
+        return (max(st.hi_f, st.pc) - min(st.lo_f, st.pc)) / (st.hi_f - st.lo_f) if st.hi_f - st.lo_f > 0 else math.nan
+    if what == "trade_ratio":  # the trades' day range / the snapshot fields' range
+        return (st.high - st.low) / (st.hi_f - st.lo_f) if st.hi_f - st.lo_f > 0 else math.nan
     raise KeyError(what)
 
 
