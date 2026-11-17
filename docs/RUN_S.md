@@ -31,8 +31,8 @@ hypothesis.
 | `sim_et` | 145900000 | end, 14:59:00.000 (chrono's own risk window stops at 14:55) |
 | `cr` | 0.0004 | **cost rate per side, 4 bp**. Guess: commission 1.5 bp + transfer 0.64 bp + half of the 5 bp sell stamp = 4.6 bp per side, or about 9 bp round trip. |
 | `output_dir` | .../sim_example/HS300 | where runS writes its own logs / dumps |
-| `alg_cfg` | .../sim_example/sc.p3.json | the sizing parameters; **not on 97**, so its values are fitted below |
-| `ahubs` | absent -> default | **guess**: "alpha hubs", extra alpha sources merged with `fan`; empty = only the configured alpha |
+| `alg_cfg` | .../sim_example/sc.p3.json | the sizing parameters. **Read on 224 (2026-11-17)**: see section 2b |
+| `ahubs` | the top-level key of sc.p3.json | a list of per-alpha parameter sets (one entry, for alpha.1); not a trader key |
 | `fan` / `faw` | ["pqAlpha"] / [1.0] | one alpha, weight 1 |
 | `fac` | {alpha_name "alpha.1", alpha_dur 0.03} | the alpha's name in the signal, and its horizon. Guess: 0.03 of a 4 h trading day = about 7 minutes. |
 
@@ -49,13 +49,36 @@ The sizing parameters, from the binary (R133 .rodata) and PM's decision logs on 
 | price | ~64 % far touch, rest near touch / inside | 224 orders; the split rule is unknown |
 | `hs` | half spread / mid | "~half a tick over the price" (PM_REPRO) |
 | `pos`, `pp`, `cpos` | holding - base, pending, pos + pp | exact for 99.9 % / 100 % (R33) |
-| `vpen` | 1e-07 .. 1e-03 through the day | log p1..p99 (R72); `PosClzer::GVpen` constants 0.001 and 1 (R133) |
+| `vpen` | **1e-07, constant** | sc.p3.json; equals the logged p1 (R72). The larger logged values (to 1e-3) are PosClzer::GVpen's output, not the parameter |
 | EMS windows | 20 / 60 / 30 s | constants in `ct::EMA`, `Alg::onInnerMsg` (R133); which window is which is a guess |
 | cancel | ~5.3 s median, retry on failure | 224 orders (6 s was one sample in R33); OnFCM retries |
 | re-place | ~0.7 s after the cancel, 95 % same side, often before the ack | 224 orders |
 | send gate | only ~2.6 % of gated rows send (classifier AUC 0.65) | rule unknown |
 | stale book | skip if book age > 10 s | "book->epoch {} - book->srcEpoch {} > 10" (R136) |
 | odd lots / rounding | 100 | `round100`, `roundBy` (stage 1) |
+
+## 2b. PM's alg_cfg, sc.p3.json (read on 224)
+
+`/tmp/zyq/sht-stg-lib/cfg/sim_example/sc.p3.json`, 270 B, mtime 2026-11-17 13:13 (read in place, not copied):
+
+```json
+{ "ahubs": [ { "tqub": 10000000, "nmvcst": 10000000, "tpub": 0.09, "adur": 12,
+               "vpen": 1e-07, "rvts": 130000000, "asf": 0.8, "neg_nmvcst": false } ] }
+```
+
+| key | value | evidence | meaning (status) | run_s |
+|---|---|---|---|---|
+| `asf` | 0.8 | = the logged asf (R33) | safety factor on the participation cap (**known**) | used |
+| `vpen` | 1e-07 | = the logged vpen p1 (R72) | inventory-penalty coefficient (**known**, a constant) | used (bang mode) |
+| `tpub` | 0.09 | = the 0.09 stored by `Alg::Alg` (R133) | unknown; maybe a turnover / position upper bound | read, logged, unused |
+| `tqub` | 1e7 | -- | **guess**: total quantity upper bound (shares per day) | applied as a cap |
+| `nmvcst` | 1e7 | = the 10M capital | **guess**: cap on the net market value of the gap (CNY) | applied as a cap |
+| `neg_nmvcst` | false | -- | **guess**: whether a net negative value is allowed | read, logged, unused |
+| `rvts` | 130000000 | HHMMSSmmm = 13:00:00.000 | a time switch; what turns on at 13:00 is unknown | read, logged, unused |
+| `adur` | 12 | `Alg` logs "alpha adur: {}" | alpha duration; units unknown | read, logged, unused |
+
+Both caps only ever reduce trading, and at 1e7 they don't bind for a 10M book, so applying them is safe whatever they
+mean exactly.
 
 ## 3. The rule
 
@@ -76,7 +99,7 @@ size_mode "fit" (default, fitted on 224):
   send if it closes the gap, or if fa clears the threshold on its side (buy: fa > -lthr, sell: fa < lthr)
 size_mode "bang" (first draft, a deliberate simplification):
   fa > -lthr and fa > hs  -> buy  min(asq, cap - cgap);  fa < lthr and fa < -hs -> sell min(asq, cgap + cap)
-  else if |fa| < vpen(t)  -> walk the gap back by min(asq, |cgap|)
+  else if |fa| < vpen (1e-07) -> walk the gap back by min(asq, |cgap|)
 sells are capped at sellable - pending sells (T+1); whole lots except a sale that empties the line
 after 14:45: only trades that shrink |gap|
 price: far touch if fa beyond the threshold >= cross_k * hs (GUESS, default 1), else the near touch
@@ -97,7 +120,7 @@ The fitted size explains two things in PM's logs:
 **What is a guess** (each is a named parameter, to be replaced by sc.p3.json or a fit):
 - the send gate (`min_order_gap_ms`). This is the biggest behavioural difference: PM sends on only ~2.6 % of the rows that pass its gate.
 - the cross / join split (`cross_k`)
-- the vpen ramp 14:15 -> 14:45 (`vpen_*`, used in bang mode only)
+- the meaning of sc.p3.json's `tqub` / `nmvcst` (applied as caps) and of `tpub`, `adur`, `rvts`, `neg_nmvcst` (unused)
 - cap = base (`gap_frac`)
 - the EMS window (`ems_tau_s`)
 - the hs form of `lthr` instead of PM's vpen^2 form
@@ -123,7 +146,7 @@ Each piece of the rule follows from that:
    - `asf` 0.8 is a safety margin under that cap.
 3. **The inventory penalty is for overnight and T+1 risk.**
    - A gap left at the close is an unintended position: sold shares can only be re-bought today, and bought shares are locked until tomorrow.
-   - So the penalty on carrying a gap is tiny in the morning (vpen 1e-7) and rises into the close (to 1), forcing the book back to its base.
+   - PM prices that risk with a penalty coefficient `vpen` (1e-07, a constant in sc.p3.json); the logged penalty grows (to ~1e-3) because `PosClzer::GVpen` scales it by the position, not because the coefficient ramps. What pulls the book back by the close is the gap-closing size rule and the end-of-day unwind; `rvts` (13:00) may switch on an afternoon mode.
 4. **The size is mostly a pull back to base, with a small alpha tilt.**
    - The fitted rule is 0.87 x (base - qty) + 0.07 x fa x winsdQty.
    - The model predicts a few bp over minutes (PM's alpha std is 3.4e-4). So the alpha decides *when* and *which side* the gap is worked (through the threshold and the gate) far more than *how much*.
@@ -139,7 +162,7 @@ Each piece of the rule follows from that:
 
 ## 5. Open items
 
-- sc.p3.json: the real values of the sizing parameters (vpen schedule, vr / poscst terms, EMS windows). This needs your decision on how it reaches 97.
-- `ahubs` meaning: ask PM.
+- sc.p3.json is now known (section 2b). Still open: what `tpub`, `adur`, `rvts`, `neg_nmvcst` do, and the exact meaning of `tqub` / `nmvcst`.
+- The `vr` / `poscst` terms (PM logs them per decision); with vpen known they can be fitted from the 224 decision logs.
 - The `executp` target formula. With sc.p3.json and the decision logs it can be fitted directly. The logs give `fa`, `vpen`, `vr`, `poscst`, `cpos`, `asq` and `hs` per decision.
 - A replay test of `run_s` against PM's day: same signals, compare order times, sides and sizes with PM's `place_order` lines on 224.
