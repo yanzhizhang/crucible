@@ -28,7 +28,7 @@ hypothesis.
 | `prod` | true | live, not sim |
 | `dataPath` | /tmp/s/stsfile | daily static files: index / ex / sid2symbol / stats/sod (R33) |
 | `sim_st` | 93000000 | start of trading, HHMMSSmmm = 09:30:00.000 |
-| `sim_et` | 145900000 | end, 14:59:00.000 (chrono's own risk window stops at 14:55) |
+| `sim_et` | 145900000 | end, 14:59:00.000 (chrono's own risk window stops at 14:55). From the 97 config2 (/data/sht-stg-lib, 11-16); the newer 224 copy (11-17, different md5) is unread |
 | `cr` | 0.0004 | **cost rate per side, 4 bp**. Guess: commission 1.5 bp + transfer 0.64 bp + half of the 5 bp sell stamp = 4.6 bp per side, or about 9 bp round trip. |
 | `output_dir` | .../sim_example/HS300 | where runS writes its own logs / dumps |
 | `alg_cfg` | .../sim_example/sc.p3.json | the sizing parameters. **Read on 224 (2026-11-17)**: see section 2b |
@@ -49,7 +49,7 @@ The sizing parameters, from the binary (R133 .rodata) and PM's decision logs on 
 | price | ~64 % far touch, rest near touch / inside | 224 orders; the split rule is unknown |
 | `hs` | half spread / mid | "~half a tick over the price" (PM_REPRO) |
 | `pos`, `pp`, `cpos` | holding - base, pending, pos + pp | exact for 99.9 % / 100 % (R33) |
-| `vpen` | **1e-07, constant** | sc.p3.json; equals the logged p1 (R72). The larger logged values (to 1e-3) are probably PosClzer::GVpen's scaled output (inference) |
+| `vpen` | **1e-07 before 13:00, then 0.001 x sqrt((t-13:00)/(14:59-13:00))** | identity from the decision logs (R150 / R151): exactly the cfg value before rvts, same for every stock each second, sqrt ramp matches all 23 five-minute medians to 0.1 % |
 | EMS windows | 20 / 60 / 30 s | constants in `ct::EMA`, `Alg::onInnerMsg` (R133); which window is which is a guess |
 | cancel | ~5.3 s median, retry on failure | 224 orders (6 s was one sample in R33); OnFCM retries |
 | re-place | ~0.7 s after the cancel, 95 % same side, often before the ack | 224 orders |
@@ -69,12 +69,12 @@ The sizing parameters, from the binary (R133 .rodata) and PM's decision logs on 
 | key | value | evidence | meaning (status) | run_s |
 |---|---|---|---|---|
 | `asf` | 0.8 | = the logged asf (R33) | safety factor on the participation cap (**known**) | used |
-| `vpen` | 1e-07 | = the logged vpen p1 (R72) | inventory-penalty coefficient (**known**, a constant) | used (bang mode) |
+| `vpen` | 1e-07 | = the logged vpen before 13:00 (R150) | inventory-penalty base; from `rvts` it ramps to 0.001 by `sim_et` (**known**, R151) | used (bang mode) |
 | `tpub` | 0.09 | = the 0.09 stored by `Alg::Alg` (R133) | unknown; maybe a turnover / position upper bound | read, logged, unused |
 | `tqub` | 1e7 | -- | **guess**: total quantity upper bound (shares per day) | applied as a cap |
 | `nmvcst` | 1e7 | = the 10M capital | **guess**: cap on the net market value of the gap (CNY) | applied as a cap |
 | `neg_nmvcst` | false | -- | **guess**: whether a net negative value is allowed | read, logged, unused |
-| `rvts` | 130000000 | HHMMSSmmm = 13:00:00.000 | a time switch; what turns on at 13:00 is unknown | read, logged, unused |
+| `rvts` | 130000000 | HHMMSSmmm = 13:00:00.000 | start of the vpen ramp (**known**, R150 / R151) | used |
 | `adur` | 12 | `Alg` logs "alpha adur: {}" | alpha duration; units unknown | read, logged, unused |
 
 Both caps only ever reduce trading, and at 1e7 they don't bind for a 10M book, so applying them is safe whatever they
