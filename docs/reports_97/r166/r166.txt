@@ -1,0 +1,60 @@
+# transcribed from screen; seg_fit 'root' values partly wrapped on screen, read across the wrap
+20261112: state at 240 marks x 300 stocks -> data/engine_r166/marks_20261112.parquet
+20261112: stop 54149.981 -> data/engine_r166/engine_20261112.json.gz (22s total)
+20261113: state at 240 marks x 300 stocks -> data/engine_r166/marks_20261113.parquet
+20261113: stop 54149.897 -> data/engine_r166/engine_20261113.json.gz (21s total)
+20261112: marks 72000 rows; zzvx columns ['zzvx.trEmaD.sum', 'zzvx.trEmaD.wgt', 'zzvx.trEmaO.sum', 'zzvx.trEmaO.wgt', 'zzvx.trDEmaD.sum', 'zzvx.trDEmaD.wgt', 'zzvx.trDEmaO.sum', 'zzvx.trDEmaO.wgt', 'zzvx.rEmaD.sum', 'zzvx.rEmaD.wgt', 'zzvx.rEmaO.sum', 'zzvx.rEmaO.wgt', 'zzvx.high', 'zzvx.low']
+   rEmaD at the marks: share == 1 (1e-9) 0.622; q1 / q50 / q90 / q99 / max 1 / 1 / 1.01261 / 1.24168 / 2.18417   (zzvx.a thresholds q1 / q50 / q99: 1.0000005 / 1.0044 / 1.139; range to 2.49)
+20261113: marks 72000 rows; zzvx columns ['zzvx.trEmaD.sum', 'zzvx.trEmaD.wgt', 'zzvx.trEmaO.sum', 'zzvx.trEmaO.wgt', 'zzvx.trDEmaD.sum', 'zzvx.trDEmaD.wgt', 'zzvx.trDEmaO.sum', 'zzvx.trDEmaO.wgt', 'zzvx.rEmaD.sum', 'zzvx.rEmaD.wgt', 'zzvx.rEmaO.sum', 'zzvx.rEmaO.wgt', 'zzvx.high', 'zzvx.low']
+   rEmaD at the marks: share == 1 (1e-9) 0.584; q1 / q50 / q90 / q99 / max 1 / 1 / 1.01355 / 1.236 / 2.25548   (zzvx.a thresholds q1 / q50 / q99: 1.0000005 / 1.0044 / 1.139; range to 2.49)
+######## seg_fit, generation C
+8 candidates x 4 transforms x 2 scales, 1 targets, days ['20261112', '20261113'], 4 model files
+-- zzvx.a: range union [0, 2.4875] over 4 segs; thresholds 412; root points 12; best of 64:
+    1.181  id x1    x.zzvx.rEmaD                            in 1.000 worst-seg 0.991 fp 1.181 (below 0.659 above 0.010 int 0.98 root 0.245)
+    1.181  id x1    x.zzvx.rEmaO                            in 1.000 worst-seg 0.991 fp 1.181 (below 0.659 above 0.010 int 0.98 root 0.245)
+    1.243  sqrt x1  x.zzvx.rEmaD                            in 1.000 worst-seg 0.998 fp 1.243 (below 0.665 above 0.003 int 0.98 root 0.279)
+    1.243  sqrt x1  x.zzvx.rEmaO                            in 1.000 worst-seg 0.998 fp 1.243 (below 0.665 above 0.003 int 0.98 root 0.279)
+    2.244  log x100 x.zzvx.rEmaD                            in 0.934 worst-seg 0.896 fp 2.112 (below 0.886 above 0.106 int 0.32 root 0.220)
+    2.244  log x100 x.zzvx.rEmaO                            in 0.934 worst-seg 0.896 fp 2.112 (below 0.886 above 0.106 int 0.32 root 0.220)
+    2.275  sqrt x1  x.zzvx.trDEmaD                          in 0.919 worst-seg 0.768 fp 2.112 (below 0.706 above 0.236 int 0.41 root 0.291)
+    2.275  sqrt x1  x.zzvx.trDEmaO                          in 0.919 worst-seg 0.768 fp 2.112 (below 0.706 above 0.236 int 0.41 root 0.291)
+######## seg_fit, generation B
+8 candidates x 4 transforms x 2 scales, 1 targets, days ['20261112', '20261113'], 4 model files
+-- zzvx.a: range union [0, 2.1046] over 4 segs; thresholds 409; root points 5; best of 64:
+    0.766  sqrt x1  x.zzvx.rEmaD                            in 1.000 worst-seg 0.998 fp 0.766 (below 0.665 above 0.003 int 0.99 root 0.045)
+    0.766  sqrt x1  x.zzvx.rEmaO                            in 1.000 worst-seg 0.998 fp 0.766 (below 0.665 above 0.003 int 0.99 root 0.045)
+    0.849  id x1    x.zzvx.rEmaD                            in 1.000 worst-seg 0.990 fp 0.849 (below 0.659 above 0.010 int 0.98 root 0.080)
+    0.849  id x1    x.zzvx.rEmaO                            in 1.000 worst-seg 0.990 fp 0.849 (below 0.659 above 0.010 int 0.98 root 0.080)
+    2.029  1/b x1   x.zzvx.high                             in 1.000 worst-seg 1.000 fp 2.029 (below 1.000 above 0.000 int 0.00 root 0.01)
+    2.029  1/b x1   x.zzvx.low                              in 1.000 worst-seg 1.000 fp 2.029 (below 1.000 above 0.000 int 0.00 root 0.01)
+    2.029  1/b x1   x.zzvx.rEmaD                            in 1.000 worst-seg 1.000 fp 2.029 (below 1.000 above 0.000 int 0.00 root 0.01)
+    2.029  log x1   x.zzvx.rEmaD                            in 1.000 worst-seg 1.000 fp 2.029 (below 1.000 above 0.000 int 0.00 root 0.01)
+######## single_fill 20261112, generation C
+  skip zzvx.a:id:x.zzvx.rEmaD.sum: no candidate
+  skip zzvx.a:id:x.zzvx.rEmaO.sum: no candidate
+  skip zzvx.a:1/b:x.zzvx.rEmaD.sum: no candidate
+  skip zzvx.a:id:x.zzvx.trDEmaD.sum: no candidate
+  skip zzvx.a:id:x.zzvx.trEmaD.sum: no candidate
+20261112: 72,000 rows; baseline all 0.6068  first30m 0.5942
+######## single_fill 20261113, generation C
+  skip zzvx.a:id:x.zzvx.rEmaD.sum: no candidate
+  skip zzvx.a:id:x.zzvx.rEmaO.sum: no candidate
+  skip zzvx.a:1/b:x.zzvx.rEmaD.sum: no candidate
+  skip zzvx.a:id:x.zzvx.trDEmaD.sum: no candidate
+  skip zzvx.a:id:x.zzvx.trEmaD.sum: no candidate
+20261113: 72,000 rows; baseline all 0.6316  first30m 0.6635
+######## single_fill 20261112, generation B
+  skip zzvx.a:id:x.zzvx.rEmaD.sum: no candidate
+  skip zzvx.a:id:x.zzvx.rEmaO.sum: no candidate
+  skip zzvx.a:1/b:x.zzvx.rEmaD.sum: no candidate
+  skip zzvx.a:id:x.zzvx.trDEmaD.sum: no candidate
+  skip zzvx.a:id:x.zzvx.trEmaD.sum: no candidate
+20261112: 72,000 rows; baseline all 0.6123  first30m 0.6277
+######## single_fill 20261113, generation B
+  skip zzvx.a:id:x.zzvx.rEmaD.sum: no candidate
+  skip zzvx.a:id:x.zzvx.rEmaO.sum: no candidate
+  skip zzvx.a:1/b:x.zzvx.rEmaD.sum: no candidate
+  skip zzvx.a:id:x.zzvx.trDEmaD.sum: no candidate
+  skip zzvx.a:id:x.zzvx.trEmaD.sum: no candidate
+20261113: 72,000 rows; baseline all 0.6582  first30m 0.6959
+[05:01:46] r166 done
