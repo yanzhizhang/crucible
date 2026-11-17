@@ -1,0 +1,41 @@
+# R145 audit (node_audit, done 00:47:11, 105 lines) + R145 wgt (done 00:47:14, 25 lines) + R143 1113 (done 00:59:28). Read 2026-11-17 08:11.
+## R145 audit
+== 20260430: 150,000 rows, 4 model files (202501)
+ pm-state own error: zzxu.b=0.0922 zzxu.a=0.1155 zzup=0.0551 zzvx.a=0.1488
+ settled: 140 cols, own error q10/50/90 0.0529 0.1091 0.3988; above the worst pm-state (0.1488): 52
+ open: 65 cols, own error q10/50/90 0.0861 0.2350 0.5860; above the worst pm-state: 45
+ settled worst 20 (own / child / filled / formula):
+ zzrg 0.6797/0.2741/1.00 z:-gen.return_open_to_1000_log | zzag2.c 0.6244/0.2074 rank:gen.flow_ord_imb60 | zzqf.q.c3 0.6209/0.2431 z:-gen.rpe5
+ zzpp2.d 0.6103/0.3659/0.95 z:-gen.zr60 | zzpp.e 0.6009/0.2079 rank:-gen.rete50 | zzpp2.e 0.5940/0.1820 z:-gen.rete50
+ zzhi2.b 0.5745/0.2058/0.97 gen.log_channel_sequence_advance_per_s_900s | zzro2.a 0.5103/0.2605 gen.stoch
+ zzhi.b 0.4995/0.2803 |gen.log_channel_sequence_advance_per_s_60s| | zzwa.h 0.4732/0.2133 rank:gen.microprice_minus_mid_rel
+ zzop.j 0.4722/0.1974 |gen.order_price_aggressiveness_mean_900s|*1e4 | zzag2.a 0.4564/0.2223 |gen.flow_ord_imb60|*1e4
+ zzpz.c 0.4524/0.3131 rank:gen.microprice_minus_mid_rel | zzop2.b 0.4156/0.1951 gen.trading_seconds_since_0930
+ zzgh2.b 0.3969/0.2144 rank:gen.rete150 | zzwa.g 0.3807/0.1936 z:gen.lpe50 | zzwa.e 0.3514/0.2136 rank:gen.lpe100
+ zzxt3 0.3335/0.1999 crank:gen.lpe25 | zzqo.d 0.3288/0.2782 crank:gen.lpe50 | zzxc.b 0.3005/0.1791 crank:gen.best_level_order_count_imbalance
+== 20261112: 72,000 rows (202501): pm-state zzxu.b=0.0594 zzxu.a=0.1008 zzup=0.0573 zzvx.a=0.1465
+ settled 140: q10/50/90 0.0513 0.1089 0.4210, above worst pm-state 51; open 65: 0.0842 0.2352 0.5852, above 46
+ worst: zzqf7.q.c2 0.7655 gen.log_distance_to_up_limit | zzag2.c 0.6224 | zzpp.e 0.6019 | zzpp2.d 0.6003 | zzhi2.b 0.5616 | zzpp2.e 0.5512 | zzhi.b 0.5056 | zzro2.a 0.5041 | zzwa.h 0.4816 | zzop.j 0.4740 | zzpz.c 0.4708 | zzag2.a 0.4481 | zzrg 0.4420 | zzho2 0.4239 -gen.position_in_limit_band | zzop2.b 0.4207 | zzgh2.b 0.3925 | zzwa.e 0.3615 | zzwa.g 0.3422 | zzqf.q.c3 0.3388 | zzqo.d 0.3368
+== 20261113: pm-state zzxu.b=0.0582 zzxu.a=0.1010 zzup=0.0540 zzvx.a=0.1457
+ settled q10/50/90 0.0490 0.1047 0.3955, above 52; open 0.0842 0.2352 0.5835, above 46
+ worst: zzqf7.q.c2 0.7657 | zzag2.c 0.6230 | zzpp.e 0.6013 | zzpp2.d 0.5999 | zzhi2.b 0.5617 | zzpp2.e 0.5567 | zzro2.a 0.5130 | zzhi.b 0.5046 | zzwa.h 0.4819 | zzop.j 0.4757 | zzpz.c 0.4708 | zzag2.a 0.4465 | zzho2 0.4293 | zzop2.b 0.4206 | zzgh2.b 0.3927 | zzwa.e 0.3587 | zzwa.g 0.3399 | zzqf.q.c3 0.3379 | zzqo.d 0.3334 | zzxt3 0.3331
+== across days, settled, high on EVERY day (own_min), worst 25:
+ zzqf7.q.c2 0.7655 (sd 0.0001) gen.log_distance_to_up_limit | zzag2.c 0.6224 rank:gen.flow_ord_imb60 | zzpp.e 0.6013 rank:-gen.rete50 | zzpp2.d 0.5999 z:-gen.zr60
+ zzhi2.b 0.5616 | zzpp2.e 0.5512 | zzhi.b 0.5046 | zzro2.a 0.5041 gen.stoch | zzwa.h 0.4816 | zzop.j 0.4740 | zzpz.c 0.4708 | zzag2.a 0.4465
+ zzho2 0.4239 -gen.position_in_limit_band | zzop2.b 0.4206 gen.trading_seconds_since_0930 | zzgh2.b 0.3925 | zzwa.e 0.3587 | zzwa.g 0.3399 | zzqf.q.c3 0.3379
+ zzqo.d 0.3334 | zzxt3 0.3313 | zzrg 0.3153 (sd 0.0896) | zzxc.b 0.3041 | zzkp 0.2984 gen.order_price_aggressiveness_mean_900s
+ zzqf2.q.c1 0.2931 -gen.net_buy_amount_share_orders_under_40k_cny_300s | zzlk 0.2870 dm:-gen.flow_ord_imb60
+ pm-state min: zzxu.b 0.0582 zzvx.a 0.1457 zzxu.a 0.1008 zzup 0.0540
+## R145 wgt (best clocks by wgt equal; value quantiles q0/10/50/90/100)
+1112 zzcb.r value 0.2629 1.0702 4.8383 77.297 1863.5 | wgt 1.3706..2.8088 ; clocks snap/0930/30s 0.243, snap/0925/30s 0.243, snapchg/0930/2s 0.007
+1112 zzeb.r value 0.12148 0.12206 0.126 0.15468 0.15899 | wgt 10.957..24.16 ; snap/0930/100s 0.243, snap/0925/100s 0.243, bbochg/0930/14400s 0.003
+1112 zzhj.p value 1.744e5 5.4259e5 1.6982e6 7.7353e6 4.5919e7 | wgt 14.929..14.93x ; snap/0930/30s 0.583, snap/0925/30s 0.583, volchg/0930/30s 0.223
+1112 zztx.r value -0.88787 -0.11573 -0.018697 -0.0032347 0.60297 | wgt 112.57..4435.3 ; trade/0930/100s 0.003, trade/0925/100s 0.003, snapchg/0930/86400s 0.003
+1113 zzcb.r value 0.29746 1.1503 5.6007 98.633 1622.2 | wgt 1.3684..2.8091 ; snap/0930/30s 0.007 (!), snap/0925/30s 0.007, snapchg/0930/6s 0.003
+1113 zzeb.r value 0.1215 0.12229 0.12586 0.15471 0.15922 | wgt 10.963..24.16 ; snap/0930/100s 0.007 (!), snap/0925/100s 0.007, snap/0930/90s 0.003
+1113 zzhj.p value 2.1845e5 6.0806e5 1.9377e6 7.7311e6 3.9051e7 | wgt 14.929..14.934 ; snap/0930/30s 0.607, snap/0925/30s 0.607, volchg/0930/30s 0.317
+1113 zztx.r value -1.527 -0.107 -0.014791 0.0078384 0.52084 | wgt 92.371..5403.9 ; volchg/0930/3300s 0.003, volchg/0925/3300s 0.003, sprchg/0925/7200s 0.003
+## R143 20261113 (best value-equal, rel 1e-3)
+zzui.r snap/45s price|c0 0.973, snapchg/45s 0.970, snapchg/60s 0.967 | zzba.p trade/450s price|c0 0.987, trade/360s 0.987, trade/300s 0.987
+zzvm.c.re trade/259200s price|c0 0.843, trade/172800s 0.843, (864000s 0.827) | zzcb.r snap/200s gap 0.007 | zzeb.r snapchg/90s hm-p 0.007
+zzhj.p snapchg/864000s bv1 0.003 | zztx.r trade/57600s side 0.003
