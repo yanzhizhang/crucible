@@ -1,0 +1,51 @@
+engine: 20 stocks, 80000 events, 23 rules, 4 threads, 0.01s
+20 stocks, 55480 day-end values + 37600 mark values compared, 0 mismatches
+20261112: stop 54149.981 -> data/engine_r164/engine_20261112.json.gz (23s total)
+== 20261112 (prev 20261111.jz)  zzxu key: n, equal share at 1e-6 (all / SZSE), at 1e-4 (all / SZSE), median relative error
+   zzxu.a           n  300  0.9967 / 0.9911   1.0000 / 1.0000   mre 8.25e-09
+   zzxu.a|c0        n  300  0.9967 / 0.9911   1.0000 / 1.0000   mre 8.25e-09
+   zzxu.dir|b1      n  300  0.6233 / 0.6161   0.6233 / 0.6161   mre 0
+   zzxu.dir|b2      n  300  0.7233 / 0.6696   0.7233 / 0.6696   mre 0
+   zzxu.dir|b3      n  300  0.5200 / 0.5268   0.5200 / 0.5268   mre 0
+   zzxu.dir|b4      n  300  0.6167 / 0.5982   0.6167 / 0.5982   mre 0
+   zzxu.high        n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 0
+   zzxu.last        n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 0
+   zzxu.low         n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 0
+   zzxu.lower|b1    n  300  0.2533 / 0.3393   0.2800 / 0.3571   mre 0.0194
+   zzxu.lower|b2    n  300  0.0333 / 0.0536   0.0433 / 0.0625   mre 0.0165
+   zzxu.lower|b3    n  300  0.1967 / 0.2589   0.2167 / 0.2679   mre 0.0238
+   zzxu.lower|b4    n  300  0.2533 / 0.3393   0.2800 / 0.3571   mre 0.0197
+   zzxu.p           n  300  0.9967 / 1.0000   1.0000 / 1.0000   mre 9.21e-10
+   zzxu.upper|b1    n  300  0.2967 / 0.2679   0.3467 / 0.2679   mre 0.0206
+   zzxu.upper|b2    n  300  0.5900 / 0.6071   0.6833 / 0.6071   mre 1.43e-09
+   zzxu.upper|b3    n  300  0.2800 / 0.2589   0.3133 / 0.2589   mre 0.0106
+   zzxu.upper|b4    n  300  0.2900 / 0.2500   0.3400 / 0.2500   mre 0.0208
+   b1 by (PM dir, ours): stocks / upper equal / lower equal: PM -1 ours -1: 84 / 0 / 76  |  PM -1 ours +1: 11 / 0 / 0  |  PM +1 ours -1: 102 / 1 / 0  |  PM +1 ours +1: 103 / 88 / 0
+   b2 by (PM dir, ours): stocks / upper equal / lower equal: PM -1 ours -1: 12 / 0 / 10  |  PM -1 ours +1: 83 / 0 / 0  |  PM +1 ours +1: 205 / 177 / 0
+   b3 by (PM dir, ours): stocks / upper equal / lower equal: PM -1 ours -1: 64 / 0 / 59  |  PM -1 ours +1: 31 / 0 / 0  |  PM +1 ours -1: 113 / 2 / 0  |  PM +1 ours +1: 92 / 82 / 0
+   b4 by (PM dir, ours): stocks / upper equal / lower equal: PM -1 ours -1: 84 / 0 / 76  |  PM -1 ours +1: 11 / 0 / 0  |  PM +1 ours -1: 104 / 1 / 0  |  PM +1 ours +1: 101 / 86 / 0
+20261113: stop 54149.897 -> data/engine_r164/engine_20261113.json.gz (22s total)
+== 20261113 (prev 20261112.jz)  zzxu key: n, equal share at 1e-6 (all / SZSE), at 1e-4 (all / SZSE), median relative error
+   zzxu.a           n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 1.39e-08
+   zzxu.a|c0        n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 1.39e-08
+   zzxu.dir|b1      n  300  0.7800 / 0.7321   0.7800 / 0.7321   mre 0
+   zzxu.dir|b2      n  300  0.7967 / 0.7321   0.7967 / 0.7321   mre 0
+   zzxu.dir|b3      n  300  0.6133 / 0.5893   0.6133 / 0.5893   mre 0
+   zzxu.dir|b4      n  300  0.7800 / 0.7411   0.7800 / 0.7411   mre 0
+   zzxu.high        n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 0
+   zzxu.last        n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 0
+   zzxu.low         n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 0
+   zzxu.lower|b1    n  300  0.1367 / 0.2232   0.2167 / 0.2768   mre 0.00604
+   zzxu.lower|b2    n  300  0.0200 / 0.0446   0.0267 / 0.0446   mre 0.0121
+   zzxu.lower|b3    n  300  0.1267 / 0.2411   0.1933 / 0.2857   mre 0.0114
+   zzxu.lower|b4    n  300  0.1367 / 0.2232   0.2200 / 0.2857   mre 0.00604
+   zzxu.p           n  300  0.9633 / 0.9911   1.0000 / 1.0000   mre 1.37e-09
+   zzxu.upper|b1    n  300  0.5000 / 0.4464   0.5767 / 0.4643   mre 3.28e-08
+   zzxu.upper|b2    n  300  0.6367 / 0.6607   0.7767 / 0.6875   mre 1.68e-09
+   zzxu.upper|b3    n  300  0.3767 / 0.2946   0.4300 / 0.3036   mre 0.00855
+   zzxu.upper|b4    n  300  0.5033 / 0.4554   0.5767 / 0.4732   mre 2.99e-08
+   b1 by (PM dir, ours): stocks / upper equal / lower equal: PM -1 ours -1: 62 / 0 / 41  |  PM -1 ours +1: 5 / 0 / 0  |  PM +1 ours -1: 61 / 1 / 0  |  PM +1 ours +1: 172 / 149 / 0
+   b2 by (PM dir, ours): stocks / upper equal / lower equal: PM -1 ours -1: 6 / 0 / 5  |  PM -1 ours +1: 61 / 0 / 0  |  PM +1 ours +1: 233 / 191 / 1
+   b3 by (PM dir, ours): stocks / upper equal / lower equal: PM -1 ours -1: 55 / 0 / 38  |  PM -1 ours +1: 12 / 0 / 0  |  PM +1 ours -1: 104 / 0 / 0  |  PM +1 ours +1: 129 / 113 / 0
+   b4 by (PM dir, ours): stocks / upper equal / lower equal: PM -1 ours -1: 62 / 0 / 41  |  PM -1 ours +1: 5 / 0 / 0  |  PM +1 ours -1: 61 / 1 / 0  |  PM +1 ours +1: 172 / 150 / 0
+[04:48:00] r164 done
