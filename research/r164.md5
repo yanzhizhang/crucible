@@ -1,0 +1,9 @@
+d92c17b9971020d33977bc6b3ec6f8a4  research/engine/cpp/families/zzxu.hpp
+f480b75992ed3b3a8ca21cd572401aa7  research/engine/cpp/main.cpp
+bd0cc01fa4ede7a884edf20f29a8c5ab  research/engine/cpp/state.hpp
+804baf48195230e748f90c357b0e701e  research/engine/export.py
+833f247167d19bbe40debfb30502b5a8  research/engine/families/zzxu.py
+b4a26209d564866b208666fa56744a1f  research/engine/run_cpp.py
+5aa9e460cf0a9b95a583a5bce0a65d07  research/engine/selftest.py
+ee21f8f345cba82f8b836f761ddbad78  research/engine/state.py
+6264dd2c09bbfdd8f2cdfb0fbbddff17  research/r164.sh
