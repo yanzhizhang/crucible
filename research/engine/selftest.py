@@ -22,7 +22,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from export import EVENT_DTYPE, write_chan, write_events, write_prev, write_rules
+from export import EVENT_DTYPE, seed_tag, write_chan, write_events, write_prev, write_rules
 from rules import chan_high, chan_low, chan_span
 from rules import EMAS, on_cancel, on_order, on_snap, on_trade
 from run_cpp import FIVE, ensure_binary, read_marks
@@ -126,6 +126,13 @@ def main() -> None:
             for s in sids[::2]}
     chan = {s: (float(rng.normal(12, 1)), float(rng.normal(8, 1))) for s in sids[1::3]}  # zzeg.c: a previous-3-day channel for some stocks
     exe = ensure_binary()
+    # the C++ family structs carry their own rule table: it must be the Python families' table, row for row
+    built = [ln.split("	") for ln in subprocess.run([str(exe), "--print-rules"], check=True, capture_output=True, text=True).stdout.splitlines()]
+    want = [[p, c, h, w, seed_tag(p)] for p, (c, h, w) in EMAS.items()]
+    same = len(built) == len(want) and all(b[0] == w[0] and b[1] == w[1] and float(b[2]) == float(w[2]) and b[3] == w[3] and b[4] == w[4] for b, w in zip(built, want))
+    print(f"built-in rule table: {len(built)} rules, {'equal to' if same else 'DIFFERENT from'} the Python families' table")
+    if not same:
+        sys.exit(1)
     with tempfile.TemporaryDirectory() as d:
         w = Path(d)
         names = write_rules(EMAS, w / "rules.tsv")

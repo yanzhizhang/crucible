@@ -1,5 +1,6 @@
 // The engine binary (C++20): events.bin + rules.tsv (+ prev.bin) -> the day-end state as JSON, one thread per stock chunk.
-//   engine <events.bin> <rules.tsv> <out.json> [--prev prev.bin] [--chan chan.bin] [--threads N] [--marks t1,t2,... --marks-out marks.bin]
+//   engine <events.bin> <rules.tsv | -> <out.json> [--prev prev.bin] [--chan chan.bin] [--threads N] [--marks t1,t2,... --marks-out marks.bin]
+// rules.tsv "-" = the built-in table of the family classes (families/*.hpp); engine --print-rules prints it.
 // --marks also writes the state as of each trading-clock mark (every event with t <= mark applied) for the model scan.
 #include <fcntl.h>
 #include <sys/mman.h>
@@ -23,7 +24,6 @@
 
 #include "event.hpp"
 #include "rules.hpp"
-#include "state.hpp"
 
 namespace {
 
@@ -60,15 +60,11 @@ std::vector<rule> read_rules(const char* path) {
     while (std::getline(f, line)) {
         if (line.empty() || line[0] == '#') continue;
         std::istringstream ss(line);
-        rule r;
-        std::string clock;
-        if (!(std::getline(ss, r.name, '\t') && std::getline(ss, clock, '\t') && (ss >> r.half) && ss.ignore() &&
-              std::getline(ss, r.what, '\t') && (ss >> r.seed)))
+        std::string name, clock, what, seed;
+        double half;
+        if (!(std::getline(ss, name, '\t') && std::getline(ss, clock, '\t') && (ss >> half) && ss.ignore() && std::getline(ss, what, '\t') && (ss >> seed)))
             throw std::runtime_error("bad rules line: " + line);
-        std::string base = clock.substr(0, clock.find('_'));  // "snap" / "trade" / "both" [+ "_wall" / "_exch"]
-        r.mod = clock.find('_') == std::string::npos ? "" : clock.substr(clock.find('_') + 1);
-        r.clock = base == "trade" ? 1 : base == "both" ? 2 : base == "bothn" ? 3 : base == "all" ? 4 : base == "bothc" ? 5 : base == "tradec" ? 6 : 0;
-        out.push_back(r);
+        out.push_back(make_rule(name, clock, half, what, seed));
     }
     return out;
 }
@@ -104,23 +100,7 @@ std::unordered_map<std::int32_t, chan_record> read_chan(const char* path) {
     return out;
 }
 
-// %.17g round-trips every double exactly; NaN becomes JSON null.
-void put(std::string& o, const char* key, double v) {
-    o += '"';
-    o += key;
-    o += "\":";
-    if (std::isnan(v)) o += "null";
-    else {
-        char b[32];
-        std::snprintf(b, sizeof b, "%.17g", v);
-        o += b;
-    }
-    o += ',';
-}
-
-void put(std::string& o, const std::string& key, double v) { put(o, key.c_str(), v); }
-
-// Stock::dump, under PM's key names.
+// Stock::dump, under PM's key names: the averages, then each family's own keys.
 std::string dump(stock& st, const std::vector<rule>& rules) {
     std::string o;
     o.reserve(1 << 16);
@@ -130,49 +110,7 @@ std::string dump(stock& st, const std::vector<rule>& rules) {
         put(o, rules[i].name + ".wgt", st.emas[i].w);
         if (st.emas[i].has_t) put(o, rules[i].name + ".t", st.emas[i].t);
     }
-    for (const char* k : {"zzpk.high", "zzvx.high", "zzxu.high"}) put(o, k, st.high);
-    for (const char* k : {"zzpk.low", "zzvx.low", "zzxu.low"}) put(o, k, st.low);
-    put(o, "zzpk.open", st.open);
-    for (const char* k : {"zzxu.last", "zzxo.last", "cdc.lp"}) put(o, k, st.last);
-    put(o, "zzqj.v", st.vol);
-    put(o, "zzvm.c.v", st.vol);
-    put(o, "zzqj.tpv", st.amt);
-    put(o, "zzvm.c.tpv", st.amt);
-    put(o, "zzgh.nb", st.buy + st.sell ? (st.buy - st.sell) / (st.buy + st.sell) : qnan);
-    const std::pair<const char*, const double*> nbs[] = {{"zzgh.nb|vol", st.nb_vol}, {"zzgh.nb|cnt", st.nb_cnt}, {"zzgh.nb|snappx", st.nb_snappx},
-                                                         {"zzgh.nb|ord", st.nb_ord}, {"zzgh.nb|ordvol", st.nb_ordvol}};
-    for (const auto& [k, v] : nbs) put(o, k, v[0] + v[1] ? (v[0] - v[1]) / (v[0] + v[1]) : qnan);
-    put(o, "zzqj.v|all", st.vol_all);
-    put(o, "zzqj.tpv|all", st.amt_all);
-    put(o, "zzqj.v|noclose", st.vol_o);
-    put(o, "zzqj.tpv|noclose", st.amt_o);
-    put(o, "zzqj.v|loc", st.vol_loc);
-    put(o, "zzqj.tpv|loc", st.amt_loc);
-    put(o, "zzmh.hm", st.hm);
-    put(o, "zzeg.c.high", chan_high(st));
-    put(o, "zzeg.c.low", chan_low(st));
-    put(o, "zzeg.c.span", chan_span(st));
-    for (int k = 0; k < n_xo; ++k) put(o, "zzxo.r." + std::to_string(k), st.xo[k]);
-    for (int k = 0; k < n_ui; ++k) put(o, "zzui.r." + std::to_string(k), st.ui[k]);
-    for (int k = 0; k < n_hj; ++k) put(o, "zzhj.c." + std::to_string(k), st.hj[k]);
-    const auto& fb = st.zzfb.close();
-    for (std::size_t k = 0; k < fb.size(); ++k) put(o, "zzfb.c." + std::to_string(k), fb[k]);
-    const auto& jb = st.jb_px.close();
-    for (std::size_t k = 0; k < jb.size(); ++k) {
-        double px = jb[k];
-        bool drop = !std::isnan(px) && !std::isnan(st.pc) && px <= st.pc * (1 - jb_drop);
-        put(o, "zzjb.c." + std::to_string(k), drop ? 0.0 : 4.0);
-    }
-    for (int k = 0; k < n_gh; ++k) {
-        double b = st.gh_buy[k], s = st.gh_sell[k];
-        int code = gh_empty;
-        if (b + s > 0) {
-            double x = (b - s) / (b + s);
-            code = 0;
-            for (double e : gh_edges) code += e <= x;  // searchsorted right: a value on an edge goes up
-        }
-        put(o, "zzgh.c." + std::to_string(k), static_cast<double>(code));
-    }
+    st.fams_dump(o);
     o.back() = '}';
     return o;
 }
@@ -204,6 +142,12 @@ void mark_values(const stock& st, const double* cnt, double* o) {
 }  // namespace
 
 int main(int argc, char** argv) {
+    if (argc == 2 && !std::strcmp(argv[1], "--print-rules")) {  // the built-in table in rules.tsv form
+        static const char* clocks[] = {"snap", "trade", "both", "bothn", "all", "bothc", "tradec"};
+        for (const auto& r : builtin_rules())
+            std::printf("%s\t%s%s%s\t%.17g\t%s\t%s\n", r.name.c_str(), clocks[r.clock], r.mod.empty() ? "" : "_", r.mod.c_str(), r.half, r.what.c_str(), r.seed.c_str());
+        return 0;
+    }
     if (argc < 4) {
         std::fprintf(stderr, "usage: engine <events.bin> <rules.tsv> <out.json> [--prev prev.bin] [--threads N] [--marks a,b --marks-out f]\n");
         return 2;
@@ -228,7 +172,7 @@ int main(int argc, char** argv) {
         return 2;
     }
     auto t0 = std::chrono::steady_clock::now();
-    std::vector<rule> rules = read_rules(argv[2]);
+    std::vector<rule> rules = std::strcmp(argv[2], "-") ? read_rules(argv[2]) : builtin_rules();  // "-" = the families' own table
     compiled_rules cr(rules);
     auto prev = read_prev(prev_path);
     auto chan = read_chan(chan_path);

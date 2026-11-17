@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "state.hpp"
+#include "families/all.hpp"
 
 namespace eng {
 
@@ -15,16 +15,6 @@ inline double plog(double x) { return x > 0 ? std::log(x) : qnan; }
 // Python max(a, b) / min(a, b): the first argument stays unless the second compares strictly better.
 inline double pymax(double a, double b) { return b > a ? b : a; }
 inline double pymin(double a, double b) { return b < a ? b : a; }
-
-// zzeg.c: the 4-day channel (previous 3 days + today's snapshot high / low fields), NaN-skipping.
-inline double nmax(double a, double b) { return std::isnan(a) ? b : (std::isnan(b) ? a : (b > a ? b : a)); }
-inline double nmin(double a, double b) { return std::isnan(a) ? b : (std::isnan(b) ? a : (b < a ? b : a)); }
-inline double chan_high(const stock& st) { return nmax(st.ch_h, st.hi_f); }
-inline double chan_low(const stock& st) { return nmin(st.ch_l, st.lo_f); }
-inline double chan_span(const stock& st) {
-    double h = chan_high(st), l = chan_low(st);
-    return (std::isnan(h) || std::isnan(l)) ? qnan : (h + l) / 2;
-}
 
 enum class what : int { price, mid, logp, hl, hl0, hl_valid, tr_open, logret, one, snap_px, hl_snap, rvwap, hl_trade, tro, price0, price_pc,
                         last_px, span, mh_dd2 };
@@ -71,7 +61,7 @@ inline clock_mod parse_mod(const std::string& m) {
     throw std::runtime_error("unknown clock modifier " + m);
 }
 
-inline double snap_value(const stock& st, what w) {
+inline double snap_value(const tape& st, what w) {
     switch (w) {
     case what::price: return st.snap_px;
     case what::mid: return st.mid;
@@ -95,7 +85,7 @@ inline double snap_value(const stock& st, what w) {
     }
 }
 
-inline double trade_value(const stock& st, what w) {
+inline double trade_value(const tape& st, what w) {
     switch (w) {
     case what::price: return st.trade_px;
     case what::hl: case what::hl_trade: return st.high - st.low;
@@ -143,16 +133,7 @@ inline void on_snap(stock& st, const compiled_rules& cr, double t, double s, dou
             double tt = clock_time(cr.mod[i], t, s);
             if (!std::isnan(tt)) st.emas[i].update(tt, snap_value(st, cr.kind[i]));
         }
-    st.zzfb.feed(t, amount);
-    st.jb_px.feed(t, st.snap_px);
-    for (int k = 0; k < n_hj; ++k)
-        if (t <= hj_sample(k)) st.hj[k] = st.mid;
-    if (price > 0) {
-        for (int k = 0; k < n_xo; ++k)
-            if (lsod <= 53820 - (n_xo - 1 - k) * 10) st.xo[k] = price;
-        for (int k = 0; k < n_ui; ++k)
-            if (lsod <= 53820 - (n_ui - 1 - k) * 10) st.ui[k] = price;
-    }
+    st.fams_snap(t, s, lsod, amount);
 }
 
 // An order event: the all-event averages (clock 4) move on the state as it stands; the order-flow imbalances count it.
@@ -216,9 +197,9 @@ inline void on_trade(stock& st, const compiled_rules& cr, double t, double s, do
             else if (side < 0) st.sell += amt;
             st.nb_vol[0] += vol * b;
             st.nb_vol[1] += vol * sl;
-            st.gh_feed(t, side > 0 ? amt : 0.0, side < 0 ? amt : 0.0);
         }
     }
+    st.fams_trade(t, s, amt, side);
     for (std::size_t i = 0; i < st.emas.size(); ++i)
         if (cr.clock[i] != 0) {
             double tt = clock_time(cr.mod[i], t, s);

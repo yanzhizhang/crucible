@@ -92,7 +92,7 @@ def prev_channel(date: str, sids: list[int], hist: str, catalog: Path) -> dict[i
 def ensure_binary(cpp: Path = CPP) -> Path:
     """Build cpp/build/engine when it is missing or older than any source; return its path."""
     exe = cpp / "build" / "engine"
-    srcs = list(cpp.glob("*.hpp")) + list(cpp.glob("*.cpp")) + [cpp / "CMakeLists.txt"]
+    srcs = list(cpp.glob("*.hpp")) + list(cpp.glob("families/*.hpp")) + list(cpp.glob("*.cpp")) + [cpp / "CMakeLists.txt"]
     if exe.exists() and exe.stat().st_mtime >= max(s.stat().st_mtime for s in srcs):
         return exe
     print(f"building {exe} ...", flush=True)

@@ -8,9 +8,10 @@ Three building blocks, each a PM key family:
   snapshot's total amount; the price grid ``zzjb`` is cut from);
 * ``SlotSum`` -- a time grid of per-slot sums (``zzgh``: buy and sell amount, binned at the close).
 
-``Stock`` owns them plus the scalars (high / low / open / last, volume and amount from 09:30, the continuous-session
-amount imbalance ``zzgh.nb``, the snapshot high ``zzmh.hm``, the 10 s price grids ``zzxo.r`` / ``zzui.r``, the
-quarter-hour mids ``zzhj.c``) and ``dump()`` writes them under PM's key names.
+``Stock`` is the shared tape plus one object per family (``families/``): the tape holds the raw running values several
+families read (high / low / open / last, volume and amount from 09:30, buy / sell amounts, the snapshot high, the last
+snapshot and trade prices); each family owns its averages, its grids and its keys. ``dump()`` writes every family's keys
+under PM's names.
 """
 
 from __future__ import annotations
@@ -32,7 +33,6 @@ JB_DROP = 0.0304  # zzjb: 0 when the slot's price is this far below the previous
 GH_EDGES = (-0.6, -0.2, 0.2, 0.6)  # zzgh: per-slot amount imbalance -> code 0..4
 GH_EMPTY = 2  # code of a slot without trades (to be confirmed against PM)
 HJ_SAMPLE = [min(k * 900.0 + 870.0, 14190.0) for k in range(16)]  # zzhj.c: 30 s before each quarter-hour end, last at 14:56:30
-XO_GRID = {"zzxo": 30, "zzui": 10}  # 10 s price grids ending at 14:57:00 local time (seconds of day)
 
 
 class Ema:
@@ -97,10 +97,13 @@ class SlotSum:
 
 
 class Stock:
-    """Everything the engine keeps for one stock during the day."""
+    """The shared tape of one stock for the day, plus its family objects and their averages."""
 
-    def __init__(self, emas: dict[str, tuple[str, float, str]], prev: dict[str, float] | None = None) -> None:
-        self.ema = {p: (Ema(half), clock, what) for p, (clock, half, what) in emas.items()}
+    def __init__(self, emas: dict[str, tuple[str, float, str]] | None = None, prev: dict[str, float] | None = None) -> None:
+        from families import EMAS, ENGINE  # noqa: PLC0415 -- families import this module
+
+        self.fams = [f() for f in ENGINE]
+        self.ema = {p: (Ema(half), clock, what) for p, (clock, half, what) in (EMAS if emas is None else emas).items()}
         for p, (e, _, _) in self.ema.items():  # seeded variants: yesterday's state (sum / wgt, or wgt alone) decayed by N seconds
             sd = seed_of(p)
             base = p.partition("|")[0]
@@ -125,54 +128,14 @@ class Stock:
         self.hi_f = self.lo_f = math.nan  # the snapshot's own high / low fields
         self.ch_h = self.ch_l = math.nan  # zzeg.c: the previous 3 trading days' snapshot high / low (chan.bin)
         self.t_fast = self.t_slow = None  # clocks: last snapshot / last trade received
-        self.zzfb = LastBefore(711)
-        self.jb_px = LastBefore(948, math.nan)
-        self.zzgh = SlotSum(948, 2)
-        self.hj = [math.nan] * 16  # mid as of each quarter-hour sample
-        self.grid = {fam: [math.nan] * n for fam, n in XO_GRID.items()}
 
     def dump(self) -> dict[str, float]:
-        """Write the state under PM's key names."""
+        """Write the state under PM's key names: the averages, then each family's own keys."""
         out: dict[str, float] = {}
         for p, (e, _clock, _) in self.ema.items():
             out[f"{p}.sum"], out[f"{p}.wgt"] = e.s, e.w
             if e.t is not None:
                 out[f"{p}.t"] = e.t
-        for k in ("zzpk.high", "zzvx.high", "zzxu.high"):
-            out[k] = self.high
-        for k in ("zzpk.low", "zzvx.low", "zzxu.low"):
-            out[k] = self.low
-        out["zzpk.open"] = self.open
-        for k in ("zzxu.last", "zzxo.last", "cdc.lp"):
-            out[k] = self.last
-        out["zzqj.v"] = out["zzvm.c.v"] = self.vol
-        out["zzqj.tpv"] = out["zzvm.c.tpv"] = self.amt
-        out["zzgh.nb"] = (self.buy - self.sell) / (self.buy + self.sell) if self.buy + self.sell else math.nan
-        for tag, (b, s) in (("vol", self.nb_vol), ("cnt", self.nb_cnt), ("snappx", self.nb_snappx), ("ord", self.nb_ord), ("ordvol", self.nb_ordvol)):
-            out[f"zzgh.nb|{tag}"] = (b - s) / (b + s) if b + s else math.nan
-        out["zzqj.v|all"], out["zzqj.tpv|all"] = self.vol_all, self.amt_all
-        out["zzqj.v|noclose"], out["zzqj.tpv|noclose"] = self.vol_o, self.amt_o
-        out["zzqj.v|loc"], out["zzqj.tpv|loc"] = self.vol_loc, self.amt_loc
-        out["zzmh.hm"] = self.hm
-        nmax = lambda a, b: b if a != a else (a if b != b else (b if b > a else a))  # noqa: E731 -- NaN-skipping, as rules.chan_*
-        nmin = lambda a, b: b if a != a else (a if b != b else (b if b < a else a))  # noqa: E731
-        h, lo = nmax(self.ch_h, self.hi_f), nmin(self.ch_l, self.lo_f)
-        out["zzeg.c.high"], out["zzeg.c.low"] = h, lo
-        out["zzeg.c.span"] = math.nan if h != h or lo != lo else (h + lo) / 2
-        for fam, g in self.grid.items():
-            for k, v in enumerate(g):
-                out[f"{fam}.r.{k}"] = v
-        for k, v in enumerate(self.hj):
-            out[f"zzhj.c.{k}"] = v
-        for k, v in enumerate(self.zzfb.close()):
-            out[f"zzfb.c.{k}"] = v
-        for k, px in enumerate(self.jb_px.close()):
-            out[f"zzjb.c.{k}"] = 0.0 if px == px and self.pc == self.pc and px <= self.pc * (1 - JB_DROP) else 4.0
-        for k, (b, s) in enumerate(zip(*self.zzgh.vals, strict=True)):
-            if b + s > 0:
-                x = (b - s) / (b + s)
-                code = sum(1 for e in GH_EDGES if e <= x)  # searchsorted, right: a value on an edge goes up
-            else:
-                code = GH_EMPTY
-            out[f"zzgh.c.{k}"] = float(code)
+        for f in self.fams:
+            f.dump(self, out)
         return out

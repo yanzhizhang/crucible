@@ -1,8 +1,10 @@
-// Per-stock state of PM's intraday engine, a line-for-line port of research/engine/state.py.
+// Per-stock tape of PM's intraday engine (raw running values + the averages), a port of research/engine/state.py.
+// The per-family state and keys live in families/*.hpp; stock = tape + one object per family (families/all.hpp).
 #pragma once
 
 #include <cmath>
 #include <cstddef>
+#include <cstdio>
 #include <string>
 #include <vector>
 
@@ -13,7 +15,6 @@ constexpr double jb_drop = 0.0304;   // zzjb: 0 when the slot's price is this fa
 constexpr double gh_edges[4] = {-0.6, -0.2, 0.2, 0.6};
 constexpr int gh_empty = 2;
 constexpr int n_hj = 16;
-constexpr int n_xo = 30, n_ui = 10;  // 10 s price grids ending at 14:57:00 local
 constexpr int n_gh = 948;
 inline const double qnan = std::nan("");
 
@@ -67,7 +68,48 @@ struct rule {
     std::string seed;
 };
 
-struct stock {
+// "snap" / "trade" / "both" ... [+ "_wall" / "_exch" / "_o930"] -> clock code and modifier.
+inline rule make_rule(const std::string& name, const std::string& clock, double half, const std::string& what, const std::string& seed) {
+    rule r;
+    r.name = name;
+    r.half = half;
+    r.what = what;
+    r.seed = seed;
+    std::string base = clock.substr(0, clock.find('_'));
+    r.mod = clock.find('_') == std::string::npos ? "" : clock.substr(clock.find('_') + 1);
+    r.clock = base == "trade" ? 1 : base == "both" ? 2 : base == "bothn" ? 3 : base == "all" ? 4 : base == "bothc" ? 5 : base == "tradec" ? 6 : 0;
+    return r;
+}
+
+// A family's built-in rule: the seed is the name's "|c<N>" / "|w<N>" / "|wt<N>" tag, "-" without one (export.seed_tag).
+inline rule family_rule(const std::string& name, const std::string& clock, double half, const std::string& what) {
+    std::string seed = "-";
+    std::size_t bar = name.find('|');
+    if (bar != std::string::npos) {
+        std::string tag = name.substr(bar + 1);
+        std::size_t k = tag.find_first_of("0123456789");
+        std::string kind = k == std::string::npos ? "" : tag.substr(0, k);
+        if ((kind == "c" || kind == "w" || kind == "wt") && tag.find_first_not_of("0123456789", k) == std::string::npos) seed = tag;
+    }
+    return make_rule(name, clock, half, what, seed);
+}
+
+// %.17g round-trips every double exactly; NaN becomes JSON null.
+inline void put(std::string& o, const char* key, double v) {
+    o += '"';
+    o += key;
+    o += "\":";
+    if (std::isnan(v)) o += "null";
+    else {
+        char b[32];
+        std::snprintf(b, sizeof b, "%.17g", v);
+        o += b;
+    }
+    o += ',';
+}
+inline void put(std::string& o, const std::string& key, double v) { put(o, key.c_str(), v); }
+
+struct tape {
     std::vector<ema> emas;  // one per rule, table order
     double high = qnan, low = qnan, open = qnan, last = qnan;
     double vol = 0, amt = 0, buy = 0, sell = 0;
@@ -77,16 +119,9 @@ struct stock {
     double ch_h = qnan, ch_l = qnan;  // zzeg.c: the previous 3 trading days' snapshot high / low (chan.bin)
     double snap_px = qnan, snap_prev = qnan, trade_px = qnan, trade_prev = qnan;
     double bid = qnan, ask = qnan, mid = qnan, hi_f = qnan, lo_f = qnan;
-    last_before zzfb{711, 0.0}, jb_px{948, qnan};
-    std::vector<double> gh_buy, gh_sell;  // SlotSum(948, 2)
-    double hj[n_hj];
-    double xo[n_xo], ui[n_ui];
 
-    explicit stock(const std::vector<rule>& rules) : emas(rules.size()), gh_buy(n_gh, 0.0), gh_sell(n_gh, 0.0) {
+    explicit tape(const std::vector<rule>& rules) : emas(rules.size()) {
         for (std::size_t i = 0; i < rules.size(); ++i) emas[i].k = std::log(2.0) / rules[i].half;
-        for (double& x : hj) x = qnan;
-        for (double& x : xo) x = qnan;
-        for (double& x : ui) x = qnan;
     }
     // Seed rule i from yesterday's sum / wgt per its seed tag (Python Stock.__init__).
     void seed(std::size_t i, const std::string& tag, double sum, double wgt) {
@@ -100,13 +135,6 @@ struct stock {
         if (kind == "wt") {
             emas[i].t = 0.0;
             emas[i].has_t = true;
-        }
-    }
-    void gh_feed(double t, double b, double s) {
-        if (0 <= t && t < session) {
-            std::size_t k = static_cast<std::size_t>(std::floor(t / (session / n_gh)));
-            gh_buy[k] += b;
-            gh_sell[k] += s;
         }
     }
 };

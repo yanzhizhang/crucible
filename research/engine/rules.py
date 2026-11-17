@@ -1,7 +1,7 @@
 r"""The update rules: what a snapshot and what a trade do to the state (the solved part of PM's engine).
 
-``EMAS`` is the table of solved averages: prefix -> (clock, half-life s, value). Values are computed from the
-state *after* the event's raw fields are applied (``price``, ``mid``, ``logp``, the day range in price units ``hl``,
+``EMAS`` is the table of solved averages, assembled from the family classes (``families/``): prefix -> (clock,
+half-life s, value). Values are computed from the state *after* the event's raw fields are applied (``price``, ``mid``, ``logp``, the day range in price units ``hl``,
 the true range against the open ``tr_open``, the log return against the previous event ``logret``, the running
 VWAP ``rvwap``, the constant ``one``). A NaN value skips the update (as ``feature_intraday.ema_at`` does).
 """
@@ -10,28 +10,17 @@ from __future__ import annotations
 
 import math
 
-from state import HJ_SAMPLE, SESSION, XO_GRID, Stock
+from families import EMAS as _FAMILY_EMAS
+from families.zzeg import chan_high, chan_low, chan_span  # noqa: F401 -- re-exported
+from state import SESSION, Stock
 
-EMAS: dict[str, tuple[str, float, str]] = {
-    "zzpk.p": ("snap", 300, "price"), "zzab2.r": ("snap", 300, "price"), "zzup.pf": ("snap", 300, "price"),
-    "zzxu.p": ("snap", 300, "price"), "zzup.ps": ("snap", 600, "price"), "zzxu.a": ("snap", 300, "hl"),
-    "zzvx.trEmaD": ("snap", 30, "hl"), "zzvx.trEmaO": ("snap", 30, "hl"), "zzvx.trDEmaD": ("snap", 30, "hl"),
-    "zzvx.trDEmaO": ("snap", 30, "hl"), "zzvx.rEmaD": ("snap", 30, "one"), "zzvx.rEmaO": ("snap", 30, "one"),
-    "zzbd.pEmaS": ("snap", 100, "logp"), "zzeb.p": ("snap", 100, "mid"), "zzbd.rEmaS": ("snap", 200, "logret"),
-    "zzba.p": ("both", 300, "snap_px"), "zzba.r": ("both", 300, "hl_trade"),  # decided on 97: 1e-4 exact every day
-    "zzbd.pEmaT": ("trade", 100, "logp"), "zzbd.rEmaT": ("trade", 200, "logret"), "zzqj.r": ("trade", 30, "rvwap"),
-    "zzeg.c.rEma|c0": ("snap", 300, "span"),  # 4-day channel mid, carried from yesterday (R111: value equal 0.98-1.00)
-    "zzmh.r": ("snap", 1, "mh_dd2"),  # PM's weight 1.1439 at the close = 1 s on 3 s snapshots; value 4 ((hm - p) / hm)^2
-    # variants: "<pm key>|<tag>" is scored against the PM key next to the rule above (verify strips the tag).
-    # clocks: snap / trade / both (updated by every event); "_wall" = no lunch removal (afternoon t + 5400),
-    # "_exch" = the exchange stamp's trading clock; "|c<N>" (none now) = seeded from yesterday's PM state decayed by N s
-    # both = snapshots and trades; bothc = both plus the SZSE cancel records of the transaction stream; bothn = both with each
-    # event's own value; all = everything incl. orders (state value). zzup.ps: 1e-6 residual ~1e-7 relative, unexplained --
-    # lunch, exchange clock, carry (c/w/wt seeds), price-less snapshots, 09:30 start all tried and all identical.
-    # zzba: both-event clock (snapshots and trades; cancels / orders tested and excluded), 1e-4 exact on every day. The 1e-6
-    # residual (zzba.p 19%, zzba.r 4%) only hits keys both feeds tick, so it is the two feeds' interleaving at PM's receiver
-    # differing from ours -- not recoverable from data. The last trade price and price-less snapshots as 0 were worse.
-}
+# The table of solved averages is assembled from the family classes: prefix -> (clock, half-life s, value).
+# variants: "<pm key>|<tag>" is scored against the PM key next to the rule above (verify strips the tag).
+# clocks: snap / trade / both (updated by every event); "_wall" = no lunch removal (afternoon t + 5400),
+# "_exch" = the exchange stamp's trading clock; "|c<N>" = seeded from yesterday's PM state decayed by N s
+# both = snapshots and trades; bothc = both plus the SZSE cancel records of the transaction stream; bothn = both with each
+# event's own value; all = everything incl. orders (state value).
+EMAS: dict[str, tuple[str, float, str]] = dict(_FAMILY_EMAS)
 
 
 def tc(s: float) -> float:
@@ -52,32 +41,6 @@ def clock_time(mod: str, t: float, s: float) -> float:
 
 def _log(x: float) -> float:
     return math.log(x) if x > 0 else math.nan
-
-
-def _nmax(a: float, b: float) -> float:
-    """max skipping NaN (NaN only when both are)."""
-    return b if a != a else (a if b != b else (b if b > a else a))
-
-
-def _nmin(a: float, b: float) -> float:
-    """min skipping NaN (NaN only when both are)."""
-    return b if a != a else (a if b != b else (b if b < a else a))
-
-
-def chan_high(st: Stock) -> float:
-    """zzeg.c.high: the 4-day channel's high."""
-    return _nmax(st.ch_h, st.hi_f)
-
-
-def chan_low(st: Stock) -> float:
-    """zzeg.c.low: the 4-day channel's low."""
-    return _nmin(st.ch_l, st.lo_f)
-
-
-def chan_span(st: Stock) -> float:
-    """zzeg.c.span = (high + low) / 2."""
-    h, lo = chan_high(st), chan_low(st)
-    return math.nan if h != h or lo != lo else (h + lo) / 2
 
 
 def snap_value(st: Stock, what: str) -> float:
@@ -170,17 +133,8 @@ def on_snap(st: Stock, t: float, s: float, lsod: float, price: float, b1: float,
             tt = clock_time(mod, t, s)
             if tt == tt:
                 e.update(tt, snap_value(st, what))
-    st.zzfb.feed(t, amount)
-    st.jb_px.feed(t, st.snap_px)
-    for k, ts in enumerate(HJ_SAMPLE):  # last snapshot received at or before each sample
-        if t <= ts:
-            st.hj[k] = st.mid
-    for fam, n in XO_GRID.items():  # last snapshot received at or before 14:57:00 - (n-1-k) x 10 s, local time
-        if price > 0:
-            g = st.grid[fam]
-            for k in range(n):
-                if lsod <= 53820 - (n - 1 - k) * 10:
-                    g[k] = price
+    for f in st.fams:
+        f.on_snap(st, t, s, lsod, amount)
 
 
 def on_order(st: Stock, t: float, s: float, price: float = 0.0, vol: float = 0.0, side: float = 0.0) -> None:
@@ -245,7 +199,8 @@ def on_trade(st: Stock, t: float, s: float, price: float, vol: float, side: floa
                 st.sell += amt
             st.nb_vol[0] += vol * b
             st.nb_vol[1] += vol * sl
-            st.zzgh.feed(t, amt if side > 0 else 0.0, amt if side < 0 else 0.0)
+    for f in st.fams:
+        f.on_trade(st, t, s, amt, side)
     for e, clock, what in st.ema.values():
         base, _, mod = clock.partition("_")
         if base != "snap":  # trade / tradec / both / bothc / bothn / all
