@@ -191,10 +191,114 @@ def study_grammar(names: list[str], formulas: dict[str, str], out: Path) -> None
     print(f"-- open leaves ({len(open_)} columns): " + " ".join(f"{k}:{v}" for k, v in Counter(n.split('.')[-1] if '.' in n else '-' for n in open_).most_common()))
 
 
+def unit_class(lo: float, hi: float, t: np.ndarray) -> str:
+    """Scale class of a column from its training range and thresholds alone."""
+    span = hi - lo
+    frac = np.abs(t - np.round(t * 2) / 2) if t.size else np.array([1.0])
+    intlike = t.size >= 5 and float((frac < 1e-9).mean()) > 0.9
+    inner = (float(np.quantile(t, 0.99)) - float(np.quantile(t, 0.01))) if t.size else span
+    if intlike:
+        return "count/code (integer steps)"
+    if lo >= -1.0001 and hi <= 1.0001 and lo < -0.9 and hi > 0.9:
+        return "rank/imbalance [-1,1]"
+    if lo >= 0 and hi <= 1.0001 and hi > 0.9:
+        return "share/rank [0,1]"
+    if lo > 0.3 and hi < 3 and lo < 1 < hi:
+        return "ratio around 1"
+    if lo >= 0 and hi > 1000:
+        return "large non-negative (seconds / counts / amounts)"
+    if lo >= 0 and hi > 20:
+        return "bp-scale or count, non-negative"
+    if abs(lo + hi) < 0.35 * max(abs(lo), abs(hi)) and hi > 2:
+        return "z-score-like, symmetric"
+    if abs(lo) < 0.6 and abs(hi) < 0.6 and lo < 0 < hi:
+        return "small signed (return / z/100 / imbalance)" + (", tight core" if inner < 0.05 * span else "")
+    if lo >= 0 and hi <= 20:
+        return "small non-negative (ratio / fraction)"
+    return "other signed"
+
+
+def study_units(a, names: list[str], formulas: dict[str, str], out: Path) -> None:
+    """Per column: scale class from feature_infos + thresholds; per family, whether its columns share a class."""
+    fs = P.model_files(a.gens / a.gen, a.date, [a.fit], SUBS)
+    th = all_thresholds(fs, len(names))
+    seg = [infos(f) for f in fs]
+    rows = []
+    for i, n in enumerate(names):
+        rg = [s[i] for s in seg if s[i]]
+        if not rg:
+            continue
+        lo, hi = min(r[0] for r in rg), max(r[1] for r in rg)
+        t = th[i]
+        q = np.quantile(t, [0.01, 0.5, 0.99]) if t.size else [np.nan] * 3
+        rows.append({"col": n, "family": n.split(".")[0], "lo": lo, "hi": hi, "n_thr": t.size, "t01": q[0], "t50": q[1], "t99": q[2],
+                     "core_share": (q[2] - q[0]) / (hi - lo) if hi > lo else np.nan, "cls": unit_class(lo, hi, t),
+                     "status": "settled" if n in formulas else "open", "formula": formulas.get(n, "")})
+    t = pl.DataFrame(rows)
+    t.write_csv(out / "units.csv")
+    print(f"== units: {t.height} columns; scale class from training range + thresholds (gen {a.gen})")
+    for (c,), sub in sorted(t.group_by("cls"), key=lambda kv: -kv[1].height):
+        print(f"-- {c}: {sub.height} columns ({sub.filter(pl.col('status') == 'open').height} open)")
+        for r in sub.sort("col").iter_rows(named=True):
+            print(f"   {r['col']:<14} {r['status']:<7} [{r['lo']:.5g}, {r['hi']:.5g}] thr {r['n_thr']:>4} q01/50/99 {r['t01']:.4g} {r['t50']:.4g} {r['t99']:.4g}"
+                  f" core {r['core_share']:.3f}  {r['formula'][:48]}")
+    print("-- families whose columns are not all one class (a family mixing scales = several different quantities):")
+    for (fm,), sub in sorted(t.group_by("family"), key=lambda kv: kv[0][0]):
+        if sub["cls"].n_unique() > 1:
+            print(f"   {fm:<8} " + "  ".join(f"{r['col'].split('.', 1)[-1] if '.' in r['col'] else '-'}:{r['cls'].split(' ')[0]}" for r in sub.iter_rows(named=True)))
+
+
+def study_famlinks(a, names: list[str], out: Path) -> None:
+    """Family x family adjacency lift in the trees: which sourced families does each sourceless family split next to?"""
+    fs = P.model_files(a.gens / a.gen, a.date, [a.fit], SUBS)
+    fam = [re.sub(r"\d+$", "", n.split(".")[0]) for n in names]
+    src: dict[str, str] = {}
+    if a.audit.exists():
+        for r in pl.read_csv(a.audit).iter_rows(named=True):
+            f = re.sub(r"\d+$", "", r["family"])
+            if r["source"] != "none":
+                src[f] = r["source"]
+    pair: Counter = Counter()
+    deg: Counter = Counter()
+    for f in fs:
+        for kv in trees(f):
+            sf = [int(x) for x in kv["split_feature"]]
+            _, parent = walk(kv)
+            for nd, p in enumerate(parent):
+                if p >= 0 and sf[p] != sf[nd]:
+                    x, y = sorted((fam[sf[p]], fam[sf[nd]]))
+                    pair[(x, y)] += 1
+                    deg[fam[sf[p]]] += 1
+                    deg[fam[sf[nd]]] += 1
+    N = sum(pair.values())
+    rows = []
+    fams = sorted(set(fam))
+    print(f"== famlinks: {len(fams)} family stems, {N} parent-child edges; sourced families: {len(src)} ({'audit ' + str(a.audit) if src else 'no audit.csv: all shown as unsourced'})")
+    for f in fams:
+        nb = []
+        for (x, y), c in pair.items():
+            if f in (x, y) and c >= a.min_pairs:
+                g = y if x == f else x
+                if x == y:
+                    g = f
+                lift = c * (4 if x == y else 2) * N / (deg[f] * deg[g])  # a self edge adds 2 to the family's degree
+                nb.append((lift, c, g))
+                rows.append({"family": f, "partner": g, "n": c, "lift": lift, "family_source": src.get(f, "none"), "partner_source": src.get(g, "none")})
+        nb.sort(reverse=True)
+        if f in src:
+            continue
+        sourced = [(l, c, g) for l, c, g in nb if g in src and g != f][:5]
+        own = next((l for l, c, g in nb if g == f), 0.0)
+        print(f"   {f:<8} (no source) self {own:.1f} | sourced partners: " + "  ".join(f"{g}[{src[g][:3]}]:{l:.1f}({c})" for l, c, g in sourced)
+              + " | top any: " + " ".join(f"{g}:{l:.1f}" for l, c, g in nb[:4] if g != f))
+    pl.DataFrame(rows).write_csv(out / "famlinks.csv")
+    print("   (lift > 1 = split next to each other more often than chance; [eng] / [hst] = the partner has .jz keys / an hstats profile)")
+
+
 def main() -> None:
     """CLI entry point."""
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("study", choices=["ranges", "ladders", "neighbours", "grammar", "all"])
+    ap.add_argument("study", choices=["ranges", "ladders", "neighbours", "grammar", "units", "famlinks", "all"])
     ap.add_argument("--gens", type=Path, default=Path("/work/crucible_data/models_gen"))
     ap.add_argument("--gen-list", default="A,B,C")
     ap.add_argument("--gen", default="B", help="generation for ladders / neighbours")
@@ -204,6 +308,7 @@ def main() -> None:
     ap.add_argument("--formulas", type=Path, default=BASELINE)
     ap.add_argument("--watch", default="zzop2.b,zzag2.e,zzag2.a,zzro2.a,zzrg,zzwa.g,zzqf.q.c3,zzqf7.q.c2,zzwa.i")
     ap.add_argument("--min-pairs", type=int, default=5)
+    ap.add_argument("--audit", type=Path, default=Path("data/reports/audit/audit.csv"), help="audit_sources csv: which families have a PM source")
     ap.add_argument("--out", type=Path, default=Path("data/reports/atlas"))
     a = ap.parse_args()
     a.gens_list = [g for g in a.gen_list.split(",") if (a.gens / g).exists()]
@@ -218,6 +323,10 @@ def main() -> None:
         study_neighbours(a, names, formulas, a.out)
     if a.study in ("grammar", "all"):
         study_grammar(names, formulas, a.out)
+    if a.study in ("units", "all"):
+        study_units(a, names, formulas, a.out)
+    if a.study in ("famlinks", "all"):
+        study_famlinks(a, names, a.out)
     print(f"[done] {a.study}; csv in {a.out}")
 
 
