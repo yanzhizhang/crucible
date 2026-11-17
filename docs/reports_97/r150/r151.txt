@@ -1,0 +1,18 @@
+# R151 on 97 (keys done 01:04:04, sod 01:04:07)
+== keys (why R149's day-end check compared nothing)
+-rw-r--r-- 3674363 Nov 13 23:30 data/engine/engine_20261113.json.gz | 3703244 Nov 18 00:27 data/engine_fam/engine_20261113.json.gz
+stock 1: old 2750 keys, new 2759 keys, shared 2750; only in old: []
+ only in new: zzeg.c.high zzeg.c.low zzeg.c.rEma|c0.sum zzeg.c.rEma|c0.t zzeg.c.rEma|c0.wgt zzeg.c.span zzmh.r.sum zzmh.r.t zzmh.r.wgt
+shared keys: 825,000 values compared over 300 stocks, 0 differ   -> the restructured engine's day-end equals the old one
+== sod (1113; 1112 same pattern)
+1 per stock: vr single-valued on 0.567, poscst on 0.567; vr q10/50/90 0.0766/0.185/0.942; poscst 10100/81050/3.73e6
+ vs stsfile stats/sod of the SAME day (20261113): vr / pm.vr median 1 q10 1 q90 1 q90/q10 1.0000 equal-to-median share 1.000 n 300  <- IDENTITY
+ (with the PREVIOUS day's sod 20261111: vr / pm.vr q90/q10 1.0904, equal share 0.320 -> not it)
+ poscst / pm.mb median 4.9974 q10 4.952 q90 4.9999 q90/q10 1.0096 (close, not exact; products with cfg values same spread)
+2 vpen from 12:55, 5-minute buckets (minutes after 13:00: q50), distinct values per stock 100, same-second max/min 1.0000 everywhere:
+ 0: 1.45e-4 | 5: 2.511e-4 | 10: 3.24e-4 | 15: 3.835e-4 | 20: 4.349e-4 | 25: 4.808e-4 | 30: 5.225e-4 | 35: 5.613e-4 | 40: 5.975e-4
+ 45: 6.318e-4 | 50: 6.641e-4 | 55: 6.951e-4 | 60: 7.246e-4 | 65: 7.531e-4 | 70: 7.804e-4 | 75: 8.069e-4 | 80: 8.326e-4 | 85: 8.574e-4
+ 90: 8.815e-4 | 95: 9.051e-4 | 100: 9.281e-4 | 105: 9.504e-4 | 110: 9.723e-4 | 115: 9.872e-4 (n 11,887, to 14:57)
+ fits tried (best by R^2): linear in s 0.960 (slope 1.192e-7, icpt 2.51e-4) | log(1+s) 0.896 | s^2 0.817 | 1/(s to 15:00) 0.617 | exp(s/1000) 0.506
+# Supervisor check: 0.001*sqrt(s/7200) gives a CONSTANT ratio 1.0041 = sqrt(7200/7140) in every bucket ->
+#   vpen(t) = 0.001 * sqrt((t - 13:00:00) / (14:59:00 - 13:00:00))  = vpen_max * sqrt((t - rvts) / (sim_et - rvts)), max |err| 0.05 %.
