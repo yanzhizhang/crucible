@@ -1,0 +1,43 @@
+20260430: 1,422,000 rows, 4 model files, trusted ALL columns
+   101 bases; pool transforms id,-id,dm,-dm,abs4,srank
+-- zzup: 5967 usable nodes (15 roots, 5952 conditional), PM rows 26,674,202,549
+   1483 nodes kept on 200,000 sampled rows
+   pool: 16 candidates inside [0.94781, 1.0478]
+   rank of the matrix column among 17: 1
+   cond 0.0463  root 0.0639  all 0.0469  nodes 1483 (1468 cond)  X:zzup
+   cond 0.0545  root 0.0464  all 0.0543  nodes 1483 (1468 cond)  id:rpe75@1
+   cond 0.0545  root 0.0464  all 0.0543  nodes 1483 (1468 cond)  abs4:rpe75@1e-4
+   cond 0.0645  root 0.0618  all 0.0644  nodes 1483 (1468 cond)  id:rpma60@1
+   cond 0.0645  root 0.0618  all 0.0644  nodes 1483 (1468 cond)  abs4:rpma60@1e-4
+   cond 0.0656  root 0.0624  all 0.0654  nodes 1483 (1468 cond)  id:rpe25@1
+-- zzvx.a: 2391 usable nodes (9 roots, 2382 conditional), PM rows 5,452,058,707
+   585 nodes kept on 200,000 sampled rows
+   pool: 124 candidates inside [0, 2.1046]
+   rank of the matrix column among 125: 43
+   cond 0.1105  root 0.0270  all 0.1024  nodes 581 (572 cond)  -id:order_price_aggressiveness_mean_900s@100
+   cond 0.1173  root 0.0308  all 0.1090  nodes 582 (573 cond)  abs4:order_price_aggressiveness_mean_900s@0.01
+   cond 0.1240  root 0.0195  all 0.1140  nodes 582 (573 cond)  id:zzmh.r.sum@100
+   cond 0.1240  root 0.0195  all 0.1140  nodes 582 (573 cond)  abs4:zzmh.r.sum@0.01
+   cond 0.1265  root 0.0119  all 0.1155  nodes 581 (572 cond)  abs4:lpe200@0.01
+   cond 0.1268  root 0.0056  all 0.1152  nodes 584 (575 cond)  id:rpma60@1
+-- zzxu.a: 6696 usable nodes (0 roots, 6696 conditional), PM rows 14,735,316,739
+   1351 nodes kept on 200,000 sampled rows
+   pool: 84 candidates inside [0, 0.76539]
+   rank of the matrix column among 85: 44
+   cond 0.0526  root nan  all 0.0526  nodes 1351 (1351 cond)  -dm:rete30@100
+   cond 0.0585  root nan  all 0.0585  nodes 1351 (1351 cond)  abs4:net_buy_amount_share_orders_under_40k_cny_120s@1e-4
+   cond 0.0619  root nan  all 0.0619  nodes 1351 (1351 cond)  abs4:net_buy_amount_share_orders_under_40k_cny_300s@1e-4
+   cond 0.0646  root nan  all 0.0646  nodes 1351 (1351 cond)  abs4:depth_weighted_price_5lvl_minus_mid_rel@0.01
+   cond 0.0684  root nan  all 0.0684  nodes 1351 (1351 cond)  abs4:ret90@0.01
+   cond 0.0728  root nan  all 0.0728  nodes 1348 (1348 cond)  -dm:rete50@100
+-- zzxu.b: 5777 usable nodes (5 roots, 5772 conditional), PM rows 16,288,160,495
+   1261 nodes kept on 200,000 sampled rows
+   pool: 127 candidates inside [0, 2.2987]
+   rank of the matrix column among 128: 1
+   cond 0.0813  root 0.0130  all 0.0800  nodes 1260 (1255 cond)  X:zzxu.b
+   cond 0.1183  root 0.3652  all 0.1232  nodes 1259 (1254 cond)  id:rpe14400@1
+   cond 0.1183  root 0.3652  all 0.1232  nodes 1259 (1254 cond)  abs4:rpe14400@1e-4
+   cond 0.1194  root 0.3654  all 0.1242  nodes 1259 (1254 cond)  id:rpe5400@1
+   cond 0.1194  root 0.3654  all 0.1242  nodes 1259 (1254 cond)  abs4:rpe5400@1e-4
+   cond 0.1241  root 0.3663  all 0.1289  nodes 1259 (1254 cond)  id:rpe75@1
+[03:46:33] r156 apr done
