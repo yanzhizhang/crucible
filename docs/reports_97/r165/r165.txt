@@ -1,0 +1,14 @@
+days ['20261104', '20261105', '20261106', '20261109', '20261110', '20261111', '20261112', '20261113', '20261116']: 2400 stock-day pairs
+-- trend transitions (D-1 -> D): +1 -> +1: 1694  +1 -> -1: 319  -1 -> +1: 292  -1 -> -1: 95
+-- up -> up (active = lower): 1694 pairs; active band unchanged 0.000, tightened 0.529, loosened 0.471; change / a(D): -1.7757 / -0.91264 / 0.064314 / 1.1714 / 2.644
+   inactive band unchanged 0.004; its change / a(D): -5.692 / -2.6125 / -0.23852 / 1.5421 / 2.2754
+   active band's distance beyond the day's extreme, (low - lower) / a or (upper - high) / a: -0.0025639 / 0.16143 / 0.56317 / 1.1734 / 1.8232; against yesterday's extreme: -1.2098 / -0.35987 / 0.52176 / 1.4647 / 2.3937
+   active band on D equal to: yesterday's low 0.001, yesterday's p 0.000, yesterday's mid - 3 a(D-1) 0.000, yesterday's mid + 3 a(D-1) 0.000, yesterday's mid 0.000, yesterday's low - 2.5 a(D-1)[line cut at 320 by r165.sh]
+-- down -> down (active = upper): 95 pairs; active band unchanged 0.000, tightened 0.821, loosened 0.179; change / a(D): -1.1607 / -0.24156 / 1.097 / 2.4973 / 3.7815
+   inactive band unchanged 0.000; its change / a(D): -1.9631 / -0.84222 / 0.61829 / 1.7384 / 2.533
+   active band's distance beyond the day's extreme, (low - lower) / a or (upper - high) / a: 0.529 / 0.93992 / 1.6658 / 2.1595 / 2.3485; against yesterday's extreme: -0.70516 / -0.20159 / 0.61357 / 1.4832 / 2.104
+   active band on D equal to: yesterday's p 0.000, yesterday's mid - 3 a(D-1) 0.000, yesterday's mid + 3 a(D-1) 0.000, yesterday's mid 0.000, yesterday's low - 2.5 a(D-1) 0.000, yesterday's low 0.000
+-- up -> down (new active = upper): 319 pairs; (mid -+ 3 a) relation, (active - mid) / a: 0.95301 / 1.5144 / 2.2615 / 2.7452 / 2.913; beyond the extreme by / a: 0.45301 / 1.0128 / 1.7463 / 2.2278 / 2.3828
+-- down -> up (new active = lower): 292 pairs; (mid -+ 3 a) relation, (active - mid) / a: -2.1854 / -1.4997 / -1.0502 / -0.63263 / -0.49571; beyond the extreme by / a: -0.059436 / 0.13262 / 0.54764 / 0.99966 / 1.6854
+[done]
+[04:56:27] r165 done
