@@ -1,5 +1,5 @@
 // The engine binary (C++20): events.bin + rules.tsv (+ prev.bin) -> the day-end state as JSON, one thread per stock chunk.
-//   engine <events.bin> <rules.tsv | -> <out.json> [--prev prev.bin] [--chan chan.bin] [--threads N] [--marks t1,t2,... --marks-out marks.bin]
+//   engine <events.bin> <rules.tsv | -> <out.json> [--prev prev.bin] [--chan chan.bin] [--band band.bin] [--threads N] [--marks t1,t2,... --marks-out marks.bin]
 // rules.tsv "-" = the built-in table of the family classes (families/*.hpp); engine --print-rules prints it.
 // --marks also writes the state as of each trading-clock mark (every event with t <= mark applied) for the model scan.
 #include <fcntl.h>
@@ -100,6 +100,25 @@ std::unordered_map<std::int32_t, chan_record> read_chan(const char* path) {
     return out;
 }
 
+// band.bin: 16-byte header "CRUBD001" + count, then (sid, pad, upper, lower, dir) records: yesterday's zzxu band.
+struct band_record {
+    std::int32_t sid, pad;
+    double upper, lower, dir;
+};
+static_assert(sizeof(band_record) == 32, "band record layout");
+
+std::unordered_map<std::int32_t, band_record> read_band(const char* path) {
+    std::unordered_map<std::int32_t, band_record> out;
+    if (!path) return out;
+    mapped m(path);
+    if (m.n < 16 || std::memcmp(m.p, "CRUBD001", 8) != 0) throw std::runtime_error("bad band.bin header");
+    std::uint64_t n;
+    std::memcpy(&n, m.p + 8, 8);
+    auto* rec = reinterpret_cast<const band_record*>(m.p + 16);
+    for (std::uint64_t i = 0; i < n; ++i) out[rec[i].sid] = rec[i];
+    return out;
+}
+
 // Stock::dump, under PM's key names: the averages, then each family's own keys.
 std::string dump(stock& st, const std::vector<rule>& rules) {
     std::string o;
@@ -154,12 +173,14 @@ int main(int argc, char** argv) {
     }
     const char* prev_path = nullptr;
     const char* chan_path = nullptr;
+    const char* band_path = nullptr;
     const char* marks_out = nullptr;
     std::vector<double> marks;
     int threads = static_cast<int>(std::thread::hardware_concurrency());
     for (int i = 4; i < argc; ++i) {
         if (!std::strcmp(argv[i], "--prev") && i + 1 < argc) prev_path = argv[++i];
         else if (!std::strcmp(argv[i], "--chan") && i + 1 < argc) chan_path = argv[++i];
+        else if (!std::strcmp(argv[i], "--band") && i + 1 < argc) band_path = argv[++i];
         else if (!std::strcmp(argv[i], "--threads") && i + 1 < argc) threads = std::atoi(argv[++i]);
         else if (!std::strcmp(argv[i], "--marks-out") && i + 1 < argc) marks_out = argv[++i];
         else if (!std::strcmp(argv[i], "--marks") && i + 1 < argc) {
@@ -176,6 +197,7 @@ int main(int argc, char** argv) {
     compiled_rules cr(rules);
     auto prev = read_prev(prev_path);
     auto chan = read_chan(chan_path);
+    auto bandseed = read_band(band_path);
     mapped m(argv[1]);
     if (m.n < sizeof(file_header) || std::memcmp(m.p, magic, 8) != 0) {
         std::fprintf(stderr, "bad events header\n");
@@ -207,6 +229,11 @@ int main(int argc, char** argv) {
             if (auto c = chan.find(ev[ranges[r].first].sid); c != chan.end()) {
                 st.ch_h = c->second.high;
                 st.ch_l = c->second.low;
+            }
+            if (auto b = bandseed.find(ev[ranges[r].first].sid); b != bandseed.end()) {
+                st.band_seed[0] = b->second.upper;
+                st.band_seed[1] = b->second.lower;
+                st.band_seed[2] = b->second.dir;
             }
             auto it = prev.find(ev[ranges[r].first].sid);
             if (it != prev.end())

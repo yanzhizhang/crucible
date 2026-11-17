@@ -121,13 +121,15 @@ struct tape {
     double snap_px = qnan, snap_prev = qnan, trade_px = qnan, trade_prev = qnan;
     double bid = qnan, ask = qnan, mid = qnan, hi_f = qnan, lo_f = qnan;
 
-    int ix_zzxu_a = -1;  // index of the "zzxu.a" rule (the zzxu band's width), -1 when the table has none
+    int ix_zzxu_a = -1, ix_zzxu_ac = -1;  // "zzxu.a" and its carried twin "zzxu.a|c0" (the zzxu band's width), -1 when the table has none
+    double band_seed[3] = {qnan, qnan, qnan};  // yesterday's zzxu.upper / lower / dir (band.bin), for the carried-band variants
     int ix_vx_tr = -1, ix_vx_dema = -1, ix_zzxu_p = -1;  // "zzvx.trEmaD", "zzvx.trDEmaD", "zzxu.p": averages read as inputs elsewhere
 
     explicit tape(const std::vector<rule>& rules) : emas(rules.size()) {
         for (std::size_t i = 0; i < rules.size(); ++i) {
             emas[i].k = std::log(2.0) / rules[i].half;
             if (rules[i].name == "zzxu.a") ix_zzxu_a = static_cast<int>(i);
+            if (rules[i].name == "zzxu.a|c0") ix_zzxu_ac = static_cast<int>(i);
             if (rules[i].name == "zzvx.trEmaD") ix_vx_tr = static_cast<int>(i);
             if (rules[i].name == "zzvx.trDEmaD") ix_vx_dema = static_cast<int>(i);
             if (rules[i].name == "zzxu.p") ix_zzxu_p = static_cast<int>(i);

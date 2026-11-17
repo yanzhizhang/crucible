@@ -27,7 +27,7 @@ import polars as pl
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from export import load_events, write_chan, write_events, write_prev, write_rules
+from export import load_events, write_band, write_chan, write_events, write_prev, write_rules
 from rules import EMAS
 from run import CATALOG, DEFAULT_STOP, load_prev
 from stream import universe_from_state
@@ -138,7 +138,9 @@ def main() -> None:
     work = a.work / str(a.date)
     work.mkdir(parents=True, exist_ok=True)
     names = write_rules(EMAS, work / "rules.tsv", a.seed_all)
-    n_prev = write_prev(load_prev(a.prev), names, work / "prev.bin", a.seed_all)
+    prev_state = load_prev(a.prev)
+    n_prev = write_prev(prev_state, names, work / "prev.bin", a.seed_all)
+    n_band = write_band(prev_state, work / "band.bin")
     ev = load_events(con, int(a.date), sids, stop)
     con.close()
     write_events(ev, work / "events.bin")
@@ -148,7 +150,7 @@ def main() -> None:
     t1 = time.perf_counter()
     print(f"{a.date}: {len(ev)} events, {len(sids)} stocks wanted, {len(names)} rules, {n_prev} carry seeds, {n_chan} channel rows exported ({t1 - t0:.0f}s)", flush=True)
     cmd = [str(exe), str(work / "events.bin"), str(work / "rules.tsv"), str(work / "state.json"), "--prev", str(work / "prev.bin"),
-           "--threads", str(a.threads)] + (["--chan", str(work / "chan.bin")] if n_chan else [])
+           "--threads", str(a.threads)] + (["--chan", str(work / "chan.bin")] if n_chan else []) + (["--band", str(work / "band.bin")] if n_band else [])
     marks = mark_grid(a.marks) if a.marks else None
     if marks is not None:
         cmd += ["--marks", ",".join(repr(float(x)) for x in marks), "--marks-out", str(work / "marks.bin")]

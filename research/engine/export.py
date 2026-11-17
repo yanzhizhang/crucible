@@ -28,6 +28,7 @@ EVENT_DTYPE = np.dtype([("sid", "<i4"), ("mkt", "<i2"), ("kind", "<i2"), ("t", "
 assert EVENT_DTYPE.itemsize == 96
 PREV_DTYPE = np.dtype([("sid", "<i4"), ("rule", "<i4"), ("sum", "<f8"), ("wgt", "<f8")])
 CHAN_DTYPE = np.dtype([("sid", "<i4"), ("pad", "<i4"), ("high", "<f8"), ("low", "<f8")])
+BAND_DTYPE = np.dtype([("sid", "<i4"), ("pad", "<i4"), ("upper", "<f8"), ("lower", "<f8"), ("dir", "<f8")])
 
 
 def write_chan(chan: dict[int, tuple[float, float]], dst: Path) -> int:
@@ -35,6 +36,17 @@ def write_chan(chan: dict[int, tuple[float, float]], dst: Path) -> int:
     arr = np.array([(s, 0, h, lo) for s, (h, lo) in chan.items()], dtype=CHAN_DTYPE)
     with dst.open("wb") as f:
         f.write(b"CRUCH001" + np.uint64(len(arr)).tobytes())
+        f.write(arr.tobytes())
+    return len(arr)
+
+
+def write_band(prev: dict[int, dict[str, float]], dst: Path) -> int:
+    """band.bin: yesterday's zzxu.upper / lower / dir per stock (the carried-band variants), for the engine's --band."""
+    rows = [(s, 0, kv["zzxu.upper"], kv["zzxu.lower"], kv["zzxu.dir"]) for s, kv in prev.items()
+            if all(kv.get(k) is not None for k in ("zzxu.upper", "zzxu.lower", "zzxu.dir"))]
+    arr = np.array(rows, dtype=BAND_DTYPE)
+    with dst.open("wb") as f:
+        f.write(b"CRUBD001" + np.uint64(len(arr)).tobytes())
         f.write(arr.tobytes())
     return len(arr)
 

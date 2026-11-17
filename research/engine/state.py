@@ -113,6 +113,8 @@ class Stock:
                 e.s, e.w = (prev[f"{base}.sum"] * d if kind == "c" else 0.0), prev[f"{base}.wgt"] * d
                 if kind == "wt":
                     e.t = 0.0
+        nanv = lambda k: float(prev[k]) if prev and prev.get(k) is not None else math.nan  # noqa: E731
+        self.band_seed = (nanv("zzxu.upper"), nanv("zzxu.lower"), nanv("zzxu.dir"))  # yesterday's band (carried-band variants)
         self.high = self.low = self.open = self.last = math.nan  # trades, auctions included
         self.vol = self.amt = 0.0  # from 09:30 exchange time, close auction included
         self.buy = self.sell = 0.0  # continuous-session amounts for zzgh.nb

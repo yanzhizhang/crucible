@@ -1,57 +1,35 @@
 // zzxu: 300 s averages of the snapshot price and of the day range; day high / low / last; a trend band (upper / lower / dir).
-// SUBJECT TO CHANGE: the simple band rule ("|st1") gets the inactive band right and the ratcheted one wrong (R162); the
-// "|m.<centre>.<width>.<start>" keys are running extremes of centre -+ 3 x width, the candidates for the ratchet (see zzxu.py).
+// SUBJECT TO CHANGE: the simple band rule with four choices of where its state comes from (see zzxu.py): b1 fresh width and
+// band, b2 width carried from yesterday, b3 width and band carried, b4 band carried.
 #pragma once
 
 #include "base.hpp"
 
 namespace eng {
 
-struct zzxu : family {
-    static constexpr const char* stem = "zzxu";
-    static constexpr status st = status::pinned;
-    static constexpr double band_mult = 3.0;
-    static constexpr int n_cand = 18;  // 3 centres (mid, px, p) x 3 widths (a, tr, de) x 2 starts (a, c)
+struct band {
+    const char* tag;
+    bool carried_width, carried_band;
     double upper = qnan, lower = qnan, dir = 1.0;
-    double max_lower[n_cand], min_upper[n_cand];
-    zzxu() {
-        for (int i = 0; i < n_cand; ++i) max_lower[i] = min_upper[i] = qnan;
+    void seed(const double* s) {
+        if (carried_band && !std::isnan(s[0]) && !std::isnan(s[1]) && !std::isnan(s[2])) {
+            upper = s[0];
+            lower = s[1];
+            dir = s[2];
+        }
     }
-    static void rules(std::vector<rule>& o) {
-        o.push_back(family_rule("zzxu.p", "snap", 300, "price"));
-        o.push_back(family_rule("zzxu.a", "snap", 300, "hl"));
-    }
-    void on_snap(const tape& t, double, double s, double, double) {
-        const double ws[3] = {t.ema_value(t.ix_zzxu_a), t.ema_value(t.ix_vx_tr), t.ema_value(t.ix_vx_dema)};
-        double px = t.snap_px;
-        if (std::isnan(px) || std::isnan(t.hi_f) || std::isnan(t.lo_f)) return;
-        double mid = (t.hi_f + t.lo_f) / 2;
-        const double cs[3] = {mid, px, t.ema_value(t.ix_zzxu_p)};
-        int i = 0;
-        for (double c : cs)
-            for (double w : ws)
-                for (int start = 0; start < 2; ++start) {
-                    if (!std::isnan(c) && !std::isnan(w) && (start == 0 || s >= 34200)) {
-                        double lo = c - band_mult * w, up = c + band_mult * w;
-                        if (!(max_lower[i] >= lo)) max_lower[i] = lo;
-                        if (!(min_upper[i] <= up)) min_upper[i] = up;
-                    }
-                    ++i;
-                }
-        double w = ws[0];
-        if (std::isnan(w)) return;
-        double bu = mid + band_mult * w, bl = mid - band_mult * w;
+    void step(double bu, double bl, double px) {
         if (std::isnan(upper)) {
             upper = bu;
             lower = bl;
-        } else if (dir > 0) {
+        } else if (dir > 0) {  // up trend: the lower band only rises, the upper is recomputed
             upper = bu;
             if (bl > lower) lower = bl;
             if (px < lower) {
                 dir = -1.0;
                 lower = bl;
             }
-        } else {
+        } else {  // down trend: the mirror
             lower = bl;
             if (bu < upper) upper = bu;
             if (px > upper) {
@@ -60,25 +38,44 @@ struct zzxu : family {
             }
         }
     }
+};
+
+struct zzxu : family {
+    static constexpr const char* stem = "zzxu";
+    static constexpr status st = status::pinned;
+    static constexpr double band_mult = 3.0;
+    band bands[4] = {{"b1", false, false}, {"b2", true, false}, {"b3", true, true}, {"b4", false, true}};
+    bool seeded = false;
+    static void rules(std::vector<rule>& o) {
+        o.push_back(family_rule("zzxu.p", "snap", 300, "price"));
+        o.push_back(family_rule("zzxu.a", "snap", 300, "hl"));
+        o.push_back(family_rule("zzxu.a|c0", "snap", 300, "hl"));
+    }
+    void seed_once(const tape& t) {
+        if (seeded) return;
+        for (band& b : bands) b.seed(t.band_seed);
+        seeded = true;
+    }
+    void on_snap(const tape& t, double, double, double, double) {
+        seed_once(t);
+        double px = t.snap_px;
+        if (std::isnan(px) || std::isnan(t.hi_f) || std::isnan(t.lo_f)) return;
+        double mid = (t.hi_f + t.lo_f) / 2;
+        for (band& b : bands) {
+            double w = t.ema_value(b.carried_width ? t.ix_zzxu_ac : t.ix_zzxu_a);
+            if (!std::isnan(w)) b.step(mid + band_mult * w, mid - band_mult * w, px);
+        }
+    }
     void dump(std::string& o, const tape& t) {
+        seed_once(t);
         put(o, "zzxu.high", t.high);
         put(o, "zzxu.low", t.low);
         put(o, "zzxu.last", t.last);
-        put(o, "zzxu.upper|st1", upper);
-        put(o, "zzxu.lower|st1", lower);
-        put(o, "zzxu.dir|st1", dir);
-        static const char* cn[3] = {"mid", "px", "p"};
-        static const char* wn[3] = {"a", "tr", "de"};
-        static const char* sn[2] = {"a", "c"};
-        int i = 0;
-        for (const char* c : cn)
-            for (const char* w : wn)
-                for (const char* s : sn) {
-                    std::string tag = std::string("|m.") + c + "." + w + "." + s;
-                    put(o, "zzxu.lower" + tag, max_lower[i]);
-                    put(o, "zzxu.upper" + tag, min_upper[i]);
-                    ++i;
-                }
+        for (const band& b : bands) {
+            put(o, std::string("zzxu.upper|") + b.tag, b.upper);
+            put(o, std::string("zzxu.lower|") + b.tag, b.lower);
+            put(o, std::string("zzxu.dir|") + b.tag, b.dir);
+        }
     }
     static double col_a(double a, double low) { return a / low; }                      // stand-in, wrong scale
     static double col_b(double px, double a, double last) { return (px - a) / last; }  // stand-in, wrong scale

@@ -22,7 +22,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from export import EVENT_DTYPE, seed_tag, write_chan, write_events, write_prev, write_rules
+from export import EVENT_DTYPE, seed_tag, write_band, write_chan, write_events, write_prev, write_rules
 from rules import chan_high, chan_low, chan_span
 from rules import EMAS, on_cancel, on_order, on_snap, on_trade
 from run_cpp import FIVE, ensure_binary, read_marks
@@ -124,6 +124,8 @@ def main() -> None:
     bases = {p.partition("|")[0] for p in EMAS}
     prev = {s: {f"{b}{x}": v for b in bases for x, v in ((".sum", float(rng.normal(1000, 10))), (".wgt", float(rng.integers(0, 3) * 50)))}
             for s in sids[::2]}
+    for s in sids[::4]:  # yesterday's band for some of the stocks that have a previous state
+        prev[s].update({"zzxu.upper": float(rng.normal(10.3, 0.1)), "zzxu.lower": float(rng.normal(9.7, 0.1)), "zzxu.dir": float(rng.choice([1.0, -1.0]))})
     chan = {s: (float(rng.normal(12, 1)), float(rng.normal(8, 1))) for s in sids[1::3]}  # zzeg.c: a previous-3-day channel for some stocks
     exe = ensure_binary()
     # the C++ family structs carry their own rule table: it must be the Python families' table, row for row
@@ -139,7 +141,8 @@ def main() -> None:
         write_prev(prev, names, w / "prev.bin")
         write_events(ev, w / "events.bin")
         write_chan(chan, w / "chan.bin")
-        subprocess.run([str(exe), str(w / "events.bin"), str(w / "rules.tsv"), str(w / "state.json"), "--prev", str(w / "prev.bin"), "--chan", str(w / "chan.bin"), "--threads", "4",
+        write_band(prev, w / "band.bin")
+        subprocess.run([str(exe), str(w / "events.bin"), str(w / "rules.tsv"), str(w / "state.json"), "--prev", str(w / "prev.bin"), "--chan", str(w / "chan.bin"), "--band", str(w / "band.bin"), "--threads", "4",
                         "--marks", ",".join(repr(float(x)) for x in FIVE), "--marks-out", str(w / "marks.bin")], check=True)
         cpp = {int(s): kv for s, kv in json.loads((w / "state.json").read_text()).items()}
         cmk = read_marks(w / "marks.bin")
