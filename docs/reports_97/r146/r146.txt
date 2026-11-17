@@ -1,0 +1,18 @@
+# R146 on 97 (model_meta, done 08:20:47, 93 lines; compacted: livev1_fitN -> fN, model_sK -> sK, root rows shown as first value + max)
+/data/prod/models/: lgb_fn_v1_209_cte.csv (1521 B, 2026-08-31 09:24), tk5m/ (2026-09-08 15:25)
+######## models_gen/A: 1 month ['202501']  (all 12 files mtime 2026-08-02 22:42-22:43)
+ f1/s1 T2000 F209 rows 44707531 max 44717541 leaf -7.73123e-05 | f1/s2 42531448 (max 42540962) leaf -9.68892e-06 | f1/s3 37309762 (37318892) -1.28337e-06 | f1/s4 36913450 (36922253) -2.22214e-05
+ f2/s1 44708330 (44716669) -7.89154e-05 | f2/s2 42532255 (42540532) -3.12539e-05 | f2/s3 37311329 (37318742) -1.27146e-06 | f2/s4 36914583 (36922203) -2.55927e-05
+ f3/s1 44707531 (44717541) -6.34249e-05 | f3/s2 42531448 (42540962) -2.72959e-05 | f3/s3 37309762 (37318892) -2.16937e-06 | f3/s4 36913450 (36922253) -2.65296e-05
+ PM-state ranges (f1/s1): zzup [0.95639133453369141:1.0477751493453979] zzvx.a [0:2.1045777797698975] zzxu.a [0:0.56..0364456177] zzxu.b [0:1.7598758935928345]
+######## models_gen/B: 1 month ['202501'] -- identical to A (same rows, leaf means, mtimes, ranges)
+######## models_gen/C: 1 month ['202501'] (all mtime 2026-10-22 09:18)
+ f1/s1 rows 53224297 (max 53236553) leaf -9.43053e-05 | f1/s2 51162894 (51174245) -1.00621e-05 | f1/s3 45550783 (45560651) -1.69921e-06 | f1/s4 44659090 (44668973) -2.76431e-05
+ f2/s1 53225726 (53236141) -3.66507e-05 | f2/s2 51164269 (51173494) -3.39243e-05 | f2/s3 45550779 (45559908) -1.30645e-06 | f2/s4 44659747 (44668267) -3.11293e-05
+ f3/s1 53224297 (53236553) -7.73075e-05 | f3/s2 51162894 (51174245) -2.98342e-05 | f3/s3 45550783 (45560651) -3.43984e-06 | f3/s4 44659090 (44668973) -2.9452e-05
+ PM-state ranges: zzup [0.9480711817741394:1.0569063425064087] zzvx.a [0:2.4874699115753174] zzxu.a [0:0.632..629241943] zzxu.b [0:1.7443722486495972]
+######## /data/prod/models/tk5m: 16 months ['202509','202510','202511']..['202610','202611','202612']
+ 202610, 202611, 202612: all 12 files IDENTICAL to models_gen/C (same rows, leaf means, mtime 2026-10-22 09:18, same PM-state ranges)
+== parameters (4 blocks, all identical): [bagging_fraction: 0.9] [bagging_freq: 2] [bagging_seed: 18467] [bin_construct_sample_cnt: 200000]
+   [data: ] [data_random_seed: 41] [feature_fraction: 0.7] [learning_rate: 0.03] [max_bin: 128] [min_data_in_bin: 3] [num_iterations: 3000] [valid: ]
+   -> no [data: ...] path (empty)
