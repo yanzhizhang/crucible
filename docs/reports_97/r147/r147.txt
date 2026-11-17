@@ -1,0 +1,67 @@
+# R147 on 97 (model_atlas units + famlinks, gens C and B; done 23:26:31, 591 lines). Transcribed: class counts (C, B),
+# C mixed-scale families, C famlinks in full. Per-column class lists stay on 97: data/reports/atlas_r147_{C,B}/ (csv).
+######## generation C -- == units: 209 columns; scale class from training range + thresholds
+ rank/imbalance [-1,1]: 48 (13 open) | other signed: 37 (16) | small signed (return / z/100 / imbalance): 33 (10)
+ z-score-like, symmetric: 31 (2) | small non-negative (ratio / fraction): 16 (6) | large non-negative (seconds / counts / amounts): 11 (4)
+ small signed, tight core: 9 (2) | bp-scale or count, non-negative: 8 (4) | count/code (integer steps): 6 (3) | share/rank [0,1]: 6 (3) | ratio around 1: 4 (2)
+-- families whose columns are not all one class:
+ zzaa a:z-score-like b:count/code | zzag2 f:other c:large a:large e:large | zzal d,c,e,h,b,g:other a:small f:z-score-like
+ zzbo a:other c:z-score-like | zzbt2 h:small a:share/rank | zzel a:small b:bp-scale | zzhi h:z-score-like b:small
+ zzhi2 c,b,e,f:small i,h,l:z-score-like | zzpz d,b:z-score-like a,c:rank/imbalance | zzqf q.a,q.c2,q.c3,q.c1:small
+ zzqf6 q.a,q.c1:small | zzqf7 q.c2,q.c1:small q.b:rank/imbalance | zzqf9 a,c1:small
+ zzqo c,a:count/code f,b:rank/imbalance d,e:other | zzri2 a:small f:rank/imbalance | zzro a,b,e:small | zzsf c,d:small
+ zzwa j:small b:large c:bp-scale d:share/rank a:large h:other e:share/rank k:other f:small g:small i:(cut on screen)
+ zzxc b:z-score-like a:count/code d:small c:rank/imbalance
+== famlinks (C): 68 family stems, 482643 parent-child edges; sourced families: 20 (audit data/reports/audit/audit.csv)
+ format: stem (no source) self <lift> | sourced partners: fam[eng|hst]:lift(n) ... | top any: fam:lift ...
+ zzaa self 0.7 | zzts[hst]:1.5(67) zzal[hst]:1.3(484) zzjb[eng]:1.2(94) zzvx[eng]:1.2(62) zzvm[eng]:1.1(176) | any zzor:1.6 zzhk:1.6 zzxt:1.5 zzts:1.5
+ zzag self 0.8 | zzxu[eng]:1.2(733) zzup[eng]:1.2(413) zzgh[eng]:1.1(1234) zzmh[eng]:1.1(267) zzal[hst]:1.1(1091) | any zzow:1.5 zzwj:1.5 zzko:1.3 zzaa:1.3
+ zzav self 5.6 | zzcb[eng]:1.5(36) zzxo[eng]:1.5(37) zzpk[eng]:1.3(41) zzwa[hst]:1.3(223) zzqo[hst]:1.3(67) | any zzoe:7.4 zzso:5.6 zzho:3.3
+ zzbo self 0.6 | zzpk[eng]:1.3(139) zzvx[eng]:1.3(64) zzxu[eng]:1.3(284) zzcb[eng]:1.2(95) zzal[hst]:1.1(386) | any zzaa:1.4 zzel:1.4 zzko:1.3 zzuc:1.3
+ zzbs self 0.0 | zzjb[eng]:1.3(52) zzgh[eng]:1.3(257) zzwa[hst]:1.2(386) zzfb[eng]:1.2(150) zzal[hst]:1.1(217) | any zzht:1.7 zzmo:1.7 zzsa:1.5 zzlk:1.4
+ zzbt self 1.1 | zzwa[hst]:1.5(1256) zzts[hst]:1.5(91) zzxc[hst]:1.4(127) zzcb[eng]:1.3(153) zzvm[eng]:1.0(221) | any zzeu:2.6 zzef:2.5 zzyg:2.0 zzpz:2.0
+ zzdw self 0.0 | zzvx[eng]:1.7(52) zzjb[eng]:1.4(68) zzfb[eng]:1.4(209) zzxu[eng]:1.4(200) zzba[eng]:1.3(99) | any zzvx:1.7 zzjb:1.4 zzfb:1.4 zzxu:1.4
+ zzef self 0.4 | zzcb[eng]:2.3(94) zzxc[hst]:2.2(71) zzba[eng]:2.0(115) zzpk[eng]:1.5(78) zzwa[hst]:1.4(407) | any zzeu:10.9 zzro:2.9 zzbt:2.5 zzcb:2.3
+ zzel self 0.5 | zzcb[eng]:1.6(318) zzhj[eng]:1.1(264) zzvx[eng]:1.1(126) zzxu[eng]:1.0(556) zzmh[eng]:1.0(209) | any zzeu:6.7 zzef:1.7 zzcb:1.6 zzie:1.4
+ zzeu self 2.2 | zzcb[eng]:3.7(145) zzxc[hst]:1.2(36) zzts[hst]:0.9(18) zzqo[hst]:0.6(54) zzwa[hst]:0.6(170) | any zzef:10.9 zzyg:7.2 zzel:6.7 zzpz:5.7
+ zzfe self 0.5 | zzts[hst]:2.2(85) zzxc[hst]:2.2(125) zzqo[hst]:1.9(308) zzxo[eng]:1.9(149) zzwa[hst]:1.7(900) | any zzwf:4.4 zzht:3.7 zzmo:3.6 zzho:3.0
+ zzfq self 0.2 | zzvx[eng]:1.5(65) zzpk[eng]:1.5(137) zzxu[eng]:1.2(235) zzeg[eng]:1.2(193) zzba[eng]:1.1(115) | any zzor:1.6 zzzs:1.6 zzvx:1.5 zzpk:1.5
+ zzhi self 1.7 | zzqo[hst]:1.6(371) zzxc[hst]:1.3(109) zzts[hst]:1.3(72) zzba[eng]:1.3(194) zzwa[hst]:1.1(855) | any zzeu:3.2 zzso:2.8 zzho:2.0 zzoe:2.0
+ zzhk self 0.0 | zzcb[eng]:1.5(47) zzeg[eng]:1.2(82) zzab[eng]:1.2(51) zzal[hst]:1.1(150) zzba[eng]:1.0(46) | any zzri:2.1 zzlf:1.8 zzor:1.8 zzjx:1.7
+ zzho self 0.0 | zzts[hst]:1.9(58) zzba[eng]:1.8(148) zzgh[eng]:1.3(358) zzxc[hst]:1.3(61) zzwa[hst]:1.1(439) | any zzav:3.3 zzfe:3.0 zzsf:2.9 zzro:2.3
+ zzht self 0.0 | zzwa[hst]:2.0(289) zzba[eng]:1.5(43) zzfb[eng]:1.3(76) zzqo[hst]:1.3(58) zzab[eng]:1.2(36) | any zzrb:7.4 zzwf:4.5 zzfe:3.7 zzwj:3.7
+ zzhx self 0.0 | zzxo[eng]:2.1(75) zzwa[hst]:1.8(424) zzba[eng]:1.7(81) zzts[hst]:1.2(21) zzup[eng]:1.1(55) | any zzsf:2.2 zzxo:2.1 zzho:1.9 zzlf:1.9
+ zzie self 0.3 | zzts[hst]:1.6(45) zzxc[hst]:1.5(61) zzcb[eng]:1.4(73) zzab[eng]:1.2(87) zzwa[hst]:1.1(417) | any zzow:2.6 zzrb:2.6 zzro:2.1 zzpz:2.1
+ zzja self 0.0 | zzfb[eng]:1.8(319) zzvx[eng]:1.6(60) zzxc[hst]:1.4(72) zzgh[eng]:1.4(413) zzmh[eng]:1.3(84) | any zzht:1.9 zzfb:1.8 zzvx:1.6 zzie:1.5
+ zzjx self 0.7 | zzvm[eng]:1.6(495) zzup[eng]:1.6(422) zzgh[eng]:1.5(1197) zzmh[eng]:1.4(258) zzhj[eng]:1.4(304) | any zzzs:1.8 zzhk:1.7 zzvm:1.6 zzup:1.6
+ zzko self 0.0 | zzba[eng]:1.8(45) zzwa[hst]:1.6(201) zzab[eng]:1.6(38) zzxc[hst]:1.5(20) zzvx[eng]:1.3(13) | any zzeu:3.2 zzrb:3.0 zzav:2.3 zzkp:2.3
+ zzkp self 0.0 | zzxo[eng]:1.9(39) zzmh[eng]:1.7(33) zzab[eng]:1.5(40) zzba[eng]:1.3(37) zzjb[eng]:1.2(21) | any zzoe:3.5 zzro:3.1 zzso:2.7 zzko:2.3
+ zzlk self 0.0 | zzpk[eng]:1.6(87) zzba[eng]:1.4(87) zzal[hst]:1.3(240) zzxu[eng]:1.2(133) zzup[eng]:1.1(70) | any zzow:2.2 zzpk:1.6 zzhk:1.5 zzlf:1.5
+ zzmo self 0.0 | zzba[eng]:2.6(44) zzts[hst]:1.8(11) zzxc[hst]:1.7(16) zzxo[eng]:1.7(21) zzwa[hst]:1.5(122) | any zzrb:3.7 zzfe:3.6 zzlf:3.1 zzoe:3.1
+ zzoe self 0.0 | zzts[hst]:3.9(29) zzxc[hst]:3.9(43) zzqo[hst]:2.5(78) zzwa[hst]:1.4(141) zzvm[eng]:1.2(31) | any zzav:7.4 zzso:4.4 zzwf:4.4 zzts:3.9
+ zzop self 0.8 | zzba[eng]:1.3(556) zzpk[eng]:1.2(486) zzmh[eng]:1.2(385) zzxu[eng]:1.2(1001) zzfb[eng]:1.1(983) | any zzel:1.4 zzko:1.4 zzhk:1.3 zzba:1.3
+ zzor self 0.0 | zzal[hst]:1.6(84) zzwa[hst]:1.3(118) zzab[eng]:1.2(22) zzxu[eng]:1.2(40) zzpk[eng]:1.2(19) | any zzrb:1.8 zzie:1.8 zzhk:1.8 zzaa:1.6
+ zzow self 0.0 | zzvm[eng]:1.4(113) zzeg[eng]:1.3(134) zzqo[hst]:1.2(120) zzvx[eng]:1.2(31) zzba[eng]:1.2(74) | any zzie:2.6 zzlk:2.2 zzso:1.6 zzag:1.5
+ zzpe self 1.3 | zzxu[eng]:1.3(1467) zzpk[eng]:1.3(677) zzvx[eng]:1.3(308) zzhj[eng]:1.2(613) zzeg[eng]:1.2(1072) | any zzel:1.4 zzdw:1.3 zzuc:1.3 zzxu:1.3
+ zzpp self 1.0 | zzxu[eng]:1.2(620) zzal[hst]:1.1(922) zzpk[eng]:1.1(277) zzhj[eng]:1.1(261) zzjb[eng]:1.1(192) | any zzaa:1.4 zzbo:1.3 zzuc:1.3 zzag:1.2
+ zzpz self 1.3 | zzxc[hst]:4.2(153) zzts[hst]:1.7(42) zzqo[hst]:1.6(162) zzwa[hst]:1.4(450) zzba[eng]:1.0(67) | any zzeu:5.7 zzxc:4.2 zzwj:2.6 zzav:2.4
+ zzqf self 1.2 | zzwa[hst]:1.2(5496) zzqo[hst]:1.2(1655) zzfb[eng]:1.1(1966) zzab[eng]:1.0(948) zzxo[eng]:1.0(703) | any zzhx:1.9 zzmo:1.7 zzfe:1.6 zzht:1.6
+ zzrb self 0.0 | zzxc[hst]:3.8(48) zzts[hst]:1.8(15) zzqo[hst]:1.3(47) zzwa[hst]:1.2(140) zzcb[eng]:1.1(17) | any zzht:7.4 zzwf:4.8 zzso:3.8 zzxc:3.8
+ zzrg self 0.0 | zzxc[hst]:1.5(96) zzcb[eng]:1.4(109) zzts[hst]:1.3(57) zzgh[eng]:1.3(484) zzwa[hst]:1.1(641) | any zzht:1.8 zzav:1.8 zzie:1.8 zzeu:1.6
+ zzri self 1.1 | zzjb[eng]:1.7(168) zzmh[eng]:1.3(147) zzeg[eng]:1.3(323) zzab[eng]:1.3(191) zzhj[eng]:1.1(144) | any zzhk:2.1 zzjb:1.7 zzow:1.5 zzzs:1.4
+ zzro self 1.6 | zzts[hst]:2.0(310) zzxo[eng]:1.9(593) zzab[eng]:1.5(598) zzcb[eng]:1.4(411) zzxc[hst]:1.2(287) | any zzeu:3.2 zzkp:3.1 zzef:2.9 zzyg:2.8
+ zzsa self 0.7 | zzvm[eng]:1.3(431) zzeg[eng]:1.3(533) zzjb[eng]:1.2(202) zzal[hst]:1.2(930) zzgh[eng]:1.1(988) | any zzzs:1.6 zzbs:1.5 zzdw:1.4 zzuc:1.3
+ zzsf self 0.3 | zzxc[hst]:1.5(227) zzqo[hst]:1.5(633) zzts[hst]:1.4(135) zzxo[eng]:1.3(268) zzwa[hst]:1.2(1632) | any zzho:2.9 zzmo:2.6 zzht:2.5 zzhx:2.2
+ zzso self 0.0 | zzxc[hst]:3.0(31) zzts[hst]:2.1(15) zzqo[hst]:1.8(52) zzwa[hst]:1.2(114) zzxo[eng]:1.2(17) | any zzav:5.6 zzoe:4.4 zzrb:3.8 zzxc:3.0
+ zzuc self 1.1 | zzba[eng]:1.4(202) zzpk[eng]:1.4(179) zzxu[eng]:1.4(373) zzhj[eng]:1.3(164) zzvx[eng]:1.1(67) | any zzba:1.4 zzdw:1.4 zzpk:1.4 zzaa:1.4
+ zzwf self 0.0 | zzxc[hst]:2.9(47) zzab[eng]:1.6(46) zzwa[hst]:1.3(196) zzvx[eng]:1.2(15) zzxo[eng]:1.1(25) | any zzrb:4.8 zzht:4.5 zzoe:4.4 zzfe:4.4
+ zzwj self 0.3 | zzwa[hst]:2.0(901) zzqo[hst]:1.4(200) zzxc[hst]:1.4(68) zzts[hst]:1.3(43) zzba[eng]:1.3(114) | any zzht:3.7 zzpz:2.6 zzav:2.6 zzrb:2.4
+ zzxt self 1.0 | zzvx[eng]:1.4(47) zzcb[eng]:1.4(74) zzwa[hst]:1.3(492) zzba[eng]:1.2(92) zzal[hst]:1.0(243) | any zzso:1.7 zzho:1.7 zzaa:1.5 zzvx:1.4
+ zzyg self 1.0 | zzba[eng]:2.4(153) zzts[hst]:1.9(44) zzxc[hst]:1.6(57) zzqo[hst]:1.4(134) zzpk[eng]:1.4(77) | any zzeu:7.2 zzav:3.0 zzro:2.8 zzba:2.4
+ zzyj self 0.6 | zzab[eng]:1.3(167) zzvm[eng]:1.2(184) zzba[eng]:1.1(143) zzwa[hst]:1.1(706) zzjb[eng]:1.1(87) | any zzor:1.5 zzlk:1.4 zzab:1.3 zzie:1.3
+ zzzl self 1.2 | zzeg[eng]:1.7(2109) zzfb[eng]:1.6(2589) zzmh[eng]:1.6(945) zzvx[eng]:1.6(531) zzjb[eng]:1.6(800) | any zzeg:1.7 zzfb:1.6 zzmh:1.6 zzvx:1.6
+ zzzs self 0.0 | zzmh[eng]:1.6(71) zzvm[eng]:1.5(115) zzup[eng]:1.3(86) zzgh[eng]:1.2(248) zzpk[eng]:1.2(69) | any zzjx:1.8 zzfq:1.6 zzsa:1.6 zzmh:1.6
+ (lift > 1 = split next to each other more often than chance; [eng] / [hst] = the partner has .jz keys / an hstats profile)
+######## generation B -- units: rank/imbalance 48 (13 open) | other signed 37 (14) | small signed 34 (10) | z-score-like 30 (4)
+ | small non-neg 17 (7) | large non-neg 11 (4) | small signed tight 9 (2) | bp/count 8 (4) | count/code 6 (3) | share/rank 5 (2) | ratio~1 4 (2)
+ famlinks (B): 68 stems, 481024 edges, 20 sourced (not transcribed; csv data/reports/atlas_r147_B)
