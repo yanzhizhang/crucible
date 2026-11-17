@@ -9,7 +9,7 @@ from .base import PINNED, Family
 
 class Zzvx(Family):
     stem, status = "zzvx", PINNED
-    evidence = "state: high / low, trEma*, trDEma* (double average) and rEma* (average of trEma / trDEma) equal PM's .jz (R162); column zzvx.a open (lead: rEma itself)"
+    evidence = "state: high / low, trEma*, trDEma* (double average) and rEma* (average of trEma / trDEma) equal PM's .jz (R162); column zzvx.a open (lead: rEma itself -- shape fits the thresholds, R166; replacing it moves agreement with PM by < 0.007 either way, R167)"
     emas = {"zzvx.trEmaD": ("snap", 30, "hl"), "zzvx.trEmaO": ("snap", 30, "hl"), "zzvx.trDEmaD": ("snap", 30, "ema_tr"),
             "zzvx.trDEmaO": ("snap", 30, "ema_tr"), "zzvx.rEmaD": ("snap", 30, "r_ema_dema"), "zzvx.rEmaO": ("snap", 30, "r_ema_dema")}
 
