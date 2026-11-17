@@ -1,0 +1,61 @@
+engine: 20 stocks, 80000 events, 22 rules, 4 threads, 0.01s
+20 stocks, 55960 day-end values + 36660 mark values compared, 0 mismatches
+20261112: stop 54149.981 -> data/engine_r163/engine_20261112.json.gz (22s total)
+== 20261112  zzvx key: n, equal share at 1e-6 (all / SZSE), at 1e-4 (all / SZSE)
+   zzvx.high        n  300  1.0000 / 1.0000   1.0000 / 1.0000
+   zzvx.low         n  300  1.0000 / 1.0000   1.0000 / 1.0000
+   zzvx.rEmaD       n  300  0.9967 / 1.0000   1.0000 / 1.0000
+   zzvx.rEmaO       n  300  0.9967 / 1.0000   1.0000 / 1.0000
+   zzvx.trDEmaD     n  300  1.0000 / 1.0000   1.0000 / 1.0000
+   zzvx.trDEmaO     n  300  1.0000 / 1.0000   1.0000 / 1.0000
+   zzvx.trEmaD      n  300  1.0000 / 1.0000   1.0000 / 1.0000
+   zzvx.trEmaO      n  300  1.0000 / 1.0000   1.0000 / 1.0000
+   the 12 worst keys of the whole table: zzbd.pEmaT.t 0.000, zzbd.rEmaT.t 0.000, zzgh.nb|cnt 0.000, zzgh.nb|ord 0.000, zzgh.nb|ordvol 0.000, zzgh.nb|snappx 0.000, zzqj.r.t 0.000, zzqj.tpv|all 0.000, zzqj.tpv|loc 0.000, zzqj.tpv|noclose 0.000, zzqj.v|all 0.000, zzqj.v|loc 0.000
+   PM dir +1: 205 stocks; PM's lower band equal to (share at 1e-6, at 1e-4 relative, median relative error), best 8:
+      zzxu.lower|st1              0.000  0.000  0.0305
+      zzxu.lower|m.mid.a.a        0.000  0.000  0.0218
+      zzxu.lower|m.mid.a.c        0.000  0.000  0.0204
+      zzxu.lower|m.mid.tr.a       0.000  0.000  0.0218
+      zzxu.lower|m.mid.tr.c       0.000  0.000  0.0168
+      zzxu.lower|m.mid.de.a       0.000  0.000  0.0218
+      zzxu.lower|m.mid.de.c       0.000  0.000  0.0195
+      zzxu.lower|m.px.a.a         0.000  0.000  0.0218
+   PM dir -1: 95 stocks; PM's upper band equal to (share at 1e-6, at 1e-4 relative, median relative error), best 8:
+      zzxu.upper|st1              0.000  0.000  0.0249
+      zzxu.upper|m.mid.a.a        0.000  0.000  0.0541
+      zzxu.upper|m.mid.a.c        0.000  0.000  0.0522
+      zzxu.upper|m.mid.tr.a       0.000  0.000  0.0541
+      zzxu.upper|m.mid.tr.c       0.000  0.000  0.0491
+      zzxu.upper|m.mid.de.a       0.000  0.000  0.0541
+      zzxu.upper|m.mid.de.c       0.000  0.000  0.0505
+      zzxu.upper|m.px.a.a         0.000  0.000  0.0541
+20261113: stop 54149.897 -> data/engine_r163/engine_20261113.json.gz (21s total)
+== 20261113  zzvx key: n, equal share at 1e-6 (all / SZSE), at 1e-4 (all / SZSE)
+   zzvx.high        n  300  1.0000 / 1.0000   1.0000 / 1.0000
+   zzvx.low         n  300  1.0000 / 1.0000   1.0000 / 1.0000
+   zzvx.rEmaD       n  300  1.0000 / 1.0000   1.0000 / 1.0000
+   zzvx.rEmaO       n  300  1.0000 / 1.0000   1.0000 / 1.0000
+   zzvx.trDEmaD     n  300  1.0000 / 1.0000   1.0000 / 1.0000
+   zzvx.trDEmaO     n  300  1.0000 / 1.0000   1.0000 / 1.0000
+   zzvx.trEmaD      n  300  1.0000 / 1.0000   1.0000 / 1.0000
+   zzvx.trEmaO      n  300  1.0000 / 1.0000   1.0000 / 1.0000
+   the 12 worst keys of the whole table: zzbd.pEmaT.t 0.000, zzbd.rEmaT.t 0.000, zzgh.nb|cnt 0.000, zzgh.nb|ord 0.000, zzgh.nb|ordvol 0.000, zzgh.nb|snappx 0.000, zzqj.r.t 0.000, zzqj.tpv|all 0.000, zzqj.tpv|loc 0.000, zzqj.tpv|noclose 0.000, zzqj.v|all 0.000, zzqj.v|loc 0.000
+   PM dir +1: 233 stocks; PM's lower band equal to (share at 1e-6, at 1e-4 relative, median relative error), best 8:
+      zzxu.lower|st1              0.000  0.013  0.00896
+      zzxu.lower|m.mid.a.a        0.000  0.000  0.0199
+      zzxu.lower|m.mid.a.c        0.000  0.000  0.0192
+      zzxu.lower|m.mid.tr.a       0.000  0.000  0.0198
+      zzxu.lower|m.mid.tr.c       0.000  0.000  0.0157
+      zzxu.lower|m.mid.de.a       0.000  0.000  0.0198
+      zzxu.lower|m.mid.de.c       0.000  0.000  0.0181
+      zzxu.lower|m.px.a.a         0.000  0.000  0.0202
+   PM dir -1: 67 stocks; PM's upper band equal to (share at 1e-6, at 1e-4 relative, median relative error), best 8:
+      zzxu.upper|st1              0.000  0.000  0.0603
+      zzxu.upper|m.mid.a.a        0.000  0.000  0.0796
+      zzxu.upper|m.mid.a.c        0.000  0.000  0.077
+      zzxu.upper|m.mid.tr.a       0.000  0.000  0.0796
+      zzxu.upper|m.mid.tr.c       0.000  0.000  0.0733
+      zzxu.upper|m.mid.de.a       0.000  0.000  0.0796
+      zzxu.upper|m.mid.de.c       0.000  0.000  0.0761
+      zzxu.upper|m.px.a.a         0.000  0.000  0.0796
+[04:37:45] r163 done
