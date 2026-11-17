@@ -1,0 +1,60 @@
+# transcribed from screen; 97's file has 59 lines incl. 5 RuntimeWarning pairs (source echo lines not copied)
+days ['20261104', '20261105', '20261106', '20261109', '20261110', '20261111', '20261112', '20261113', '20261116']: 2700 stock-days; with a previous close (from the previous file's cdc.lp): 0
+== 1 zzvx
+   trDEma / (high - low): 0.993621 / 1 / 1 / 1 / 1; equal share 0.930
+   trEma / trDEma: 1 / 1 / 1 / 1 / 1.00297; share == 1: 0.873; rEma: 1 / 1 / 1 / 1 / 1.00435; share == 1: 0.865
+/work/crucible/research/pm_factors/jz_bands.py:77: RuntimeWarning: Mean of empty slice
+  [source line echoed by the warning; not transcribed]
+/work/crucible/research/pm_factors/jz_bands.py:78: RuntimeWarning: Mean of empty slice
+  [source line echoed by the warning; not transcribed]
+/work/crucible/research/pm_factors/jz_bands.py:79: RuntimeWarning: Mean of empty slice
+  [source line echoed by the warning; not transcribed]
+/work/crucible/research/pm_factors/jz_bands.py:80: RuntimeWarning: Mean of empty slice
+  [source line echoed by the warning; not transcribed]
+   against the previous close (n 0): ref outside the day's range on nan; trEma == TR: nan; trEma / trDEma == TR / HL: nan; both say equal-or-not alike: nan; rEma == TR / HL: nan; rEma > 1 exactly where TR > HL: nan
+   against the open (n 2700): ref outside the day's range on 0.000; trEma == TR: 0.944; trEma / trDEma == TR / HL: 0.930; both say equal-or-not alike: 0.873; rEma == TR / HL: 0.909; rEma > 1 exactly where TR > HL: 0.865
+== 2 zzxu band
+   width zzxu.a       centre p    : (upper - X) / w 1.49008 / 2.54751 / 2.89679 / 3.38475 / 3.46384  q90/q10 1.329 | (X - lower) / w 0.133798 / 0.459523 / 1.26887 / 2.59079 / 3.12699  q90/q10 5.638
+   width zzxu.a       centre last : (upper - X) / w 1.4595 / 2.49983 / 2.88559 / 3.38342 / 3.50336  q90/q10 1.353 | (X - lower) / w 0.125001 / 0.477806 / 1.28759 / 2.59929 / 3.18891  q90/q10 5.440
+   width zzxu.a       centre high : (upper - X) / w 0.794068 / 1.87045 / 2.5 / 2.5 / 2.5  q90/q10 1.337 | (X - lower) / w 1.00369 / 1.1724 / 1.6464 / 3.50001 / 3.51429  q90/q10 2.985
+   width zzxu.a       centre low  : (upper - X) / w 1.80021 / 2.87351 / 3.5 / 3.50278 / 3.53494  q90/q10 1.219 | (X - lower) / w 0.000264968 / 0.16778 / 0.643571 / 2.49954 / 2.5  q90/q10 14.898
+   width zzxu.a       centre mid  : (upper - X) / w 1.29672 / 2.37105 / 3 / 3 / 3  q90/q10 1.265 | (X - lower) / w 0.500271 / 0.670244 / 1.14406 / 3 / 3  q90/q10 4.476
+   width zzxu.a       centre open : (upper - X) / w 0.926023 / 2.04221 / 3.04377 / 3.4375 / 3.5  q90/q10 1.683 | (X - lower) / w 0.246349 / 0.508587 / 1.05891 / 3.30023 / 3.5  q90/q10 6.489
+   width zzvx.trDEma  centre p    : (upper - X) / w 1.48679 / 2.49996 / 2.89308 / 3.36821 / 3.44956  q90/q10 1.347 | (X - lower) / w 0.132994 / 0.456254 / 1.26733 / 2.57165 / 3.12699  q90/q10 5.636
+   width zzvx.trDEma  centre last : (upper - X) / w 1.45629 / 2.47531 / 2.88143 / 3.36302 / 3.5  q90/q10 1.359 | (X - lower) / w 0.124999 / 0.477772 / 1.28302 / 2.5847 / 3.18891  q90/q10 5.410
+   width zzvx.trDEma  centre high : (upper - X) / w 0.794013 / 1.84632 / 2.5 / 2.5 / 2.5  q90/q10 1.354 | (X - lower) / w 1.00026 / 1.1676 / 1.64163 / 3.49725 / 3.5  q90/q10 2.995
+   width zzvx.trDEma  centre low  : (upper - X) / w 1.79401 / 2.85121 / 3.5 / 3.5 / 3.5  q90/q10 1.228 | (X - lower) / w 0.000264964 / 0.166752 / 0.641627 / 2.49725 / 2.5  q90/q10 14.976
+   width zzvx.trDEma  centre mid  : (upper - X) / w 1.29401 / 2.35121 / 3 / 3 / 3  q90/q10 1.276 | (X - lower) / w 0.500265 / 0.66731 / 1.14163 / 2.99725 / 3  q90/q10 4.492
+   width zzvx.trDEma  centre open : (upper - X) / w 0.912018 / 2.03244 / 3.02853 / 3.42985 / 3.5  q90/q10 1.688 | (X - lower) / w 0.246264 / 0.506917 / 1.05348 / 3.27879 / 3.48318  q90/q10 6.468
+   width zzvx.trEma   centre p    : (upper - X) / w 1.48679 / 2.49988 / 2.89232 / 3.36821 / 3.44956  q90/q10 1.347 | (X - lower) / w 0.132994 / 0.456254 / 1.26671 / 2.57165 / 3.12699  q90/q10 5.636
+   width zzvx.trEma   centre last : (upper - X) / w 1.45629 / 2.47531 / 2.88025 / 3.36226 / 3.5  q90/q10 1.358 | (X - lower) / w 0.124999 / 0.477772 / 1.28262 / 2.58336 / 3.18891  q90/q10 5.407
+   width zzvx.trEma   centre high : (upper - X) / w 0.794013 / 1.84632 / 2.5 / 2.5 / 2.5  q90/q10 1.354 | (X - lower) / w 1.00026 / 1.16731 / 1.64163 / 3.49725 / 3.5  q90/q10 2.996
+   width zzvx.trEma   centre low  : (upper - X) / w 1.79401 / 2.84632 / 3.5 / 3.5 / 3.5  q90/q10 1.230 | (X - lower) / w 0.000264964 / 0.166752 / 0.641627 / 2.49725 / 2.5  q90/q10 14.976
+   width zzvx.trEma   centre mid  : (upper - X) / w 1.29401 / 2.34632 / 3 / 3 / 3  q90/q10 1.279 | (X - lower) / w 0.500265 / 0.66731 / 1.14163 / 2.99725 / 3  q90/q10 4.492
+   width zzvx.trEma   centre open : (upper - X) / w 0.912018 / 2.03244 / 3.02791 / 3.42985 / 3.5  q90/q10 1.688 | (X - lower) / w 0.246264 / 0.506167 / 1.05252 / 3.27878 / 3.48318  q90/q10 6.478
+   width high - low   centre p    : (upper - X) / w 1.48679 / 2.49973 / 2.89157 / 3.36821 / 3.44956  q90/q10 1.347 | (X - lower) / w 0.132994 / 0.456254 / 1.26585 / 2.57165 / 3.12699  q90/q10 5.636
+   width high - low   centre last : (upper - X) / w 1.45629 / 2.47298 / 2.88025 / 3.3617 / 3.5  q90/q10 1.359 | (X - lower) / w 0.124999 / 0.477772 / 1.28262 / 2.58336 / 3.18891  q90/q10 5.407
+   width high - low   centre high : (upper - X) / w 0.794013 / 1.84632 / 2.5 / 2.5 / 2.5  q90/q10 1.354 | (X - lower) / w 1.00026 / 1.16675 / 1.64117 / 3.49725 / 3.5  q90/q10 2.997
+   width high - low   centre low  : (upper - X) / w 1.79401 / 2.84632 / 3.5 / 3.5 / 3.5  q90/q10 1.230 | (X - lower) / w 0.000264964 / 0.166752 / 0.64117 / 2.49725 / 2.5  q90/q10 14.976
+   width high - low   centre mid  : (upper - X) / w 1.29401 / 2.34632 / 3 / 3 / 3  q90/q10 1.279 | (X - lower) / w 0.500265 / 0.666752 / 1.14117 / 2.99725 / 3  q90/q10 4.495
+   width high - low   centre open : (upper - X) / w 0.912018 / 2.03244 / 3.02791 / 3.42985 / 3.5  q90/q10 1.688 | (X - lower) / w 0.246264 / 0.504424 / 1.05252 / 3.27878 / 3.48318  q90/q10 6.500
+   (upper - lower) / zzxu.a: 3.50027 / 3.66964 / 4.13648 / 5.20139 / 5.80294; (upper + lower) / 2 against p: 0.963219 / 1.00068 / 1.01914 / 1.05896 / 1.11457, against last: 0.961939 / 1.00013 / 1.01888 / 1.05848 / 1.11348, against mid: 0.938494 / 0.990056 / 1.[cut at 260 by r159.sh]
+/work/crucible/research/pm_factors/jz_bands.py:97: RuntimeWarning: Mean of empty slice
+  [source line echoed by the warning; not transcribed]
+   dir values: +1 0.835, -1 0.165, other 0.000; dir == sign(last - p): 0.573; == sign(last - mid): 0.600; == sign(last - open): 0.650; == sign(last - pc): nan; == +1 where upper is the nearer band: 0.071
+   day-end band ratios, q1 / q10 / q50 / q90 / q99 (thresholds: zzxu.a 0.119 / 0.212 / 0.405 at 1 / 50 / 99%; zzxu.b 0.848 / 0.981 / 1.261):
+      (upper - lower) / last                            0.0377711 / 0.0585938 / 0.110978 / 0.289145 / 0.544291
+      (upper - lower) / p                               0.0377637 / 0.0585552 / 0.111103 / 0.28941 / 0.545599
+      (upper - lower) / lower                           0.0382781 / 0.0595451 / 0.114749 / 0.320503 / 0.70414
+      last / active band (lower if dir > 0 else upper)  0.815045 / 0.933187 / 1.02439 / 1.06894 / 1.16069
+      last / other band                                 0.753894 / 0.853679 / 0.939983 / 1.09291 / 1.35647
+      active band / last                                0.86156 / 0.935502 / 0.976188 / 1.0716 / 1.22693
+      (last - lower) / (upper - lower)                  0.0347708 / 0.127329 / 0.312501 / 0.499077 / 0.66072
+      p / active band                                   0.813908 / 0.932716 / 1.02394 / 1.06757 / 1.1597
+      last / upper                                      0.747218 / 0.839722 / 0.930271 / 0.962126 / 0.976539
+      last / lower                                      1.00266 / 1.01028 / 1.0344 / 1.11982 / 1.35647
+      |last - active| / zzxu.a                          0.125001 / 0.474139 / 1.27591 / 2.4547 / 3.20504
+      (upper - last) / zzxu.a                           1.4595 / 2.49983 / 2.88559 / 3.38342 / 3.50336
+      (last - lower) / zzxu.a                           0.125001 / 0.477806 / 1.28759 / 2.59929 / 3.18891
+[done]
+[03:52:16] r159 done
