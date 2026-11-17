@@ -1,0 +1,9 @@
+25e7700127651de3c2caf93d7795536b  research/engine/cpp/families/zzvx.hpp
+18c7a209327f011c0045fb8118c1524c  research/engine/cpp/families/zzxu.hpp
+1a0c6a388edc09f9f2cb7ba5b81e6cea  research/engine/cpp/rules.hpp
+4603bab747b3cd784ac127bf08b88970  research/engine/cpp/state.hpp
+124d6ad9dc1d2c488ad125b868e3a39b  research/engine/families/zzvx.py
+73e7dd0364a9ed770329ab91e0c32d5f  research/engine/families/zzxu.py
+23ecfff3f6ce3863fa0983705294656b  research/engine/rules.py
+18fa7593c95eea73a88369900a232560  research/engine/state.py
+7d39a30a8934fc003b0beba90e5561ba  research/r161.sh
