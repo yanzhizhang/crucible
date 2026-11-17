@@ -1,0 +1,111 @@
+# R148 units, generation C (unit_check, done 00:12:07). Flags: class differs / >1% outside / covers <20% / <50% thresholds live
+== unit_check: 144 settled columns, days ['20261112', '20261113'], model C
+ flagged 106: by count of flags {0: 38, 1: 42, 2: 53, 3: 11}
+ (col fN model [lo, hi] ours [lo, hi] out cover live | model class / our class | formula)
+ zzqf7.q.c2 f3 [-0.1621, 0.1925] ours [0.03725, 0.2927] out 0.062 cover 0.44 live 0.00 | small signed / small non-negative | gen.log_distance_to_up_limit
+ zzag2.c f3 [0, 1.861e+04] ours [0, 1] out 0.000 cover 0.00 live 0.00 | large non-negative / share/rank [0,1] | rank:gen.flow_ord_imb60
+ zzwa.i f3 [-1, 25] ours [0, 0.001929] out 0.000 cover 0.00 live 0.01 | other signed / small non-negative | |gen.microprice_minus_mid_rel|
+ zzpe.b f3 [-2.976, 2.969] ours [-0.1106, 0.1687] out 0.000 cover 0.05 live 0.08 | z-score-like / small signed | dm:gen.sd_lp_pklo
+ zzqf5.q.c1 f3 [-0.2196, 0.2228] ours [-0.01079, -5.834e-05] out 0.000 cover 0.02 live 0.39 | small signed / other signed | -gen.bid_depth_weighted_distance_5lvl_rel
+ zzhi2.l f3 [-10, 10] ours [-0.8212, 0] out 0.000 cover 0.04 live 0.49 | z-score-like / other signed | -gen.marketable_order_amount_share_60s
+ zzkp f3 [-1, 1] ours [-0.03458, 0.0002259] out 0.000 cover 0.02 live 0.18 | rank/imbalance / small signed | gen.order_price_aggressiveness_mean_900s
+ zzzl2.e f3 [-0.6158, 0.6118] ours [-0.001498, 0.001751] out 0.000 cover 0.00 live 0.04 | other signed / small signed | gen.microprice_minus_mid_rel
+ zzyj3.c f3 [-1, 1] ours [-0.7198, -0.3617] out 0.000 cover 0.18 live 0.46 | rank/imbalance / other signed | cal:srank:-gen.best_level_order_count_imbalance
+ zzpp.e f3 [0, 20.79] ours [0, 1] out 0.000 cover 0.05 live 0.00 | bp-scale or count / share/rank | rank:-gen.rete50
+ zzhi2.i f3 [-10, 10] ours [-0.009644, 0.4627] out 0.000 cover 0.02 live 0.49 | z-score-like / small signed | cal:gen.ofi_levels1to5_norm_10s
+ zzwa.g f2 [-0.07298, 0.1947] ours [-4.473, 5.44] out 0.853 cover 1.00 live 1.00 | small signed / other signed | z:gen.lpe50
+ zzro2.a f2 [-0.2335, 0.1555] ours [0, 1] out 0.731 cover 0.40 live 0.51 | small signed / share/rank | gen.stoch
+ zzqf.q.c3 f2 [-0.1715, 0.1887] ours [-6.211, 5.732] out 0.703 cover 1.00 live 1.00 | small signed / z-score-like | z:-gen.rpe5
+ zzrg f2 [0, 0.4681] ours [-4.933, 4.8] out 0.653 cover 1.00 live 1.00 | small non-negative / z-score-like | z:-gen.return_open_to_1000_log
+ zzht f2 [-1, 1] ours [-1.293, 1.422] out 0.177 cover 1.00 live 1.00 | rank/imbalance / other signed | dm:gen.simba10
+ zzqf2.q.c1 f2 [-0.2139, 0.1911] ours [-0.458, 0.6168] out 0.102 cover 1.00 live 1.00 | small signed / other signed | -gen.net_buy_amount_share_orders_under_40k_c
+ zzzs.a f2 [-1, 1] ours [-1.242, 1.162] out 0.038 cover 1.00 live 1.00 | rank/imbalance / other signed | dm:-gen.flow_refill_imb60
+ zzpz.a f2 [-0.9999, 1] ours [-10, 10] out 0.038 cover 1.00 live 1.00 | rank/imbalance / z-score-like | z:-gen.lpev60
+ zzyj5.b f2 [-1, 1] ours [-1.133, 1.178] out 0.017 cover 1.00 live 1.00 | rank/imbalance / other signed | dmi:-gen.best_level_order_count_imbalance
+ zzyj5.a f2 [-1, 1] ours [-1.133, 1.178] out 0.017 cover 1.00 live 1.00 | (same as zzyj5.b)
+ zzpp2.d f2 [-4.292, 1185] ours [-4.491, 4.315] out 0.001 cover 0.01 live 1.00 | other signed / z-score-like | z:-gen.zr60
+ zzxc.b f2 [-91.18, 72.09] ours [-0.5, 0.5] out 0.000 cover 0.01 live 0.99 | z-score-like / small signed | crank:gen.best_level_order_count_imbalance
+ zzro.e f2 [-0.06083, 0.04301] ours [-0.000239, 0.000383] out 0.000 cover 0.01 live 0.93 | small signed / small signed | cal:dm:-gen.rete30
+ zzop.j f2 [0, 1.165e+04] ours [0.2315, 345.8] out 0.000 cover 0.03 live 0.53 | large non-negative / bp-scale or count | |gen.order_price_aggressiveness_mean_900s|*1(e4)
+ zzxu.b f2 [0, 2.283] ours [0.8571, 0.9975] out 0.000 cover 0.06 live 0.64 | small non-negative / share/rank | (px - zzxu.a) / zzxu.last
+ zzyj4.c f2 [-1, 1] ours [0, 1] out 0.000 cover 0.50 live 0.47 | rank/imbalance / share/rank | rank:gen.best_level_order_count_imbalance
+ zzzl2.b f2 [-0.3765, 1.076] ours [-0.0449, 0.04147] out 0.000 cover 0.06 live 0.88 | other signed / small signed | -gen.lpes2400
+ zzdw f2 [-44.61, 58.28] ours [-4.238, 5.339] out 0.000 cover 0.09 live 0.53 | z-score-like / other signed | z:gen.rete150
+ zzzl.d f2 [-0.4464, 1.059] ours [-0.0772, 0.0707] out 0.000 cover 0.10 live 0.95 | other signed / small signed | gen.lpes14400
+ zzhi2.h f2 [-7.576, 10] ours [-0.8077, 0.81] out 0.000 cover 0.09 live 1.00 | z-score-like / rank/imbalance | gen.net_buy_amount_share_orders_over_200k_cn
+ zzuc.d f2 [-1.235, 10] ours [-0.5, 0.5] out 0.000 cover 0.09 live 0.99 | other signed / small signed | crank:-gen.microprice_minus_mid_rel
+ zzfq.b f2 [-10, 10] ours [-1, 1] out 0.000 cover 0.10 live 0.88 | z-score-like / rank/imbalance | gen.simbn45
+ zzhi2.e f2 [0, 10] ours [0, 1] out 0.000 cover 0.10 live 0.54 | small non-negative / share/rank | rank:gen.ofi_levels1to6_norm_30s
+ zzwa.f f2 [-0.03984, 0.3276] ours [-0.0003165, 0.0002743] out 0.000 cover 0.00 live 0.92 | small signed / small signed | cal:gen.microprice_minus_mid_rel
+ zzqf.q.c1 f2 [-0.119, 0.1475] ours [-0.01079, -5.834e-05] out 0.000 cover 0.04 live 0.52 | small signed / other signed | -gen.bid_depth_weighted_distance_5lvl_rel
+ zzfq.e f2 [-10, 10] ours [-0.9108, 1.066] out 0.000 cover 0.10 live 0.87 | z-score-like / other signed | dm:-gen.imb5
+ zzfe f2 [-3.408, 2.73] ours [-0.286, 0.739] cover 0.17 live 0.85 | z-score-like / other signed | cal:gen.imbn90
+ zzbo.c f2 [-6.205, 5.797] ours [-0.8912, 0.8069] cover 0.14 live 0.80 | z-score-like / rank/imbalance | gen.imba600
+ zzyg2.0.b f2 [-7.743, 9.609] ours [-1, 1] cover 0.12 live 0.60 | z-score-like / rank/imbalance | srank:gen.microprice_minus_mid_rel
+ zzzl2.d f2 [-0.4464, 1.059] ours [-0.02521, 0.02355] cover 0.03 live 0.55 | other signed / small signed | gen.lpes600
+ zzxt3 f2 [-9.674, 7.338] ours [-0.5, 0.5] cover 0.06 live 1.00 | z-score-like / small signed | crank:gen.lpe25
+ zzgh2.b f2 [0, 3.554e+04] ours [0, 1] cover 0.00 live 0.00 | count/code / count/code | rank:gen.rete150
+ zzqo.c f2 [-3.723e+05, 5.095e+05] ours [-5.34, 4.235] cover 0.00 live 0.01 | count/code / count/code | z:-gen.lpek50
+ zzal.f f2 [-9.026, 9.551] ours [-0.9787, 0.9048] cover 0.10 live 0.94 | z-score-like / other signed | dm:-gen.imbn120
+ zzro2.c f2 [-0.2335, 0.1555] ours [-0.01375, 0.01278] cover 0.07 live 1.00 | small signed / small signed | dm:-gen.ret120
+ zzqo.d f2 [-1.057e+04, 3.27e+04] ours [-0.5, 0.5] cover 0.00 live 0.92 | other signed / small signed | crank:gen.lpe50
+ zzxu.a f2 [0, 0.7758] ours [0.002499, 0.1432] cover 0.18 live 0.07 | small non-negative / small non-negative | zzxu.a / zzxu.low
+ zzfb.b f2 [0, 84.01] ours [0, 1] cover 0.01 live 0.82 | bp-scale or count / share/rank | rank:-gen.lpe50
+ zzwa.h f2 [-7.195e+05, 3.115e+05] ours [0, 1] cover 0.00 live 0.82 | other signed / share/rank | rank:gen.microprice_minus_mid_rel
+ zzpk f2 [-1.005, 0.8301] ours [-0.1785, 0.086] cover 0.14 live 0.61 | other signed / small signed | dmi:-gen.sd_eg_rng
+ zzzl2.i f2 [-0.7075, 0.6704] ours [-0.0333, 0.03456] cover 0.05 live 0.65 | other signed / small signed | -gen.lpes1200
+ zzfb2.a f2 [0, 82.68] ours [0, 1] cover 0.01 live 0.82 | bp-scale or count / share/rank | rank:gen.rpe75
+ zzzl2.f f2 [-0.489, 1.067] ours [-0.09196, 0.07979] cover 0.11 live 0.97 | other signed / small signed | gen.lpes28800
+ zzal.h f2 [-1.5e+04, 2.553e+04] ours [-4.244, 5.281] cover 0.00 live 0.06 | other signed / other signed | z:gen.lpe200
+ zzhi.h f2 [-7.576, 10] ours [-0.7191, 0.742] cover 0.08 live 0.92 | z-score-like / rank/imbalance | -gen.flow_ord_imb300
+ zzvx.a f2 [0, 2.487] ours [0.003354, 0.1439] cover 0.06 live 0.00 | small non-negative / small non-negative | zzvx.trDEmaD / px
+ zzho2 f2 [-1, 1] ours [-0.801, -0.0008215] cover 0.40 live 0.43 | rank/imbalance / other signed | -gen.position_in_limit_band
+ zzwa.j f2 [-0.05734, 0.468] ours [-0.001388, 0.001546] cover 0.01 live 0.93 | small signed / small signed | dmi:gen.microprice_minus_mid_rel
+ zzaa.a f2 [-7.75e+08, 9.16e+08] ours [-5.595e+04, 5.634e+05] cover 0.00 live 0.61 | z-score-like / other signed | cal:-gen.nam15
+ zzag2.e f2 [0, 1.83e+04] ours [1.246e+04, 1.413e+04] cover 0.09 live 0.03 | large non-negative / large non-negative | cal:|gen.flow_ord_imb300|*1e4
+ zzwa.k f2 [-74.69, 196.5] ours [-0.01456, 0.0198] cover 0.00 live 0.63 | other signed / small signed | cal:dmi:gen.microprice_minus_mid_rel
+ zzro2.b f2 [-0.2335, 0.1555] ours [-0.007618, 0.008284] cover 0.04 live 1.00 | small signed / small signed | neu:gen.ret90
+ zzal.d f2 [-1, 119.1] ours [-1, 1] cover 0.02 live 0.92 | other signed / rank/imbalance | gen.imbv30
+ -- f1 (one flag) --
+ zzef [-7.735, 7.731] ours [-11.65, 10.42] out 0.037 cover 1.00 live 1.00 | z-score-like / z-score-like | dm:-gen.lpev14400
+ zzie4.c [-1, 1] ours [-1.135, 0.9928] out 0.008 | rank/imbalance / other signed | dm:-gen.simbv120
+ zzyj2.c [-1, 1] ours [-1.011, 1.067] out 0.007 | rank/imbalance / other signed | dm:-gen.best_level_order_count_imbalance
+ zzpz.c [-1, 1] ours [0, 1] out 0.003 cover 0.50 live 0.50 | rank/imbalance / share/rank | rank:gen.microprice_minus_mid_rel
+ zzlk [-1, 1] ours [-0.946, 0.9325] out 0.001 cover 0.94 | rank/imbalance / other signed | dm:-gen.flow_ord_imb60
+ zzlk2 [-1, 1] ours [-0.9325, 0.946] out 0.001 cover 0.94 | rank/imbalance / other signed | dm:gen.flow_ord_imb60
+ zzro.b [-0.2317, 0.1578] ours [-0.01975, 0.007611] cover 0.07 live 0.72 | small signed / small signed | cal:|gen.ret1800|
+ zzhi.b [0, 10] ours [6.704, 9.763] cover 0.31 live 0.01 | small non-negative x2 | |gen.log_channel_sequence_advance_per_s_60s|
+ zzro.a [-0.2317, 0.1206] ours [-0.03343, 0.0227] cover 0.16 live 0.96 | small signed x2 | cal:gen.mret1800
+ zzav [-4374, 3151] ours [-17.13, 17.95] cover 0.00 live 0.83 | z-score-like x2 | cal:|gen.lpe5|*1e4
+ zzhi2.b [0, 10] ours [6.826, 8.979] cover 0.22 live 0.00 | small non-negative x2 | gen.log_channel_sequence_advance_per_s_900s
+ zzup [0.9473, 1.057] ours [0.9942, 1.006] cover 0.11 live 0.96 | ratio around 1 x2 | zzup.pf / zzup.ps
+ zzor.a [-1, 1] ours [-0.5, 0.5] cover 0.50 live 0.69 | rank/imbalance / small signed | crank:-gen.rete50
+ zzjx3.a [-0.2239, 0.1833] ours [-0.03231, 0.03038] cover 0.15 live 0.83 | small signed x2 | dm:gen.rpe5400
+ zzja [0, 3.718e+05] ours [1961, 4.951e+04] cover 0.13 live 0.93 | large non-negative x2 | |gen.log_new_order_count_per_s_60s|*1e4
+ zzlf [-1, 1] ours [-0.5, 0.5] cover 0.50 live 0.71 | rank/imbalance / small signed | crank:-gen.microprice_minus_mid_rel
+ zzpe.a [-3.066, 3.009] ours [-1, 1] cover 0.33 live 0.73 | z-score-like / rank/imbalance | -gen.simba10
+ zzal.c [-1.229e+10, 2.134e+10] ours [-6.018e+08, -6.539e+04] cover 0.02 live 0.95 | other signed x2 | -gen.buy300
+ zzal.g [-2, 2] ours [-1, 1] cover 0.50 live 1.00 | other signed / rank/imbalance | gen.imbv10
+ zzqf4.q.c2 [-0.1563, 0.1896] ours [-0.03628, 0.03216] cover 0.20 live 1.00 | small signed x2 | dm:gen.rpe14400
+ zzxt5 [-1, 1] ours [-0.5, 0.5] cover 0.50 live 0.75 | rank/imbalance / small signed | crank:gen.rpe10
+ zzwj.c [-1, 1] ours [-0.5, 0.5] cover 0.50 live 0.84 | rank/imbalance / small signed | crank:-gen.flow_refill_imb300
+ zzqo.e [-1.112e+08, 6.012e+10] ours [-7.413e+04, 6.478e+05] cover 0.00 live 0.63 | other signed x2 | cal:srank:-gen.rpe25
+ zzoe [-5, 5] ours [-0.8998, 2.247] cover 0.31 live 0.66 | z-score-like / other signed | cal:dm:gen.lpev3600
+ zzjb.b [-0.2006, 0.2011] ours [-0.02993, 0.04252] cover 0.18 live 0.88 | small signed x2 | -gen.lee30_14400
+ zzqo.a [-3858, 2203] ours [-78.55, 74.5] cover 0.03 live 0.72 | count/code x2 | cal:gen.lmie30*1e4
+ zzie2.c [-1, 1] ours [-0.7431, 0.7315] cover 0.74 live 0.96 | rank/imbalance / other signed | cal:crank:gen.imb1
+ zzhk.d [-0.4055, 0.2336] ours [-0.1847, -0.0008668] cover 0.29 live 0.98 | small signed / other signed | cal:dm:gen.rpma60
+ zzho [-1, 1] ours [-0.7927, 0.6853] cover 0.74 live 0.99 | rank/imbalance / other signed | cal:gen.position_in_limit_band
+ zzeg2 [0.9742, 1.052] ours [0.9987, 1.008] cover 0.12 live 0.92 | ratio around 1 x2 | cal:|gen.rpe20|
+ zzab [-0.05935, 0.04236] ours [-0.003862, 0.006843] cover 0.11 live 0.97 | small signed x2 | cal:neu:-gen.depth_weighted_price_5lvl_minus
+ zzfe2 [-2.285, 2.141] ours [-0.5, 0.5] cover 0.23 live 0.99 | z-score-like / small signed | crank:gen.imb1
+ zzop.a [0, 2.04e+04] ours [0, 742.5] cover 0.04 live 0.94 | large non-negative x2 | |gen.ldl1800|*1e4
+ zzsa2.b [-1, 0.0026] ours [-0.01679, -0.002561] cover 0.01 live 0.66 | other signed x2 | cal:-gen.rv60
+ zzpe.d [-2.583, 3.828] ours [-1, 1] cover 0.31 live 0.60 | z-score-like / rank/imbalance | srank:gen.microprice_minus_mid_rel
+ zzpp2.e [-1.3e+05, 1.236e+04] ours [-5.427, 4.479] cover 0.00 live 1.00 | other signed x2 | z:-gen.rete50
+ zzqf6.q.c1 [-0.121, 0.1027] ours [-0.00488, 0.009299] cover 0.06 live 0.88 | small signed x2 | cal:gen.lpes1800
+ zzie3.c [-1, 1] ours [-0.9073, 0.4001] cover 0.65 live 0.74 | rank/imbalance / other signed | cal:gen.imbn10
+ zzri2.f [-1, 1] ours [-0.5, 0.5] cover 0.50 live 0.76 | rank/imbalance / small signed | crank:gen.microprice_minus_mid_rel
+ zzal.e [-120.1, 968.3] ours [-1.254, 1.151] cover 0.00 live 0.90 | other signed x2 | dm:-gen.imbn10
+ zzqf6.q.a [0, 0.2661] ours [5.578e-06, 0.05159] cover 0.19 live 0.99 | small non-negative x2 | |gen.lpes2400|
+ zzqf9.c1 [-0.1551, 0.1656] ours [-0.0005255, 0.0203] cover 0.06 live 0.55 | small signed x2 | cal:gen.lpew1800

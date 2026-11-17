@@ -1,0 +1,13 @@
+# R148 prof (seg_fit vs ZZXC / ZZTS profile cells, done 00:18:09, 75 lines). 39 candidates x 11 transforms x 4 scales; days 0430, 1112; CED found both days
+-- zzpz.d [-6.9211, 6.9196] thr 304 roots 31: 0.880 -neu x1e4 r.(log_new_order_count_per_s_60s)/(x.ZZTS.q@0) (root 0.359) | 0.882 neu same | 0.953 srank x1 r.(net_buy_amount_share_orders_over_200k_cny_120s)/(x.ZZTS.q@0) | 0.953 /(x.ZZXC.n@0)
+-- zzpz.a [-0.99997, 0.99986] thr 249 roots 29: 0.559 -dmi x1e4 r.(log_new_order_count_per_s_60s)/(x.ZZXC.q@0) (int 0.96 root 0.261) | 0.569 dmi | 0.581 neu | 0.608 -neu
+-- zzpz.b [-6.4803, 6.5278] thr 276 roots 36: 0.767 -neu x1e4 r.(log_new_order_count_per_s_60s)/(x.ZZTS.q@0) (root 0.317) | 0.786 srank x1 r.(net_buy_amount_..._over_200k_cny_120s)/(x.ZZTS.q@0) (x3 variants)
+-- zzpz.c [-0.99999, 0.99998] thr 198 roots 17: 0.646 -dmi x1e4 r.(log_new_order_count_per_s_60s)/(x.ZZXC.q@0) (root 0.282) | 0.647 dmi | 0.689 dm | 0.718 -neu
+-- zzoe [-5, 5] thr 221 roots 20: 1.129 -neu x1e4 r.(log_new_order_count_per_s_60s)/(x.ZZTS.q@0) (root 0.486) | 1.141 neu | 1.145 srank r.(net_buy_amount_..._under_40k_cny_120s)/(x.ZZTS.q@0) | 1.145 /(x.ZZXC.n@0)
+-- zzrb [-5, 5] thr 314 roots 5: 0.197 -neu x1e4 r.(log_new_order_count_per_s_60s)/(x.ZZTS.q@0) (below 0.001 above 0.001 int 0.85 root 0.023) | 0.288 neu same (root 0.072) | 0.360 -neu /(x.ZZXC.q@0) (root 0.028) | 0.456 -dmi /(x.ZZXC.q@0)
+-- zzso [-5, 5] thr 247 roots 69: 1.038 srank r.(net_buy_amount_..._over_200k_cny_120s)/(x.ZZTS.q@0) (x3) | 1.046 srank r.(..._under_40k_cny_120s)/(x.ZZTS.q@0)
+-- zzwf [-5, 5] thr 262 roots 15: 0.720 -neu x1e4 r.(log_new_order_count_per_s_60s)/(x.ZZTS.q@0) (root 0.278) | 0.723 neu | 0.732 -dmi /(x.ZZXC.q@0) | 0.753 -dm
+-- zzfe [-2.8917, 3.6148] thr 410 roots 16: 0.807 dmi x1e4 r.(log_new_order_count_per_s_60s)/(x.ZZXC.q@0) (root 0.297) | 0.838 neu | 0.849 dm | 0.872 -dmi
+-- zzfe2 [-2.1459, 2.6593] thr 345 roots 1: 0.126 dmi x1e4 r.(log_new_order_count_per_s_60s)/(x.ZZXC.q@0) (below 0 above 0.001 int 0.90 root 0.013) | 0.133 neu (root 0.016) | 0.152 dm | 0.153 -dmi
+[00:18:09] r148 prof done
+# No PASS (all fp >= 0.126). Closest: zzfe2 (0.126, 1 root) and zzrb (0.197, 5 roots), both on new-order rate / profile q cell.

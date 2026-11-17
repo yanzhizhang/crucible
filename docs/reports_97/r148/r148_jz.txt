@@ -1,0 +1,24 @@
+# R148 jz (jz_fit, done 00:12:37, 91 lines). .jz days: 20261105,1106,1109,1110,1111,1112,1113,1116 (2400 stock-days, 4 model files, gen C)
+== zzcb keys: ['zzcb.r', 'zzcb.r.wgt']; 16 candidates x 10 transforms x 4 scales, 6 targets
+-- zzeu [-1, 0.99999] thr 329 roots 99: 0.457 -srank x1 (zzcb.r-zzcb.r.wgt)/zzcb.r.wgt (below 0.007 above 0.007 int 0.63 root 0.037) cover 1.00; same 0.457 for srank / -srank zzcb.r etc.
+-- zzeu2 [-1, 0.99998] thr 364 roots 80: 0.488 -srank (zzcb.r-zzcb.r.wgt)/zzcb.r.wgt (int 0.59 root 0.031) cover 1.00; same for 4 variants
+-- zzef2 [-7.7353, 7.7308] thr 363 roots 56: 0.848 log zzcb.r/zzcb.r.wgt (below 0 above 0.039 int 0.75 root 0.278) cover 0.63 | 0.875 log (zzcb.r-zzcb.r.wgt)/zzcb.r.wgt | 0.904 -dm (zzcb.r.wgt-zzcb.r)/zzcb.r | 0.904 -dm zzcb.r.wgt/zzcb.r | 0.908 1/b ...
+-- zzef [-7.7353, 7.7308] thr 375 roots 13: 0.707 log (zzcb.r-zzcb.r.wgt)/zzcb.r.wgt (int 0.79 root 0.231) cover 1.13 | 0.776 dm (zzcb.r.wgt-zzcb.r)/zzcb.r | 0.776 dm zzcb.r.wgt/zzcb.r | 0.781 -dm ...
+-- zzel.a [0, 0.0065685] thr 496 roots 0: 1.273 1/b x0.01 zzcb.r in 0.834 | 1.882 id x0.01 zzcb.r.wgt/zzcb.r in 0.635 | 1.882 1/b x0.01 zzcb.r/zzcb.r.wgt | 2.213 | 2.397
+-- zzel.b [8.2582, 110.1] thr 448 roots 0: 0.834 1/b x100 zzcb.r.wgt cover 0.38 | 0.920 -dm zzcb.r in 0.805 | 1.222 abs4 x0.01 ... | 1.291 sqrt x100 ... | 1.437 log x100 zzcb.r.wgt
+== zzba keys: ['zzba.p', 'zzba.p.wgt', 'zzba.r', 'zzba.r.wgt']; 56 candidates x 10 x 4, 5 targets
+-- zzmo [-1, 1] thr 272 roots 19: 0.386 -srank (zzba.p-zzba.p.wgt)/zzba.p.wgt (below 0 above 0.010 int 0.71 root 0.041) cover 1.00; same 0.386 for 4 variants
+-- zzyg.0.a [-5.3458, 6.0806] thr 380 roots 23: 0.310 log x1 zzba.r (above 0.001 int 0.77 root 0.040) cover 0.75 | 0.398 dm x100 (zzba.r-zzba.p)/zzba.p in 0.972 | 0.398 dm x100 zzba.r/zzba.p | 0.435 -dm x100 ...
+-- zzyg2.0.b [-7.7427, 9.609] thr 276 roots 51: 0.531 log zzba.r | 0.580 -dm x100 (zzba.r-zzba.p)/zzba.p in 0.985 | 0.580 -dm zzba.r/zzba.p | 0.603 dm x100 ...
+-- zzyg.1.a [-6.6205, 9.4234] thr 294 roots 28: 0.533 dm x100 (zzba.r-zzba.p)/zzba.p in 0.993 (root 0.163) | 0.533 dm zzba.r/zzba.p | 0.533 log zzba.r | 0.568 -dm ...
+-- zzba [0, 0.34418] thr 375 roots 2: 0.359 sqrt zzba.r/zzba.p.wgt (above 0.020 int 0.86 root 0.101) cover 0.80 | 0.359 sqrt zzba.r/zzba.r.wgt | 0.440 1/b zzba.p.wgt/zzba.p in 0.980 | 0.440 id zzba.p/zzba.p.wgt | 0.440 id zzba.p/zzba.r.wgt
+== control: the 4 exact columns from their own keys (should come out on top with their real formula)
+ 28 keys matching ^(zzup|zzvx|zzxu)\.: zzup.pf, zzup.pf.wgt, zzup.ps, zzup.ps.wgt, zzvx.high, zzvx.low, zzvx.rEmaD, zzvx.rEmaD.wgt, ...; 2408 candidates x 10 x 4
+-- zzup [0.94734, 1.0569] thr 461 roots 3: 0.226 id zzup.ps/zzxu.last (int 0.87 root 0.047) cover 0.22 | 0.226 1/b zzxu.last/zzup.ps | 0.255 1/b zzup.pf/zzxu.last
+-- zzvx.a [0, 2.4875] thr 412 roots 12: 0.711 sqrt zzvx.high/zzup.pf (int 0.62 root 0.167) cover 0.03 | 0.711 sqrt zzvx.high/zzxu.p | 0.711 sqrt zzxu.high/zzup.pf
+-- zzxu.a [0, 0.77575] thr 384 roots 0: 0.167 sqrt (zzxu.upper-zzvx.high)/zzvx.high (above 0.033 int 0.87) cover 0.75 | 0.167 sqrt (zzxu.upper-zzxu.high)/zzxu.high | 0.188 sqrt zzxu.a/zzxu.last
+-- zzxu.b [0, 2.2827] thr 453 roots 0: 0.325 -id (zzxu.dir-zzxu.lower)/zzxu.lower (below 0.084) cover 0.65 | 0.328 -id (zzxu.dir-zzxu.upper)/zzxu.upper | 0.329 -id (zzxu.dir-zzvx.high)/zzvx.high
+[00:12:37] r148 jz done
+# READING: the control FAILS. The known formulas (zzup = zzup.pf/zzup.ps, zzvx.a = zzvx.trDEmaD/px, zzxu.a = zzxu.a/zzxu.low,
+# zzxu.b = (px-zzxu.a)/zzxu.last) do not appear in the top 3, and none scores below 0.17. Likely cause: day-end .jz values
+# vs intraday model ranges, and px / trDEmaD aren't .jz keys. So jz_fit's non-control rankings can't be trusted as pins.
