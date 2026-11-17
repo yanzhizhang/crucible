@@ -1,0 +1,25 @@
+# transcribed from screen, 97 data/reports/r154.txt (23 lines), gate OK (r154.sh 5913b77e, runs_poscst2.py 6bc0162a)
+GATE OK
+20261113: stsfile stats/sod/20261113.xr
+20261113: stsfile index/index-20261113.xr
+20261113: stsfile ex/ex-20261113.xr
+== 20261113: 300 stocks with poscst and mb; table columns ['pm.msr', 'pm.mb', 'pm.vr', 'pmw.SH50', 'pmw.HS300', 'pmw.A500', 'pmw.ZZ500', 'pmw.ZZ1000', 'pmw.ZZ2000', 'pmx.SSE', 'pmx.SZSE']
+   exact on 1.000  min(lot(5 mb), 1e7)
+   exact on 0.947  lot(5 mb)
+   exact on 0.817  min(lot(5 mb), 1e7, lot(1e7 / mp_min))
+   exact on 0.813  min(lot(5 mb), 1e7, lot(1e7 / mp0))
+   exact on 0.810  min(lot(5 mb), 1e7, lot(1e7 / mp_max))
+   exact on 0.803  min(lot(5 mb), 1e7, lot(1e7 / (1.1 mp0)))
+   exact on 0.797  min(lot(5 mb), 1e7, lot(9e6 / mp0))
+   exact on 0.697  min(lot(5 mb), 1e7, lot(5e6 / mp0))
+   exact on 0.473  min(lot(5 mb), 1e7, lot(2e6 / mp0))
+   exact on 0.183  min(lot(5 mb), 1e7, lot(1e6 / mp0))
+   exact on 0.153  min(lot(5 mb), 1e7, lot(0.09 x 1e7 / mp0))
+   exact on 0.013  min(lot(5 mb), 1e7, lot(mb))
+   exact on 0.000  min(lot(5 mb), 1e7, lot(msr))
+   exact on 0.000  min(lot(5 mb), 1e7, lot(5 vr))
+   exact on 0.000  min(lot(5 mb), 1e7, lot(5 msr))
+   exact on 0.000  min(lot(5 mb), 1e7, lot(10 msr))
+-- the 0 stocks 'min(lot(5 mb), 1e7)' misses (sid, poscst, formula, poscst/formula, mb, msr, vr, mp0, poscst x mp0, cpos0, asq_max, cpos_max):
+[done]
+[01:38:10] r154 done
