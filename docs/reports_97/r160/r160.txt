@@ -1,0 +1,75 @@
+engine: 20 stocks, 80000 events, 27 rules, 4 threads, 0.01s
+20 stocks, 55540 day-end values + 41360 mark values compared, 0 mismatches
+20261112: stop 54149.981 -> data/engine_r160/engine_20261112.json.gz (22s total)
+== 20261112  key: n, equal share at 1e-6 (all / SZSE), at 1e-4 (all / SZSE), median relative error
+   zzvx.high                n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 0
+   zzvx.low                 n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 0
+   zzvx.rEmaD               n  300  0.8900 / 0.8750   0.9400 / 0.9286   mre 0
+   zzvx.rEmaD.t             n  300  0.9600 / 0.8929   1.0000 / 1.0000   mre 1.36e-07
+   zzvx.rEmaD.t|tr          n  300  0.9600 / 0.8929   1.0000 / 1.0000   mre 1.36e-07
+   zzvx.rEmaD.t|tratio      n  300  0.9600 / 0.8929   1.0000 / 1.0000   mre 1.36e-07
+   zzvx.rEmaD|tr            n  300  0.7800 / 0.7143   0.8233 / 0.7679   mre 0
+   zzvx.rEmaD|tratio        n  300  0.8900 / 0.8750   0.9400 / 0.9286   mre 0
+   zzvx.rEmaO               n  300  0.8900 / 0.8750   0.9400 / 0.9286   mre 0
+   zzvx.rEmaO.t             n  300  0.9600 / 0.8929   1.0000 / 1.0000   mre 1.36e-07
+   zzvx.trDEmaD             n  300  0.9167 / 0.9107   0.9567 / 0.9464   mre 1.95e-16
+   zzvx.trDEmaD.t           n  300  0.9600 / 0.8929   1.0000 / 1.0000   mre 1.36e-07
+   zzvx.trDEmaO             n  300  0.9167 / 0.9107   0.9567 / 0.9464   mre 1.95e-16
+   zzvx.trDEmaO.t           n  300  0.9600 / 0.8929   1.0000 / 1.0000   mre 1.36e-07
+   zzvx.trEmaD              n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 1.71e-16
+   zzvx.trEmaD.t            n  300  0.9600 / 0.8929   1.0000 / 1.0000   mre 1.36e-07
+   zzvx.trEmaD.t|pc         n  300  0.9600 / 0.8929   1.0000 / 1.0000   mre 1.36e-07
+   zzvx.trEmaD.t|trade      n  300  0.9600 / 0.8929   1.0000 / 1.0000   mre 1.36e-07
+   zzvx.trEmaD.t|tro        n  300  0.9600 / 0.8929   1.0000 / 1.0000   mre 1.36e-07
+   zzvx.trEmaD|pc           n  300  0.8767 / 0.8304   0.8767 / 0.8304   mre 1.86e-16
+   zzvx.trEmaD|trade        n  300  0.9800 / 0.9821   0.9800 / 0.9821   mre 1.71e-16
+   zzvx.trEmaD|tro          n  300  0.9800 / 0.9821   0.9800 / 0.9821   mre 1.71e-16
+   zzvx.trEmaO              n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 1.71e-16
+   zzvx.trEmaO.t            n  300  0.9600 / 0.8929   1.0000 / 1.0000   mre 1.36e-07
+   zzxu.a                   n  300  0.9967 / 0.9911   1.0000 / 1.0000   mre 8.25e-09
+   zzxu.a.t                 n  300  0.9600 / 0.8929   1.0000 / 1.0000   mre 1.36e-07
+   zzxu.dir|st              n  300  0.6233 / 0.6161   0.6233 / 0.6161   mre 0
+   zzxu.high                n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 0
+   zzxu.last                n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 0
+   zzxu.low                 n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 0
+   zzxu.lower|st            n  300  0.2533 / 0.3393   0.2800 / 0.3571   mre 0.0194
+   zzxu.p                   n  300  0.9967 / 1.0000   1.0000 / 1.0000   mre 9.21e-10
+   zzxu.p.t                 n  300  0.9600 / 0.8929   1.0000 / 1.0000   mre 1.36e-07
+   zzxu.upper|st            n  300  0.2967 / 0.2679   0.3467 / 0.2679   mre 0.0206
+20261113: stop 54149.897 -> data/engine_r160/engine_20261113.json.gz (21s total)
+== 20261113  key: n, equal share at 1e-6 (all / SZSE), at 1e-4 (all / SZSE), median relative error
+   zzvx.high                n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 0
+   zzvx.low                 n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 0
+   zzvx.rEmaD               n  300  0.8500 / 0.8571   0.9567 / 0.9821   mre 0
+   zzvx.rEmaD.t             n  300  0.9533 / 0.8839   0.9967 / 1.0000   mre 2.1e-07
+   zzvx.rEmaD.t|tr          n  300  0.9533 / 0.8839   0.9967 / 1.0000   mre 2.1e-07
+   zzvx.rEmaD.t|tratio      n  300  0.9533 / 0.8839   0.9967 / 1.0000   mre 2.1e-07
+   zzvx.rEmaD|tr            n  300  0.8067 / 0.8125   0.9067 / 0.9286   mre 0
+   zzvx.rEmaD|tratio        n  300  0.8500 / 0.8571   0.9567 / 0.9821   mre 0
+   zzvx.rEmaO               n  300  0.8500 / 0.8571   0.9567 / 0.9821   mre 0
+   zzvx.rEmaO.t             n  300  0.9533 / 0.8839   0.9967 / 1.0000   mre 2.1e-07
+   zzvx.trDEmaD             n  300  0.9133 / 0.9286   0.9900 / 1.0000   mre 1.73e-16
+   zzvx.trDEmaD.t           n  300  0.9533 / 0.8839   0.9967 / 1.0000   mre 2.1e-07
+   zzvx.trDEmaO             n  300  0.9133 / 0.9286   0.9900 / 1.0000   mre 1.73e-16
+   zzvx.trDEmaO.t           n  300  0.9533 / 0.8839   0.9967 / 1.0000   mre 2.1e-07
+   zzvx.trEmaD              n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 1.4e-16
+   zzvx.trEmaD.t            n  300  0.9533 / 0.8839   0.9967 / 1.0000   mre 2.1e-07
+   zzvx.trEmaD.t|pc         n  300  0.9533 / 0.8839   0.9967 / 1.0000   mre 2.1e-07
+   zzvx.trEmaD.t|trade      n  300  0.9533 / 0.8839   0.9967 / 1.0000   mre 2.1e-07
+   zzvx.trEmaD.t|tro        n  300  0.9533 / 0.8839   0.9967 / 1.0000   mre 2.1e-07
+   zzvx.trEmaD|pc           n  300  0.9467 / 0.9464   0.9467 / 0.9464   mre 1.46e-16
+   zzvx.trEmaD|trade        n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 1.4e-16
+   zzvx.trEmaD|tro          n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 1.4e-16
+   zzvx.trEmaO              n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 1.4e-16
+   zzvx.trEmaO.t            n  300  0.9533 / 0.8839   0.9967 / 1.0000   mre 2.1e-07
+   zzxu.a                   n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 1.39e-08
+   zzxu.a.t                 n  300  0.9533 / 0.8839   0.9967 / 1.0000   mre 2.1e-07
+   zzxu.dir|st              n  300  0.7800 / 0.7321   0.7800 / 0.7321   mre 0
+   zzxu.high                n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 0
+   zzxu.last                n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 0
+   zzxu.low                 n  300  1.0000 / 1.0000   1.0000 / 1.0000   mre 0
+   zzxu.lower|st            n  300  0.1367 / 0.2232   0.2167 / 0.2768   mre 0.00604
+   zzxu.p                   n  300  0.9633 / 0.9911   1.0000 / 1.0000   mre 1.37e-09
+   zzxu.p.t                 n  300  0.9533 / 0.8839   0.9967 / 1.0000   mre 2.1e-07
+   zzxu.upper|st            n  300  0.5000 / 0.4464   0.5767 / 0.4643   mre 3.28e-08
+[04:00:08] r160 done
