@@ -1,0 +1,43 @@
+20261112: 72,000 rows, 4 model files, trusted ALL columns
+   970 bases; pool transforms id,-id,dm,-dm,abs4,srank
+-- zzup: 5967 usable nodes (15 roots, 5952 conditional), PM rows 26,674,202,549
+   1469 nodes kept on 72,000 sampled rows
+   pool: 110 candidates inside [0.94781, 1.0478]
+   rank of the matrix column among 111: 1
+   cond 0.0504  root 0.0727  all 0.0512  nodes 1469 (1454 cond)  X:zzup
+   cond 0.0713  root 0.0711  all 0.0713  nodes 1469 (1454 cond)  -id:x.(zzgh.nb|snappx-zzgh.nsnap)/zzgh.nsnap@1
+   cond 0.0713  root 0.0711  all 0.0713  nodes 1469 (1454 cond)  abs4:x.(zzgh.nb|snappx-zzgh.nsnap)/zzgh.nsnap@1e-4
+   cond 0.0713  root 0.0710  all 0.0713  nodes 1469 (1454 cond)  -id:x.(zzgh.nb|vol-zzgh.nsnap)/zzgh.nsnap@1
+   cond 0.0713  root 0.0710  all 0.0713  nodes 1469 (1454 cond)  abs4:x.(zzgh.nb|vol-zzgh.nsnap)/zzgh.nsnap@1e-4
+   cond 0.0713  root 0.0711  all 0.0713  nodes 1469 (1454 cond)  -id:x.(zzgh.nb-zzgh.nsnap)/zzgh.nsnap@1
+-- zzvx.a: 2391 usable nodes (9 roots, 2382 conditional), PM rows 5,452,058,707
+   511 nodes kept on 72,000 sampled rows
+   pool: 382 candidates inside [0, 2.1046]
+   rank of the matrix column among 383: 266
+   cond 0.0834  root 0.0248  all 0.0776  nodes 509 (500 cond)  id:x.(px-zzvx.rEmaD)/zzvx.low@1
+   cond 0.0834  root 0.0248  all 0.0776  nodes 509 (500 cond)  abs4:x.(px-zzvx.rEmaD)/zzvx.low@1e-4
+   cond 0.0834  root 0.0248  all 0.0776  nodes 509 (500 cond)  id:x.(px-zzvx.rEmaO)/zzvx.low@1
+   cond 0.0834  root 0.0248  all 0.0776  nodes 509 (500 cond)  abs4:x.(px-zzvx.rEmaO)/zzvx.low@1e-4
+   cond 0.0924  root 0.0133  all 0.0845  nodes 509 (500 cond)  id:x.zzgh.nb/zzgh.nb|snappx@1
+   cond 0.0924  root 0.0736  all 0.0906  nodes 509 (500 cond)  abs4:x.s.ret1800s@0.01
+-- zzxu.a: 6696 usable nodes (0 roots, 6696 conditional), PM rows 14,735,316,739
+   1319 nodes kept on 72,000 sampled rows
+   pool: 222 candidates inside [0, 0.76539]
+   rank of the matrix column among 223: 186
+   cond 0.0359  root nan  all 0.0359  nodes 1318 (1318 cond)  abs4:x.(px-zzgh.ncancel)/zzgh.norder@1e-4
+   cond 0.0360  root nan  all 0.0360  nodes 1318 (1318 cond)  id:x.zzgh.ncancel/zzgh.norder@1
+   cond 0.0360  root nan  all 0.0360  nodes 1318 (1318 cond)  abs4:x.zzgh.ncancel/zzgh.norder@1e-4
+   cond 0.0475  root nan  all 0.0475  nodes 1318 (1318 cond)  abs4:x.zzgh.nb|cnt@1e-4
+   cond 0.0528  root nan  all 0.0528  nodes 1317 (1317 cond)  id:rv60@100
+   cond 0.0528  root nan  all 0.0528  nodes 1317 (1317 cond)  abs4:rv60@0.01
+-- zzxu.b: 5777 usable nodes (5 roots, 5772 conditional), PM rows 16,288,160,495
+   1217 nodes kept on 72,000 sampled rows
+   pool: 382 candidates inside [0, 2.2987]
+   rank of the matrix column among 383: 1
+   cond 0.0474  root 0.1170  all 0.0488  nodes 1217 (1212 cond)  X:zzxu.b
+   cond 0.0816  root 0.3144  all 0.0864  nodes 1216 (1211 cond)  id:x.zzgh.nb/zzgh.nb|vol@1
+   cond 0.0817  root 0.3151  all 0.0865  nodes 1216 (1211 cond)  abs4:x.zzgh.nb/zzgh.nb|vol@1e-4
+   cond 0.0824  root 0.0971  all 0.0827  nodes 1217 (1212 cond)  abs4:x.(px-zzgh.nsnap)/zzgh.nsnap@1e-4
+   cond 0.0879  root 0.3266  all 0.0928  nodes 1216 (1211 cond)  id:x.zzgh.nb|vol/zzgh.nb@1
+   cond 0.0880  root 0.3274  all 0.0929  nodes 1216 (1211 cond)  abs4:x.zzgh.nb|vol/zzgh.nb@1e-4
+[03:15:43] r156 nov done
