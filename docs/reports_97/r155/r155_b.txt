@@ -1,0 +1,100 @@
+  20261112: CED date=20261112.ec9694de: 26 industry dummies, 46 exposures
+20261112: 72,000 rows, 4 model files, trusted ALL columns
+   970 bases; pool transforms id,-id,dm,-dm,dmi,-dmi,neu,-neu,abs4,srank
+-- zzag2.c: 2678 usable nodes (1 roots, 2677 conditional), PM rows 7,842,248,171
+   559 nodes kept on 72,000 sampled rows
+   pool: 570 candidates inside [0, 18613]
+   rank of the matrix column among 571: 571
+   cond 0.2162  root 0.0062  all 0.2145  nodes 558 (557 cond)  id:x.s.sec_since_high@1
+   cond 0.2162  root 0.0062  all 0.2145  nodes 558 (557 cond)  abs4:x.s.sec_since_high@1e-4
+   cond 0.2277  root 0.1540  all 0.2270  nodes 556 (555 cond)  id:x.(px-zzgh.nb|vol)/px@1e4
+   cond 0.2277  root 0.1540  all 0.2270  nodes 556 (555 cond)  abs4:x.(px-zzgh.nb|vol)/px@1
+   cond 0.2277  root 0.1540  all 0.2270  nodes 556 (555 cond)  id:x.(px-zzgh.nb|snappx)/px@1e4
+   cond 0.2277  root 0.1540  all 0.2270  nodes 556 (555 cond)  abs4:x.(px-zzgh.nb|snappx)/px@1
+   cond 0.2277  root 0.1540  all 0.2271  nodes 556 (555 cond)  id:x.(px-zzgh.nb)/px@1e4
+   cond 0.2277  root 0.1540  all 0.2271  nodes 556 (555 cond)  abs4:x.(px-zzgh.nb)/px@1
+-- zzpp.e: 3045 usable nodes (45 roots, 3000 conditional), PM rows 10,164,014,569
+   612 nodes kept on 72,000 sampled rows
+   pool: 439 candidates inside [0, 20.793]
+   rank of the matrix column among 440: 434
+   cond 0.2332  root 0.0880  all 0.1937  nodes 610 (565 cond)  -id:vfrac10@1
+   cond 0.2332  root 0.0880  all 0.1937  nodes 610 (565 cond)  abs4:vfrac10@1e-4
+   cond 0.3535  root 0.1542  all 0.2993  nodes 612 (567 cond)  id:sd_eg_rng@100
+   cond 0.3535  root 0.1542  all 0.2993  nodes 612 (567 cond)  abs4:sd_eg_rng@0.01
+   cond 0.3726  root 0.1664  all 0.3164  nodes 611 (566 cond)  id:x.zzgh.nsnap/zzgh.norder@100
+   cond 0.3726  root 0.1664  all 0.3164  nodes 611 (566 cond)  abs4:x.zzgh.nsnap/zzgh.norder@0.01
+   cond 0.3754  root 0.1656  all 0.3183  nodes 610 (565 cond)  abs4:x.(px-zzgh.nsnap)/zzgh.norder@0.01
+   cond 0.3760  root 0.3252  all 0.3622  nodes 612 (567 cond)  id:log_distance_to_up_limit@100
+-- zzhi2.b: 664 usable nodes (36 roots, 628 conditional), PM rows 5,786,335,250
+   214 nodes kept on 72,000 sampled rows
+   pool: 422 candidates inside [0, 10]
+   rank of the matrix column among 423: 375
+   cond 0.0533  root 0.0339  all 0.0463  nodes 214 (178 cond)  abs4:x.zzgh.nb|ord/zzgh.nb|ordvol@1e-4
+   cond 0.0578  root 0.0353  all 0.0497  nodes 214 (178 cond)  abs4:x.zzgh.nb|ordvol/zzgh.nb|ord@1e-4
+   cond 0.0924  root 0.0801  all 0.0880  nodes 214 (178 cond)  -id:x.(zzbd.rEmaT-zzbd.rEmaS)/zzbd.rEmaS@1
+   cond 0.0931  root 0.0808  all 0.0887  nodes 214 (178 cond)  abs4:x.(zzbd.rEmaT-zzbd.rEmaS)/zzbd.rEmaS@1e-4
+   cond 0.1203  root 0.1176  all 0.1193  nodes 214 (178 cond)  abs4:x.(px-zzgh.nsnap)/zzgh.nsnap@1e-4
+   cond 0.1388  root 0.1363  all 0.1379  nodes 214 (178 cond)  -id:x.(zzpk.low-zzpk.open)/zzpk.open@100
+   cond 0.1388  root 0.1363  all 0.1379  nodes 214 (178 cond)  abs4:x.(zzpk.low-zzpk.open)/zzpk.open@0.01
+   cond 0.1414  root 0.1382  all 0.1402  nodes 214 (178 cond)  id:x.(zzpk.open-zzpk.low)/zzpk.low@100
+-- zzwa.h: 1262 usable nodes (58 roots, 1204 conditional), PM rows 10,750,902,845
+   451 nodes kept on 72,000 sampled rows
+   pool: 1747 candidates inside [-7.195e+05, 3.1151e+05]
+   rank of the matrix column among 1748: 1581
+   cond 0.1656  root 0.2507  all 0.1973  nodes 450 (392 cond)  -id:x.zzgh.ncancel/zzgh.nb|cnt@0.01
+   cond 0.1687  root 0.2563  all 0.2013  nodes 450 (392 cond)  -id:x.zzgh.ncancel/zzgh.nb|vol@0.01
+   cond 0.1687  root 0.2567  all 0.2015  nodes 450 (392 cond)  -id:x.zzgh.ncancel/zzgh.nb@0.01
+   cond 0.1687  root 0.2563  all 0.2014  nodes 450 (392 cond)  -id:x.zzgh.ncancel/zzgh.nb|snappx@0.01
+   cond 0.1690  root 0.2185  all 0.1874  nodes 451 (393 cond)  abs4:x.(px-cdc.lp)/cdc.lp@1e4
+   cond 0.1690  root 0.2185  all 0.1874  nodes 451 (393 cond)  abs4:x.(px-cdc.lp)/px@1e4
+   cond 0.1690  root 0.2185  all 0.1874  nodes 451 (393 cond)  abs4:x.(px-zzxo.last)/px@1e4
+   cond 0.1690  root 0.2185  all 0.1874  nodes 451 (393 cond)  abs4:x.(px-zzxo.last)/zzxo.last@1e4
+-- zzwa.e: 2177 usable nodes (0 roots, 2177 conditional), PM rows 3,952,774,387
+   596 nodes kept on 72,000 sampled rows
+   pool: 301 candidates inside [0, 1]
+   rank of the matrix column among 302: 249
+   cond 0.0845  root nan  all 0.0845  nodes 596 (596 cond)  id:x.zzgh.ncancel/zzgh.ntrade@1
+   cond 0.0845  root nan  all 0.0845  nodes 596 (596 cond)  abs4:x.zzgh.ncancel/zzgh.ntrade@1e-4
+   cond 0.0858  root nan  all 0.0858  nodes 596 (596 cond)  abs4:x.(px-zzgh.ncancel)/zzgh.ntrade@1e-4
+   cond 0.0921  root nan  all 0.0921  nodes 596 (596 cond)  abs4:rete150@1
+   cond 0.0948  root nan  all 0.0948  nodes 596 (596 cond)  abs4:x.(zzxu.p-zzxu.last)/zzxu.last@0.01
+   cond 0.0948  root nan  all 0.0948  nodes 596 (596 cond)  abs4:x.(zzxu.last-zzxu.p)/zzxu.p@0.01
+   cond 0.0948  root nan  all 0.0948  nodes 596 (596 cond)  abs4:x.(px-zzpk.p)/zzpk.low@0.01
+   cond 0.0948  root nan  all 0.0948  nodes 596 (596 cond)  abs4:x.(px-zzxu.p)/zzxu.low@0.01
+-- zzkp: 1182 usable nodes (55 roots, 1127 conditional), PM rows 10,384,414,134
+   406 nodes kept on 72,000 sampled rows
+   pool: 3810 candidates inside [-1, 1]
+   rank of the matrix column among 3811: 3622
+   cond 0.0629  root 0.0424  all 0.0559  nodes 406 (351 cond)  dmi:x.(px-zzeb.p)/zzeb.p@100
+   cond 0.0630  root 0.0502  all 0.0586  nodes 406 (351 cond)  neu:ret120@100
+   cond 0.0630  root 0.0426  all 0.0560  nodes 406 (351 cond)  dmi:x.(px-zzeb.p)/px@100
+   cond 0.0630  root 0.0426  all 0.0560  nodes 406 (351 cond)  -dmi:x.zzeb.p/px@100
+   cond 0.0631  root 0.0437  all 0.0564  nodes 406 (351 cond)  neu:x.zzbd.rEmaS@1e4
+   cond 0.0634  root 0.0473  all 0.0579  nodes 406 (351 cond)  dmi:ret120@100
+   cond 0.0639  root 0.0436  all 0.0569  nodes 406 (351 cond)  neu:rete150@1e4
+   cond 0.0656  root 0.0488  all 0.0598  nodes 406 (351 cond)  neu:lpe200@100
+-- zzlk: 981 usable nodes (41 roots, 940 conditional), PM rows 5,886,174,206
+   199 nodes kept on 72,000 sampled rows
+   pool: 3810 candidates inside [-1, 1]
+   rank of the matrix column among 3811: 1171
+   cond 0.0835  root 0.0923  all 0.0872  nodes 199 (158 cond)  id:x.(zzgh.ntrade-zzgh.norder)/zzgh.norder@1
+   cond 0.0857  root 0.0971  all 0.0905  nodes 199 (158 cond)  -id:position_in_limit_band@1
+   cond 0.0898  root 0.1080  all 0.0974  nodes 199 (158 cond)  -id:amount_share_orders_over_200k_cny_since_0930@1
+   cond 0.1167  root 0.1008  all 0.1101  nodes 199 (158 cond)  -id:x.(px-zzvx.low)/zzvx.trDEmaD@1
+   cond 0.1167  root 0.1008  all 0.1101  nodes 199 (158 cond)  -id:x.(px-zzvx.low)/zzvx.trDEmaO@1
+   cond 0.1167  root 0.1008  all 0.1101  nodes 199 (158 cond)  -id:x.(px-zzvx.low)/zzvx.trEmaD@1
+   cond 0.1167  root 0.1008  all 0.1101  nodes 199 (158 cond)  -id:x.(px-zzvx.low)/zzvx.trEmaO@1
+   cond 0.1193  root 0.1008  all 0.1115  nodes 199 (158 cond)  -id:stoch@1
+-- zzxt3: 1807 usable nodes (26 roots, 1781 conditional), PM rows 6,226,492,061
+   435 nodes kept on 72,000 sampled rows
+   pool: 3093 candidates inside [-9.6742, 7.3376]
+   rank of the matrix column among 3094: 1749
+   cond 0.1416  root 0.1179  all 0.1360  nodes 434 (408 cond)  -id:x.zzgh.nb|ordvol/zzgh.nsnap@100
+   cond 0.1451  root 0.1399  all 0.1439  nodes 433 (407 cond)  dm:x.(zzgh.nb|ordvol-zzgh.nsnap)/zzgh.nsnap@100
+   cond 0.1451  root 0.1399  all 0.1439  nodes 433 (407 cond)  dm:x.zzgh.nb|ordvol/zzgh.nsnap@100
+   cond 0.1454  root 0.1407  all 0.1443  nodes 434 (408 cond)  dm:x.(zzgh.nb|ord-zzgh.nsnap)/zzgh.nsnap@100
+   cond 0.1454  root 0.1407  all 0.1443  nodes 434 (408 cond)  dm:x.zzgh.nb|ord/zzgh.nsnap@100
+   cond 0.1474  root 0.0185  all 0.1170  nodes 432 (406 cond)  -id:x.zzgh.ncancel@1e-4
+   cond 0.1505  root 0.1283  all 0.1453  nodes 434 (408 cond)  -id:x.zzgh.nb|ord/zzgh.nsnap@100
+   cond 0.1539  root 0.1425  all 0.1513  nodes 433 (407 cond)  id:x.zzgh.nb|ord/zzgh.nsnap@100
+[02:54:10] r155 b done

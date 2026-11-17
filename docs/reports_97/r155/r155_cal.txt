@@ -1,0 +1,52 @@
+  20261112: CED date=20261112.ec9694de: 26 industry dummies, 46 exposures
+20261112: 72,000 rows, 4 model files, trusted ALL columns
+   970 bases; pool transforms id,-id,dm,-dm,dmi,-dmi,neu,-neu,abs4,srank
+-- zzup: 5927 usable nodes (7 roots, 5920 conditional), PM rows 32,783,794,163
+   1301 nodes kept on 72,000 sampled rows
+   pool: 108 candidates inside [0.94734, 1.0569]
+   rank of the matrix column among 109: 1
+   cond 0.0477  root 0.1251  all 0.0491  nodes 1299 (1292 cond)  X:zzup
+   cond 0.0609  root 0.1587  all 0.0626  nodes 1299 (1292 cond)  -id:x.(zzgh.nb|vol-zzgh.nsnap)/zzgh.nsnap@1
+   cond 0.0609  root 0.1587  all 0.0626  nodes 1299 (1292 cond)  abs4:x.(zzgh.nb|vol-zzgh.nsnap)/zzgh.nsnap@1e-4
+   cond 0.0609  root 0.1588  all 0.0626  nodes 1299 (1292 cond)  -id:x.(zzgh.nb|snappx-zzgh.nsnap)/zzgh.nsnap@1
+   cond 0.0609  root 0.1588  all 0.0626  nodes 1299 (1292 cond)  abs4:x.(zzgh.nb|snappx-zzgh.nsnap)/zzgh.nsnap@1e-4
+   cond 0.0609  root 0.1588  all 0.0626  nodes 1299 (1292 cond)  -id:x.(zzgh.nb-zzgh.nsnap)/zzgh.nsnap@1
+   cond 0.0609  root 0.1588  all 0.0626  nodes 1299 (1292 cond)  abs4:x.(zzgh.nb-zzgh.nsnap)/zzgh.nsnap@1e-4
+   cond 0.0628  root 0.1662  all 0.0646  nodes 1299 (1292 cond)  -id:x.(zzgh.nb|cnt-zzgh.nsnap)/zzgh.nsnap@1
+-- zzvx.a: 2436 usable nodes (27 roots, 2409 conditional), PM rows 8,690,205,702
+   551 nodes kept on 72,000 sampled rows
+   pool: 393 candidates inside [0, 2.4875]
+   rank of the matrix column among 394: 280
+   cond 0.1031  root 0.0181  all 0.0852  nodes 551 (524 cond)  abs4:x.zzgh.nb/zzgh.nb|snappx@1e-4
+   cond 0.1031  root 0.0179  all 0.0852  nodes 551 (524 cond)  id:x.zzgh.nb/zzgh.nb|snappx@1
+   cond 0.1034  root 0.0263  all 0.0872  nodes 551 (524 cond)  id:x.zzgh.nb/zzgh.nb|vol@1
+   cond 0.1036  root 0.0268  all 0.0875  nodes 551 (524 cond)  abs4:x.zzgh.nb/zzgh.nb|vol@1e-4
+   cond 0.1050  root 0.0193  all 0.0870  nodes 551 (524 cond)  id:x.zzgh.nb|snappx/zzgh.nb|vol@1
+   cond 0.1050  root 0.0195  all 0.0871  nodes 551 (524 cond)  abs4:x.zzgh.nb|snappx/zzgh.nb|vol@1e-4
+   cond 0.1051  root 0.0176  all 0.0867  nodes 551 (524 cond)  id:x.(px-zzvx.rEmaD)/zzvx.low@1
+   cond 0.1051  root 0.0176  all 0.0867  nodes 551 (524 cond)  abs4:x.(px-zzvx.rEmaD)/zzvx.low@1e-4
+-- zzxu.a: 5768 usable nodes (0 roots, 5768 conditional), PM rows 14,628,032,167
+   1078 nodes kept on 72,000 sampled rows
+   pool: 223 candidates inside [0, 0.77575]
+   rank of the matrix column among 224: 181
+   cond 0.0364  root nan  all 0.0364  nodes 1078 (1078 cond)  id:x.zzgh.ncancel/zzgh.norder@1
+   cond 0.0364  root nan  all 0.0364  nodes 1078 (1078 cond)  abs4:x.zzgh.ncancel/zzgh.norder@1e-4
+   cond 0.0365  root nan  all 0.0365  nodes 1078 (1078 cond)  abs4:x.(px-zzgh.ncancel)/zzgh.norder@1e-4
+   cond 0.0453  root nan  all 0.0453  nodes 1078 (1078 cond)  abs4:x.zzgh.nb|cnt@1e-4
+   cond 0.0556  root nan  all 0.0556  nodes 1078 (1078 cond)  abs4:net_buy_amount_share_orders_under_40k_cny_300s@1e-4
+   cond 0.0562  root nan  all 0.0562  nodes 1078 (1078 cond)  id:x.zzgh.nsnap/zzgh.ntrade@1
+   cond 0.0562  root nan  all 0.0562  nodes 1078 (1078 cond)  abs4:x.zzgh.nsnap/zzgh.ntrade@1e-4
+   cond 0.0567  root nan  all 0.0567  nodes 1078 (1078 cond)  abs4:x.(px-zzgh.nsnap)/zzgh.ntrade@1e-4
+-- zzxu.b: 5236 usable nodes (0 roots, 5236 conditional), PM rows 17,990,964,970
+   1024 nodes kept on 72,000 sampled rows
+   pool: 384 candidates inside [0, 2.2827]
+   rank of the matrix column among 385: 1
+   cond 0.0809  root nan  all 0.0809  nodes 1023 (1023 cond)  X:zzxu.b
+   cond 0.1045  root nan  all 0.1045  nodes 1024 (1024 cond)  abs4:x.(px-zzgh.nsnap)/zzgh.nsnap@1e-4
+   cond 0.1088  root nan  all 0.1088  nodes 1022 (1022 cond)  abs4:x.zzgh.nb/zzgh.nb|vol@1e-4
+   cond 0.1089  root nan  all 0.1089  nodes 1022 (1022 cond)  id:x.zzgh.nb/zzgh.nb|vol@1
+   cond 0.1100  root nan  all 0.1100  nodes 1024 (1024 cond)  -id:x.(px-zzgh.nsnap)/zzgh.nsnap@1
+   cond 0.1124  root nan  all 0.1124  nodes 1022 (1022 cond)  abs4:x.zzgh.nb|vol/zzgh.nb@1e-4
+   cond 0.1124  root nan  all 0.1124  nodes 1022 (1022 cond)  id:x.zzgh.nb|vol/zzgh.nb@1
+   cond 0.1135  root nan  all 0.1135  nodes 1022 (1022 cond)  id:x.(px-zzgh.nb|vol)/px@1
+[02:52:27] r155 cal done
