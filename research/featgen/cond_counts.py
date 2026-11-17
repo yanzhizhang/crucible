@@ -9,6 +9,12 @@ the count-weighted mean |our share - PM's share| over those nodes (missing value
 PM's 'none' missing type does: NaN -> 0). --calibrate hides each trusted column in turn and ranks its true values
 (the matrix column) among the candidates, to show the test's power. Read-only.
 
+--trusted all (R155) trusts EVERY column of our matrix on the paths: many more nodes, and the rows reaching a node are
+then ours, wrong columns included -- so the absolute error has a floor, but candidates for ONE column are compared on the
+same rows, and the right one should still come first (calibrate with the PM-state columns as targets and --pool).
+--pool adds every base x --pool-tr x --pool-scales that lands inside the column's training range (>= --pool-in of its
+values) and covers >= 20% of it, so the search is not limited to hand-picked candidates.
+
     python research/featgen/cond_counts.py --day 20260430 --x-dir data/full_0430 --base "data/full_0430/base_{date}.parquet" \
         --target zzro.a --cands "dmi:vfrac10@0.01,dm:vfrac10@0.01,neu:vfrac10@0.01" --models /work/crucible_data/models_gen/B
 """
@@ -27,6 +33,7 @@ sys.path.insert(0, str(HERE.parent / "pm_factors"))
 import pred_day as P  # noqa: E402
 from col_probe import trees  # noqa: E402
 from implied_scan import RAW, Day, raw_xs  # noqa: E402
+from model_atlas import infos  # noqa: E402
 from seg_fit import PEER, ced_rows, peer  # noqa: E402
 
 TRUSTED = "zzup,zzvx.a,zzxu.a,zzxu.b"
@@ -147,6 +154,12 @@ def main() -> None:
     ap.add_argument("--rows", type=int, default=200000, help="row sample (the node shares are row-count based, a sample is enough)")
     ap.add_argument("--max-nodes", type=int, default=4000, help="keep the nodes with the most PM training rows")
     ap.add_argument("--workers", type=int, default=32)
+    ap.add_argument("--pool", action="store_true", help="add every base x --pool-tr x --pool-scales that fits the column's training range")
+    ap.add_argument("--pool-tr", default="id,-id,dm,-dm,dmi,-dmi,neu,-neu,abs4,srank")
+    ap.add_argument("--pool-scales", default="1,1e4,100,0.01,1e-4")
+    ap.add_argument("--pool-in", type=float, default=0.98)
+    ap.add_argument("--pool-re", default="", help="only bases matching this regex go into the pool")
+    ap.add_argument("--top", type=int, default=8)
     a = ap.parse_args()
     d = a.day
     names = P.feature_names(a.feature_csv)
@@ -154,20 +167,21 @@ def main() -> None:
     D = Day(d, Path(a.x_dir.format(mmdd=d[4:], date=d)), Path(a.base.format(date=d, mmdd=d[4:])), names,
             [Path(e.format(date=d, mmdd=d[4:])) for e in a.extra.split(",") if e])
     D.ind = D.E = None
-    if any(c.split(":")[0] in PEER for c in a.cands.split(",") if c):
+    if any(c.split(":")[0] in PEER for c in a.cands.split(",") if c) or (a.pool and PEER & set(a.pool_tr.split(","))):
         ced_rows(D, a.ced_dc, d)
     files = P.model_files(a.models, d, a.fits.split(","), a.subs.split(","))
-    trusted = {ix[t] for t in a.trusted.split(",") if t in ix}
+    trusted = set(range(len(names))) if a.trusted == "all" else {ix[t] for t in a.trusted.split(",") if t in ix}
+    seg = [infos(f) for f in files]
     rng = np.random.default_rng(0)
     rows = np.sort(rng.choice(D.X.shape[0], min(a.rows, D.X.shape[0]), replace=False))
-    print(f"{d}: {D.X.shape[0]:,} rows, {len(files)} model files, trusted {[names[j] for j in sorted(trusted)]}")
+    print(f"{d}: {D.X.shape[0]:,} rows, {len(files)} model files, trusted {'ALL columns' if a.trusted == 'all' else [names[j] for j in sorted(trusted)]}")
     runs = []
     if a.calibrate:
         for j in sorted(trusted):
             pool = [f"X:{names[j]}"] + [f"id:{b}" for b in sorted(D.bases)[: a.max_bases]] + [c for c in a.cands.split(",") if c]
             runs.append((j, trusted - {j}, pool))
-    if a.target:
-        runs.append((ix[a.target], trusted - {ix[a.target]}, [f"X:{a.target}"] + [c for c in a.cands.split(",") if c]))
+    for tg in [t for t in a.target.split(",") if t in ix]:
+        runs.append((ix[tg], trusted - {ix[tg]}, [f"X:{tg}"] + [c for c in a.cands.split(",") if c]))
     for k, tr_set, pool in runs:
         nd = nodes(files, tr_set, k)
         roots = sum(1 for p, *_ in nd if not p)
@@ -185,6 +199,32 @@ def main() -> None:
                     continue
             if np.isfinite(v).mean() >= 0.5:
                 work.append((spec, v))
+        if a.pool:
+            import re
+            rg = [sg[k] for sg in seg if sg[k]]
+            if rg:
+                lo, hi = min(r[0] for r in rg), max(r[1] for r in rg)
+                tol = 1e-9 * max(abs(lo), abs(hi), 1e-12)
+                n0 = len(work)
+                for b in sorted(D.bases):
+                    if a.pool_re and not re.search(a.pool_re, b):
+                        continue
+                    for tr in a.pool_tr.split(","):
+                        _, v0 = cand_values(D, f"{tr}:{b}")
+                        if v0 is None:
+                            continue
+                        f0 = v0[rows]
+                        f0 = f0[np.isfinite(f0)]
+                        if f0.size < 0.5 * rows.size:
+                            continue
+                        q0, q1 = np.quantile(f0, [0.001, 0.999])
+                        for sc in a.pool_scales.split(","):
+                            c_ = float(sc)
+                            a0, a1 = sorted((q0 * c_, q1 * c_))
+                            inside = float(((f0 * c_ >= lo - tol) & (f0 * c_ <= hi + tol)).mean())
+                            if inside >= a.pool_in and hi > lo and (min(a1, hi) - max(a0, lo)) / (hi - lo) >= 0.2:
+                                work.append((f"{tr}:{b}@{sc}", v0 * c_))
+                print(f"   pool: {len(work) - n0} candidates inside [{lo:.5g}, {hi:.5g}]")
         if a.workers > 1 and sys.platform != "win32":
             import multiprocessing as mp
             with mp.get_context("fork").Pool(a.workers) as pool_:
@@ -194,7 +234,7 @@ def main() -> None:
         res.sort(key=lambda r: (np.inf if not np.isfinite(r[0]) else r[0]))
         true_rank = next((i for i, r in enumerate(res) if r[1].startswith("X:")), -1)
         print(f"   rank of the matrix column among {len(res)}: {true_rank + 1}")
-        for r in res[:8]:
+        for r in res[: a.top]:
             print(f"   cond {r[4]:.4f}  root {r[3]:.4f}  all {r[2]:.4f}  nodes {r[5]} ({r[6]} cond)  {r[1]}")
 
 
