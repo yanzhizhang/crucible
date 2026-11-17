@@ -1,0 +1,27 @@
+# R150 on 97 (done 00:28:54 sts / 00:28:59 inv / 00:29:08 logs). Read-only; nothing run from the libraries.
+== inv /data/sht-stg-lib
+-- config2_HS300.json 1181 bytes 2026-11-16 10:55:17 md5 8d5d64aa2510
+-- plugins/libcatchRun.so 47989616 bytes 2026-11-16 10:48:29 md5 5aefa9b4e443 | sections: 1 .debug_info 2 .debug_line 1 .symtab
+   config keys present as strings: ahubs | decision-log format: mp: {}, fa: {}, vpen: {}, vr: {}, poscst: {}, cpos: {}, asq: {}, hs: {}
+   [dwarf_members] 9289 structures read, 0 with a wanted member
+-- plugins/libshtst.a 66277378 bytes 2026-11-16 10:48:29 md5 ea42292a8bd8 | sections: 56 .debug_info 84 .debug_line 28 .symtab
+   config keys present as strings: tqub nmvcst tpub adur vpen rvts ahubs
+   struct qAlpEngine size 248: 7 members, matched ['adur']: +0 sids +24 sidsIdx +80 name2Alpha +136 qAlps_ +160 perEpoch +184 adur +192 datalock
+   struct Alg size 232: 28 members, matched [adur asf nmvcst rvts tpub tqub vpen]:
+    +0 aIdx +8 cfg +16 wsrh +24 sid +28 sidIdx +32 date +64 mb +72 vr +80 msr +88 poscst +96 adur +104 tqub +112 nmvcst +120 tpub
+    +128 cr +136 rvts +144 asf +152 vpen +160 iskcsh +161 iscysz +168 theop +176 executp +184 prevSOEpochSec +192 prevSORejEpochSec
+    +200 ourVol +208 sBook +216 posclzer +224 debug
+   [dwarf_members] 18607 structures read, 2 with a wanted member
+== sts /work/crucible_data/pm_stsfile: dirs ex (27), index, sid2symbol (16), stats/sod (43); newest files 20261116 08:45 (sid2symbol, index, ex, sod)
+   no small text file names a model (model_s*/tk5m/livev1/lgb/models/): none found
+== logs: decision days 20261106, 20261112, 20261113 (1106 lacks ev_* columns)
+ 20261113: 761,279 decisions; distinct values per stock: ev_vpen 2330 ev_vr 1 ev_poscst 1 ev_cpos 3 ev_asq 3 ev_hs 94 ev_mp 84 (2445 decisions/stock)
+ caps: |cpos x mp| max 2.261e+05, share > nmvcst 1e7 0.0000; share of cpos < 0 0.2943; asq max 1.41e+04; |executp x mp| max 2.236e+05
+ all day:  vpen q10/50/90 3.56e-05 / 6.63e-04 / 9.36e-04; steadiest vpen/-lthr q90/q10 3.68 (no identity all day)
+ <13:00 (75,287):     vpen / 1 = 1e-07 EXACT (q10 = q90 = 1e-07, q90/q10 1.0000, n 75,240)  <- cfg vpen, before rvts
+ 13:00-14:45 (614,763): vpen / cfg.asf median 8.32e-4 q90/q10 2.99 (vpen rising); -lthr/1 median 2.59e-4
+ >=14:45 (71,229):    vpen / 1 median 9.657e-04 q10 9.447e-04 q90 9.864e-04 q90/q10 1.044 (~1e-3, the PosClzer constant 0.001)
+ other day (1112) same pattern: vpen = 1e-07 exactly before 13:00 (n 103,014, q90/q10 1.0000); ~9.66e-4 after 14:45 (q90/q10 1.044)
+ vr / hs ~ 670 (q90/q10 4.8, no identity); poscst / asq ~ 344 (q90/q10 26)
+# READING: rvts = 13:00 switches vpen from the cfg constant 1e-07 to a ramp that reaches ~1e-3 by 14:45 (PosClzer::GVpen
+# constants 0.001 / 1). So there IS an afternoon vpen ramp, starting at rvts, not the invented 14:15 one.

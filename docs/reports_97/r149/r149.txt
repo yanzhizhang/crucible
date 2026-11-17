@@ -1,0 +1,15 @@
+# R149 on 97 (engine restructured per family; done 00:27:31, 81 lines). 55 files moved as one md5-gated tar+base64 paste.
+== 1 selftest
+building /work/crucible/research/engine/cpp/build/engine ...
+built-in rule table: 22 rules, equal to the Python families' table
+engine: 20 stocks, 80000 events, 22 rules, 4 threads, 0.01s
+20 stocks, 55180 day-end values + 36660 mark values compared, 0 mismatches
+== 2 families (table on 97 / screen): pinned ones incl. zzpk zzab zzup zzxu zzvx zzbd zzeb zzba zzqj zzeg zzmh zzvm zzxo cdc; guessed zzui zzhj zzfb zzjb zzgh zzaa zzag zzal zzav zzbo zzbt zzdw zzef; open zzcb zztx
+== 3 20261113 before / after
+engine: 300 stocks, 64138233 events, 22 rules, 32 threads, 0.30s
+20261113: state at 240 marks x 300 stocks -> data/engine_fam/marks_20261113.parquet
+20261113: stop 54149.897 -> data/engine_fam/engine_20261113.json.gz (21s total)
+day-end: 300 / 300 stocks, 0 values compared, 0 differ, 300 stocks with a different key set
+marks: 72,000 rows x 67 columns (0 columns not shared), 0 values differ
+[00:27:31] r149 done
+# NOTE: day-end compared 0 values (every stock's key set differs from the old engine output), so the day-end check is VACUOUS.
