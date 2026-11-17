@@ -1,21 +1,17 @@
-"""zzvx: 30 s averages of the day range (trEma*), a second, lagging series (trDEma*) and a ratio (rEma*); day high / low.
+"""zzvx: the 30 s average of the day range (trEma*), its double average (trDEma*) and the average of their ratio (rEma*); day high / low.
 
-SUBJECT TO CHANGE: trEma* = the snapshot's own high - low, exact against PM (R160). trDEma* is below it on ~9-13% of
-stock-days, mostly by 1e-6..1e-4 relative, with the same weight and clock -- the footprint of a DOUBLE average (the
-average of the average), which lags a range that only grows. Under test ("|tag" rows are scored against the key before
-the bar): "|dema" = the 30 s average of trEma's value; rEma as the average of range / trEma ("|rte"), range / the double
-average ("|rtd"), trEma / the double average ("|red"). The untagged trDEma* / rEma* rules are the old ones (range, 1).
+trEma* = average of the snapshot's own high - low; trDEma* = the 30 s average of trEma's value (a double average: it lags a
+range that only grows, so it is <= trEma and equal once settled); rEma* = the 30 s average of trEma / trDEma (1 when settled).
+All three equal PM's day-end file on 1112 / 1113 (R162: 1.0000, 1.0000, 0.9967-1.0000). The D / O twins are the same number.
 """
-from .base import GUESSED, Family
+from .base import PINNED, Family
 
 
 class Zzvx(Family):
-    stem, status = "zzvx", GUESSED
-    evidence = "state: high / low and trEma* equal PM's .jz (R160: 1.0000); trDEma* 0.91-0.92 and rEma* 0.85-0.89 with the day range / 1; column zzvx.a wrong scale (R148)"
-    emas = {"zzvx.trEmaD": ("snap", 30, "hl"), "zzvx.trEmaO": ("snap", 30, "hl"), "zzvx.trDEmaD": ("snap", 30, "hl"),
-            "zzvx.trDEmaO": ("snap", 30, "hl"), "zzvx.rEmaD": ("snap", 30, "one"), "zzvx.rEmaO": ("snap", 30, "one"),
-            "zzvx.trDEmaD|dema": ("snap", 30, "ema_tr"), "zzvx.rEmaD|rte": ("snap", 30, "r_tr_ema"), "zzvx.rEmaD|rtd": ("snap", 30, "r_tr_dema"),
-            "zzvx.rEmaD|red": ("snap", 30, "r_ema_dema")}
+    stem, status = "zzvx", PINNED
+    evidence = "state: high / low, trEma*, trDEma* (double average) and rEma* (average of trEma / trDEma) equal PM's .jz (R162); column zzvx.a open (lead: rEma itself)"
+    emas = {"zzvx.trEmaD": ("snap", 30, "hl"), "zzvx.trEmaO": ("snap", 30, "hl"), "zzvx.trDEmaD": ("snap", 30, "ema_tr"),
+            "zzvx.trDEmaO": ("snap", 30, "ema_tr"), "zzvx.rEmaD": ("snap", 30, "r_ema_dema"), "zzvx.rEmaO": ("snap", 30, "r_ema_dema")}
 
     def dump(self, st, out):
         out["zzvx.high"], out["zzvx.low"] = st.high, st.low

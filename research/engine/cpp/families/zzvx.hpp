@@ -1,5 +1,5 @@
-// zzvx: 30 s averages of the day range (trEma*, exact), a lagging second series (trDEma*: the double average is under test) and a ratio (rEma*).
-// SUBJECT TO CHANGE: trDEma* / rEma* are right only where PM's two ranges agree; the "|..." rules are the candidates under test.
+// zzvx: the 30 s average of the day range (trEma*), its double average (trDEma* = the 30 s average of trEma's value) and the
+// average of their ratio (rEma* = average of trEma / trDEma); day high / low. All equal PM's day-end file (R162).
 #pragma once
 
 #include "base.hpp"
@@ -8,18 +8,14 @@ namespace eng {
 
 struct zzvx : family {
     static constexpr const char* stem = "zzvx";
-    static constexpr status st = status::guessed;
+    static constexpr status st = status::pinned;
     static void rules(std::vector<rule>& o) {
         o.push_back(family_rule("zzvx.trEmaD", "snap", 30, "hl"));
         o.push_back(family_rule("zzvx.trEmaO", "snap", 30, "hl"));
-        o.push_back(family_rule("zzvx.trDEmaD", "snap", 30, "hl"));
-        o.push_back(family_rule("zzvx.trDEmaO", "snap", 30, "hl"));
-        o.push_back(family_rule("zzvx.rEmaD", "snap", 30, "one"));
-        o.push_back(family_rule("zzvx.rEmaO", "snap", 30, "one"));
-        o.push_back(family_rule("zzvx.trDEmaD|dema", "snap", 30, "ema_tr"));
-        o.push_back(family_rule("zzvx.rEmaD|rte", "snap", 30, "r_tr_ema"));
-        o.push_back(family_rule("zzvx.rEmaD|rtd", "snap", 30, "r_tr_dema"));
-        o.push_back(family_rule("zzvx.rEmaD|red", "snap", 30, "r_ema_dema"));
+        o.push_back(family_rule("zzvx.trDEmaD", "snap", 30, "ema_tr"));
+        o.push_back(family_rule("zzvx.trDEmaO", "snap", 30, "ema_tr"));
+        o.push_back(family_rule("zzvx.rEmaD", "snap", 30, "r_ema_dema"));
+        o.push_back(family_rule("zzvx.rEmaO", "snap", 30, "r_ema_dema"));
     }
     void dump(std::string& o, const tape& t) {
         put(o, "zzvx.high", t.high);

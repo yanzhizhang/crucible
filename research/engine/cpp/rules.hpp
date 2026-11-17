@@ -17,7 +17,7 @@ inline double pymax(double a, double b) { return b > a ? b : a; }
 inline double pymin(double a, double b) { return b < a ? b : a; }
 
 enum class what : int { price, mid, logp, hl, hl0, hl_valid, tr_open, logret, one, snap_px, hl_snap, rvwap, hl_trade, tro, price0, price_pc,
-                        last_px, span, mh_dd2, tr_pc, tr_ratio, trade_ratio, hl_sp, hl_spall, hl_cont, r_sp, r_spall, r_cont, ema_tr, r_tr_ema, r_tr_dema, r_ema_dema };
+                        last_px, span, mh_dd2, tr_pc, tr_ratio, trade_ratio, hl_sp, hl_spall, hl_cont, r_sp, r_spall, r_cont, ema_tr, r_ema_dema };
 enum class clock_mod : int { none, wall, exch, o930 };
 
 inline double tc(double s) { return s <= 41400 ? s - 34200 : (s < 46800 ? 7200.0 : s - 46800 + 7200); }
@@ -60,8 +60,6 @@ inline what parse_what(const std::string& w) {
     if (w == "r_spall") return what::r_spall;
     if (w == "r_cont") return what::r_cont;
     if (w == "ema_tr") return what::ema_tr;
-    if (w == "r_tr_ema") return what::r_tr_ema;
-    if (w == "r_tr_dema") return what::r_tr_dema;
     if (w == "r_ema_dema") return what::r_ema_dema;
     throw std::runtime_error("unknown value kind " + w);
 }
@@ -101,8 +99,6 @@ inline double snap_value(const tape& st, what w) {
     case what::r_spall: { double v = st.sp_hi - st.sp_lo; return v > 0 ? (st.hi_f - st.lo_f) / v : qnan; }
     case what::r_cont: { double v = st.c_high - st.c_low; return v > 0 ? (st.hi_f - st.lo_f) / v : qnan; }
     case what::ema_tr: return st.ema_value(st.ix_vx_tr);  // zzvx: the range average itself as an input (double smoothing)
-    case what::r_tr_ema: { double d = st.ema_value(st.ix_vx_tr); return d > 0 ? (st.hi_f - st.lo_f) / d : qnan; }
-    case what::r_tr_dema: { double d = st.ema_value(st.ix_vx_dema); return d > 0 ? (st.hi_f - st.lo_f) / d : qnan; }
     case what::r_ema_dema: { double d = st.ema_value(st.ix_vx_dema); return d > 0 ? st.ema_value(st.ix_vx_tr) / d : qnan; }
     case what::tr_pc: return pymax(st.hi_f, st.pc) - pymin(st.lo_f, st.pc);  // true range against the previous close
     case what::tr_ratio: return st.hi_f - st.lo_f > 0 ? (pymax(st.hi_f, st.pc) - pymin(st.lo_f, st.pc)) / (st.hi_f - st.lo_f) : qnan;
