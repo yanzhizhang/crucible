@@ -122,13 +122,17 @@ struct tape {
     double bid = qnan, ask = qnan, mid = qnan, hi_f = qnan, lo_f = qnan;
 
     int ix_zzxu_a = -1;  // index of the "zzxu.a" rule (the zzxu band's width), -1 when the table has none
+    int ix_vx_tr = -1, ix_vx_dema = -1;  // "zzvx.trEmaD" and "zzvx.trDEmaD|dema": averages read as inputs of other rules
 
     explicit tape(const std::vector<rule>& rules) : emas(rules.size()) {
         for (std::size_t i = 0; i < rules.size(); ++i) {
             emas[i].k = std::log(2.0) / rules[i].half;
             if (rules[i].name == "zzxu.a") ix_zzxu_a = static_cast<int>(i);
+            if (rules[i].name == "zzvx.trEmaD") ix_vx_tr = static_cast<int>(i);
+            if (rules[i].name == "zzvx.trDEmaD|dema") ix_vx_dema = static_cast<int>(i);
         }
     }
+    double ema_value(int i) const { return (i >= 0 && emas[i].w != 0) ? emas[i].s / emas[i].w : qnan; }
     // Seed rule i from yesterday's sum / wgt per its seed tag (Python Stock.__init__).
     void seed(std::size_t i, const std::string& tag, double sum, double wgt) {
         if (wgt == 0 || tag == "-") return;

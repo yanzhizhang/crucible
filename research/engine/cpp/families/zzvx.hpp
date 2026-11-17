@@ -1,4 +1,4 @@
-// zzvx: 30 s averages of the day range (trEma*, exact), of a narrower range (trDEma*) and of their ratio (rEma*); day high / low.
+// zzvx: 30 s averages of the day range (trEma*, exact), a lagging second series (trDEma*: the double average is under test) and a ratio (rEma*).
 // SUBJECT TO CHANGE: trDEma* / rEma* are right only where PM's two ranges agree; the "|..." rules are the candidates under test.
 #pragma once
 
@@ -16,12 +16,10 @@ struct zzvx : family {
         o.push_back(family_rule("zzvx.trDEmaO", "snap", 30, "hl"));
         o.push_back(family_rule("zzvx.rEmaD", "snap", 30, "one"));
         o.push_back(family_rule("zzvx.rEmaO", "snap", 30, "one"));
-        o.push_back(family_rule("zzvx.trDEmaD|sp", "snap", 30, "hl_sp"));
-        o.push_back(family_rule("zzvx.trDEmaD|spall", "snap", 30, "hl_spall"));
-        o.push_back(family_rule("zzvx.trDEmaD|cont", "snap", 30, "hl_cont"));
-        o.push_back(family_rule("zzvx.rEmaD|rsp", "snap", 30, "r_sp"));
-        o.push_back(family_rule("zzvx.rEmaD|rspall", "snap", 30, "r_spall"));
-        o.push_back(family_rule("zzvx.rEmaD|rcont", "snap", 30, "r_cont"));
+        o.push_back(family_rule("zzvx.trDEmaD|dema", "snap", 30, "ema_tr"));
+        o.push_back(family_rule("zzvx.rEmaD|rte", "snap", 30, "r_tr_ema"));
+        o.push_back(family_rule("zzvx.rEmaD|rtd", "snap", 30, "r_tr_dema"));
+        o.push_back(family_rule("zzvx.rEmaD|red", "snap", 30, "r_ema_dema"));
     }
     void dump(std::string& o, const tape& t) {
         put(o, "zzvx.high", t.high);

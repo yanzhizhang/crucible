@@ -88,6 +88,14 @@ def snap_value(st: Stock, what: str) -> float:
         if what.startswith("hl_"):
             return v
         return (st.hi_f - st.lo_f) / v if v > 0 else math.nan
+    if what in ("ema_tr", "r_tr_ema", "r_tr_dema", "r_ema_dema"):  # zzvx: the range average itself as an input (double smoothing) and ratios
+        e, d = st.ema.get("zzvx.trEmaD"), st.ema.get("zzvx.trDEmaD|dema")
+        ev = e[0].value() if e else math.nan
+        dv = d[0].value() if d else math.nan
+        if what == "ema_tr":
+            return ev
+        num, den = (ev, dv) if what == "r_ema_dema" else (st.hi_f - st.lo_f, ev if what == "r_tr_ema" else dv)
+        return num / den if den > 0 else math.nan
     if what == "tr_pc":  # true range against the previous close: the day's range widened to include it
         return max(st.hi_f, st.pc) - min(st.lo_f, st.pc)
     if what == "tr_ratio":  # true range / the day's own range (1 unless the previous close is outside the range)

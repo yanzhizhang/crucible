@@ -1,9 +1,10 @@
-"""zzvx: 30 s averages of the day range (trEma*), of a narrower range (trDEma*) and of their ratio (rEma*); day high / low.
+"""zzvx: 30 s averages of the day range (trEma*), a second, lagging series (trDEma*) and a ratio (rEma*); day high / low.
 
-SUBJECT TO CHANGE: trEma* = the snapshot's own high - low, exact against PM (R160). trDEma* is narrower on ~9-13% of
-stock-days and rEma* is above 1 there; the rules below still set trDEma* to the day range and rEma* to 1. Candidates
-under test (scored against the key before the bar): the range of the snapshot PRICES in the continuous session ("|sp"),
-of all snapshot prices ("|spall"), of the continuous session's trades ("|cont"), and the day range over each ("|rsp" ...).
+SUBJECT TO CHANGE: trEma* = the snapshot's own high - low, exact against PM (R160). trDEma* is below it on ~9-13% of
+stock-days, mostly by 1e-6..1e-4 relative, with the same weight and clock -- the footprint of a DOUBLE average (the
+average of the average), which lags a range that only grows. Under test ("|tag" rows are scored against the key before
+the bar): "|dema" = the 30 s average of trEma's value; rEma as the average of range / trEma ("|rte"), range / the double
+average ("|rtd"), trEma / the double average ("|red"). The untagged trDEma* / rEma* rules are the old ones (range, 1).
 """
 from .base import GUESSED, Family
 
@@ -13,8 +14,8 @@ class Zzvx(Family):
     evidence = "state: high / low and trEma* equal PM's .jz (R160: 1.0000); trDEma* 0.91-0.92 and rEma* 0.85-0.89 with the day range / 1; column zzvx.a wrong scale (R148)"
     emas = {"zzvx.trEmaD": ("snap", 30, "hl"), "zzvx.trEmaO": ("snap", 30, "hl"), "zzvx.trDEmaD": ("snap", 30, "hl"),
             "zzvx.trDEmaO": ("snap", 30, "hl"), "zzvx.rEmaD": ("snap", 30, "one"), "zzvx.rEmaO": ("snap", 30, "one"),
-            "zzvx.trDEmaD|sp": ("snap", 30, "hl_sp"), "zzvx.trDEmaD|spall": ("snap", 30, "hl_spall"), "zzvx.trDEmaD|cont": ("snap", 30, "hl_cont"),
-            "zzvx.rEmaD|rsp": ("snap", 30, "r_sp"), "zzvx.rEmaD|rspall": ("snap", 30, "r_spall"), "zzvx.rEmaD|rcont": ("snap", 30, "r_cont")}
+            "zzvx.trDEmaD|dema": ("snap", 30, "ema_tr"), "zzvx.rEmaD|rte": ("snap", 30, "r_tr_ema"), "zzvx.rEmaD|rtd": ("snap", 30, "r_tr_dema"),
+            "zzvx.rEmaD|red": ("snap", 30, "r_ema_dema")}
 
     def dump(self, st, out):
         out["zzvx.high"], out["zzvx.low"] = st.high, st.low
