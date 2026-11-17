@@ -51,6 +51,8 @@ The sizing parameters, from the binary (R133 .rodata) and PM's decision logs on 
 | `pos`, `pp`, `cpos` | holding - base, pending, pos + pp | exact for 99.9 % / 100 % (R33) |
 | `vpen` | **1e-07 before 13:00, then 0.001 x sqrt((t-13:00)/(14:59-13:00))** | identity from the decision logs (R150 / R151): exactly the cfg value before rvts, same for every stock each second, sqrt ramp matches all 23 five-minute medians to 0.1 % |
 | EMS windows | 20 / 60 / 30 s | constants in `ct::EMA`, `Alg::onInnerMsg` (R133); which window is which is a guess |
+| EMS layout | `ct::EMA {vector<int> hlfs_, dim_, sums_, sqrSums_, weights_, lastEpoch_}`, `EMS : EMA {ret_}` | pmref step 4 (debug info): one EMS keeps a vector of half-lives and squared sums, so winsdQty's emsMktVol may be one of several half-lives. run_s's single `ems_tau_s` is a SIMPLIFICATION. |
+| alpha combination | `qLive::qAlp {alphaName, alphaIdx, dur, weight, ...}`, `qAlpEngine {..., adur}` | pmref step 4: each named alpha has a duration and a weight. This matches `fac`'s alpha_dur 0.03. The reading to carry: fa = weighted sum over named alphas. sc.p3.json's `adur` is the alpha engine's field (lead). |
 | cancel | ~5.3 s median, retry on failure | 224 orders (6 s was one sample in R33); OnFCM retries |
 | re-place | ~0.7 s after the cancel, 95 % same side, often before the ack | 224 orders |
 | send gate | only ~2.6 % of gated rows send (classifier AUC 0.65) | rule unknown |
@@ -122,7 +124,7 @@ The fitted size explains two things in PM's logs:
 - the cross / join split (`cross_k`)
 - the meaning of sc.p3.json's `tqub` / `nmvcst` (applied as caps) and of `tpub`, `adur`, `rvts`, `neg_nmvcst` (unused)
 - cap = base (`gap_frac`), now only the fallback for stocks without `mb`; with `mb` the cap is `poscst` (its use as the |gap| cap is the guess, its value is an identity)
-- the EMS window (`ems_tau_s`)
+- the EMS window (`ems_tau_s`): a single tau, while PM's EMS has a vector of half-lives (simplification)
 - the hs form of `lthr` instead of PM's vpen^2 form
 
 Not modelled: PM's `vr` (a volatility ratio, p50 0.18). IDENTITY (R151): `vr` = the same day's stsfile stats/sod `vr`.
