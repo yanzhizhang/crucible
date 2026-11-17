@@ -1,0 +1,33 @@
+######## single_fill 20261112, generation C
+20261112: 72,000 rows; baseline all 0.6068  first30m 0.5942
+  zzvx.a:1/b:x.zzvx.rEmaD                           all +0.0000  first30m +0.0000
+  zzvx.a:id:x.zzvx.rEmaD                            all -0.0007  first30m +0.0077
+  zzvx.a:sqrt:x.zzvx.rEmaD                          all -0.0010  first30m +0.0061
+  zzvx.a:id:x.zzvx.high                             all -0.0022  first30m +0.0170
+  zzvx.a:id:x.zzvx.trDEmaD                          all -0.0130  first30m -0.0044
+  zzvx.a:id:x.zzvx.trEmaD                           all -0.0130  first30m -0.0046
+######## single_fill 20261113, generation C
+20261113: 72,000 rows; baseline all 0.6316  first30m 0.6635
+  zzvx.a:id:x.zzvx.high                             all +0.0138  first30m +0.0305
+  zzvx.a:id:x.zzvx.trEmaD                           all +0.0064  first30m +0.0086
+  zzvx.a:id:x.zzvx.trDEmaD                          all +0.0064  first30m +0.0085
+  zzvx.a:id:x.zzvx.rEmaD                            all +0.0048  first30m +0.0171
+  zzvx.a:sqrt:x.zzvx.rEmaD                          all +0.0036  first30m +0.0157
+  zzvx.a:1/b:x.zzvx.rEmaD                           all +0.0000  first30m +0.0000
+######## single_fill 20261112, generation B
+20261112: 72,000 rows; baseline all 0.6123  first30m 0.6277
+  zzvx.a:id:x.zzvx.trDEmaD                          all +0.0024  first30m +0.0002
+  zzvx.a:id:x.zzvx.trEmaD                           all +0.0023  first30m +0.0002
+  zzvx.a:1/b:x.zzvx.rEmaD                           all +0.0000  first30m +0.0000
+  zzvx.a:sqrt:x.zzvx.rEmaD                          all -0.0062  first30m -0.0094
+  zzvx.a:id:x.zzvx.rEmaD                            all -0.0063  first30m -0.0084
+  zzvx.a:id:x.zzvx.high                             all -0.0163  first30m +0.0027
+######## single_fill 20261113, generation B
+20261113: 72,000 rows; baseline all 0.6582  first30m 0.6959
+  zzvx.a:1/b:x.zzvx.rEmaD                           all +0.0000  first30m +0.0000
+  zzvx.a:id:x.zzvx.trDEmaD                          all -0.0007  first30m +0.0025
+  zzvx.a:id:x.zzvx.trEmaD                           all -0.0007  first30m +0.0025
+  zzvx.a:sqrt:x.zzvx.rEmaD                          all -0.0031  first30m -0.0053
+  zzvx.a:id:x.zzvx.rEmaD                            all -0.0033  first30m -0.0057
+  zzvx.a:id:x.zzvx.high                             all -0.0095  first30m -0.0007
+[05:18:03] r167 done
