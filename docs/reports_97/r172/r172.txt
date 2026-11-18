@@ -1,0 +1,80 @@
+# R172 output transcribed from the 97 screen (79 lines); 'B/202501', 'A/202501', 'C/202501' = models_gen generations
+-rw-r--r-- 1 root root  9923309 Nov 13 19:43 20261113.jz
+-rw-r--r-- 1 root root  9947480 Nov 16 19:46 20261116.jz
+-rw-r--r-- 1 root root  9928022 Nov 17 19:49 20261117.jz
+-rw-r--r-- 1 root root  9923665 Nov 18 20:21 20261118.jz
+hstats families with 20261118: 16
+[00:21:43] 20261118
+  similarity 0.5911 ~
+20261118: done in 13s
+  data/featgen_r99/base_20261118.parquet
+  data/reports/stage6_r99_1118/cal_20261118.json
+  data/reports/stage6_r99_1118/pred.parquet
+  data/reports/stage6_r99_1118/x.parquet
+[00:26:07] done
+time panel_rows 0s
+time panel_slowest_columns zzvx.a=zzvx.trDEmaD / px 9s, zzxu.a=zzxu.a / zzxu.low 8s, zzup=zzup.pf / zzup.ps 8s, zzab=cal:neu:-gen.depth_weighted_price_5lvl_minus_mid_rel 0s, zzro2.b=neu:gen.ret90 0s
+pass 0 time: fingerprint ranking 0s, candidate columns 0s, model + IC 0s
+rows -> data/reports/stage6_r99_1118/pred.parquet
+feature matrix -> data/reports/stage6_r99_1118/x.parquet (144 columns), side tables per day
+IC: start 0.5911 -> end 0.5911 (t 67.70, 240 marks); 144 of 209 columns assigned -> data/reports/stage6_r99_1118/ic_assign.json
+== 20261118: 72,000 rows, 70,199 with PM's prediction, 144 columns filled
+   rank-corr 0.5791  pearson 0.4731  std ours/PM 1.537  tk5m/202604/livev1_fit1  (4 files)
+   rank-corr 0.5791  pearson 0.4731  std ours/PM 1.537  tk5m/202603/livev1_fit1  (4 files)
+   rank-corr 0.5791  pearson 0.4731  std ours/PM 1.537  tk5m/202602/livev1_fit1  (4 files)
+   rank-corr 0.5791  pearson 0.4731  std ours/PM 1.537  tk5m/202601/livev1_fit1  (4 files)
+   rank-corr 0.5791  pearson 0.4731  std ours/PM 1.537  tk5m/202512/livev1_fit1  (4 files)
+   rank-corr 0.5791  pearson 0.4731  std ours/PM 1.537  tk5m/202511/livev1_fit1  (4 files)
+   rank-corr 0.5791  pearson 0.4731  std ours/PM 1.537  tk5m/202510/livev1_fit1  (4 files)
+   rank-corr 0.5791  pearson 0.4731  std ours/PM 1.537  tk5m/202509/livev1_fit1  (4 files)
+   rank-corr 0.5791  pearson 0.4731  std ours/PM 1.537  B/202501/livev1_fit1  (4 files)
+   rank-corr 0.5791  pearson 0.4731  std ours/PM 1.537  A/202501/livev1_fit1  (4 files)
+   rank-corr 0.5280  pearson 0.4315  std ours/PM 1.534  tk5m/202608/livev1_fit1  (4 files)
+   rank-corr 0.5280  pearson 0.4315  std ours/PM 1.534  tk5m/202607/livev1_fit1  (4 files)
+   rank-corr 0.5280  pearson 0.4315  std ours/PM 1.534  tk5m/202606/livev1_fit1  (4 files)
+   rank-corr 0.5280  pearson 0.4315  std ours/PM 1.534  tk5m/202605/livev1_fit1  (4 files)
+   rank-corr 0.5230  pearson 0.4447  std ours/PM 1.360  tk5m/202612/livev1_fit1  (4 files)
+   rank-corr 0.5230  pearson 0.4447  std ours/PM 1.360  tk5m/202611/livev1_fit1  (4 files)
+   rank-corr 0.5230  pearson 0.4447  std ours/PM 1.360  tk5m/202610/livev1_fit1  (4 files)
+   rank-corr 0.5230  pearson 0.4447  std ours/PM 1.360  tk5m/202609/livev1_fit1  (4 files)
+   rank-corr 0.5230  pearson 0.4447  std ours/PM 1.360  C/202501/livev1_fit1  (4 files)
+   rank-corr 0.5105  pearson 0.4193  std ours/PM 1.540  tk5m/202604/livev1_fit3  (4 files)
+   rank-corr 0.5105  pearson 0.4193  std ours/PM 1.540  tk5m/202603/livev1_fit3  (4 files)
+   rank-corr 0.5105  pearson 0.4193  std ours/PM 1.540  tk5m/202602/livev1_fit3  (4 files)
+   rank-corr 0.5105  pearson 0.4193  std ours/PM 1.540  tk5m/202601/livev1_fit3  (4 files)
+   rank-corr 0.5105  pearson 0.4193  std ours/PM 1.540  tk5m/202512/livev1_fit3  (4 files)
+   rank-corr 0.5105  pearson 0.4193  std ours/PM 1.540  tk5m/202511/livev1_fit3  (4 files)
+   rank-corr 0.5105  pearson 0.4193  std ours/PM 1.540  tk5m/202510/livev1_fit3  (4 files)
+   rank-corr 0.5105  pearson 0.4193  std ours/PM 1.540  tk5m/202509/livev1_fit3  (4 files)
+   rank-corr 0.5105  pearson 0.4193  std ours/PM 1.540  B/202501/livev1_fit3  (4 files)
+   rank-corr 0.5105  pearson 0.4193  std ours/PM 1.540  A/202501/livev1_fit3  (4 files)
+   rank-corr 0.5011  pearson 0.4160  std ours/PM 1.534  tk5m/202604/livev1_fit2  (4 files)
+   rank-corr 0.5011  pearson 0.4160  std ours/PM 1.534  tk5m/202603/livev1_fit2  (4 files)
+   rank-corr 0.5011  pearson 0.4160  std ours/PM 1.534  tk5m/202602/livev1_fit2  (4 files)
+   rank-corr 0.5011  pearson 0.4160  std ours/PM 1.534  tk5m/202601/livev1_fit2  (4 files)
+   rank-corr 0.5011  pearson 0.4160  std ours/PM 1.534  tk5m/202512/livev1_fit2  (4 files)
+   rank-corr 0.5011  pearson 0.4160  std ours/PM 1.534  tk5m/202511/livev1_fit2  (4 files)
+   rank-corr 0.5011  pearson 0.4160  std ours/PM 1.534  tk5m/202510/livev1_fit2  (4 files)
+   rank-corr 0.5011  pearson 0.4160  std ours/PM 1.534  tk5m/202509/livev1_fit2  (4 files)
+   rank-corr 0.5011  pearson 0.4160  std ours/PM 1.534  B/202501/livev1_fit2  (4 files)
+   rank-corr 0.5011  pearson 0.4160  std ours/PM 1.534  A/202501/livev1_fit2  (4 files)
+   rank-corr 0.4979  pearson 0.4153  std ours/PM 1.340  tk5m/202612/livev1_fit2  (4 files)
+   rank-corr 0.4979  pearson 0.4153  std ours/PM 1.340  tk5m/202611/livev1_fit2  (4 files)
+   rank-corr 0.4979  pearson 0.4153  std ours/PM 1.340  tk5m/202610/livev1_fit2  (4 files)
+   rank-corr 0.4979  pearson 0.4153  std ours/PM 1.340  tk5m/202609/livev1_fit2  (4 files)
+   rank-corr 0.4979  pearson 0.4153  std ours/PM 1.340  C/202501/livev1_fit2  (4 files)
+   rank-corr 0.4880  pearson 0.4047  std ours/PM 1.428  tk5m/202612/livev1_fit3  (4 files)
+   rank-corr 0.4880  pearson 0.4047  std ours/PM 1.428  tk5m/202611/livev1_fit3  (4 files)
+   rank-corr 0.4880  pearson 0.4047  std ours/PM 1.428  tk5m/202610/livev1_fit3  (4 files)
+   rank-corr 0.4880  pearson 0.4047  std ours/PM 1.428  tk5m/202609/livev1_fit3  (4 files)
+   rank-corr 0.4880  pearson 0.4047  std ours/PM 1.428  C/202501/livev1_fit3  (4 files)
+   rank-corr 0.4877  pearson 0.3882  std ours/PM 1.423  tk5m/202608/livev1_fit2  (4 files)
+   rank-corr 0.4877  pearson 0.3882  std ours/PM 1.423  tk5m/202607/livev1_fit2  (4 files)
+   rank-corr 0.4877  pearson 0.3882  std ours/PM 1.423  tk5m/202606/livev1_fit2  (4 files)
+   rank-corr 0.4877  pearson 0.3882  std ours/PM 1.423  tk5m/202605/livev1_fit2  (4 files)
+   rank-corr 0.4825  pearson 0.3905  std ours/PM 1.440  tk5m/202608/livev1_fit3  (4 files)
+   rank-corr 0.4825  pearson 0.3905  std ours/PM 1.440  tk5m/202607/livev1_fit3  (4 files)
+   rank-corr 0.4825  pearson 0.3905  std ours/PM 1.440  tk5m/202606/livev1_fit3  (4 files)
+   rank-corr 0.4825  pearson 0.3905  std ours/PM 1.440  tk5m/202605/livev1_fit3  (4 files)
+[done]
+[00:27:13] r172 done
