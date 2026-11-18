@@ -1,0 +1,75 @@
+engine: 20 stocks, 80000 events, 23 rules, 4 threads, 0.01s
+20 stocks, 58300 day-end values + 37600 mark values compared, 0 mismatches
+20261112: stop 54149.981 -> data/engine_r170/engine_20261112.json.gz (23s total)
+== 20261112  zzvx key: n, equal share at 1e-6 (all / SZSE), at 1e-4 (all / SZSE)
+   zzvx.high        n  300  1.0000 / 1.0000   1.0000 / 1.0000
+   zzvx.low         n  300  1.0000 / 1.0000   1.0000 / 1.0000
+   zzvx.rEmaD       n  300  0.9967 / 1.0000   1.0000 / 1.0000
+   zzvx.rEmaO       n  300  0.9967 / 1.0000   1.0000 / 1.0000
+   zzvx.trDEmaD     n  300  1.0000 / 1.0000   1.0000 / 1.0000
+   zzvx.trDEmaO     n  300  1.0000 / 1.0000   1.0000 / 1.0000
+   zzvx.trEmaD      n  300  1.0000 / 1.0000   1.0000 / 1.0000
+   zzvx.trEmaO      n  300  1.0000 / 1.0000   1.0000 / 1.0000
+   the 12 worst keys of the whole table: zzbd.pEmaT.t 0.000, zzbd.rEmaT.t 0.000, zzgh.nb|cnt 0.000, zzgh.nb|ord 0.000, zzgh.nb|ordvol 0.000, zzgh.nb|snappx 0.000, zzqj.r.t 0.0[cut]
+   PM dir +1: 205 stocks; PM's lower band equal to (share at 1e-6, at 1e-4 relative, median relative error), best 10:
+      zzxu.lower|c0a              0.000  0.005  0.0128
+      zzxu.lower|m.mid.1.c0       0.000  0.000  0.0103
+      zzxu.lower|m.mid.1.tr       0.000  0.000  0.0218
+      zzxu.lower|m.mid.1.de       0.000  0.000  0.0219
+      zzxu.lower|m.mid.1.5.c0     0.000  0.010  0.00522
+      zzxu.lower|m.mid.1.5.tr     0.000  0.000  0.0218
+      zzxu.lower|m.mid.1.5.de     0.000  0.000  0.0218
+      zzxu.lower|m.mid.2.c0       0.000  0.005  0.00366
+      zzxu.lower|m.mid.2.tr       0.000  0.000  0.0218
+      zzxu.lower|m.mid.2.de       0.000  0.000  0.0218
+   PM dir -1: 95 stocks; PM's upper band equal to (share at 1e-6, at 1e-4 relative, median relative error), best 10:
+      zzxu.upper|c0a              0.000  0.000  0.0206
+      zzxu.upper|m.mid.1.c0       0.000  0.000  0.0455
+      zzxu.upper|m.mid.1.tr       0.000  0.000  0.0541
+      zzxu.upper|m.mid.1.de       0.000  0.000  0.0541
+      zzxu.upper|m.mid.1.5.c0     0.000  0.000  0.0396
+      zzxu.upper|m.mid.1.5.tr     0.000  0.000  0.0541
+      zzxu.upper|m.mid.1.5.de     0.000  0.000  0.0541
+      zzxu.upper|m.mid.2.c0       0.000  0.000  0.0336
+      zzxu.upper|m.mid.2.tr       0.000  0.000  0.0541
+      zzxu.upper|m.mid.2.de       0.000  0.000  0.0541
+20261113: stop 54149.897 -> data/engine_r170/engine_20261113.json.gz (21s total)
+== 20261113  zzvx key: n, equal share at 1e-6 (all / SZSE), at 1e-4 (all / SZSE)
+   zzvx.high        n  300  1.0000 / 1.0000   1.0000 / 1.0000
+   zzvx.low         n  300  1.0000 / 1.0000   1.0000 / 1.0000
+   zzvx.rEmaD       n  300  1.0000 / 1.0000   1.0000 / 1.0000
+   zzvx.rEmaO       n  300  1.0000 / 1.0000   1.0000 / 1.0000
+   zzvx.trDEmaD     n  300  1.0000 / 1.0000   1.0000 / 1.0000
+   zzvx.trDEmaO     n  300  1.0000 / 1.0000   1.0000 / 1.0000
+   zzvx.trEmaD      n  300  1.0000 / 1.0000   1.0000 / 1.0000
+   zzvx.trEmaO       n  300  1.0000 / 1.0000   1.0000 / 1.0000
+   the 12 worst keys of the whole table: zzbd.pEmaT.t 0.000, zzbd.rEmaT.t 0.000, zzgh.nb|cnt 0.000, zzgh.nb|ord 0.000, zzgh.nb|ordvol 0.000, zzgh.nb|snappx 0.000, zzqj.r.t 0.0[cut]
+   PM dir +1: 233 stocks; PM's lower band equal to (share at 1e-6, at 1e-4 relative, median relative error), best 10:
+      zzxu.lower|c0a              0.004  0.009  0.00927
+      zzxu.lower|m.mid.3.c0       0.004  0.009  0.00927
+      zzxu.lower|m.lo.2.5.c0      0.004  0.004  0.00954
+      zzxu.lower|m.mid.1.c0       0.000  0.000  0.0112
+      zzxu.lower|m.mid.1.tr       0.000  0.000  0.0198
+      zzxu.lower|m.mid.1.de       0.000  0.000  0.0204
+      zzxu.lower|m.mid.1.5.c0     0.000  0.004  0.00616
+      zzxu.lower|m.mid.1.5.tr     0.000  0.000  0.0198
+      zzxu.lower|m.mid.1.5.de     0.000  0.000  0.0199
+      zzxu.lower|m.mid.2.c0       0.000  0.017  0.0032
+   PM dir -1: 67 stocks; PM's upper band equal to (share at 1e-6, at 1e-4 relative, median relative error), best 10:
+      zzxu.upper|c0a              0.000  0.000  0.0427
+      zzxu.upper|m.mid.1.c0       0.000  0.000  0.0657
+      zzxu.upper|m.mid.1.tr       0.000  0.000  0.0796
+      zzxu.upper|m.mid.1.de       0.000  0.000  0.0796
+      zzxu.upper|m.mid.1.5.c0     0.000  0.000  0.0561
+      zzxu.upper|m.mid.1.5.tr     0.000  0.000  0.0796
+      zzxu.upper|m.mid.1.5.de     0.000  0.000  0.0796
+      zzxu.upper|m.mid.2.c0       0.000  0.000  0.0475
+      zzxu.upper|m.mid.2.tr       0.000  0.000  0.0796
+      zzxu.upper|m.mid.2.de       0.000  0.000  0.0796
+[23:49:50] r170 done
+== 1118 data: package /mnt/TickDataRepo/DataYesSharesL2/20261118 | dysl2_raw dirs 0 | pm_signals state 0
+
+     86 Nov 18 16:06 .
+   4096 Nov 18 16:34 ..
+   3893 Nov 18 09:00 chrono_20261118_090001.log
+  37914 Nov 18 15:14 chrono_20261118_092335.log  [size as shown by ls; owner columns cut]
