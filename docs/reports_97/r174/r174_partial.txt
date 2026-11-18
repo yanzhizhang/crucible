@@ -1,0 +1,23 @@
+# R174 (gate OK e03bd703/f568bedd, done 00:53:23, 109 lines) -- PARTIAL transcription from the 97 screen (usage cap): segment headers, the
+# lthr best fits per segment, the executp tail. Full file on 97: /work/crucible/data/reports/r174.txt. No line has q99 |resid|/scale < 1e-9.
+== 20261118: 769,310 trade decisions; columns ['fa', 'hs', 'lthr', 'executp', 'asq', 'pos', 'pp', 'winsdQty', 'asf', 'ev_mp', 'ev_vpen', 'ev_vr', 'ev_poscst', 'ev_cpos']
+-- <13:00: 30,000 rows (sample); lthr q10/50/90 0 / 0 / 0; hs 9.192e-05 / 0.0004092 / 0.001117; vpen 1e-07 / 1e-07 / 1e-07
+   lthr == 0: 0.121; lthr < 0: 0.879; distinct lthr per stock per minute (median): 20; executp == 0: 0.530    [line 2 of the file; whole day]
+   lthr (<13:00): q99 |resid| / scale 0 for 0 x 1, 0 x hs, 0 x vr, 0 x hs*vr, 0 x cr, 0 x vpen (n 30000); pos > 0 (13281) and pos < 0 (15199): same, all 0
+-- 13:00-14:45: 30,000 rows (sample); lthr q10/50/90 -0.000504 / -0.0002581 / -5.207e-05; hs 0.0001002 / 0.0003076 / 0.001005; vpen 0.0002989 / 0.0006644 / 0.0008906
+   lthr: 0.601  -442.411030971 x vpen^2 + -321.648354614 x hs*vpen (n 29995)
+         0.77   -0.320108869386 x vpen + -333.042294524 x hs*vpen
+         0.78   -5.23698768311e-08 x vpen*poscst + -553.216798644 x vpen^2
+         0.89   -0.00753631354447 x sqrt(vpen) + -374.918776997 x hs*vpen
+         0.983  -516.715943583 x vpen^2 + -0.000835133368791 x 1/mp
+         0.983  -516.715943583 x vpen^2 + -2.08783342198 x cr/mp
+   lthr, pos > 0 (6832): 0.514 -441.466067349 x vpen^2 + -332.842483957 x hs*vpen | 0.709 -0.301568041839 x vpen + -361.850792721 x hs*vpen | 0.712 -4.59457569217e-08 x vpen*poscst + -570.823264332 x vpen^2
+   lthr, pos < 0 (5688): 0.999 -421.480178154 x vpen^2 + -346.85342971 x hs*vpen | 1.2 -0.282964735924 x vpen + -363.982531348 x hs*vpen
+-- >=14:45: 30,000 rows (sample); lthr q10/50/90 -0.0008345 / -0.0005125 / -0.0004447; hs 0.0001081 / 0.0003772 / 0.001105; vpen 0.0009446 / 0.0009657 / 0.0009865
+   lthr: 0.373 -0.00042127694235 x 1 + -0.00209125832219 x 1/mp | 0.373 -0.00042127694235 x 1 + -5.22814580549 x cr/mp | 0.373 -1.05319235587 x cr + -0.00209125832219 x 1/mp
+         0.373 -1.05319235587 x cr + -5.22814580549 x cr/mp | 0.381 -0.0135643293786 x sqrt(vpen) + -5.22496540223 x cr/mp | 0.381 -0.0135643293786 x sqrt(vpen) + -0.00208998616089 x 1/mp
+   lthr, pos > 0 (3843): 0.0967 -424.832996898 x vpen^2 + -0.00223191372086 x 1/mp | 0.0967 -424.832996898 x vpen^2 + -5.57978430215 x cr/mp | 0.11 -0.407879494175 x vpen + -5.59936700603 x cr/mp
+   lthr, pos < 0 (3272): 0.156 -422.364978998 x vpen^2 + -5.54327819288 x cr/mp | 0.156 -422.364978998 x vpen^2 + -0.00221731127715 x 1/mp
+   executp (tail): 3.04 0.339441495863 x fa/vpen + 0.000116774074483 x cpos | 3.04 0.000116708627644 x cpos + 436.982748823 x fa*asf | 3.04 349.586199058 x fa + 0.000116708627644 x cpos (n 5136)
+[done]
+[00:53:23] r174 done
