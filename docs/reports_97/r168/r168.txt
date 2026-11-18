@@ -1,0 +1,203 @@
+# transcribed from 97 screen; account ids and a home-dir user name masked (<account>, <account2>, <user>); [cut] = line cut at 175 chars by my pager or 240 by r168.sh
+== tree (size, time, path)
+      9060  2026-11-17 17:45  base_position_hs300_adjust_lot100.csv
+      9046  2026-11-17 17:45  base_position_hs300_adjust_share1.csv
+      9060  2026-11-17 17:45  base_position_hs300_official_lot100.csv
+      9046  2026-11-17 17:45  base_position_hs300_official_share1.csv
+     29362  2026-11-17 17:45  base_position_zz1000_adjust_lot100.csv
+     29388  2026-11-17 17:45  base_position_zz1000_adjust_share1.csv
+     29362  2026-11-17 17:45  base_position_zz1000_official_lot100.csv
+     29388  2026-11-17 17:45  base_position_zz1000_official_share1.csv
+     14990  2026-11-17 17:45  base_position_zz500_adjust_lot100.csv
+     15010  2026-11-17 17:45  base_position_zz500_adjust_share1.csv
+     14990  2026-11-17 17:45  base_position_zz500_official_lot100.csv
+     15010  2026-11-17 17:45  base_position_zz500_official_share1.csv
+      3893  2026-11-18 09:00  chrono_logs/chrono_20261118_090001.log
+1441837914  2026-11-18 15:14  chrono_logs/chrono_20261118_092335.log
+      1181  2026-11-18 16:06  config2_HS300.json
+     80155  2026-11-18 14:15  ledger/hs300_a_position_log.csv
+     61000  2026-11-18 16:09  pnl/pnl_runS_a_20261118.csv
+    154585  2026-11-18 16:08  pnl/trades_20261118.csv
+    923785  2026-11-18 14:55  portfolio/csv/analytics_20261118.csv
+    100151  2026-11-18 14:54  portfolio/csv/strategy_orders_20261118.csv
+  26042267  2026-11-18 15:14  position_log/run_s_position_log.csv
+   1544464  2026-11-18 14:55  qx_trade_info/tradeinfo_20261118.csv
+      5167  2026-11-18 09:16  run_s.json5
+      6517  2026-11-18 15:57  run_s_hs300.csv
+    307733  2026-11-18 08:25  sod.csv
+   8209138  2026-11-18 16:06  xtp_log/log/trade.log.20261118
+== config2_HS300.json (PM's strategy config, no logins expected)
+{
+    "date": "20261118",
+    "univ": "HS300",
+    "NumLevels": 10,
+    "prod": true,
+    "dataPath": "/tmp/s/stsfile",
+    "streams": [
+        {
+            "type": "snapshot",
+            "depthLevel": 10,
+            "src": "/mnt/ssd_00_01/home_repository/<user>/workspace/chrono/release/chrono_runtime/cfg/sim_example/mp/YYYYMMDD/SH_HS300_snap.mp"
+        },
+        {
+            "type": "snapshot",
+            "depthLevel": 10,
+            "src": "/mnt/ssd_00_01/home_repository/<user>/workspace/chrono/release/chrono_runtime/cfg/sim_example/mp/YYYYMMDD/SZ_HS300_snap.mp"
+        }
+    ],
+    "trader":
+    {
+        "output_dir": "/mnt/ssd_00_01/home_repository/<user>/workspace/chrono/release/chrono_runtime/cfg/sim_example/HS300",
+        "cr": 0.0004,
+        "sim_et": 145900000,
+        "depthLevel": 10,
+        "sim_st": 93000000,
+
+        "fan": ["pqAlpha"],
+        "faw": [1.0],
+        "fac" : [
+            {
+            "alpha_name": "alpha.1",
+            "alpha_dur": 0.03
+        }
+        ],
+        "alg_cfg": "/mnt/ssd_00_01/home_repository/<user>/workspace/chrono/release/chrono_runtime/cfg/sim_example/sc.p3.json"
+    }
+ }
+
+
+
+
+== run_s_hs300.csv: 294 lines; head
+symbol,yesterday_qty,locked_qty,avg_cost
+000001.SZ,3900,0,12.25
+000002.SZ,2700,0,2.96
+000063.SZ,1300,0,27.68
+000100.SZ,8700,0,4.75
+== sod.csv: 5581 lines; header + 2 rows
+symbol_id,is_traded,maxp_allowed,minp_allowed,freeshare,circshare,totshare,ret_adj
+000001.SZ,1,13.48,11.03,8601044267,19405684991,19405918198,1
+000002.SZ,1,3.26,2.66,6472302363,9715113154,11930709471,1
+== pnl
+-- pnl/pnl_runS_a_20261118.csv: 316 lines
+
+策略,runS_a
+分母口径,capital
+-- pnl/trades_20261118.csv: 703 lines
+交易日,成交时间,策略,账户,代码,名称,方向,成交股数,成交价,成交金额,手续费,佣金,印花税,过户费,收盘价,盈亏(按收盘),委托价,母单号,腿号,柜台单号,成交编号,uuid
+20261118,09:30:00.474000000,runS_a,<account>,600009.SH,上海机场,卖,500,24.780,12390.00,8.85,1.86,6.20,0.79,24.850,-43.85,24.78,2,2,38654516752548842,0000000000000018,5CF3ABA
+20261118,09:30:00.579000000,runS_a,<account>,000657.SZ,中钨高新,卖,200,35.720,7144.00,5.10,1.07,3.57,0.46,35.510,36.90,35.72,3,3,38654516752548843,0041003130631670,444E098D-[cut]
+== qx_trade_info
+-- qx_trade_info/tradeinfo_20261118.csv: 8264 lines
+local_time,trading_day,sf_time,wind_code,sf,dir,bs,order_type,policy_id,volume,signal_price,fill_price,pre_close,last_price,uuid,account_id,signal_time,order_no
+2026-11-18 09:30:00.043,20261118,09:30:00.043,688521.SH,Signalled,Close,Sell,Put,runS_a,200,94,94,,,B81AA4D7-9F1F-4337-A7D5-5CA6BA169D5D,<account>,09:30:00.043,38654516[cut]
+2026-11-18 09:30:00.467,20261118,09:30:00.467,600009.SH,Signalled,Close,Sell,Put,runS_a,500,24.78,24.78,,,5CF3ABA6-0AE5-40C3-8296-E2F4C9D94A5D,<account>,09:30:00.467,38[cut]
+== position_log
+-- position_log/run_s_position_log.csv: 204601 lines
+time,ts,trading_day,strategy,account,symbol,qty,yesterday_qty,today_qty,sold_qty,frozen_qty,sellable_qty,avg_cost,base_qty,price
+2026-11-18 09:23:40.736,1794965020736145960,20261118,runS_a,<account>,000001.SZ,3800,3800,0,0,0,3800,11.9870,3900,0.0000
+2026-11-18 09:23:40.736,1794965020736145960,20261118,runS_a,<account>,000002.SZ,2700,2700,0,0,0,2700,3.3220,2700,0.0000
+== ledger
+-- ledger/hs300_a_position_log.csv: 601 lines
+time,ts,trading_day,strategy,account,symbol,qty,yesterday_qty,today_qty,sold_qty,frozen_qty,sellable_qty,avg_cost,base_qty,price
+2026-11-18 14:07:10.321,1794982030321933251,20261118,hs300_a,<account2>,000001.SZ,11600,22400,0,10800,0,11600,11.7930,3900,0.0000
+2026-11-18 14:07:10.321,1794982030321933251,20261118,hs300_a,<account2>,000002.SZ,16900,30322,16800,30222,0,100,2.9990,2700,0.0000
+== portfolio
+-- portfolio/csv/analytics_20261118.csv: 2924 lines
+trading_day,account,strategy,idx,coid,broker_order_idx,symbol,side,status,order_px,order_qty,filled_qty,avg_fill_px,filled_amount,canceled_qty,fee,n_fills,error_id,reject_reas[cut]
+20261118,<account>,runS_a,2,2,38654516752548842,600009.SH,SELL,filled,24.78,500,500,24.78,12390,0,8.847699,1,0,,5CF3ABA6-0AE5-40C3-8296-E2F4C9D94A5D,,0,0,0,0,0,0,0,1794[cut]
+20261118,<account>,runS_a,4,4,38654516752548844,000807.SZ,BUY,rejected,22.53,800,0,0,0,0,0,0,11100000,11100000 29999,4CB7F5BC-905D-41F5-84AB-6D31C78E85B9,,0,0,0,0,0,0,0[cut]
+-- portfolio/csv/strategy_orders_20261118.csv: 2924 lines
+clorder_idx,strategy_order_idx,strategy_id,broker_order_idx
+1,1,runS_a,38654516752548841
+2,2,runS_a,38654516752548842
+== cron
+== chrono_logs
+-- chrono_logs/chrono_20261118_090001.log: 23 lines, 4.0K; first / last line:
+[2026-11-18 09:00:01.495833335] [INFO] [logger.hpp:255] logger: writing to /tmp/o/executor/20261118/chrono_logs/chrono_20261118_090001.log
+[2026-11-18 09:00:07.265334555] [CRITICAL] [catchRun.cpp:95] Exception in initialize: Failed to open config file: /tmp/o/executor/20261117/run_s_config2_HS300.json
+   levels:      20 INFO       1 WARNING       1 ERROR       1 CRITICAL
+   trk kinds:
+   source files (top 25 of 'name.cpp:line' / 'name.hpp:line'):
+         3 csv_exporter.hpp:26
+         1 xtp_broker.cpp:809
+         1 xtp_broker.cpp:322
+         1 xtp_broker.cpp:291
+         1 xtp_broker.cpp:285
+         1 xtp_broker.cpp:265
+         1 xtp_broker.cpp:227
+         1 strategy_order_table.cpp:35
+         1 strategy_order_table.cpp:278
+         1 strategy_manager.cpp:76
+         1 strategy_manager.cpp:56
+         1 strategy_manager.cpp:540
+         1 strategy_manager.cpp:38
+         1 qx_trade_info.cpp:40
+         1 logger.hpp:255
+         1 event_ring.cpp:16
+         1 chrono_policy.cpp:66
+         1 catchRun.hpp:24
+         1 catchRun.cpp:95
+         1 catchRun.cpp:77
+         1 book.cpp:128
+   strategy plugins / models named:
+     [2026-11-18 09:00:01.499407884] [INFO] [chrono_policy.cpp:66] chrono_policy: config loaded from '/tmp/o/executor/20261118/run_s.json5' ({yyyymmdd} = 20261118); core const[cut]
+     [2026-11-18 09:00:04.529683281] [INFO] [xtp_broker.cpp:227] xtp_broker: XTP SDK loaded from './lib/chrono/libxtptraderapi.so' as private namespace (dlmopen)
+     [2026-11-18 09:00:05.250402222] [INFO] [csv_exporter.hpp:26] csv_exporter: opened '/tmp/o/executor/20261118/position_log/run_s_position_log.csv' (mode='a')
+     [2026-11-18 09:00:05.265116242] [INFO] [strategy_manager.cpp:540] strategy_manager: plugin './plugins/libcatchRun.so' loaded for strategy_id='runS_a' type='runS'
+     [2026-11-18 09:00:05.265129217] [INFO] [catchRun.cpp:77] runS initialize, waiting for attach
+     [2026-11-18 09:00:07.265334555] [CRITICAL] [catchRun.cpp:95] Exception in initialize: Failed to open config file: /tmp/o/executor/20261117/run_s_config2_HS300.json
+   decision lines (vpen / poscst): 0; 3 samples:
+   first 5 WARN-or-worse kinds (message text with digits squeezed):
+         1  [WARNING] [strategy_order_table.cpp:#] strategy_order_table: reloaded today's attribution index '/tmp/o/executor/#/portfolio/csv/strategy_o[cut]
+         1  [ERROR] [qx_trade_info.cpp:#] qx_trade_info: mkdir '/tmp/o/executor/#/qx_trade_info' failed: Permission denied -- tradeinfo will NOT be wri[cut]
+         1  [CRITICAL] [catchRun.cpp:#] Exception in initialize: Failed to open config file: /tmp/o/executor/#/run_s_config#_HS#.json
+-- chrono_logs/chrono_20261118_092335.log: 7160025 lines, 1.4G; first / last line:
+[2026-11-18 09:23:35.167369479] [INFO] [logger.hpp:255] logger: writing to /tmp/o/executor/20261118/chrono_logs/chrono_20261118_092335.log
+[2026-11-18 15:14:23.350136005] [INFO] [xtp_broker.cpp:356] xtp_broker: account '<account>' Logout session=<n> -> rc=0
+   levels: 7078940 INFO   81085 WARNING
+   trk kinds: 1371719 trk SIG    5844 trk RPT    3063 trk ORD    2923 trk SEND    2319 trk CXL    702 trk TRD    350 trk CLOCK    300 trk POS    290 trk BHOLD    140 trk[cut]
+   source files (top 25 of 'name.cpp:line' / 'name.hpp:line'):
+   1371719 catchRun.cpp:73
+   1371719 analytics_core.cpp:189
+   1367972 alg.cpp:213
+   1367972 alg.cpp:169
+    769310 alg.cpp:258
+    769310 alg.cpp:257
+     53923 w.cpp:182
+     27019 engine.cpp:210
+     10544 pipeline_profiler.cpp:161
+      5844 analytics_core.cpp:283
+      3624 es.cpp:172
+      3063 es.cpp:399
+      3063 catchRun.cpp:209
+      3063 analytics_core.cpp:194
+      2923 analytics_core.cpp:221
+      2796 pipeline_profiler.cpp:154
+      2319 es.cpp:83
+      2319 es.cpp:73
+      2319 es.cpp:493
+      2319 es.cpp:135
+      2319 es.cpp:132
+      2319 analytics_core.cpp:231
+      2290 execution_core.cpp:380
+       702 es.cpp:216
+       702 analytics_core.cpp:296
+   strategy plugins / models named:
+     [2026-11-18 09:23:35.171529848] [INFO] [chrono_policy.cpp:66] chrono_policy: config loaded from '/tmp/o/executor/20261118/run_s.json5' ({yyyymmdd} = 20261118); core const[cut]
+     [2026-11-18 09:23:38.201582714] [INFO] [xtp_broker.cpp:227] xtp_broker: XTP SDK loaded from './lib/chrono/libxtptraderapi.so' as private namespace (dlmopen)
+     [2026-11-18 09:23:38.672216320] [INFO] [csv_exporter.hpp:26] csv_exporter: opened '/tmp/o/executor/20261118/position_log/run_s_position_log.csv' (mode='a')
+     [2026-11-18 09:23:38.686101884] [INFO] [strategy_manager.cpp:540] strategy_manager: plugin './plugins/libcatchRun.so' loaded for strategy_id='runS_a' type='runS'
+     [2026-11-18 09:23:38.686112644] [INFO] [catchRun.cpp:77] runS initialize, waiting for attach
+   decision lines (vpen / poscst): 1367972; 3 samples:
+     [2026-11-18 09:30:00.043194833] [INFO] [alg.cpp:213] mp: 94.05, fa: -0.003624412251735933, vpen: 1e-07, vr: 0.3489612546052943, poscst: 10900, cpos: 0, asq: 200, hs: 0.00[cut]
+     [2026-11-18 09:30:00.047746126] [INFO] [alg.cpp:213] mp: 59.975, fa: -0.0035735206636548374, vpen: 1e-07, vr: 0.40368173988879247, poscst: 11700, cpos: 0, asq: 0, hs: 0.0[cut]
+     [2026-11-18 09:30:00.158898621] [INFO] [alg.cpp:213] mp: 18.215, fa: -0.0003672370541596672, vpen: 1e-07, vr: 0.10981175176705663, poscst: 279200, cpos: 0, asq: 2000, hs:[cut]
+   first 5 WARN-or-worse kinds (message text with digits squeezed):
+     53923  [WARNING] [w.cpp:#] AlgW::onInnerMsg exTimeInt = #, sim_et = #
+     27019  [WARNING] [engine.cpp:#] Engine::toAlgo invalid msg
+       140  [WARNING] [analytics_core.cpp:#] trk REJ now=# idx=# reason='leg blocked at gate -- xtp_# # shares: outside_session (rule 'trading_window')
+         1  [WARNING] [strategy_order_table.cpp:#] strategy_order_table: reloaded today's attribution index '/tmp/o/executor/#/portfolio/csv/strategy_o[cut]
+         1  [WARNING] [order_watch.cpp:#] order_watch[xtp_#]: rejects=# total, last #.SZ BUY #x#.# reason=# #
+         1  [WARNING] [analytics_core.cpp:#] trk INS_RSP now=# recv=# coid=# broker_idx=# status=# err=# account=xtp_# symbol=#.SZ side=BUY qty=# px=#.
+[23:32:49] r168 done
