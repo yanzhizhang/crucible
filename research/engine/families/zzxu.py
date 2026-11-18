@@ -1,30 +1,31 @@
 """zzxu: 300 s averages of the snapshot price and of the day range; day high / low / last; a trend band (upper / lower / dir).
 
-SUBJECT TO CHANGE: the band is being worked out against PM's day-end file. Known: upper - mid <= 3 w and mid - lower <= 3 w
-exactly (mid = (high + low) / 2 of the snapshot fields, w = a range average), dir = +1 on 83%; the band rule is "simple"
-(the inactive band is recomputed every snapshot, the active one only tightens; the trend flips when the price crosses the
-active band), and with it the inactive band is right and the active one is not (R162). A plain running extreme is not the
-active band either (R163). PM's active band always sits beyond the day's low / high, which a band started fresh at the open
-(when the range average is ~0) cannot do: so the state probably comes from YESTERDAY. Variants under test, all the simple rule:
-"|b1" fresh width, fresh band; "|b2" width carried from yesterday (zzxu.a|c0), fresh band; "|b3" width and band carried;
-"|b4" fresh width, band carried.
+SUBJECT TO CHANGE: the band is being worked out against PM's day-end file. Known: the band is mid -+ 3 w (mid = (high + low) / 2
+of the snapshot fields, w = the range average zzxu.a CARRIED from yesterday, R164); the rule is "simple" (the inactive band is
+recomputed every snapshot, the active one only tightens, the trend flips when the price crosses the active band); the
+inactive band is then exact on ~85% of stocks, the active one never. PM rebuilds the active band within the day (R165) and
+its level (median mid - 1.1 w in an up trend) is what a ratchet set in the first minutes would give, so the open is what
+matters: which snapshots feed the width, and from when the band runs. Variants, all the simple rule from a fresh band:
+  width c0 = carried, fed by every snapshot with a range; c1 = carried, fed from 09:30 only
+  start a = first valid snapshot, p = 09:25:00, c = 09:30:00         tags "|c0a" "|c0p" "|c0c" "|c1a" "|c1p" "|c1c"
 """
 import math
 
 from .base import GUESSED, PINNED, Family
 
 BAND_MULT = 3.0
-BANDS = {"b1": ("zzxu.a", False), "b2": ("zzxu.a|c0", False), "b3": ("zzxu.a|c0", True), "b4": ("zzxu.a", True)}  # tag -> (width average, band carried)
+STARTS = {"a": 0.0, "p": 33900.0, "c": 34200.0}
+BANDS = {f"{w}{st}": (f"zzxu.a|{w}", sec) for w in ("c0", "c1") for st, sec in STARTS.items()}  # tag -> (width average, first exchange second)
 
 
 class Band:
     """One simple-rule band."""
 
-    __slots__ = ("dir", "lower", "upper", "width")
+    __slots__ = ("dir", "lower", "start", "upper", "width")
 
-    def __init__(self, width: str, seed: tuple[float, float, float] | None) -> None:
-        self.width = width
-        self.upper, self.lower, self.dir = seed if seed and seed[0] == seed[0] and seed[1] == seed[1] and seed[2] == seed[2] else (math.nan, math.nan, 1.0)
+    def __init__(self, width: str, start: float) -> None:
+        self.width, self.start = width, start
+        self.upper, self.lower, self.dir = math.nan, math.nan, 1.0
 
     def step(self, bu: float, bl: float, px: float) -> None:
         """Take one snapshot: the basic bands and the price."""
@@ -46,21 +47,21 @@ class Band:
 
 class Zzxu(Family):
     stem, status = "zzxu", PINNED
-    evidence = "state: zzxu.p / zzxu.a / high / low / last equal PM's .jz; upper / lower / dir under test (R163: not a running extreme; carried state next); columns zzxu.a, zzxu.b wrong scale (R148)"
-    emas = {"zzxu.p": ("snap", 300, "price"), "zzxu.a": ("snap", 300, "hl"), "zzxu.a|c0": ("snap", 300, "hl")}
+    evidence = "state: zzxu.p / zzxu.a / high / low / last equal PM's .jz; zzxu.a carries overnight (R164); upper / lower / dir under test; columns zzxu.a, zzxu.b wrong scale (R148)"
+    emas = {"zzxu.p": ("snap", 300, "price"), "zzxu.a": ("snap", 300, "hl"), "zzxu.a|c0": ("snap", 300, "hl"), "zzxu.a|c1": ("snap_o930", 300, "hl")}
     keys = {"zzxu.upper": GUESSED, "zzxu.lower": GUESSED, "zzxu.dir": GUESSED}
 
     def __init__(self) -> None:
-        self.bands: dict[str, Band] | None = None
+        self.bands = {tag: Band(width, start) for tag, (width, start) in BANDS.items()}
 
     def on_snap(self, st, t, s, lsod, amount):
-        if self.bands is None:  # the tape (and yesterday's band on it) exists only now
-            self.bands = {tag: Band(width, st.band_seed if carried else None) for tag, (width, carried) in BANDS.items()}
         px = st.snap_px
         if not (px == px and st.hi_f == st.hi_f and st.lo_f == st.lo_f):
             return
         mid = (st.hi_f + st.lo_f) / 2
         for b in self.bands.values():
+            if s < b.start:
+                continue
             e = st.ema.get(b.width)
             w = e[0].value() if e else math.nan
             if w == w:
@@ -68,8 +69,6 @@ class Zzxu(Family):
 
     def dump(self, st, out):
         out["zzxu.high"], out["zzxu.low"], out["zzxu.last"] = st.high, st.low, st.last
-        if self.bands is None:
-            self.bands = {tag: Band(width, st.band_seed if carried else None) for tag, (width, carried) in BANDS.items()}
         for tag, b in self.bands.items():
             out[f"zzxu.upper|{tag}"], out[f"zzxu.lower|{tag}"], out[f"zzxu.dir|{tag}"] = b.upper, b.lower, b.dir
 
