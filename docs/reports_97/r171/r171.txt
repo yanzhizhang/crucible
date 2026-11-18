@@ -1,0 +1,46 @@
+# R171 output transcribed from the 97 screen (46 lines; the first ~2 lines scrolled off above "total 1408056"; long lines cut at 175 by my pager, marked [cut]); account ids masked
+total 1408056
+drwxrwxrwt  2 <uid> <gid>         86 Nov 18 16:06 .
+drwxrwxrwt 10 <uid> <gid>       4096 Nov 18 16:34 ..
+-rw-rw-rw-  1 <uid> <gid>       3893 Nov 18 09:00 chrono_20261118_090001.log
+-rw-rw-rw-  1 <uid> <gid> 1441837914 Nov 18 15:14 chrono_20261118_092335.log
+[00:01:09] 1 pm_signals + pm_orders from /work/crucible_data/pm_224/20261118/chrono_logs
+    factor lines: 1,351,712 matched (1,351,712 by order, not by epoch), 16,260 alg lines without their catchRun line
+    order match check: 0.9879 of rows on their sidIdx's main sid; book->epoch - srcEpoch (ms) p1/p50/p99 18.1/535.4/1623.9
+    factor program: 1,351,712 scored snapshots, 1,351,662 also in SIG (|prediction - fa| max 5.0e-03, corr 0.990178), 769,310 trade decisions
+    1,371,667 signals, 300 stocks, per stock p10/p50/p90 4257/4684/4740; prediction == 0 0.000
+    -> /work/crucible_data/pm_signals/state/date=20261118.parquet (88s)
+  -- 2 share of snapshots reaching a decision, by |fa| / hs (stock's median hs):
+    (-inf, 0.25] - 0.532 (185,892) | (-inf, 0.25] + 0.550 (181,212) | (0.25, 0.5] - 0.534 (152,645) | (0.25, 0.5] + 0.559 (139,919) | (0.5, 0.75] - 0.540 (110,695) | (0.5, 0.7[cut]
+  -- 3 lthr = -0.000186 -0.1795 x hs (resid p10/p50/p90 -0.0002582/6.563e-06/0.0002522, exact to 1e-5 0.029); distinct lthr 675974, hs 68155
+    on decisions: fa p10/p50/p90 -0.000425/-1.786e-05/0.00035; fa < lthr 0.235; fa > -lthr 0.206; |fa| > hs 0.255; executp != 0 0.470; nullptr=1 0.998
+    executp != 0: sign(executp) == sign(fa) 0.491; |executp| p10/p50/p90 0.1402/0.5455/1792; |executp| / winsdQty 5.679e-07/4.583e-06/0.003913; pos p10/p50/p90 -2500/100/3700
+  -- 6 chrono REJ reasons: leg blocked at gate -- <account> 100 shares: outside_ 63; leg blocked at gate -- <account> 2400 shares: outside 12; leg blocked at gat[cut]
+  -- 7 3,063 Po lines; side tag (the 2 letters after the time): {'SO': 3063}; f3 runs 1..3063 (exOid, +1 per order: 0.974), f4 = 100 x f3 + 1 1.000; tied to a decision 0.996,
+    buy: n 1,485; fa > 0 0.980; executp > 0 0.310, < 0 0.178, = 0 0.511; fa < lthr 0.008, fa > -lthr 0.815; |fa| / hs p10/p50/p90 1.07/2.917/7.744; qty p10/p50/p90 100/300/21[cut]
+    sell: n 1,566; fa > 0 0.056; executp > 0 0.327, < 0 0.296, = 0 0.377; fa < lthr 0.597, fa > -lthr 0.017; |fa| / hs p10/p50/p90 0.7486/1.553/5.874; qty p10/p50/p90 100/300[cut]
+    REJ: sides {'SELL': 32, 'BUY': 108}; on stocks holding nothing at boot 0.000 (26 stocks, 0 of them with no holding); stocks with a boot holding: 290
+    decisions followed by a Po within 200 ms, by |executp|: (-inf, 0] 0.000 (407,369) | (0, 99] 0.000 (279,468) | (99, 199] 0.000 (7,416) | (199, 999] 0.001 (23,438) | (999,[cut]
+    fa < lthr, Po rate by: nullptr 0.0: 0.107 (504), 1.0: 0.000 (180,155) | asq > 0 False: 0.000 (84,253), True: 0.001 (96,406) | pos > 0 False: 0.000 (125,056), True: 0.001[cut]
+  -rw-r--r-- 1 root root 59220435 Nov 19 00:02 /work/crucible_data/pm_signals/state/date=20261118.parquet
+
+  /work/crucible_data/pm_orders/date=20261118/:
+  total 61816
+  drwxr-xr-x 2 root root      133 Nov 19 00:04 .
+  drwxr-xr-x 8 root root      160 Nov 19 00:04 ..
+  -rw-r--r-- 1 root root 35533572 Nov 19 00:04 decisions.parquet
+  -rw-r--r-- 1 root root    56153 Nov 19 00:04 life.parquet
+  -rw-r--r-- 1 root root    40058 Nov 19 00:04 po.parquet
+  -rw-r--r-- 1 root root 27048908 Nov 19 00:04 snaps.parquet
+  -rw-r--r-- 1 root root   612397 Nov 19 00:04 trk.parquet
+[00:04:43] 2 DataYesSharesL2 20261118 -> dysl2_raw, catalog_dysl2
+  | 3553   | 4666.0  | 812   | 2732.0  | 2319  |
+  | 3554   | 4294.0  | 405   | 2661.0  | 2905  |
+  quotes on 20261118: (22107430, 5224)
+[00:06:15] 3 decisions
+  == 20261118: 1,351,712 scored snapshots, 769,310 decisions; decision columns: sid, src_epoch, fa, kind, cpp, aIdx, pos, pp, executp, asq, lthr, hs, liid, winsdQty, asf
+    share of snapshots with a decision 1.000; |fa| with p0/p1/p10/p50 1.418e-10/2.852e-06/2.892e-05/0.0001636, without p50/p90/p99/p100 -
+    per stock over time (769,010 consecutive pairs): pos unchanged 0.999; on a change: dpos == previous executp 0.222, sign(dpos) == sign(fa) 0.497, from 0 0.346, to 0 0.315;
+  chrono_20261118_090001.log: nullptr 0, ORD 0, SEND 0, REJ 0, TRD 0
+  chrono_20261118_092335.log: nullptr 769310, ORD 3063, SEND 2923, REJ 140, TRD 702
+[00:06:18] r171 done 20261118
