@@ -1,0 +1,61 @@
+# 224 /tmp/s/stsfile vs 2.23 /data/share/s (pm_stsfile) and 2.23's sod link trees, 2026-11-19 00:35 (user-approved copy; read-only on 224 and 2.23)
+# transcribed from the 97 screen; the first line (224 du / file count) scrolled off; the link list is cut at 45 by the script (head -45)
+rsync 224 rc 0: 24M, 122 files            -> /work/crucible_data/sts_224
+== 2.23 sod links: 1196 (by tree:  364 CEDxr4d/sod; 52 h/HS300; 780 hstats/sod;)
+== 224 stsfile vs 2.23 stsfile (pm_stsfile), per subdir: files 224 / 23 / both, both-identical, both-different
+  index: 224 29, 23 29, both 29, identical 29, different 0
+     224 newest: index-20261116.xr index-20261117.xr index-20261118.xr | 224 only: | 23 only:
+  ex: 224 29, 23 29, both 29, identical 29, different 0
+     224 newest: ex-20261116.xr ex-20261117.xr ex-20261118.xr | 224 only: | 23 only:
+  sid2symbol: 224 18, 23 18, both 18, identical 18, different 0
+     224 newest: 20261117.json 20261118.json sid2symbol.json | 224 only: | 23 only:
+  stats/sod: 224 46, 23 45, both 45, identical 45, different 0
+     224 newest: 20261116.xr 20261117.xr 20261118.xr | 224 only: 20261110.xr | 23 only:
+== other entries in 224 stsfile top level: ex index sid2symbol stats
+== 2.23 sod links for 20261116-18 (tree, date -> target):
+  CEDxr4d/sod/barra/20261116_stats.nc -> ../../barra/20261113_stats.nc
+  CEDxr4d/sod/barra/20261117_stats.nc -> ../../barra/20261116_stats.nc
+  CEDxr4d/sod/barra/20261118_stats.nc -> ../../barra/20261117_stats.nc
+  h/HS300/sod/p1_intrading_dcp/20261116.jz -> ../../p1_intrading_dcp/20261113.jz
+  h/HS300/sod/p1_intrading_dcp/20261117.jz -> ../../p1_intrading_dcp/20261116.jz
+  h/HS300/sod/p1_intrading_dcp/20261118.jz -> ../../p1_intrading_dcp/20261117.jz
+  hstats/sod/HS300/ZZAC/20261116 -> ../../../HS300/ZZAC/20261113
+  hstats/sod/HS300/ZZAC/20261117 -> ../../../HS300/ZZAC/20261116
+  hstats/sod/HS300/ZZAC/20261118 -> ../../../HS300/ZZAC/20261117
+  hstats/sod/HS300/ZZAL/20261116 -> ../../../HS300/ZZAL/20261113
+  hstats/sod/HS300/ZZAL/20261117 -> ../../../HS300/ZZAL/20261116
+  hstats/sod/HS300/ZZAL/20261118 -> ../../../HS300/ZZAL/20261117
+  hstats/sod/HS300/ZZCR/20261116 -> ../../../HS300/ZZCR/20261113
+  hstats/sod/HS300/ZZCR/20261117 -> ../../../HS300/ZZCR/20261116
+  hstats/sod/HS300/ZZCR/20261118 -> ../../../HS300/ZZCR/20261117
+  hstats/sod/HS300/ZZDS/20261116 -> ../../../HS300/ZZDS/20261113
+  hstats/sod/HS300/ZZDS/20261117 -> ../../../HS300/ZZDS/20261116
+  hstats/sod/HS300/ZZDS/20261118 -> ../../../HS300/ZZDS/20261117
+  hstats/sod/HS300/ZZGW/20261116 -> ../../../HS300/ZZGW/20261113
+  hstats/sod/HS300/ZZGW/20261117 -> ../../../HS300/ZZGW/20261116
+  hstats/sod/HS300/ZZGW/20261118 -> ../../../HS300/ZZGW/20261117
+  hstats/sod/HS300/ZZHL/20261116 -> ../../../HS300/ZZHL/20261113
+  hstats/sod/HS300/ZZHL/20261117 -> ../../../HS300/ZZHL/20261116
+  hstats/sod/HS300/ZZHL/20261118 -> ../../../HS300/ZZHL/20261117
+  hstats/sod/HS300/ZZMS/20261116 -> ../../../HS300/ZZMS/20261113
+  hstats/sod/HS300/ZZMS/20261117 -> ../../../HS300/ZZMS/20261116
+  hstats/sod/HS300/ZZMS/20261118 -> ../../../HS300/ZZMS/20261117
+  hstats/sod/HS300/ZZQI/20261116 -> ../../../HS300/ZZQI/20261113
+  hstats/sod/HS300/ZZQI/20261117 -> ../../../HS300/ZZQI/20261116
+  hstats/sod/HS300/ZZQI/20261118 -> ../../../HS300/ZZQI/20261117
+  hstats/sod/HS300/ZZQO/20261116 -> ../../../HS300/ZZQO/20261113
+  hstats/sod/HS300/ZZQO/20261117 -> ../../../HS300/ZZQO/20261116
+  hstats/sod/HS300/ZZQO/20261118 -> ../../../HS300/ZZQO/20261117
+  hstats/sod/HS300/ZZSQ/20261116 -> ../../../HS300/ZZSQ/20261113
+  hstats/sod/HS300/ZZSQ/20261117 -> ../../../HS300/ZZSQ/20261116
+  hstats/sod/HS300/ZZSQ/20261118 -> ../../../HS300/ZZSQ/20261117
+  hstats/sod/HS300/ZZTS/20261116 -> ../../../HS300/ZZTS/20261113
+  hstats/sod/HS300/ZZTS/20261117 -> ../../../HS300/ZZTS/20261116
+  hstats/sod/HS300/ZZTS/20261118 -> ../../../HS300/ZZTS/20261117
+  hstats/sod/HS300/ZZUG/20261116 -> ../../../HS300/ZZUG/20261113
+  hstats/sod/HS300/ZZUG/20261117 -> ../../../HS300/ZZUG/20261116
+  hstats/sod/HS300/ZZUG/20261118 -> ../../../HS300/ZZUG/20261117
+  hstats/sod/HS300/ZZVC/20261116 -> ../../../HS300/ZZVC/20261113
+  hstats/sod/HS300/ZZVC/20261117 -> ../../../HS300/ZZVC/20261116
+  hstats/sod/HS300/ZZVC/20261118 -> ../../../HS300/ZZVC/20261117
+stscmp done 00:35:10
