@@ -1,0 +1,13 @@
+# new data check 2026-11-19 19:45:03 (list-only on 224 and 2.23; owners masked) -- condensed transcription of 97 data/reports/newdata_20261119.txt (136 lines)
+== 224 /tmp/o/executor: 20261120 (dir created Nov 19 18:12), chrono_runtime (Nov 19 15:19), scripts, .git
+== 224 /tmp/o/executor/20261119 (1.4G): base_position_{hs300,zz500,zz1000}_{adjust,official}_{lot100,share1}.csv (Nov 18 17:53-54),
+   chrono_logs/ (Nov 19 15:26), chrono_run_s.json5 5169 (Nov 19 15:26; logins, not to be opened), config2_HS300.json 893 (Nov 18 16:04),
+   cron/, ledger/ (10:31), pnl/ (16:00), portfolio/, position_log/ (15:26), qx_trade_info/, sc.p3.json 210 (Nov 18 15:59), sod.csv 307736 (08:25), xtp_log/
+== 224 /tmp/o/sig: 20261117/ 20261118/ 20261119/  each one alpha.parquet: 20261118 22,271,799 B (Nov 18 15:10), 20261119 22,107,388 B (Nov 19 15:10)
+== 224 /tmp/s/stsfile newest: index-20261119.xr, ex-20261119.xr, sid2symbol 20261119.json, stats/sod 20261119.xr
+== 2.23 /data/share/datayes_2_tdf/224_shm_datayes: 53G; layout <code>.<SH|SZ>/<stream>/<YYYYMMDD>.zip; ~5967 symbol dirs (dirs Nov 11 20:29-30)
+   streams: SH symbols have 1; SZ symbols have 0, 2, 3 (meaning of the ids not known yet)
+   days (sample 123150.SZ/0): 20261111 157601, 20261113 215074, 20261116 223551, 20261117 255130, 20261118 217693, 20261119 274075 B
+   ReadyFlag: /data/share/datayes_2_tdf/ReadyFlag/224_shm_datayes_finish.20261119 (17:19), xtp_finish.20261119 (17:20)
+== 2.23 also /data/share/datayes_2_tdf/xtp/<code>/3/20261119.zip (4-10 MB each, 17:18) -- the newest 30 changes since 11-18 20:00 are all there
+== 2.23 PM .jz newest: 20261117.jz 20261118.jz (no 20261119 yet)
