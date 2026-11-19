@@ -118,7 +118,11 @@ def build_summaries(con: duckdb.DuckDBPyConnection, *, rebuild: bool) -> None:
     done = {
         (d, k) for d, k in con.execute("SELECT DISTINCT date, kind FROM summary_minute").fetchall()
     }
+    views = {r[0] for r in con.execute("SELECT view_name FROM duckdb_views()").fetchall()}
     for kind, cond in _EVENT_FILTER.items():
+        if f"raw_{kind}" not in views:  # a source without this stream (the 224 TDF feed has no index kind)
+            print(f"  summary {kind}: no raw_{kind} view, left out")
+            continue
         days = [
             str(r[0])
             for r in con.execute(f"SELECT DISTINCT date FROM raw_{kind} ORDER BY 1").fetchall()

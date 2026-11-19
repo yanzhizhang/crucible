@@ -7,17 +7,22 @@
 #  cmp     moderate (~2 min, duckdb): 20261118 in s224 against dysl2 (the DataYesSharesL2 package): rows per kind and
 #          exchange; for the 300 strategy stocks, snapshots per stock, shared exchange stamps, price / volume equal on the
 #          shared ones, the local receive time difference; orders and trades by sequence number present in one and not the other.
-#   bash research/r176.sh probe 2>&1 | tee data/reports/r176_probe.txt     (same for decode, cmp)
+#  catalog (re)build catalog_s224.duckdb only (light)
+#   bash research/r176.sh probe 2>&1 | tee data/reports/r176_probe.txt     (same for decode, catalog, cmp)
 set -u
 cd /work/crucible
 DATA=/work/crucible_data
-case "${1:?probe|decode|cmp}" in
+case "${1:?probe|decode|catalog|cmp}" in
 probe)
   python -u research/decode_tdf_day.py --root $DATA/tdf_224 --date 20261118 --out $DATA/s224_raw --probe 2>&1 | grep -v Warning | cut -c1-260 ;;
 decode)
   python -u research/decode_tdf_day.py --root $DATA/tdf_224 --date 20261118,20261119 --out $DATA/s224_raw --workers 96 2>&1 | grep -v Warning | tail -40 | cut -c1-220
   CRUCIBLE_SOURCE=s224 python -u research/catalog.py 2>&1 | tail -6 | cut -c1-200
   du -sh $DATA/s224_raw $DATA/catalog_s224.duckdb 2>&1 ;;
+catalog)
+  CRUCIBLE_SOURCE=s224 python -u research/catalog.py 2>&1 | tail -12 | cut -c1-200
+  CRUCIBLE_SOURCE=s224 python -c "import sys; sys.path.insert(0,'research/pm_factors'); import duckdb, dcp_build as B; c=duckdb.connect(str(B.CATALOG), read_only=True); print('views:', [r[0] for r in c.sql('SELECT view_name FROM duckdb_views()').fetchall() if r[0].startswith('raw_')]); print('quotes per day:', c.sql('SELECT date, count(*), count(DISTINCT symbol_id) FROM raw_quotation GROUP BY 1 ORDER BY 1').fetchall())" 2>&1 | tail -2 | cut -c1-200
+  du -sh $DATA/catalog_s224.duckdb ;;
 cmp)
   python - <<'PY' 2>&1 | grep -v Warning | cut -c1-230
 import duckdb
@@ -40,7 +45,7 @@ for kind in ("quotation", "order", "transaction"):
             print(f"   {kind:<11} {src:<5} FAILED: {str(e)[:120]}")
 q = f"""WITH a AS (SELECT symbol_id, time, any_value(price) p, any_value(total_volume) tv, min(spider_ts) ts FROM {v('s224','quotation')} WHERE symbol_id IN ({S}) GROUP BY 1, 2),
              b AS (SELECT symbol_id, time, any_value(price) p, any_value(total_volume) tv, min(spider_ts) ts FROM {v('dysl2','quotation')} WHERE symbol_id IN ({S}) GROUP BY 1, 2)
-        SELECT count(*) FILTER (a.time IS NOT NULL) n_a, count(*) FILTER (b.time IS NOT NULL) n_b, count(*) FILTER (a.time IS NOT NULL AND b.time IS NOT NULL) both,
+        SELECT count(*) FILTER (a.time IS NOT NULL) n_a, count(*) FILTER (b.time IS NOT NULL) n_b, count(*) FILTER (a.time IS NOT NULL AND b.time IS NOT NULL) n_both,
                count(*) FILTER (a.p = b.p AND a.tv = b.tv) same_px_vol,
                quantile_cont((a.ts - b.ts) / 1e6, [0.01, 0.1, 0.5, 0.9, 0.99]) FILTER (a.time IS NOT NULL AND b.time IS NOT NULL) dt_ms
         FROM a FULL JOIN b USING (symbol_id, time)"""
