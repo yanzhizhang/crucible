@@ -5,7 +5,7 @@ A  participation gate: no decision unless ourVol / mktVol < 0.15 (the 300 s aver
    emsOurVol / emsMktVol); room = (0.15 x mktVol - ourVol) / 0.85, which should be the logged winsdQty.
 B  lthr: is the logged lthr the close relaxation v18 = -w x (cr + msr) with w = (vpen / 0.001)^2 (the time fraction since
    13:00) and msr the stock's start-of-day value (stsfile stats/sod)? Zero before 13:00 follows from w = 0.
-C  the order condition |fa x asf| >= cr + x + v18 with x = the logged hs: share of orders that satisfy it, and the
+C  the order condition |fa x asf| >= cr + x + v18 with x = the logged hs or twice it (w.cpp: x = spread / mid): share of orders that satisfy it, and the
    rule "condition and lot-rounded min(|executp - cpos|, winsdQty) >= 100 and trade sign == sign(fa)" as a classifier of
    "order made" (top-of-book size is not in the log, so precision below 1 is expected; recall should be ~1).
 D  the no-trade band: lo / hi = (fa -+ (x + cr) / 1.5) / (2 x vpen x (vr / 3) x mp) - pos; target 0 inside the band, else
@@ -93,36 +93,39 @@ def main() -> None:
     except Exception as e:
         print(f"   start-of-day table not read ({e!r}); the implied msr above still tells whether it is one value per stock")
 
-    print("-- C the order condition |fa| x asf >= cr + hs + lthr")
-    cond = np.abs(fa) * ASF >= CR + hs + lt
-    cond0 = np.abs(fa) * ASF >= CR + hs
     tr = ex - cp
     lot = np.floor(np.minimum(np.abs(tr), wq) / 100) * 100
     agree = np.sign(tr) == np.sign(fa)
-    print(f"   condition holds on {float(cond.mean()):.4f} of decisions, on {float(cond[order].mean()):.4f} of orders; without the lthr term on {float(cond0[order].mean()):.4f} of orders")
-    print(f"   margin (|fa| asf - cr - hs - lthr) / hs on orders q1/10/50/90/99 {q(((np.abs(fa) * ASF - CR - hs - lt) / hs)[order])}")
-    for name, rule in (("condition", cond), ("condition, lot >= 100", cond & (lot >= 100)), ("condition, lot >= 100, sign", cond & (lot >= 100) & agree),
-                       ("condition, lot >= 100, sign, executp != pos", cond & (lot >= 100) & agree & (np.abs(ex - pos) > 1e-6)),
-                       ("no-lthr condition, lot >= 100, sign", cond0 & (lot >= 100) & agree)):
-        tp = float((rule & order).sum())
-        print(f"   rule [{name}]: predicts {int(rule.sum()):,}; precision {tp / max(rule.sum(), 1):.4f}, recall {tp / max(order.sum(), 1):.4f}")
-    miss = order & ~(cond & (lot >= 100) & agree)
-    print(f"   orders outside the last full rule: {int(miss.sum())}; of them condition false {int((miss & ~cond).sum())}, lot < 100 {int((miss & (lot < 100)).sum())}, sign differs {int((miss & ~agree).sum())}, executp == 0 {int((miss & (ex == 0)).sum())}")
-
-    print("-- D the no-trade band against the logged executp (x = hs)")
-    with np.errstate(divide="ignore", invalid="ignore"):
-        den = 2 * vp * (vr / 3) * mp
-        lo, hi = (fa - (hs + CR) / 1.5) / den - pos, (fa + (hs + CR) / 1.5) / den - pos
-    for nm, (l_, h_) in (("as given", (lo, hi)), ("edges swapped in sign", (-hi, -lo))):
-        tgt = np.where(l_ > 0, l_, np.where(h_ < 0, h_, 0.0))
-        tgt = np.clip(tgt, -pc, pc)
-        ok = np.isfinite(tgt) & np.isfinite(ex)
-        print(f"   {nm}: inside the band (target 0) on {float((tgt[ok] == 0).mean()):.4f} (logged executp == 0 on {float((ex[ok] == 0).mean()):.4f}); both zero or both non-zero on {float(((tgt[ok] == 0) == (ex[ok] == 0)).mean()):.4f};"
-              f" exact where both non-zero {float(close(ex[ok & (tgt != 0) & (ex != 0)], tgt[ok & (tgt != 0) & (ex != 0)], 1e-6).mean()) if (ok & (tgt != 0) & (ex != 0)).any() else float('nan'):.4f};"
-              f" executp / target there {q((ex / tgt)[ok & (tgt != 0) & (ex != 0)])}")
-        for tag, mseg in (("before 13:00", sod < 46800), ("after 13:00", sod >= 46800)):
-            mm = ok & mseg
-            print(f"      {tag}: zero / non-zero agreement {float(((tgt[mm] == 0) == (ex[mm] == 0)).mean()):.4f}; sign agreement where both non-zero {float((np.sign(tgt) == np.sign(ex))[mm & (tgt != 0) & (ex != 0)].mean()) if (mm & (tgt != 0) & (ex != 0)).any() else float('nan'):.4f}")
+    for xm in (1.0, 2.0):  # w.cpp: x = spread / mid (the relative FULL spread); the logged hs is x itself or half of it
+        x = xm * hs
+        print(f"-- C the order condition |fa| x asf >= cr + x + lthr, x = {xm:g} x hs")
+        cond = np.abs(fa) * ASF >= CR + x + lt
+        cond0 = np.abs(fa) * ASF >= CR + x
+        print(f"   condition holds on {float(cond.mean()):.4f} of decisions, on {float(cond[order].mean()):.4f} of orders; without the lthr term on {float(cond0[order].mean()):.4f} of orders")
+        print(f"   margin (|fa| asf - cr - x - lthr) / x on orders q1/10/50/90/99 {q(((np.abs(fa) * ASF - CR - x - lt) / x)[order])}; on non-orders that pass lot + sign: {q(((np.abs(fa) * ASF - CR - x - lt) / x)[~order & (lot >= 100) & agree])}")
+        for name, rule in (("condition", cond), ("condition, lot >= 100", cond & (lot >= 100)), ("condition, lot >= 100, sign", cond & (lot >= 100) & agree),
+                           ("condition, lot >= 100, sign, executp != pos", cond & (lot >= 100) & agree & (np.abs(ex - pos) > 1e-6)),
+                           ("no-lthr condition, lot >= 100, sign", cond0 & (lot >= 100) & agree)):
+            tp = float((rule & order).sum())
+            print(f"   rule [{name}]: predicts {int(rule.sum()):,}; precision {tp / max(rule.sum(), 1):.4f}, recall {tp / max(order.sum(), 1):.4f}")
+        miss = order & ~(cond & (lot >= 100) & agree)
+        print(f"   orders outside the last full rule: {int(miss.sum())}; of them condition false {int((miss & ~cond).sum())}, lot < 100 {int((miss & (lot < 100)).sum())}, sign differs {int((miss & ~agree).sum())}, executp == 0 {int((miss & (ex == 0)).sum())}")
+        print(f"-- D the no-trade band, x = {xm:g} x hs: step r = lo if lo > 0, hi if hi < 0, else 0, with lo / hi = (fa -+ (x + cr) / 1.5) / (2 vpen (vr / 3) mp) - P; target = clamp(P + r, +-poscst)")
+        for pn, P in (("pos", pos), ("cpos", cp)):
+            with np.errstate(divide="ignore", invalid="ignore"):
+                den = 2 * vp * (vr / 3) * mp
+                lo, hi = (fa - (x + CR) / 1.5) / den - P, (fa + (x + CR) / 1.5) / den - P
+            r = np.where(lo > 0, lo, np.where(hi < 0, hi, 0.0))
+            tgt = np.clip(P + r, -pc, pc)
+            ok = np.isfinite(tgt) & np.isfinite(ex)
+            for en, e in (("executp", ex), (f"executp - {pn}", ex - P)):
+                ref = tgt if en == "executp" else tgt - P
+                nz = ok & (ref != 0) & (e != 0)
+                print(f"   P = {pn}, {en} vs {'target' if en == 'executp' else 'step'}: exact (1e-6) on {float(close(e[ok], ref[ok], 1e-6).mean()):.4f}; zero / non-zero agreement {float(((ref[ok] == 0) == (e[ok] == 0)).mean()):.4f};"
+                      f" where both non-zero: sign agreement {float((np.sign(ref) == np.sign(e))[nz].mean()) if nz.any() else float('nan'):.4f}, ratio q1/10/50/90/99 {q((e / ref)[nz])}")
+            band0 = ok & (r == 0)
+            print(f"      inside the band on {float(band0[ok].mean()):.4f}; there executp == {pn} on {float(close(ex[band0], P[band0], 1e-6).mean()) if band0.any() else float('nan'):.4f}, executp == 0 on {float((ex[band0] == 0).mean()) if band0.any() else float('nan'):.4f};"
+                  f" target clamped at +-poscst on {float((np.abs(tgt[ok]) == pc[ok]).mean()):.4f}")
     print("[done]")
 
 
