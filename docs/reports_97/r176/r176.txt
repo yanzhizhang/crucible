@@ -1,0 +1,15 @@
+# R176 (224's own feed "s224" vs DataYesSharesL2 "dysl2"), transcribed from the 97 screen. decode 20:14:26-20:15:35; catalog+cmp rerun with fixes (8d8e06d) 20:37
+decode: /work/crucible_data/s224_raw 18G; snapshots per symbol: market 3553 median 4586 (min 800, p05 2682, 2319 symbols); 3554 median 4212 (min 399, p05 2604, 2905 symbols)
+catalog: views raw_manifest, raw_order, raw_quotation, raw_transaction (no index stream); quotes per day: (20261118, 22062028, 5224), (20261119, 21811016, 5224); catalog_s224.duckdb 780K
+== 20261118: s224 vs dysl2; 300 strategy stocks
+   quotation   s224 (market, rows, symbols): [(3553, 10165038, 2319), (3554, 11896990, 2905)]
+   quotation   dysl2: [(3553, 10192939, 2319), (3554, 11914491, 2905)]
+   order       s224: [(3553, 93976460, 2314), (3554, 116393103, 2903)]
+   order       dysl2: [(3553, 93990359, 2319), (3554, 116393103, 2903)]
+   transaction s224 = dysl2: [(3553, 54567384, 2314), (3554, 104411003, 2903)]
+-- snapshots of the strategy stocks, keyed by (stock, exchange stamp): s224 1,532,657, dysl2 1,535,591, in both 1,532,657 (1.0000 of s224, 0.9981 of dysl2); price and volume equal on 1,532,657 of the shared
+   local receive time s224 - dysl2, ms, q1 / q10 / q50 / q90 / q99: [-5.85, -1.1, -0.4, 0.79, 8.81]
+   snapshot rows per stock min / q10 / q50 / q90 / max: s224 [4214.0, 4894.9, 5175.0, 5300.0, 5302.0], dysl2 [4220.0, 4900.9, 5187.0, 5312.0, 5315.0]
+-- orders of the strategy stocks by (stock, sequence number): s224 34,816,366, dysl2 34,817,494, in both 34,816,366; only in dysl2 1,128 (0.00003), only in s224 0
+   missing from s224: [(3553, 1128, '00:23', '15:05')]
+-- transactions: s224 26,127,284 = dysl2 26,127,284, all in both
