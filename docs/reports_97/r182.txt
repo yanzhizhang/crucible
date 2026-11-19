@@ -1,0 +1,45 @@
+# R182 on 97 (2026-11-19 22:04), transcribed from screen (fold 172 then 150); 43 lines. Script ae7aef4 (r182.sh 543c19fe, runs_alg2.py 203e7553), GATE OK.
+# [..] marks text cut by the script's own cut -c1-250.
+== 1 20261118: where the decision line is printed (1,367,972 snapshot lines, 769,310 decisions)
+   09:30  snapshot lines  178,318  without a decision  150,586 (0.8445)
+   10:00  snapshot lines  174,089  without a decision  151,100 (0.8679)
+   10:30  snapshot lines  170,869  without a decision  148,761 (0.8706)
+   11:00  snapshot lines  168,371  without a decision  147,765 (0.8776)
+   11:30  snapshot lines      150  without a decision      138 (0.9200)
+   13:00  snapshot lines  174,185  without a decision      163 (0.0009)
+   13:30  snapshot lines  171,862  without a decision       26 (0.0002)
+   14:00  snapshot lines  170,874  without a decision       21 (0.0001)
+   14:30  snapshot lines  159,254  without a decision       18 (0.0001)
+   share without a decision per stock q1/10/50/90/99: 0.0046182 / 0.28352 / 0.48752 / 0.50436 / 0.52446
+   snapshot lines per (stock, source second): 1 on 0.9880, 2 on 0.0120, more on 0.0000; decision lines per key: 1 on 1.0000, 2 on 0.0000; keys with more snapshot lines than decisions: 605,414
+   lines with a decision: 769,394; previous line of the stock had a decision on 0.9774; seconds since the previous line q10/50/90 3 / 3 / 3; fa equal to the previous line's on 0.0000; |fa| q10/50/90 3.0956e-05 / 0.00017669 / 0.00055877; mktVol == 0 o[..]
+   lines without: 598,578; previous line of the stock had a decision on 0.0288; seconds since the previous line q10/50/90 3 / 3 / 3; fa equal to the previous line's on 0.0000; |fa| q10/50/90 2.6636e-05 / 0.00014906 / 0.00047618; mktVol == 0 on 0.0000
+   runs of consecutive lines with a decision per stock: 17,521 runs, length q10/50/90/max 1 / 1 / 9 / 4664
+   runs of consecutive lines without a decision per stock: 17,397 runs, length q10/50/90/max 1 / 4 / 62 / 2394
+   decisions before 13:00: 93,287, executp == cpos on 0.00000; after 13:00: 676,023, executp == cpos on 0.59225
+
+== 2 executp against the band target: exact on 0.9345; 50,414 misses
+   band step > 0 (buy): 18,513 misses of 187,844 (0.0986); logged step / band step 0 / 0 / 0 / 0.84445 / 0.99998; logged step == 0 on 0.7583; |logged step| == asq on 0.7833; logged executp == 0 on 0.9627; |logged step| < |band step| on 1.0000
+      by half hour: 09:30 2270, 10:00 560, 10:30 454, 11:00 347, 11:30 1, 13:00 3755, 13:30 4705, 14:00 3326, 14:30 3095
+      asq q1/10/50/90/99 0 / 0 / 0 / 0 / 600; cpos -3900 / -500 / 0 / 0 / 0; band step 0.00028019 / 0.0039814 / 0.064138 / 943.56 / 5103.7; logged step 0 / 0 / 0 / 600 / 3900
+   band step < 0 (sell): 31,901 misses of 223,149 (0.1430); logged step / band step 0 / 0 / 0 / 0.38571 / 0.99997; logged step == 0 on 0.8809; |logged step| == asq on 1.0000; logged executp == 0 on 0.9813; |logged step| < |band step| on 1.0000
+      by half hour: 09:30 1271, 10:00 362, 10:30 254, 11:00 262, 13:00 6131, 13:30 6315, 14:00 5252, 14:30 12054
+      asq q1/10/50/90/99 0 / 0 / 0 / 100 / 1700; cpos 0 / 0 / 0 / 8 / 1600; band step -2511.8 / -100.02 / -0.049885 / -0.0042566 / -0.00032706; logged step -1700 / -100 / 0 / 0 / 0
+   band step == 0: 0
+
+== 3 the order rule's false positives
+  since = d.join_asof(o, left_on="src_epoch", right_on="prev_order", by="sid", strategy="backward", allow_exact_matches=False)
+   rule predicts 2,222: 1,522 orders, 700 false positives; orders missed 3
+   orders: seconds since the stock's previous order q10/50/90 6 / 45 / 6345 (none before on 0.166); lots 100 / 500 / 2590; margin / hs 0.04529 / 0.38097 / 2.0878; pp == pos on 0.171; pos == cpos on 0.840; buy share 0.497; asq < lot on 0.340
+      by half hour: 09:30 571, 10:00 30, 10:30 20, 11:00 11, 13:00 57, 13:30 95, 14:00 206, 14:30 532
+   false positives: seconds since the stock's previous order q10/50/90 245.7 / 17439 / 19344 (none before on 0.029); lots 100 / 100 / 100; margin / hs 0.34288 / 2.7576 / 11.112; pp == pos on 0.001; pos == cpos on 0.974; buy share 0.084; asq < lot on[..]
+      by half hour: 09:30 108, 10:00 9, 10:30 1, 11:00 2, 13:00 22, 13:30 89, 14:00 171, 14:30 298
+   rule true, 3-6 s: 86, order on 0.9651
+   rule true, 6-60 s: 623, order on 0.9583
+   rule true, >= 60 s or none: 1,513, order on 0.5565
+   rule true, pp == pos: 261, order on 0.9962
+   rule true, pp != pos: 1,961, order on 0.6435
+   rule true, pos == cpos: 1,960, order on 0.6520
+   rule true, pos != cpos: 262, order on 0.9313
+[done]
+[22:04:55] r182 done
