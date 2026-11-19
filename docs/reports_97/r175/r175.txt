@@ -1,0 +1,31 @@
+# R175 (gate OK f4fb8480, done 20:05:55, 321 lines) -- condensed transcription from the 97 screen; per-row samples of the CSVs omitted except where shown
+== 1 tdf_224: 5965 symbol dirs, 15G
+   SH: streams -> symbol count:  2320 0   200 1   2316 2   2316 3
+   SZ: streams -> symbol count:  3070 0   375 1   2903 2   2903 3
+   Each <code>/<stream>/20261118.zip holds one CSV, 20261118.csv (text).
+   stream 0 = snapshots. Header: LocalTime,WindCode,Code,ActionDay,Time,Match,0,0,NumTrades,IOPV,0,0,Volume,Turnover,High,Low,Open,PreClose,AskPrice1,...AskPrice6,AskPrice[cut]
+     600000.SH 5297 lines (zip 237011 B, csv 2398176 B); 600519.SH 5263; 000001.SZ 4974; 300750.SZ 4976
+     rows e.g. 20261118-09:01:05.998949358,600000.SH,600000,20261118,90105000,0.0000,0,0,0,...,0.0000,10.8600,... ; last 20261118-15:39:36.011671019,...,153935000,10.7200,0,0,69097,0,0,0,65527092,705135656,10.8900,10.6800,10.7600,10.8600,10.7300,...
+   stream 2 = orders. Header: LocalTime,WindCode,Code,ActionDay,Time,Order,OrderKind,FunctionCode,Price,Volume,Vendor,Channel,OrderOriNo,BizIndex
+     600000.SH 81888 lines; 600519.SH 71734; 000001.SZ 185308; 300750.SZ 226028
+     rows e.g. 20261118-09:25:04.284611019,600000.SH,600000,20261118,91500000,288356,65,66,11.0200,2900,16,1001,45,288356 ; ...,145959920,26864472,65,83,10.7100,17000,16,1001,16099191,26864472
+   stream 3 = trades. Header: LocalTime,WindCode,Code,ActionDay,Time,Index,FunctionCode,OrderKind,BSFlag,Price,Volume,AskOrder,BidOrder,Vendor,Channel,BizIndex
+     600000.SH 69105 lines; 600519.SH 23558; 000001.SZ 171385; 300750.SZ 184809
+     rows e.g. 20261118-09:25:04.334442061,600000.SH,600000,20261118,92500000,293155,0,0, ,10.7600,1000,31990,7814,16,1001,293155
+   stream 1 (SH 200 / SZ 375 dirs): indices / funds (not shown in R175)
+== 2 alpha.parquet (/tmp/o/sig/<day>/alpha.parquet from 224)
+   20261117: 1,381,854 rows x 5 columns, 22,299,551 B; 20261118: 1,371,719 rows, 22,271,799 B; 20261119: 1,364,989 rows, 22,107,388 B
+   schema: sid:Float64, date:Float64, src_epoch:Float64, rec_epoch:Float64, alpha:Float64
+   1117 sample: 600150 20261117 1794879000 1794879000.1606407 0.00012048275870453343 | 601727 ... 0.0001274665083634984 | 1 ... 1794879000.5716586 -0.001351186894218888
+   1117 stats: sid distinct 300 (1.0 .. 688981.0); date 1 distinct; src_epoch 1794878999 .. 1794898619 (14224 distinct); rec_epoch distinct 1381854; alpha -0.00619 .. 0.00754, distinct 1381854
+   pm_signals 20261118 (parsed from the chrono log): 1,371,717 rows; schema date:Int32, sid:Int64, symbol:String, md_ts:Int64, md_recv_ts:Int64, recv_ts:Int64, t:Float...
+   -> 1118: alpha.parquet 1,371,719 rows vs chrono-log signals 1,371,717 (2 more in the file)
+== 3 PM configs, 1118 vs 1119
+   config2_HS300.json: 1118 1181 B (2026-11-18 16:06:43) | 1119 893 B (2026-11-18 16:04:37). Diff: date 20261118 -> 20261119;
+     output_dir .../chrono_runtime/cfg/sim_example/HS300 -> /tmp/o/executor/20261119/HS300; alg_cfg .../cfg/sim_example/sc.p3.json -> /tmp/o/executor/20261119/sc.p3.json.
+     Everything else equal: univ HS300, NumLevels 10, prod true, dataPath /tmp/s/stsfile, the two snapshot streams, cr 0.0004, sim_et 145900000, depthLevel 10, sim_st 93000000,
+     fan ["pqAlpha"], faw [1.0], fac [{alpha_name "alpha.1", alpha_dur 0.03}]
+   sc.p3.json: 1118 missing in the pull | 1119 210 B (2026-11-18 15:59:36): {"ahubs": [{"tqub": 10000000, "nmvcst": 10000000, "tpub": 0.09, "adur": 12, "vpen": 1e-7,
+     "rvts": 130000000, "asf": 0.8, "neg_nmvcst": false}]}  -- same values as the sc.p3.json read on 224 on 2026-11-17
+   1119 dir (json5 names skipped): base_position csvs, chrono_logs, config2_HS300.json 893, cron, ledger, pnl, portfolio, position_log, qx_trade_info, sc.p3.json 210, sig, sod.csv 307736, xtp_log
+[20:05:55] r175 done
