@@ -1,0 +1,13 @@
+# R177 on 97 (2026-11-19 22:29:38 -> 22:37:05), transcribed from screen 2026-11-20. /work/crucible/data/reports/r177.txt md5 321e8980171764a56343bae99b7b9b5b (782 B).
+[22:29:38] 20261118
+  seed 20261117.jz; hstats families with 20261118: 16
+  similarity on s224: 0.6028   (dysl2, R172 / r99: 0.5911)
+20261118: done in 13s
+  matrices s224 vs dysl2: 72,000 shared rows of 72,000 / 72,000; 144 columns; correlation q10 / q50 / q90 0.8804 / 0.9998 / 1.0000; equal-value share q10 / q50 / q90 0.003 / 0.575 / 1.000
+  the 12 columns the feed changes most (correlation, equal share): zzqf9.a 0.658 0.98, zzwa.k 0.771 0.23, zzwj.b 0.792 0.00, zzyg2.0.b 0.838 0.07, zzwa.h 0.838 0.07, zzlf 0.838 0.07, zzpz.c 0.838 0.07, zzuc.d 0.838 0.07,
+[22:33:33] 20261119
+  seed 20261118.jz; hstats families with 20261119: 0
+  similarity on s224: 0.6187   (dysl2, R172 / r99: )
+20261119: done in 12s
+  no pair of matrices to compare: True False
+[22:37:05] r177 done
