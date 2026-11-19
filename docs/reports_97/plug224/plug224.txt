@@ -1,0 +1,25 @@
+# 224 /tmp/o/executor/chrono_runtime plugins vs 97, list-only, 2026-11-19 20:43:03 (owner names masked)
+== 224 /tmp/o/executor/chrono_runtime/plugins
+total 111600
+drwxrwxr-x 2 <u> <g>       46 2026-11-19 18:25 .
+drwxrwxrwt 6 <u> <g>     4096 2026-11-19 15:19 ..
+-rw-rw-r-- 1 <u> <g> 47989616 2026-11-19 15:19 libcatchRun.so
+-rw-rw-rw- 1 <u> <g> 66277378 2026-11-19 18:25 libshtst.a
+md5 1f4b2f32724d2689e578a03e8cb7b506  libcatchRun.so  | ELF 64-bit LSB shared object, x86-64, version 1 (GNU/Linux), dynamically linked, BuildID[s[cut]
+md5 ea42292a8bd8295e05aaf500cf760a7b  libshtst.a  | current ar archive
+build-id libcatchRun.so: 7c2af9a54e183f93fd3db9e29983695b20908136
+== 224 /tmp/o/executor/chrono_runtime/plugins.bak
+total 111600
+drwxrwxrwt 2 <u> <g>       46 2026-11-18 15:52 .
+drwxrwxrwt 6 <u> <g>     4096 2026-11-19 15:19 ..
+-rw-rw-rw- 1 <u> <g> 47989616 2026-11-18 15:53 libcatchRun.so
+-rw-rw-rw- 1 <u> <g> 66277378 2026-11-17 12:40 libshtst.a
+md5 1f4b2f32724d2689e578a03e8cb7b506  libcatchRun.so  | ELF 64-bit LSB shared object, x86-64, version 1 (GNU/Linux), dynamically linked, BuildID[s[cut]
+md5 ea42292a8bd8295e05aaf500cf760a7b  libshtst.a  | current ar archive
+build-id libcatchRun.so: 7c2af9a54e183f93fd3db9e29983695b20908136
+== 97 reference copies
+md5 5aefa9b4e443129566ca0030c9b23cb7  47989616 2026-11-16 10:48:29.0  /data/sht-stg-lib/plugins/libcatchRun.so
+md5 ea42292a8bd8295e05aaf500cf760a7b  66277378 2026-11-16 10:48:29.9  /data/sht-stg-lib/plugins/libshtst.a
+build-id libcatchRun.so: 7233d5d24d4250103eac0156f15437eaa516b0f1
+# done 20:43:04
+decompilers on 97: none on PATH (ghidra analyzeHeadless retdec-decompiler r2 radare2 rizin); /opt: anaconda3 rh
