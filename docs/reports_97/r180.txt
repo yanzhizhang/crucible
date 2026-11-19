@@ -1,0 +1,45 @@
+# R180 on 97 (2026-11-19 21:53), transcribed from screen; 46 lines. Script ee74c54 (r180.sh cbf583ec, runs_alg.py 8540b6e6), GATE OK.
+== 20261118: 1,367,972 snapshot lines, 769,310 decisions, 1,525 with an order
+-- A participation: ourVol / mktVol on every snapshot line, and whether a decision follows
+   ratio q1/10/50/90/99 0 / 0 / 1.0124e-09 / 0.00025339 / 0.0028298; ourVol == 0 on 0.498; ratio >= 0.15 on 0.00000
+   ratio in (-1, 0]:   681,661 snapshots, decision on 0.7648, order on 0.00047
+   ratio in (0, 0.05]:   686,311 snapshots, decision on 0.3615, order on 0.00175
+   decisions with ratio >= 0.15: 0; orders with ratio >= 0.15: 0; largest ratio on an order 0.01890
+   winsdQty == (0.15 mktVol - ourVol) / 0.85: exact (1e-9) on 0.9849 of 769,394 decisions; winsdQty / that: 1 / 1 / 1 / 1 / 1
+   snapshots without a decision: 598,578; of them ratio >= 0.15: 0.0000, mktVol == 0: 0.0000, fa == 0: 0.0000
+-- B lthr against the close relaxation v18 = -w (cr + msr), w = (vpen / 0.001)^2
+   lthr == 0 before 13:00 on 1.0000; after 13:00 lthr != 0 on 1.0000
+   after 13:00: -lthr / w - cr (the implied msr) q1/10/50/90/99 5.1138e-05 / 8.1713e-05 / 0.00014636 / 0.00048326 / 0.0010721; distinct values per stock (median) 2316
+20261118: stsfile stats/sod/20261118.xr
+20261118: stsfile index/index-20261118.xr
+20261118: stsfile ex/ex-20261118.xr
+   lthr == -w (cr + pm.msr): exact on 0.0000; lthr / that 0.57853 / 0.6461 / 0.78843 / 0.85469 / 0.89774
+   lthr == -w pm.msr: exact on 0.0000; lthr / that 0.68632 / 0.9135 / 1.8651 / 2.9443 / 4.4085
+   lthr == -sqrt(w) (cr + pm.msr): exact on 0.0000; lthr / that 0.07467 / 0.2367 / 0.52897 / 0.74586 / 0.83096
+   lthr == -w (cr + pm.msr / 2): exact on 0.0000; lthr / that 0.99818 / 0.99956 / 0.99991 / 0.99999 / 1
+   lthr == -w (cr + pm.mb): exact on 0.0000; lthr / that 7.5007e-11 / 1.1419e-09 / 3.1648e-08 / 2.4044e-07 / 8.0616e-07
+   lthr == -w pm.mb: exact on 0.0000; lthr / that 7.5007e-11 / 1.1419e-09 / 3.1648e-08 / 2.4044e-07 / 8.0616e-07
+   lthr == -sqrt(w) (cr + pm.mb): exact on 0.0000; lthr / that 5.3141e-11 / 6.4227e-10 / 1.8935e-08 / 1.6349e-07 / 5.5051e-07
+   lthr == -w (cr + pm.mb / 2): exact on 0.0000; lthr / that 1.5001e-10 / 2.2838e-09 / 6.3296e-08 / 4.8087e-07 / 1.6123e-06
+   lthr == -w (cr + pm.vr): exact on 0.0000; lthr / that 0.00027603 / 0.00091747 / 0.0029755 / 0.0062913 / 0.013591
+   lthr == -w pm.vr: exact on 0.0000; lthr / that 0.00027605 / 0.00091786 / 0.0029815 / 0.0063243 / 0.013755
+   lthr == -sqrt(w) (cr + pm.vr): exact on 0.0000; lthr / that 0.00011598 / 0.00046116 / 0.0018073 / 0.0046234 / 0.00884
+   lthr == -w (cr + pm.vr / 2): exact on 0.0000; lthr / that 0.00055201 / 0.0018342 / 0.0059388 / 0.012517 / 0.026862
+-- C the order condition |fa| x asf >= cr + hs + lthr
+   condition holds on 0.1081 of decisions, on 1.0000 of orders; without the lthr term on 0.4393 of orders
+   margin (|fa| asf - cr - hs - lthr) / hs on orders q1/10/50/90/99 0.0041588 / 0.045297 / 0.38153 / 2.0914 / 9.1181
+   rule [condition]: predicts 83,131; precision 0.0183, recall 1.0000
+   rule [condition, lot >= 100]: predicts 5,877; precision 0.2590, recall 0.9980
+   rule [condition, lot >= 100, sign]: predicts 2,222; precision 0.6850, recall 0.9980
+   rule [condition, lot >= 100, sign, executp != pos]: predicts 2,206; precision 0.6899, recall 0.9980
+   rule [no-lthr condition, lot >= 100, sign]: predicts 1,005; precision 0.6637, recall 0.4374
+   orders outside the last full rule: 3; of them condition false 0, lot < 100 0, sign differs 3, executp == 0 1
+-- D the no-trade band against the logged executp (x = hs)
+  f" executp / target there {q((ex / tgt)[ok & (tgt != 0) & (ex != 0)])}")
+  f" executp / target there {q((ex / tgt)[ok & (tgt != 0) & (ex != 0)])}")
+   as given: inside the band (target 0) on 0.4647 (logged executp == 0 on 0.5295); both zero or both non-zero on 0.9351; exact where both non-zero 0.0293; executp / target there -25.526 / -1.8688 / -0.00080062 / -8.9492e-05 / 1
+      before 13:00: zero / non-zero agreement 0.9515; sign agreement where both non-zero 0.0700
+      after 13:00: zero / non-zero agreement 0.9328; sign agreement where both non-zero 0.0274
+   edges swapped in sign: inside the band (target 0) on 0.4647 (logged executp == 0 on 0.5295); both zero or both non-zero on 0.9351; exact where both non-zero 0.0000; executp / target there -1 / 8.9492e-05 / 0.00080062 / 1.8688 / 25.526
+      before 13:00: zero / non-zero agreement 0.9515; sign agreement where both non-zero 0.9300
+      after 13:00: zero / non-zero agreement 0.9328; sign agreement where both non-zero 0.9726
