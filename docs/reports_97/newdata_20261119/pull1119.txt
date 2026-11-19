@@ -1,0 +1,12 @@
+# pull1119 (user-approved 2026-11-19; read-only rsync FROM 224 and 2.23) -- transcribed from the 97 screen
+/dev/sda1  25T 8.2T 17T 34% /work
+[19:57:22] disk before: /dev/sda1  25T 8.2T 17T 34% /work
+[19:57:42] 224 executor/20261119 rc 0: 1.4G, 28 files
+[19:57:43] 224 sig 20261117 rc 0: 22299551 alpha.parquet
+[19:57:43] 224 sig 20261118 rc 0: 22271799 alpha.parquet
+[19:57:44] 224 sig 20261119 rc 0: 22107388 alpha.parquet
+[19:57:44] 224 stsfile rc 0: sod newest 20261118.xr 20261119.xr
+[19:59:50] 2.23 224_shm_datayes 1118+1119 rc 0: 15G, 1118 zips 16401, 1119 zips 16400
+[19:59:50] streams by exchange (dirs): SH  2320 0  200 1  2316 2  2316 3 | SZ  3070 0  375 1  2903 2  2903 3
+[19:59:50] disk after: /dev/sda1  25T 8.2T 17T 34% /work
+[19:59:50] pull1119 done
