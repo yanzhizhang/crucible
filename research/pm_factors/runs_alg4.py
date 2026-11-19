@@ -52,7 +52,7 @@ def main() -> None:
     print(f"== {a.date}: {tp.height:,} orders inside the rule, {fp.height:,} false positives; stocks per board in the day's decisions: {dict(sorted(d.group_by('board').agg(c('sid').n_unique()).iter_rows()))}")
     for name, t in (("orders", tp), ("false positives", fp)):
         print(f"-- {name}: by board (rows, stocks, smallest / median wanted lots): " + "; ".join(
-            f"{b}: {n} rows, {k} stocks, lots {lo:.0f} / {md:.0f}" for b, n, k, lo, md in sorted(t.group_by("board").agg(pl.len(), c("sid").n_unique(), c("lot").min(), c("lot").median()).iter_rows())))
+            f"{b}: {n} rows, {k} stocks, lots {lo:.0f} / {md:.0f}" for b, n, k, lo, md in sorted(t.group_by("board").agg(pl.len(), c("sid").n_unique(), c("lot").min().alias("lo"), c("lot").median().alias("md")).iter_rows())))
         print(f"   price q1/10/50/90/99 {q(t['ev_mp'].to_numpy())}; 100 shares in yuan {q(100 * t['ev_mp'].to_numpy())}; by half hour: "
               + ", ".join(f"{int(b) // 2:02d}:{'30' if int(b) % 2 else '00'} {n}" for b, n in sorted(t.group_by((c('sod') // 1800).cast(pl.Int64)).len().iter_rows())))
     per = fp.group_by("sid").agg(pl.len().alias("n"), c("sod").min().alias("first"), c("sod").max().alias("last"), c("board").first(), c("ev_mp").median().alias("mp")).sort("n", descending=True)
@@ -65,7 +65,7 @@ def main() -> None:
     star = d["board"].to_numpy() == "STAR 688/689"
     if (root / "po.parquet").exists():
         po = pl.read_parquet(root / "po.parquet").with_columns(c("sid").cast(pl.Int64).map_elements(board, return_dtype=pl.String).alias("board"))
-        print("-- sent orders (po table) by board: rows, smallest / median qty: " + "; ".join(f"{b}: {n}, {lo:.0f} / {md:.0f}" for b, n, lo, md in sorted(po.group_by("board").agg(pl.len(), c("qty").min(), c("qty").median()).iter_rows())))
+        print("-- sent orders (po table) by board: rows, smallest / median qty: " + "; ".join(f"{b}: {n}, {lo:.0f} / {md:.0f}" for b, n, lo, md in sorted(po.group_by("board").agg(pl.len(), c("qty").min().alias("lo"), c("qty").median().alias("md")).iter_rows())))
     for name, r2 in (("+ STAR needs lots >= 200", rule & ~(star & (lot < 200))), ("+ no STAR orders at all", rule & ~star)):
         tp_ = float((r2 & order).sum())
         print(f"   rule {name}: predicts {int(r2.sum()):,}; precision {tp_ / max(r2.sum(), 1):.4f}, recall {tp_ / max(order.sum(), 1):.4f}")
