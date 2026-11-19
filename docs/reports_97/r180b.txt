@@ -1,0 +1,35 @@
+# R180b on 97 (2026-11-19 22:01), parts C and D transcribed from screen (A, B unchanged from r180). Scripts r180.sh cbf583ec, runs_alg.py c71280e1 (c56a61a), GATE OK; 62 lines total.
+-- C the order condition |fa| x asf >= cr + x + lthr, x = 1 x hs
+   condition holds on 0.1081 of decisions, on 1.0000 of orders; without the lthr term on 0.4393 of orders
+   margin (|fa| asf - cr - x - lthr) / x on orders q1/10/50/90/99 0.0041588 / 0.045297 / 0.38153 / 2.0914 / 9.1181; on non-orders that pass lot + sign: -6.3581 / -2.7848 / -1.2361 / -0.57198 / -0.11918
+   rule [condition]: predicts 83,131; precision 0.0183, recall 1.0000
+   rule [condition, lot >= 100]: predicts 5,877; precision 0.2590, recall 0.9980
+   rule [condition, lot >= 100, sign]: predicts 2,222; precision 0.6850, recall 0.9980
+   rule [condition, lot >= 100, sign, executp != pos]: predicts 2,206; precision 0.6899, recall 0.9980
+   rule [no-lthr condition, lot >= 100, sign]: predicts 1,005; precision 0.6637, recall 0.4374
+   orders outside the last full rule: 3; of them condition false 0, lot < 100 0, sign differs 3, executp == 0 1
+-- D the no-trade band, x = 1 x hs: step r = lo if lo > 0, hi if hi < 0, else 0, with lo / hi = (fa -+ (x + cr) / 1.5) / (2 vpen (vr / 3) mp) - P; target = clamp(P + r, +-poscst)
+  f" where both non-zero: sign agreement {float((np.sign(ref) == np.sign(e))[nz].mean()) if nz.any() else float('nan'):.4f}, ratio q1/10/50/90/99 {q((e / ref)[nz])}")
+  f" where both non-zero: sign agreement {float((np.sign(ref) == np.sign(e))[nz].mean()) if nz.any() else float('nan'):.4f}, ratio q1/10/50/90/99 {q((e / ref)[nz])}")
+   P = pos, executp vs target: exact (1e-6) on 0.9334; zero / non-zero agreement 0.9351; where both non-zero: sign agreement 1.0000, ratio q1/10/50/90/99 1 / 1 / 1 / 1 / 1
+   P = pos, executp - pos vs step: exact (1e-6) on 0.9335; zero / non-zero agreement 0.9458; where both non-zero: sign agreement 1.0000, ratio q1/10/50/90/99 0.77505 / 1 / 1 / 1 / 1
+      inside the band on 0.4647; there executp == pos on 0.9999, executp == 0 on 0.9999; target clamped at +-poscst on 0.0000
+   P = cpos, executp vs target: exact (1e-6) on 0.9345; zero / non-zero agreement 0.9361; where both non-zero: sign agreement 1.0000, ratio q1/10/50/90/99 1 / 1 / 1 / 1 / 1
+   P = cpos, executp - cpos vs step: exact (1e-6) on 0.9345; zero / non-zero agreement 0.9452; where both non-zero: sign agreement 1.0000, ratio q1/10/50/90/99 0.76843 / 1 / 1 / 1 / 1
+      inside the band on 0.4656; there executp == cpos on 1.0000, executp == 0 on 1.0000; target clamped at +-poscst on 0.0000
+-- C the order condition |fa| x asf >= cr + x + lthr, x = 2 x hs
+   condition holds on 0.0438 of decisions, on 0.2282 of orders; without the lthr term on 0.1443 of orders
+   margin (|fa| asf - cr - x - lthr) / x on orders q1/10/50/90/99 -0.49792 / -0.47735 / -0.30924 / 0.5457 / 4.0591; on non-orders that pass lot + sign: -3.6791 / -1.8924 / -1.1181 / -0.78599 / -0.55959
+   rule [condition]: predicts 33,718; precision 0.0103, recall 0.2282
+   rule [condition, lot >= 100]: predicts 1,789; precision 0.1940, recall 0.2275
+   rule [condition, lot >= 100, sign]: predicts 865; precision 0.4012, recall 0.2275
+   rule [condition, lot >= 100, sign, executp != pos]: predicts 854; precision 0.4063, recall 0.2275
+   rule [no-lthr condition, lot >= 100, sign]: predicts 420; precision 0.5214, recall 0.1436
+   orders outside the last full rule: 1178; of them condition false 1177, lot < 100 0, sign differs 3, executp == 0 500
+-- D the no-trade band, x = 2 x hs: (same formula)
+   P = pos, executp vs target: exact (1e-6) on 0.4861; zero / non-zero agreement 0.9452; where both non-zero: sign agreement 0.9960, ratio q1/10/50/90/99 0.11094 / 0.46513 / 0.69191 / 0.8639 / 0.99499
+   P = pos, executp - pos vs step: exact (1e-6) on 0.4861; zero / non-zero agreement 0.8985; where both non-zero: sign agreement 1.0000, ratio q1/10/50/90/99 0.99999 / 1.0001 / 1.0003 / 1.3598 / 10.227
+      inside the band on 0.5549; there executp == pos on 0.8760, executp == 0 on 0.8782; target clamped at +-poscst on 0.0000
+   P = cpos, executp vs target: exact (1e-6) on 0.4875; zero / non-zero agreement 0.9465; where both non-zero: sign agreement 0.9963, ratio q1/10/50/90/99 0.11489 / 0.46548 / 0.69196 / 0.86395 / 0.99514
+   P = cpos, executp - cpos vs step: exact (1e-6) on 0.4875; zero / non-zero agreement 0.8981; where both non-zero: sign agreement 1.0000, ratio q1/10/50/90/99 1 / 1.0001 / 1.0003 / 1.366 / 10.279
+      inside the band on 0.5565; there executp == cpos on 0.8760, executp == 0 on 0.8783; target clamped at +-poscst on 0.0000
