@@ -45,8 +45,9 @@ def main() -> None:
     d = d.join(pm_daily(a.sts, a.date, sorted(set(d["sid"].to_list())), "on").select("sid", "pm.msr"), on="sid", how="left").filter((c("sod") >= 46800) & (c("lthr") != 0) & c("pm.msr").is_not_null())
     sod, lt, vp, msr = (d[k].to_numpy().astype(float) for k in ("sod", "lthr", "ev_vpen", "pm.msr"))
     wl, wv = -lt / (CR + msr / 2), (vp / 0.001) ** 2
+    wr = ((vp - 1e-7) / (0.001 - 1e-7)) ** 2  # decoded GVpen: vpen = (1 - r) cfg + r 0.001, r = sqrt(w), cfg = 1e-07
     print(f"== {a.date}: {d.height:,} decisions after 13:00 with lthr != 0; src_epoch has a fractional second on {float((np.mod(sod, 1) != 0).mean()):.3f} of them")
-    for name, w in (("w_l = -lthr / (cr + msr / 2)", wl), ("w_v = (vpen / 0.001)^2", wv)):
+    for name, w in (("w_l = -lthr / (cr + msr / 2)", wl), ("w_v = (vpen / 0.001)^2", wv), ("w_r = ((vpen - 1e-7) / (0.001 - 1e-7))^2", wr)):
         A = np.column_stack([sod, np.ones(sod.size)])
         (b, a0), *_ = np.linalg.lstsq(A, w, rcond=None)
         res = (w - (a0 + b * sod)) / b
@@ -62,6 +63,7 @@ def main() -> None:
     r = wl / wv
     print(f"-- w_l / w_v q1/10/50/90/99 {' / '.join(f'{x:.6f}' for x in np.percentile(r, [1, 10, 50, 90, 99]))}; by half hour (median): "
           + ", ".join(f"{hms(float(b) * 1800)[:5]} {np.median(r[(sod // 1800) == b]):.6f}" for b in sorted(set((sod // 1800).tolist()))))
+    print(f"-- w_l / w_r q1/10/50/90/99 {' / '.join(f'{x:.9f}' for x in np.percentile(wl / wr, [1, 10, 50, 90, 99]))}; equal to 1e-9 on {float((np.abs(wl / wr - 1) < 1e-9).mean()):.4f}, to 1e-6 on {float((np.abs(wl / wr - 1) < 1e-6).mean()):.4f}")
     k = np.abs(lt) / (wv * (CR + msr / 2))
     print(f"   exact lthr == -w_v (cr + msr / 2) (1e-9) on {float((np.abs(k - 1) < 1e-9).mean()):.4f}; msr / 2 replaced by msr: ratio median {np.median(np.abs(lt) / (wv * (CR + msr))):.5f}")
     print("[done]")
