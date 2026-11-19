@@ -1,0 +1,14 @@
+# R181 on 97 (2026-11-19 22:00), transcribed from screen; 13 lines. Script 11154b4 (r181.sh ad43c1ba, runs_w.py 97ddc59a), GATE OK.
+== 20261118: 675,851 decisions after 13:00 with lthr != 0; src_epoch has a fractional second on 0.000 of them
+-- w_l = -lthr / (cr + msr / 2): w in [0.000140, 0.983053]; fit on the receive time: starts 13:00:00.000, ends 14:59:00.000, length 7140.000 s; residual in seconds q1/10/50/90/99 0.000 / 0.000 / 0.000 / 0.000 / 0.000
+   as 13:00:00 -> 14:59:00: implied time is a whole second (1e-4) on 1.0000, a multiple of 3 s on 0.5594; receive time - implied time q1/10/50/90/99 0.000 / 0.000 / 0.000 / 0.000 / 0.000 s
+   as 13:00:00 -> 15:00:00: implied time is a whole second (1e-4) on 0.0082, a multiple of 3 s on 0.0082; receive time - implied time q1/10/50/90/99 -58.412 / -53.261 / -29.538 / -5.908 / -0.580 s
+   as 13:00:00 -> 14:57:00: implied time is a whole second (1e-4) on 0.0082, a multiple of 3 s on 0.0082; receive time - implied time q1/10/50/90/99 1.176 / 11.815 / 59.076 / 106.521 / 116.824 s
+-- w_v = (vpen / 0.001)^2: w in [0.000142, 0.983055]; fit on the receive time: starts 12:59:59.622, ends 14:58:59.900, length 7140.278 s; residual in seconds q1/10/50/90/99 -0.250 / -0.081 / 0.020 / 0.063 / 0.065
+   as 13:00:00 -> 14:59:00: implied time is a whole second (1e-4) on 0.0000, a multiple of 3 s on 0.0000; receive time - implied time q1/10/50/90/99 -0.357 / -0.354 / -0.270 / -0.076 / -0.018 s
+   as 13:00:00 -> 15:00:00: implied time is a whole second (1e-4) on 0.0002, a multiple of 3 s on 0.0000; receive time - implied time q1/10/50/90/99 -58.431 / -53.339 / -29.839 / -6.218 / -0.708 s
+   as 13:00:00 -> 14:57:00: implied time is a whole second (1e-4) on 0.0002, a multiple of 3 s on 0.0000; receive time - implied time q1/10/50/90/99 1.051 / 11.513 / 58.782 / 106.445 / 116.805 s
+-- w_l / w_v q1/10/50/90/99 0.998175 / 0.999563 / 0.999915 / 0.999988 / 0.999997; by half hour (median): 13:00 0.999638, 13:30 0.999875, 14:00 0.999948, 14:30 0.999986
+   exact lthr == -w_v (cr + msr / 2) (1e-9) on 0.0000; msr / 2 replaced by msr: ratio median 0.78843
+[done]
+[22:00:10] r181 done
