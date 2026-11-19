@@ -1,0 +1,25 @@
+# R184 on 97 (2026-11-19 22:15), transcribed from screen (fold 150); 24 lines. Script f2538cb (r184.sh 1aa43eb8, runs_alg4.py 028f5d04), GATE OK.
+== 20261118: 1,522 orders inside the rule, 700 false positives; stocks per board in the day's decisions: {'ChiNext 30': 34, 'SH main 60': 168, 'STAR 688/689': 20, 'SZ main 00': 78}
+-- orders: by board (rows, stocks, smallest / median wanted lots): ChiNext 30: 153 rows, 31 stocks, lots 100 / 200; SH main 60: 937 rows, 146 stocks, lots 100 / 700; STAR 688/689: 45 rows, 12 stocks, lots 200 / 200; SZ main 00: 387 rows, 64 stocks, lots 100 / 300
+   price q1/10/50/90/99 3.5144 / 6.745 / 25.11 / 80.698 / 193.35; 100 shares in yuan 351.44 / 674.5 / 2511 / 8069.8 / 19335; by half hour: 09:30 571, 10:00 30, 10:30 20, 11:00 11, 13:00 57, 13:30 95, 14:00 206, 14:30 532
+-- false positives: by board (rows, stocks, smallest / median wanted lots): ChiNext 30: 9 rows, 4 stocks, lots 100 / 300; SH main 60: 7 rows, 6 stocks, lots 100 / 600; STAR 688/689: 677 rows, 7 stocks, lots 100 / 100; SZ main 00: 7 rows, 5 stocks, lots 100 / 500
+   price q1/10/50/90/99 29.64 / 115.61 / 137.37 / 137.87 / 138.55; 100 shares in yuan 2964 / 11561 / 13737 / 13787 / 13855; by half hour: 09:30 108, 10:00 9, 10:30 1, 11:00 2, 13:00 22, 13:30 89, 14:00 171, 14:30 298
+-- false positives per stock: 22 stocks; rows per stock q10/50/90/max 1 / 2 / 4.9 / 623; the 12 with most:
+   688008 STAR 688/689  623 rows  09:30 - 14:56  price 137.45  true orders on that stock 1
+   688036 STAR 688/689   41 rows  13:42 - 14:28  price 63.20  true orders on that stock 25
+   688012 STAR 688/689    5 rows  09:30 - 09:30  price 239.12  true orders on that stock 2
+   300413 ChiNext 30      4 rows  09:30 - 09:32  price 29.92  true orders on that stock 5
+   688981 STAR 688/689    3 rows  09:32 - 09:34  price 114.50  true orders on that stock 2
+   600893 SH main 60      2 rows  09:30 - 09:30  price 35.19  true orders on that stock 4
+   300896 ChiNext 30      2 rows  13:47 - 13:47  price 84.59  true orders on that stock 5
+   300122 ChiNext 30      2 rows  09:30 - 09:30  price 14.10  true orders on that stock 7
+   688521 STAR 688/689    2 rows  09:30 - 09:46  price 92.58  true orders on that stock 2
+   688396 STAR 688/689    2 rows  09:30 - 10:57  price 46.71  true orders on that stock 1
+   000568 SZ main 00      2 rows  14:42 - 14:43  price 81.52  true orders on that stock 7
+   002463 SZ main 00      2 rows  09:30 - 09:30  price 77.03  true orders on that stock 20
+   seconds between consecutive false positives of one stock q10/50/90 3 / 3 / 30; exactly 3 s on 0.709
+-- sent orders (po table) by board: rows, smallest / median qty: ChiNext 30: 363, 100 / 100; SH main 60: 1837, 100 / 400; STAR 688/689: 94, 200 / 200; SZ main 00: 769, 100 / 200
+   rule + STAR needs lots >= 200: predicts 1,558; precision 0.9769, recall 0.9980
+   rule + no STAR orders at all: predicts 1,500; precision 0.9847, recall 0.9685
+[done]
+[22:15:59] r184 done
