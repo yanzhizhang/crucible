@@ -1,0 +1,73 @@
+# R178 transcribed from the 97 screen (folded at 172; table borders simplified); 75 folded lines, 97 fold md5 210d9859
+-- decisions: 769,310 rows; columns ['src_epoch', 'ev_mp', 'ev_fa', 'ev_vpen', 'ev_vr', 'ev_poscst', 'ev_cpos', 'ev_asq', 'ev_hs', 'aIdx', 'sid', 'fa', 'pos', 'pp', 'execut
+p', 'asq', 'lthr', 'hs', 'liid', 'winsdQty', 'asf', 'nullp
+-- po: 3,063 rows; columns ['po_ts', 'f2', 'f3', 'f4', 'sid', 'px', 'qty', 'stamp', 'side']
+-- life: 5,340 rows; columns ['ev', 'ts', 'exoid', 'fill_qty', 'fill_px', 'sid', 'cxl_px', 'cxl_qty']
+-- trk: 15,937 rows; columns ['kind', 'now', 'day', 'strategy', 'capital', 'accounts', 'booked', 'account', 'orders', 'trades', 'holdings', 'total_asset', 'buying_power', '
+security_asset', 'withholding', 'buy_amount', 'buy_fee', '
+
+== 1 the gate: 769,310 decisions, 1,525 with an order (0.00198); trade = executp - ev_cpos
+   |trade| q10/50/90 0 / 0 / 2400; lot-rounded >= 100 on 0.3892; past the side threshold on 0.1592
+   |trade| in [0, 1):  407,355 decisions, order on 0.00000, past threshold 0.016
+   |trade| in [1, 50):    7,778 decisions, order on 0.00000, past threshold 0.608
+   |trade| in [50, 100):   54,662 decisions, order on 0.00000, past threshold 0.177
+   |trade| in [100, 200):   25,396 decisions, order on 0.01382, past threshold 0.449
+   |trade| in [200, 500):   58,385 decisions, order on 0.00678, past threshold 0.372
+   |trade| in [500, 1000):   58,276 decisions, order on 0.00539, past threshold 0.336
+   |trade| in [1000, 5000):  146,604 decisions, order on 0.00290, past threshold 0.312
+   |trade| in [5000, 1e+12):   10,680 decisions, order on 0.00337, past threshold 0.299
+   lot >= 100 and past the threshold: 101,655 decisions, order on 0.01123; orders outside that set: 383
+  g2 = g.join_asof(o, left_on="src_epoch", right_on="prev_order", by="sid", strategy="backward", allow_exact_matches=False).with_columns(((c("src_epoch") - c("prev_order"))
+/ 1e9).alias("since"))
+   among those, by seconds since the stock's previous order (a live order should block):
+     [3, 5.3) s:      114 decisions, order on 0.47368
+     [5.3, 10) s:      403 decisions, order on 0.26799
+     [10, 30) s:    1,242 decisions, order on 0.18116
+     [30, 120) s:    2,464 decisions, order on 0.06453
+     [120, 1e+09) s:   90,116 decisions, order on 0.00384
+     no previous order today: 7,316 decisions, order on 0.03417
+  dd = d.join_asof(o, left_on="src_epoch", right_on="prev_order", by="sid", strategy="backward", allow_exact_matches=False)
+   rule 'lot >= 100, past threshold, no order in the last 0.7 s': predicts 101,655; precision 0.0112, recall 0.7489
+   rule 'lot >= 100, past threshold, no order in the last 3 s': predicts 101,655; precision 0.0112, recall 0.7489
+   rule 'lot >= 100, past threshold, no order in the last 5.3 s': predicts 101,541; precision 0.0107, recall 0.7134
+   rule 'lot >= 100, past threshold, no order in the last 6 s': predicts 101,541; precision 0.0107, recall 0.7134
+   rule 'lot >= 100, past threshold, no order in the last 8 s': predicts 101,431; precision 0.0104, recall 0.6885
+   rule 'lot >= 100, past threshold, no order in the last 10 s': predicts 101,138; precision 0.0097, recall 0.6426
+   rule 'lot >= 100, past threshold, no order in the last 15 s': predicts 100,894; precision 0.0091, recall 0.6000
+   sells in the gated set: 53,347; asq >= lot on 1.0000; order rate with asq >= 100: 0.00941, with asq < 100: 0.00000
+   on the orders: trade sign + 0.497; |trade| q10/50/90 100 / 500 / 2600; lot q10/50/90 100 / 500 / 2590
+
+== 2 price and caps
+   trk ORD: 3,063 rows; filled columns ['kind', 'now', 'day', 'strategy', 'symbol', 'qty', 'idx', 'side', 'px']
+shape: (3, 8)
+| kind | now                 | strategy | symbol    | qty | idx | side | px    |
+| ---  | ---                 | ---      | ---       | --- | --- | ---  | ---   |
+| str  | str                 | str      | str       | str | str | str  | str   |
+| ORD  | 1794965400043336679 | runS_a   | 688521.SH | 200 | 1   | SELL | 94    |
+| ORD  | 1794965400467011803 | runS_a   | 600009.SH | 500 | 2   | SELL | 24.78 |
+| ORD  | 1794965400566066989 | runS_a   | 000657.SZ | 400 | 3   | SELL | 35.72 |
+   cannot test cross / join: need px, bid1, ask1, side among the ORD columns (found px px, bid None, ask None, side side)
+   caps: |executp| / poscst q50/90/99/max 0 / 0.0002593 / 0.0176 / 0.1011; == poscst on 0.00000; > poscst on 0.00000
+         |ev_cpos| / poscst q50/90/99/max 0 / 0.01299 / 0.03529 / 0.1011; |ev_cpos x mp| max 2.291e+05 (nmvcst = tqub = 1e7); |executp x mp| max 2.835e+05
+         per-minute sums over the decisions of that minute (a rough book): gross value max 7.804e+07, |net| max 3.339e+07
+
+== 3 position through the day (last value per stock in each 15-minute bucket)
+   09:30  stocks 293  sum |pos|   249,708  sum |pos x mp|   5,706,052  net pos x mp  -2,531,518  pos == 0 on 0.273  sum |cpos x mp|   5,567,123
+   09:45  stocks 246  sum |pos|   223,308  sum |pos x mp|   4,791,391  net pos x mp  -1,984,275  pos == 0 on 0.272  sum |cpos x mp|   4,791,391
+   10:00  stocks 206  sum |pos|   216,100  sum |pos x mp|   4,350,618  net pos x mp  -1,476,103  pos == 0 on 0.262  sum |cpos x mp|   4,252,138
+   10:15  stocks 196  sum |pos|   205,008  sum |pos x mp|   4,025,985  net pos x mp  -1,244,756  pos == 0 on 0.260  sum |cpos x mp|   4,025,985
+   10:30  stocks 185  sum |pos|   204,208  sum |pos x mp|   3,956,904  net pos x mp  -1,113,035  pos == 0 on 0.243  sum |cpos x mp|   3,956,904
+   10:45  stocks 192  sum |pos|   207,808  sum |pos x mp|   4,004,875  net pos x mp  -1,101,566  pos == 0 on 0.234  sum |cpos x mp|   4,004,875
+   11:00  stocks 177  sum |pos|   201,708  sum |pos x mp|   3,746,427  net pos x mp    -907,032  pos == 0 on 0.237  sum |cpos x mp|   3,746,427
+   11:15  stocks 191  sum |pos|   207,200  sum |pos x mp|   3,904,361  net pos x mp    -876,541  pos == 0 on 0.230  sum |cpos x mp|   3,904,361
+   11:30  stocks  12  sum |pos|    26,800  sum |pos x mp|     530,738  net pos x mp    -297,624  pos == 0 on 0.000  sum |cpos x mp|     530,738
+   13:00  stocks 300  sum |pos|   211,708  sum |pos x mp|   3,933,451  net pos x mp    -845,535  pos == 0 on 0.477  sum |cpos x mp|   3,933,451
+   13:15  stocks 300  sum |pos|   201,308  sum |pos x mp|   3,464,747  net pos x mp    -403,377  pos == 0 on 0.540  sum |cpos x mp|   3,462,195
+   13:30  stocks 298  sum |pos|   199,308  sum |pos x mp|   3,307,125  net pos x mp    -306,080  pos == 0 on 0.560  sum |cpos x mp|   3,307,125
+   13:45  stocks 297  sum |pos|   196,408  sum |pos x mp|   3,191,060  net pos x mp    -224,075  pos == 0 on 0.586  sum |cpos x mp|   3,140,586
+   14:00  stocks 298  sum |pos|   177,108  sum |pos x mp|   2,535,013  net pos x mp     234,816  pos == 0 on 0.641  sum |cpos x mp|   2,535,013
+   14:15  stocks 299  sum |pos|   140,908  sum |pos x mp|   1,985,930  net pos x mp     102,028  pos == 0 on 0.679  sum |cpos x mp|   1,971,367
+   14:30  stocks 299  sum |pos|    97,708  sum |pos x mp|   1,311,932  net pos x mp    -202,189  pos == 0 on 0.712  sum |cpos x mp|   1,279,345
+   14:45  stocks 299  sum |pos|    76,908  sum |pos x mp|   1,086,308  net pos x mp    -352,109  pos == 0 on 0.809  sum |cpos x mp|   1,086,308
+[done]
+[21:11:31] r178 done
