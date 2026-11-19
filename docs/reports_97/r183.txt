@@ -1,0 +1,43 @@
+# R183 on 97 (2026-11-19 22:10), transcribed from screen (fold 150); 49 lines. Script 703184c (r183.sh bc809760, runs_alg3.py c420ea52), GATE OK.
+== 20261118: rule predicts 2,222: 1,522 orders, 700 false positives; orders outside the rule 3
+   asq (decision line) == ev_asq (input line) on 0.9998; liid distinct values [0.]
+-- orders (1,522); sell share 0.503
+   pos -5927 / -1000 / 0 / 1800 / 8200 | pp -2779 / 0 / 0 / 0 / 1979 | cpos -4458 / -1000 / 0 / 1600 / 8200 | executp -2500 / -300 / 0 / 300 / 4051.2
+   pp - pos   == 0 on 0.171; sign vs sign(fa): same 0.800, opposite 0.030; values -8200 / -2000 / 0 / 1300 / 6516
+   pp - cpos  == 0 on 0.205; sign vs sign(fa): same 0.761, opposite 0.034; values -8200 / -1800 / 0 / 1000 / 5927
+   pos - cpos == 0 on 0.840; sign vs sign(fa): same 0.000, opposite 0.160; values -1979 / 0 / 0 / 0 / 2779
+   pos        == 0 on 0.205; sign vs sign(fa): same 0.034, opposite 0.761; values -5927 / -1000 / 0 / 1800 / 8200
+   pp         == 0 on 0.840; sign vs sign(fa): same 0.160, opposite 0.000; values -2779 / 0 / 0 / 0 / 1979
+   sells: asq 100 / 100 / 500 / 3200 / 12800; asq < 100 on 0.0000; asq == 0 on 0.0000; asq < wanted lots on 0.0000
+   winsdQty 9245.8 / 40084 / 1.6773e+05 / 8.5312e+05 / 2.7348e+06; winsdQty < 100 on 0.0000
+   |executp - cpos| 100 / 100 / 500 / 2600 / 8199.9; lots >= 100 on 1.0000; sign == sign(fa) on 1.0000
+   |executp - pos| 100 / 100 / 600 / 3299.9 / 8240; lots >= 100 on 1.0000; sign == sign(fa) on 1.0000
+   |executp - pp| 0 / 0 / 0.059881 / 1400 / 4244.8; lots >= 100 on 0.3752; sign == sign(fa) on 0.3187
+-- false positives (700); sell share 0.916
+   pos -400 / 0 / 100 / 100 / 100 | pp -300 / 0 / 0 / 0 / 2 | cpos -500 / -100 / 100 / 100 / 101 | executp -500 / 0 / 0 / 0 / 0
+   pp - pos   == 0 on 0.001; sign vs sign(fa): same 0.953, opposite 0.046; values -300 / -100 / -100 / -90 / 501
+   pp - cpos  == 0 on 0.026; sign vs sign(fa): same 0.954, opposite 0.020; values -100 / -100 / -100 / 0 / 400
+   pos - cpos == 0 on 0.974; sign vs sign(fa): same 0.026, opposite 0.000; values -2 / 0 / 0 / 0 / 300
+   pos        == 0 on 0.026; sign vs sign(fa): same 0.020, opposite 0.954; values -400 / 0 / 100 / 100 / 100
+   pp         == 0 on 0.974; sign vs sign(fa): same 0.000, opposite 0.026; values -300 / 0 / 0 / 0 / 2
+   sells: asq 100 / 100 / 100 / 100 / 160; asq < 100 on 0.0000; asq == 0 on 0.0000; asq < wanted lots on 0.0000
+   winsdQty 39437 / 92488 / 1.5663e+05 / 3.0704e+05 / 5.2546e+05; winsdQty < 100 on 0.0000
+   |executp - cpos| 100 / 100 / 100 / 100 / 501; lots >= 100 on 1.0000; sign == sign(fa) on 1.0000
+   |executp - pos| 0 / 100 / 100 / 100 / 200; lots >= 100 on 0.9771; sign == sign(fa) on 0.9771
+   |executp - pp| 0 / 0 / 0 / 0 / 601; lots >= 100 on 0.0486; sign == sign(fa) on 0.0486
+-- the rule with one extra term (precision / recall of all orders):
+   0.9962 / 0.1705  + pp == pos
+   0.9438 / 0.3744  + lots(executp - pp) >= 100
+   0.9345 / 0.3180  + sign(executp - pp) == sign(fa)
+   0.6906 / 0.9980  + pp not opposite to fa
+   0.6899 / 0.9980  + sign(executp - pos) == sign(fa)
+   0.6899 / 0.9980  + lots(executp - pos) >= 100
+   0.6899 / 0.9980  + executp != pos
+   0.6886 / 0.9685  + pp - pos not opposite to fa
+   0.6850 / 0.9980  + winsdQty >= 100
+   0.6850 / 0.9980  + sell needs asq >= lots
+   0.6850 / 0.9980  + sell needs asq >= 100
+   0.6820 / 0.9646  + pp - cpos not opposite to fa
+   0.6461 / 0.8380  + pos - cpos not opposite to fa
+-- best pairs of extra terms (F1, precision, recall):
+   0.8163  0.6906 / 0.9980  + sell needs asq >= lots  + pp not opposite to fa
