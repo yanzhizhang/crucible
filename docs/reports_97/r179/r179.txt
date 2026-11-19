@@ -1,0 +1,58 @@
+# R179 transcribed from the 97 screen (folded at 172); 57 folded lines, 97 fold md5 de43cd0c
+  d = d.join_asof(o, left_on="src_epoch", right_on="prev_order", by="sid", strategy="backward", allow_exact_matches=False)
+== 20261118: 769,310 decisions, 1,525 orders; quiet decisions (no order of the stock in the last 30 s): 761,716, chain starts 985 (0.00129)
+   orders that are re-places (within 30 s of the stock's previous order): 540
+   chain starts per half hour: 09:30 361, 10:00 20, 10:30 19, 11:00 10, 13:00 48, 13:30 77, 14:00 155, 14:30 295
+-- best single cut per feature (F1, rule, precision, recall):
+   F1 0.1143  |fa| - |lthr| >= 0.00176245   precision 0.1171 recall 0.1117
+   F1 0.1123  |fa| - |lthr| - hs >= 0.000557904   precision 0.0650 recall 0.4112
+   F1 0.0940  |fa| >= 0.00189916   precision 0.0936 recall 0.0944
+   F1 0.0810  |pp - pp_prev| >= 100   precision 0.1330 recall 0.0582
+   F1 0.0786  |cpos - cpos_prev| >= 92   precision 0.1079 recall 0.0618
+   F1 0.0696  |fa| - hs >= 0.00125227   precision 0.0566 recall 0.0904
+   F1 0.0684  sign(executp) != sign(executp_prev) >= 1   precision 0.0366 recall 0.5168
+   F1 0.0611  |pos - cpos| >= 100   precision 0.0845 recall 0.0479
+   F1 0.0375  (|fa| - |lthr|) / hs >= 4.03982   precision 0.0202 recall 0.2650
+   F1 0.0216  |executp - executp_prev| >= 2180.41   precision 0.0194 recall 0.0244
+   F1 0.0206  |fa| / hs >= 4.08836   precision 0.0107 recall 0.3117
+   F1 0.0176  |executp - cpos| >= 9299.85   precision 0.2195 recall 0.0092
+   F1 0.0175  |executp - pos| >= 9299.85   precision 0.2195 recall 0.0091
+   F1 0.0111  |pos - pos_prev| >= 92   precision 0.0269 recall 0.0070
+   F1 0.0102  |executp - pos| x mp >= 212177   precision 0.0182 recall 0.0071
+   F1 0.0102  |executp - cpos| x mp >= 212177   precision 0.0182 recall 0.0071
+   F1 0.0098  sign(executp - pos) == sign(fa) >= 1   precision 0.0049 recall 1.0000
+   F1 0.0098  sign(executp - cpos) == sign(fa) >= 1   precision 0.0049 recall 0.9970
+   F1 0.0093  |executp - cpos| / winsdQty >= 0.0653487   precision 0.0192 recall 0.0061
+   F1 0.0092  |executp - pos| / winsdQty >= 0.0653487   precision 0.0192 recall 0.0061
+   F1 0.0088  |lthr| <= 1.5253e-07   precision 0.0045 recall 0.4183
+   F1 0.0074  |executp - pp| >= 99.8807   precision 0.0037 recall 0.3107
+   F1 0.0068  |executp| >= 200   precision 0.0034 recall 0.2589
+   F1 0.0049  winsdQty <= 4164.71   precision 0.0048 recall 0.0051
+   F1 0.0043  |pp - cpos| >= 92   precision 0.0022 recall 0.7678
+   F1 0.0037  hs <= 0.000105742   precision 0.0019 recall 0.1594
+   F1 0.0034  asq >= 100   precision 0.0017 recall 0.6792
+   F1 0.0026  executp_prev == 0 and executp != 0 <= 0   precision 0.0013 recall 0.9970
+   F1 0.0026  lthr_prev == 0 and lthr != 0 >= 0   precision 0.0013 recall 1.0000
+-- best pairs (second cut chosen inside the first; F1 within the first cut, precision, recall of all chain starts):
+   F1 0.8272  |fa| - hs >= 0.00125227  AND  sign(executp) != sign(executp_prev) >= 1   precision 0.9178 recall 0.0680
+   F1 0.6611  |fa| - |lthr| >= 0.00176245  AND  sign(executp) != sign(executp_prev) >= 1   precision 0.6124 recall 0.0802
+   F1 0.6481  |fa| >= 0.00189916  AND  sign(executp) != sign(executp_prev) >= 1   precision 0.5691 recall 0.0711
+   F1 0.6222  |pp - pp_prev| >= 100  AND  |fa| - hs >= 0.000546125   precision 0.7000 recall 0.0284
+   F1 0.6211  |fa| - |lthr| - hs >= 0.000557904  AND  sign(executp) != sign(executp_prev) >= 1   precision 0.7799 recall 0.2122
+   F1 0.6186  |cpos - cpos_prev| >= 92  AND  |fa| - hs >= 0.000558434   precision 0.6818 recall 0.0305
+-- feature quantiles q10 / q50 / q90: chain starts | quiet decisions without an order
+   |executp - cpos|            100 / 500 / 2690  |  0 / 0 / 2400
+   |executp - pos|             100 / 500 / 2700  |  0 / 0 / 2400
+   |executp - pp|              0 / 0.03806 / 1000  |  0 / 0 / 177.3
+   |executp - cpos| x mp       3079 / 1.318e+04 / 5.719e+04  |  0 / 0 / 3.05e+04
+   (|fa| - |lthr|) / hs        -0.4234 / 1.857 / 6.978  |  -1.48 / -0.107 / 1.045
+   |fa| / hs                   1.026 / 2.71 / 7.202  |  0.08392 / 0.5013 / 2.118
+   |fa| - |lthr| - hs          -0.0005665 / 0.0002 / 0.001152  |  -0.001123 / -0.0004092 / 8.618e-06
+   |executp - executp_prev|    0 / 0.1454 / 285.7  |  0 / 0 / 31.96
+   |pos - pos_prev|            0 / 0 / 0  |  0 / 0 / 0
+   asq                         0 / 300 / 2620  |  0 / 100 / 4000
+   winsdQty                    3.16e+04 / 1.299e+05 / 7.158e+05  |  3.199e+04 / 1.443e+05 / 6.784e+05
+-- on chain starts: executp == 0 on 0.422; trade sign + 0.506; sign(trade) == sign(fa) 0.997; lthr == 0 on 0.417; pos == cpos on 0.952; pp == pos on 0.217
+   quiet decisions without an order: executp == 0 on 0.532; pp == pos on 0.538
+[done]
+[21:17:29] r179 done
