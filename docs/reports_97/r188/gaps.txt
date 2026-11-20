@@ -1,0 +1,100 @@
+# R188 gaps on 97 (2026-11-21 02:08), transcribed from screen (332 lines, folded at 200; lines longer than 200 are cut). gap_probe.py 7535455c.
+[02:08:21] == 20261118 dysl2 ; engine 300 stocks, PM 300 stocks
+zzmh.hm: 300 stocks, 5 differ at 1e-6  {'ours < pm SH': 5}; relative gap median 1.30e-03, 90% 1.69e-03, max 1.70e-03
+   other engine keys equal to PM's value on those stocks: zzxu.last 5, zzxo.last 5, cdc.lp 5, zzpk.high 3, zzxu.high 3, zzvx.high 3, zzeg.c.high 3
+   PM keys equal to OUR value: zzxo.r.18 2, zzxo.r.19 2, zzui.r.3 1, zzxo.r.23 1, zzui.r.0 1, zzui.r.1 1, zzui.r.2 1, zzxo.r.0 1
+   e.g. 600009 ours 24.84 pm 24.85; 600028 5.96 / 5.97; 600150 34.7 / 34.71; 600941 107.24 / 107.38; 601727 5.88 / 5.89
+zzmh.r: 300 stocks, 8 differ at 1e-6  {'ours > pm SZ': 2, 'ours > pm SH': 3, 'ours < pm SH': 3}; relative gap median 1.06e-03, 90% 9.35e+02, max 1.33e+03
+   other engine keys equal to PM's value: zzgh.c.40 3, zzgh.c.152 3, zzgh.c.153 3, zzgh.c.165 3, zzgh.c.171 3, zzgh.c.297 3, zzgh.c.307 3, zzgh.c.314 3, zzgh.c.395 3, zzgh.c.407 3, (cut)
+   PM keys equal to OUR value: none
+   e.g. 2371 ours 0.00083589545 pm 0.00083477639; 302132 0.038813446 / 0.038805804; 600028 1.1260754e-05 / 1.4711632e-08; 600372 0.0082212876 / 0.008222308; 600415 0.0015647532 / 0.0015659807
+zzgh.nb: 300 stocks, 300 differ at 1e-6  {'ours > pm SZ': 43, 'ours < pm SZ': 69, 'ours > pm SH': 82, 'ours < pm SH': 106}; relative gap median 8.08e-03, 90% 8.70e-02, max 1.68e+00
+   other engine keys equal to PM's value: none; PM keys equal to OUR value: none
+   e.g. 1 ours -0.1497438 pm -0.14985839; 100 0.15328302 / 0.15562498; 1280 -0.0050748404 / -0.0045194544; 1391 -0.10075179 / -0.10601796; 157 -0.00081603429 / -0.0015653269
+zzba.p: 300 stocks, 58 differ at 1e-6  {'ours < pm SZ': 18, 'ours > pm SZ': 7, 'ours < pm SH': 13, 'ours > pm SH': 20}; relative gap median 4.71e-06, 90% 5.12e-04, max 5.73e-03
+   other engine keys equal to PM's value: zzxu.upper|m.px.1.5.de 1, zzxu.upper|m.lo.1.5.de 1; PM keys equal to OUR value: zzui.r.9 1, zzxo.r.29 1
+   e.g. 100 ours 4.7867435 pm 4.786766; 166 4.2756588 / 4.2756642; 2074 22.766015 / 22.766081; 2202 13.676728 / 13.677605; 2236 14.399274 / 14.397574
+zzgh.nb in PM's file: 300 stocks; min -0.2732, quartiles -0.0556 / 0.0108 / 0.0815, max 0.2635; share exactly 0: 0.000
+180 candidates on 300 stocks; best 15 by exact share, then the 8 most correlated   (exact 1e-6 | 1e-4 | corr | formula | side | window | of)
+   0.003 0.030 +0.9981 (b-s)/all     flag x0925_1500 vol
+   0.003 0.030 +0.9981 (b-s)/all     flag day        vol
+   0.000 0.143 +0.9994 (b-s)/all     flag l0930_1457 amt
+   0.000 0.143 +0.9994 (b-s)/all     seq  l0930_1457 amt
+   0.000 0.143 +0.9994 (b-s)/(b+s)   flag l0930_1457 amt
+   0.000 0.143 +0.9994 (b-s)/(b+s)   seq  l0930_1457 amt
+   0.000 0.140 +0.9994 (b-s)/(b+s)   flag x0930_1457 amt
+   0.000 0.140 +0.9994 (b-s)/(b+s)   seq  x0930_1457 amt
+   0.000 0.140 +0.9994 (b-s)/all     flag x0930_1457 amt
+   0.000 0.140 +0.9994 (b-s)/all     seq  x0930_1457 amt
+   0.000 0.107 +0.9984 (b-s)/(b+s)   flag x0925_1500 amt
+   0.000 0.107 +0.9984 (b-s)/(b+s)   flag day        amt
+   0.000 0.100 +0.9989 (b-s)/(b+s)   flag x0930_1500 amt
+   0.000 0.070 +0.9994 (b-s)/(b+s)   flag l0930_1457 vol
+   0.000 0.070 +0.9994 (b-s)/all     flag l0930_1457 vol
+ 8 most correlated: all corr +0.9994, exact 1e-6 0.000, window l0930_1457 of amt: b/all flag | b/all seq | (b-s)/all flag | (b-s)/all seq | b/(b+s) flag | b/(b+s) seq | (b-s)/(b+s) flag | (b-s)/(b+s) seq
+[02:08:25] == 20261118 s224 ; engine 300, PM 300
+zzmh.hm, zzmh.r, zzgh.nb: identical to the dysl2 block above (same counts, gaps, keys and examples)
+zzba.p: 300 stocks, 125 differ at 1e-6  {'ours < pm SZ': 16, 'ours > pm SZ': 6, 'ours < pm SH': 21, 'ours > pm SH': 82}; relative gap median 2.31e-06, 90% 1.18e-04, max 7.65e-04
+   other engine keys equal to PM's value: zzxo.r.0 1, zzxo.r.22 1, zzxo.r.24 1, zzui.r.2 1, zzui.r.4 1, zzxu.upper|m.px.1.5.de 1, zzxu.upper|m.lo.1.5.de 1
+   PM keys equal to OUR value: zzui.r.9 1, zzxo.r.29 1, zzhj.c.6 1, zzui.r.2 1, zzui.r.4 1, zzxo.r.0 1, zzxo.r.22 1, zzxo.r.24 1
+   e.g. 100 ours 4.7867457 pm 4.786766; 166 4.2756588 / 4.2756642; 2027 5.6612479 / 5.6612546; 2074 22.766025 / 22.766081; 2202 13.677135 / 13.677605
+[02:08:27] == 20261119 dysl2 ; engine 300, PM 300
+zzmh.hm: 300 stocks, 8 differ at 1e-6 {'ours < pm SH': 8}; relative gap median 7.42e-04, 90% 6.23e-03, max 6.72e-03
+   other engine keys equal to PM's value: zzxu.last 8, zzxo.last 8, cdc.lp 8, zzpk.high 6, zzxu.high 6, zzvx.high 6, zzeg.c.high 3
+   PM keys equal to OUR value: zzxo.r.18 1, zzxo.r.19 1, zzui.r.9 1, zzxo.r.29 1
+   e.g. 600031 ours 18.87 pm 18.9; 600089 17.95 / 17.96; 600760 44.6 / 44.87; 601318 54.64 / 54.66; 603259 144.31 / 144.39
+zzmh.r: 300 stocks, 7 differ at 1e-6 {'ours > pm SZ': 1, 'ours > pm SH': 6}; relative gap median 2.75e+02, 90% 2.31e+06, max 3.45e+06
+   other engine keys equal to PM's value: zzgh.c.383 5, zzgh.c.500 5, zzgh.c.768 5, zzgh.c.202 4, zzgh.c.322 4, zzgh.c.355 4, zzgh.c.361 4, zzgh.c.374 4, zzgh.c.422 4, zzgh.c.603 4, (cut)
+   PM keys equal to OUR value: zzbd.rEmaT 2
+   e.g. 300413 ours 0.013300897 pm 0.013299149; 600031 1.0110176e-05 / 3.6580557e-08; 600089 1.2414553e-06 / 3.3527838e-08; 600760 0.00014659454 / 5.3346444e-09; 603259 1.2292695e-06 / 1.7041775e-08
+zzgh.nb: 300 stocks, 299 differ at 1e-6 {'ours < pm SZ': 64, 'ours > pm SZ': 47, 'ours < pm SH': 111, 'ours > pm SH': 77}; relative gap median 7.81e-03, 90% 6.72e-02, max 1.68e+01
+   other engine keys / PM keys equal: none
+   e.g. 1 ours -0.19504588 pm -0.19497787; 100 0.19944799 / 0.19928569; 1280 0.17881134 / 0.17872136; 1391 0.096077828 / 0.091169703; 157 0.021429597 / 0.021258291
+zzba.p: 300 stocks, 74 differ at 1e-6 {'ours < pm SZ': 35, 'ours > pm SZ': 14, 'ours > pm SH': 13, 'ours < pm SH': 12}; relative gap median 5.70e-06, 90% 2.82e-04, max 5.32e-04
+   other engine keys equal to PM's value: zzxo.r.4 1; PM keys equal to OUR value: zzxo.r.5 1
+   e.g. 100 ours 4.8134601 pm 4.8134792; 157 5.9607717 / 5.9607432; 2 2.9213093 / 2.9213136; 2001 25.833531 / 25.833561; 2028 106.95732 / 106.95772
+zzgh.nb in PM's file (1119): min -0.2590, quartiles -0.0121 / 0.0515 / 0.1193, max 0.3813; share exactly 0: 0.000
+180 candidates; best 15 by exact share:
+   0.003 0.133 +0.9996 (b-s)/(b+s) flag l0930_1457 amt | 0.003 0.133 +0.9996 (b-s)/all flag l0930_1457 amt | 0.003 0.133 +0.9996 (b-s)/(b+s) seq l0930_1457 amt
+   0.003 0.133 +0.9996 (b-s)/all seq l0930_1457 amt | 0.003 0.127 +0.9996 (b-s)/all flag x0930_1457 amt | 0.003 0.127 +0.9996 (b-s)/all seq x0930_1457 amt
+   0.003 0.127 +0.9996 (b-s)/(b+s) flag x0930_1457 amt | 0.003 0.127 +0.9996 (b-s)/(b+s) seq x0930_1457 amt | 0.003 0.037 +0.9992 (b-s)/all flag x0930_1500 amt
+   0.000 0.077 +0.9990 (b-s)/(b+s) flag x0925_1500 amt | 0.000 0.077 +0.9990 (b-s)/(b+s) flag day amt | 0.000 0.070 +0.9993 (b-s)/(b+s) flag x0930_1500 amt
+   0.000 0.027 +0.9996 (b-s)/(b+s) flag x0930_1457 vol | 0.000 0.027 +0.9996 (b-s)/all flag x0930_1457 vol | 0.000 0.027 +0.9996 (b-s)/(b+s) seq x0930_1457 vol
+ 8 most correlated (1119 dysl2; first line(s) at a page boundary not seen): corr +0.9996 exact 0.003 (b-s)/all seq x0930_1457 amt | +0.9996 0.003 (b-s)/(b+s) flag x0930_1457 amt
+   | +0.9996 0.003 (b-s)/(b+s) seq x0930_1457 amt | -0.9996 0.000 (s-b)/(b+s) flag x0930_1457 amt | +0.9996 0.000 (b-s)/(b+s) x2 clipped flag x0930_1457 amt
+   | -0.9996 0.000 (s-b)/(b+s) seq x0930_1457 amt | +0.9996 0.000 (b-s)/(b+s) x2 clipped seq x0930_1457 amt
+[02:08:31] == 20261119 s224 ; engine 300, PM 300
+zzmh.hm, zzmh.r: identical to 1119 dysl2
+zzgh.nb: same counts and examples as dysl2; other engine keys equal to PM's value: zzgh.nb|snappx 1
+zzba.p: 300 stocks, 68 differ at 1e-6 {'ours > pm SZ': 8, 'ours < pm SZ': 25, 'ours > pm SH': 24, 'ours < pm SH': 11}; relative gap median 4.54e-06, 90% 3.03e-04, max 5.45e-04
+   other engine keys equal to PM's value: zzxo.r.4 1; PM keys equal to OUR value: none
+   e.g. 157 ours 5.9607509 pm 5.9607432; 2236 14.41768 / 14.417664; 2466 33.0082 / 33.01424; 2602 10.822794 / 10.824678; 2625 17.30889 / 17.310044
+[02:08:33] == 20261120 dysl2 ; engine 300, PM 300
+zzmh.hm: 300 stocks, 28 differ at 1e-6 {'ours < pm SH': 28}; relative gap median 2.52e-03, 90% 1.08e-02, max 1.83e-02
+   other engine keys equal to PM's value: zzxu.last 28, zzxo.last 28, cdc.lp 28, zzpk.high 26, zzxu.high 26, zzvx.high 26, zzeg.c.high 8, zzxu.upper|m.mid.1.5.c0 1, zzxu.upper|m.hi.1.c (cut)
+   PM keys equal to OUR value: zzui.r.9 5, zzxo.r.29 5, zzui.r.8 3, zzxo.r.28 3, zzui.r.7 2, zzxo.r.27 2, zzui.r.5 2, zzxo.r.25 2
+   e.g. 600000 ours 10.85 pm 10.87; 600009 24.97 / 25; 600039 8.89 / 8.99
+   (1 more example line, then) 600104 ours 10.15 pm 10.21
+zzmh.r: 300 stocks, 32 differ at 1e-6 {'ours < pm SZ': 1, 'ours > pm SZ': 1, 'ours > pm SH': 27, 'ours < pm SH': 3}; relative gap median 1.92e+03, 90% 2.00e+06, max 1.36e+07
+   other engine keys equal to PM's value: zzgh.c.383 18, zzgh.c.614 17, zzgh.c.184 16, zzgh.c.249 16, zzgh.c.788 16, zzgh.c.613 16, zzgh.c.779 16, zzgh.c.368 15, zzgh.c.400 15, (cut)
+   PM keys equal to OUR value: zzbd.rEmaT 5
+   e.g. 2460 ours 0.0043540732 pm 0.0043553224; 300661 0.014586258 / 0.014583749; 600000 1.3591285e-05 / 0; 600009 5.7738489e-06 / 1.9243583e-09; 600039 0.00050612346 / 2.7715047e-08
+zzgh.nb: 300 stocks, 299 differ {'ours < pm SZ': 63, 'ours > pm SZ': 49, 'ours < pm SH': 82, 'ours > pm SH': 105}; relative gap median 1.04e-02, 90% 7.18e-02, max 3.54e+00
+   other engine keys equal to PM's value: zzgh.nb|snappx 1; PM keys equal to OUR value: none
+   e.g. 1 ours 0.1625607 pm 0.16351189; 100 0.38493427 / 0.38490587; 1280 0.11966411 / 0.11828504; 1391 0.032264303 / 0.028642894; 157 0.02084141 / 0.019462076
+zzba.p: 300 stocks, 91 differ {'ours < pm SZ': 22, 'ours > pm SZ': 16, 'ours > pm SH': 43, 'ours < pm SH': 10}; relative gap median 2.42e-06, 90% 1.02e-04, max 5.56e-04
+   other / PM keys equal: none
+   e.g. 100 ours 4.909631 pm 4.90965; 157 5.9142857 / 5.9142753; 166 4.3508805 / 4.3508743; 2001 25.30755 / 25.307515; 2202 12.942025 / 12.943186
+zzgh.nb in PM's file (1120): min -0.1591, quartiles -0.0149 / 0.0459 / 0.1285, max 0.4602; share exactly 0: 0.000
+best 15 by exact share: 0.003 0.130 +0.9998 (b-s)/all flag x0930_1457 amt | 0.003 0.130 +0.9998 (b-s)/all seq x0930_1457 amt | 0.003 0.130 +0.9998 (b-s)/(b+s) flag x0930_1457 amt
+   | 0.003 0.130 +0.9998 (b-s)/(b+s) seq x0930_1457 amt | 0.003 0.070 +0.9994 (b-s)/(b+s) flag x0930_1500 amt | 0.003 0.067 +0.9987 (b-s)/(b+s) flag x0925_1500 amt
+   | 0.003 0.067 +0.9987 (b-s)/(b+s) flag day amt | 0.003 0.003 -0.7154 (s-b)/(b+s) flag x0930_1457 cnt | 0.003 0.003 -0.7154 (s-b)/(b+s) seq x0930_1457 cnt
+   | 0.003 0.003 -0.7154 (s-b)/(b+s) flag l0930_1457 cnt | 0.003 0.003 -0.7154 (s-b)/(b+s) seq l0930_1457 cnt | 0.000 0.130 +0.9998 (b-s)/(b+s) flag l0930_1457 amt
+   | 0.000 0.130 +0.9998 (b-s)/(b+s) seq l0930_1457 amt | 0.000 0.130 +0.9998 (b-s)/all flag l0930_1457 amt | 0.000 0.130 +0.9998 (b-s)/all seq l0930_1457 amt
+ 8 most correlated: all +0.9998 x0930_1457 amt: b/(b+s) flag 0.000 | b/all flag 0.000 | b/(b+s) seq 0.000 | b/all seq 0.000 | (b-s)/all flag 0.003 | (b-s)/all seq 0.003 | (b-s)/(b+s) flag 0.003 | (b-s)/(b+s) seq 0.003
+[02:08:37] == 20261120 s224 ; engine 300, PM 300
+zzmh.hm, zzmh.r, zzgh.nb (1120 s224): identical to 1120 dysl2 (zzmh.hm e.g. also 600066 ours 32.21 pm 32.81, 600104 10.15 / 10.21)
+zzba.p: 300 stocks, 155 differ at 1e-6 {'ours < pm SZ': 19, 'ours > pm SZ': 18, 'ours > pm SH': 98, 'ours < pm SH': 20}; relative gap median 2.29e-06, 90% 1.27e-05, max 5.56e-04
+   other engine keys equal to PM's value: none; PM keys equal to OUR value: zzxo.r.12 1, zzxo.r.3 1, zzxo.r.4 1
+   e.g. 100 ours 4.9096301 pm 4.90965; 157 5.9142857 / 5.9142753; 166 4.3508805 / 4.3508743; 2001 25.30755 / 25.307515; 2202 12.942025 / 12.943186
+[02:08:40] r188 gaps done ; R188 ALL DONE

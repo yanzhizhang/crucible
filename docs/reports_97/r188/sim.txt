@@ -1,0 +1,39 @@
+# R188 sim on 97 (2026-11-21 02:07), transcribed from screen (163 lines). r188.sh 23f7b5a9, alpha_agree.py 6d690332 (785e1da), GATE OK.
+definition (columns: s224 | dysl2)                        1118             1119             1120
+rows                                                 70199 | 70199    69827 | 69827    70651 | 70651   (300 stocks, 240 marks each day)
+per mark: rank correlation (our 'similarity')       0.6028 | 0.5911  0.6187 | 0.6244  0.6269 | 0.6353
+per mark: linear correlation                        0.5796 | 0.5696  0.6033 | 0.6087  0.6259 | 0.6330
+per mark: rank correlation squared                  0.3634 | 0.3494  0.3828 | 0.3899  0.3930 | 0.4036
+per mark: PM's top decile also ours                 0.3954 | 0.3669  0.4334 | 0.4023  0.4309 | 0.4110
+per mark: PM's bottom decile also ours              0.4160 | 0.4496  0.4330 | 0.4741  0.4337 | 0.4713
+per mark: same decile                               0.2128 | 0.2127  0.2212 | 0.2232  0.2189 | 0.2216
+per mark: same quintile                             0.3804 | 0.3787  0.3911 | 0.3944  0.3893 | 0.3917
+pooled: linear correlation                          0.4948 | 0.4867  0.5214 | 0.5275  0.5541 | 0.5629
+pooled: r squared                                   0.2448 | 0.2368  0.2718 | 0.2783  0.3070 | 0.3169
+pooled: rank correlation                            0.5326 | 0.5231  0.5460 | 0.5543  0.5532 | 0.5653
+pooled: 1 - var(pm - ours) / var(pm), no fit       -7.1684 |-7.2396 -7.4369 |-7.3362 -7.4965 |-7.3769
+pooled: same sign                                   0.5275 | 0.5203  0.5275 | 0.5189  0.5141 | 0.5067
+pooled: ours within 10% of pm                       0.0055 | 0.0047  0.0061 | 0.0051  0.0054 | 0.0043
+pooled: ours within 1% of pm                        0.0005 | 0.0006  0.0007 | 0.0005  0.0006 | 0.0004
+pooled: std ours / std pm                           3.2175 | 3.2210  3.2979 | 3.2869  3.3475 | 3.3367
+per stock over the day: correlation, mean           0.5026 | 0.5162  0.5144 | 0.5368  0.5414 | 0.5602
+per stock over the day: correlation, median         0.4803 | 0.5083  0.4846 | 0.5001  0.5198 | 0.5343
+per stock, mark means removed: mean                 0.5817 | 0.5901  0.6058 | 0.6245  0.6273 | 0.6412
+per stock, mark means removed: median               0.5732 | 0.6020  0.6039 | 0.6178  0.6117 | 0.6327
+changes mark to mark: pooled correlation            0.5735 | 0.5826  0.6053 | 0.6208  0.6389 | 0.6517
+changes mark to mark: same sign                     0.6817 | 0.6923  0.6929 | 0.7075  0.6937 | 0.7055
+stock means over the day: correlation across stocks 0.1335 |-0.0477  0.1649 | 0.0838 -0.0302 |-0.0141
+pooled, stock means removed: correlation            0.5200 | 0.5285  0.5466 | 0.5609  0.5917 | 0.6042
+closest to 0.20: 1118 per-mark same decile 0.213 (both), pooled r^2 dysl2 0.237 / s224 0.245; 1119 same decile s224 0.221 / dysl2 0.223,
+  stock means across stocks s224 0.165, pooled r^2 s224 0.272; 1120 same decile s224 0.219 / dysl2 0.222, pooled r^2 0.307 / 0.317
+snapshots per day full (dysl2) / sub (s224): 1118 22107430 / 22062028; 1119 21856308 / 21811016; 1120 22423851 / 22378325
+missing from sub: 1118 45402 snapshots on 5224 stocks (per stock median 6, max 13), by half hour -2:37215 -1:7818 9:369;
+                  1119 45292 (median 6, max 13) -2:37148 -1:7811 9:333;  1120 45526 (median 6, max 13) -2:37203 -1:7833 9:490
+rank residual |resid| on rows with / without a missing snapshot before the mark:
+  m3 / m30 / m300: with n = 0 on every day and feed (no mark has a missing snapshot within 3 / 30 / 300 s before it)
+  mday: with n = all rows (every stock misses some snapshot during the day) -> the split is degenerate
+  1118 s224 mean|resid| 0.1888 rms 0.2314; dysl2 0.1906 / 0.2339; 1119 s224 0.1856 / 0.2278, dysl2 0.1840 / 0.2265; 1120 s224 0.1851 / 0.2259, dysl2 0.1828 / 0.2239
+  across stocks corr(missing count, residual rms): 1118 s224 -0.102 dysl2 -0.074; 1119 -0.000 / -0.019; 1120 -0.001 / -0.002
+|ours s224 - ours dysl2| on shared rows: 1118 mean 0.000340 (std of ours 0.001092), corr of the two 0.9164; 1119 0.000338 (0.001110) 0.9209;
+  1120 0.000329 (0.001124) 0.9250  (m3/m30/m300 gap 0 on 0 rows; all rows count as mday)
+[02:07:52] r188 sim done

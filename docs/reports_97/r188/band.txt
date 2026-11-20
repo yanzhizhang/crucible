@@ -1,0 +1,58 @@
+# R188 band on 97 (2026-11-21 02:07-02:08), transcribed from screen (137 lines). band_trace.py 6e15e13e.
+[02:07:52] == 20261118 (prev 20261117, feed dysl2)
+  ok = (np.abs(mm * 4 - q) <= 4e-7) & (q >= 1) & (q <= 40)
+20261118: 300 stocks traced; PM dir counts {1.0: 258, -1.0: 42}
+1. inactive band at the last snapshot: (centre, width, mult) -> share of stocks exact (top 8)
+   mid c0 3 0.703 | mid a 3 0.703 | hi c0 2.5 0.480 | hi a 2.5 0.480 | mid tr 3 0.407 | mid de 3 0.407 | hi tr 2.5 0.363 | hi de 2.5 0.363
+2. active band, mid -+ 3 c0: {"no snapshot gives PM's value": 299, "some snapshot gives PM's value": 1}
+   first hit by half hour of the trading clock: {3: 1};  1 = extreme of the whole day;  1 no cross at the hit
+3. active band, any formula: (centre, width) -> multiplier: stocks with an exact snapshot (top 4 multipliers each)
+   px tr 0.5:8 1.25:7 1.75:6 0.75:6 | px de 0.5:8 1.25:7 1.75:6 0.75:6 | mid tr 1.75:6 1.25:5 3:3 1:3 | mid de 1.75:6 1.25:5 1:3 3:2
+   hi tr 2.25:6 1.75:5 3.5:3 1.5:3 | hi de 2.25:6 1.75:5 1.5:3 3.5:2 | lo tr 1.25:6 0.75:5 2.5:3 0.5:3 | lo de 1.25:6 0.75:5 0.5:3 2.5:2
+   px c0 0.5:5 1.25:2 2.5:1 3:1 | px a 0.5:5 1.25:2 1:2 2.5:1 | hi c0 1.75:2 3.5:1 2.25:1 | hi a 1.75:2 2.75:1 2.5:1 3.5:1
+   lo c0 0.75:2 2.5:1 1.25:1 | lo a 0.75:2 2.5:1 1.25:1 | mid c0 3:1 1.25:1 1.75:1 | mid a 0.75:1 3:1 1.25:1 1.75:1 | p tr 1:1 2.5:1 | p de 1.5:1
+examples (dir, active PM value: hit?; nearest snapshot t, value (off); day extreme; last):
+   1 +1 12.030183 NO; t 828 11.978847 (-5.13e-02); extreme 11.978847, last 11.330001
+   2 +1 2.901333 NO; t 963 2.869098 (-3.22e-02); extreme 2.869098, last 2.770000
+   63 +1 27.179425 NO; t 1647 27.112805 (-6.66e-02); extreme 27.112805, last 25.800000
+   100 +1 4.667574 NO; t 2982 4.614849 (-5.27e-02); extreme 4.614849, last 4.530000
+   157 +1 5.792038 NO; t 651 5.758848 (-3.32e-02); extreme 5.758848, last 5.620000
+   166 +1 4.231333 NO; t 321 4.212755 (-1.86e-02); extreme 4.212755, last 4.090000
+   301 -1 10.717420 NO; t 36 10.717394 (-2.61e-05); extreme 10.509363, last 10.940000
+   333 +1 90.435211 NO; t 429 89.731300 (-7.04e-01); extreme 89.731300, last 88.770000
+[02:08:02] == 20261119 (prev 20261118, feed dysl2); same ok rule
+20261119: 300 stocks traced; PM dir counts {-1.0: 43, 1.0: 257}
+1. inactive band: mid c0 3 0.513 | mid a 3 0.513 | hi c0 2.5 0.417 | hi a 2.5 0.417 | mid tr 3 0.347 | mid de 3 0.347 | hi tr 2.5 0.307 | hi de 2.5 0.307
+2. active band, mid -+ 3 c0: {"no snapshot gives PM's value": 298, "some snapshot gives PM's value": 2}; first hit by half hour {7: 2}
+   1119 hits: 1 exceeded later (held from the hit; later snapshots beyond it: few); 1 = extreme from the first hit on (ratchet started there); 2 no cross at the hit
+3. (1119) active band, any formula -> multiplier: px tr 2.5:4 1:4 1.5:3 2:3 | px de 2:4 1:3 1.5:3 2.5:3 | mid a 3:3 1.25:2 1.5:1 | mid tr 3:3 1.5:3 2.5:1 0.75:1
+   hi tr 3.5:3 2:3 3:1 1.25:1 | lo tr 2.5:3 1:3 2:1 0.25:1 | mid c0 3:2 2.5:1 1.25:1 1.5:1 | mid de 3:2 1.5:2 2.5:1 0.75:1 | px c0 2.5:2 3:1 2:1 0.5:1
+   px a 2.5:2 1.5:1 2:1 0.5:1 | hi c0 2:2 3:1 | hi de 3.5:2 2:2 3:1 1.25:1 | lo de 2.5:2 1:2 2:1 0.25:1 | p c0 2:1 3:1 | p a 2:1 | p tr 2:1 0.5:1
+   p de 2:1 0.5:1 1.75:1 | hi a 2:1 | lo c0 2:1 1:1 | lo a 1:1
+examples 1119:
+   1 -1 12.906696 NO; t 11976 12.906695 (-9.07e-07); extreme 12.533783, last 13.033007
+   2 +1 2.899520 NO; t 204 2.839517 (-6.00e-02); extreme 2.839517, last 2.752379
+   63 -1 28.614465 NO; t 246 28.756275 (+1.42e-01); extreme 28.756275, last 30.825000
+   100 +1 4.601678 NO; t 30 4.583083 (-1.86e-02); extreme 4.583083, last 4.525000
+   157 +1 5.840917 NO; t 12558 5.780000 (-6.09e-02); extreme 5.780000, last 5.712669
+   166 +1 4.193085 NO; t 195 4.162485 (-3.06e-02); extreme 4.162485, last 4.074168
+   301 +1 9.629024 NO; t 561 9.462914 (-1.66e-01); extreme 9.462914, last 9.205000
+   333 +1 91.097756 NO; t 7479 90.619145 (-4.79e-01); extreme 90.619145, last 88.887558
+[02:08:11] == 20261120 (prev 20261119, feed dysl2); same ok rule
+20261120: 300 stocks traced; PM dir counts {1.0: 225, -1.0: 75}
+1. inactive band: mid c0 3 0.480 | mid a 3 0.480 | mid tr 3 0.290 | mid de 3 0.290 | hi c0 2.5 0.247 | hi a 2.5 0.247 | hi tr 2.5 0.210 | hi de 2.5 0.210
+2. active band, mid -+ 3 c0: no snapshot 298, some snapshot 2; first hit by half hour {7: 2}; 2 exceeded later (held from the hit; later beyond it: few); 2 no cross at the hit
+3. (1120) mid tr 1.25:4 3:1 0.75:1 1:1 | px tr 0.75:4 1.25:3 0.5:3 1:2 | px de 0.75:4 1.25:3 0.5:3 1:2 | hi tr 1.75:4 3.5:1 1.25:1 1.5:1 | lo tr 0.75:4 2.5:1 0.25:1 0.5:1
+   mid c0 3:3 0.75:1 1.25:1 | mid a 3:3 0.75:1 1.25:1 | px c0 0.75:3 1.25:2 1.75:1 0.25:1 | lo de 0.75:3 2.5:1 0.25:1 0.5:1 | mid de 1.25:2 3:1 0.75:1 1:1
+   px a 1.25:2 0.75:2 1.75:1 0.25:1 | hi de 1.75:2 3.5:1 1.25:1 1.5:1 | p c0 0.25:1 2.25:1 1.5:1 | p a 0.25:1 2.25:1 1.5:1 1.25:1 | p de 1:1
+   hi c0 1.25:1 1.75:1 | hi a 1.25:1 1.75:1 | lo c0 0.25:1 0.75:1 | lo a 0.25:1 0.75:1
+examples 1120:
+   1 +1 11.839864 NO; t 822 11.618654 (-2.21e-01); extreme 11.618654, last 11.130794
+   2 -1 3.027425 NO; t 1542 3.027451 (+2.57e-05); extreme 2.955982, last 3.080000
+   63 +1 26.261138 NO; t 894 25.899404 (-3.62e-01); extreme 25.899404, last 24.785000
+   100 +1 4.572442 NO; t 48 4.543717 (-2.87e-02); extreme 4.543717, last 4.180000
+   157 +1 5.785918 NO; t 261 5.757660 (-2.83e-02); extreme 5.757660, last 5.495000
+   166 +1 4.210000 NO; t 1545 4.208819 (-1.18e-03); extreme 4.208819, last 3.915000
+   301 +1 9.458987 NO; t 1077 9.307923 (-1.51e-01); extreme 9.307923, last 8.785000
+   333 +1 93.503114 NO; t 129 91.163135 (-2.34e+00); extreme 91.163135, last 88.818444
+[02:08:21] r188 band done
