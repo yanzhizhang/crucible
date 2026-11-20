@@ -1,0 +1,78 @@
+# R187 dec + state on 97 (2026-11-21), transcribed from screen. r187.sh 2e5d99f1 (10e7fb4), GATE OK.
+# r187_dec.txt md5 f1debd71e853d2e8c79b946a4725da8e (29 lines); r187_state.txt md5 eec010ea9f32e15be629f26308ef0753 (81 lines).
+== dec  [00:48:20] -> [00:54:12] r187 dec done, no FAILED lines
+  s224 20261120 decoded (tdf_224) + catalog_s224 (catalog.build wall 5.04 s, 5,424 rows); dysl2 20261117 (00:49:11), 20261119 (00:50:56), 20261120 (00:52:29) decoded + catalog_dysl2
+  s224 quotes per day:  [(20261118, 22062028, 5224), (20261119, 21811016, 5224), (20261120, 22378325, 5224)]
+  dysl2 quotes per day: [(20261117, 22027205, 5224), (20261118, 22107430, 5224), (20261119, 21856308, 5224), (20261120, 22423851, 5224)]
+== state  (done 01:00:25); columns: s224_1e6 | s224_1e4 | dysl2_1e6 | dysl2_1e4; rows = keys below 0.99 at 1e-4 plus every zzvx / zzeg / zzxu key
+-- 20261118 (prev 20261117.jz); feeds with a result: s224, dysl2
+   zzba.p        0.1033 | 0.9500 | 0.2233 | 0.9367
+   zzeg.c.high   0.9967 | 0.9967 | 0.9967 | 0.9967
+   zzeg.c.low    0.9967 | 0.9967 | 0.9967 | 0.9967
+   zzeg.c.span   0.9967 | 0.9967 | 0.9967 | 0.9967
+   zzgh.nb       0.0000 | 0.0033 | 0.0000 | 0.0033
+   zzmh.hm       0.9833 | 0.9833 | 0.9833 | 0.9833
+   zzmh.r        0.9733 | 0.9733 | 0.9733 | 0.9733
+   zzvx.high     1.0000 | 1.0000 | 1.0000 | 1.0000
+   zzvx.low      1.0000 | 1.0000 | 1.0000 | 1.0000
+   zzvx.rEmaD    1.0000 | 1.0000 | 1.0000 | 1.0000
+   zzvx.rEmaO    1.0000 | 1.0000 | 1.0000 | 1.0000
+   zzvx.trDEmaD  0.9967 | 1.0000 | 0.9967 | 1.0000
+   zzvx.trDEmaO  0.9967 | 1.0000 | 0.9967 | 1.0000
+   zzvx.trEmaD   0.9967 | 1.0000 | 0.9967 | 1.0000
+   zzvx.trEmaO   0.9967 | 1.0000 | 0.9967 | 1.0000
+   zzxu.a / high / last / low  1.0000 on all four columns
+   zzxu.p        0.9433 | 1.0000 | 0.9433 | 1.0000
+   s224_1e6: 41 value keys, mean 0.9040, at 1.0 on 19, below 0.99 on 13
+   s224_1e4: 41 value keys, mean 0.9731, at 1.0 on 32, below 0.99 on 4
+   dysl2_1e6: 41 value keys, mean 0.9167, at 1.0 on 19, below 0.99 on 13
+   dysl2_1e4: 41 value keys, mean 0.9728, at 1.0 on 32, below 0.99 on 4
+-- 20261119 (prev 20261118.jz); feeds with a result: s224, dysl2
+   zzba.p        0.1967 | 0.9400 | 0.3533 | 0.9333
+   zzeg.c.high   1.0000 | 1.0000 | 1.0000 | 1.0000
+   zzeg.c.low    0.9967 | 0.9967 | 0.9967 | 0.9967
+   zzeg.c.span   0.9967 | 0.9967 | 0.9967 | 0.9967
+   zzgh.nb       0.0033 | 0.0100 | 0.0033 | 0.0100
+   zzmh.hm       0.9733 | 0.9733 | 0.9733 | 0.9733
+   zzmh.r        0.9767 | 0.9767 | 0.9767 | 0.9767
+   zzvx.high     1.0000 | 1.0000 | 1.0000 | 1.0000
+   zzvx.low      1.0000 | 1.0000 | 1.0000 | 1.0000
+   zzvx.rEmaD    0.9967 | 0.9967 | 0.9967 | 0.9967
+   zzvx.rEmaO    0.9967 | 0.9967 | 0.9967 | 0.9967
+   zzvx.trDEmaD  0.9867 | 1.0000 | 0.9867 | 1.0000
+   zzvx.trDEmaO  0.9867 | 1.0000 | 0.9867 | 1.0000
+   zzvx.trEmaD   0.9867 | 1.0000 | 0.9900 | 1.0000
+   zzvx.trEmaO   0.9867 | 1.0000 | 0.9900 | 1.0000
+   zzxu.a        0.9900 | 0.9967 | 0.9900 | 0.9967
+   zzxu.high / last / low  1.0000 on all four columns
+   zzxu.p        0.9767 | 1.0000 | 0.9567 | 1.0000
+   s224_1e6: 41 value keys, mean 0.9024, at 1.0 on 18, below 0.99 on 17
+   s224_1e4: 41 value keys, mean 0.9726, at 1.0 on 30, below 0.99 on 4
+   dysl2_1e6: 41 value keys, mean 0.9128, at 1.0 on 18, below 0.99 on 15
+   dysl2_1e4: 41 value keys, mean 0.9723, at 1.0 on 30, below 0.99 on 4
+   (a zzba.r row for 1119 may sit at a screen-page boundary and was not seen; check line ~31 of r187_state.txt)
+-- 20261120 (prev 20261119.jz); feeds with a result: s224, dysl2
+   zzba.p        0.0533 | 0.9700 | 0.2200 | 0.9667
+   zzba.r        0.5700 | 0.9367 | 0.6667 | 0.9500
+   zzeg.c.high   0.9933 | 0.9933 | 0.9933 | 0.9933
+   zzeg.c.low    0.9967 | 0.9967 | 0.9967 | 0.9967
+   zzeg.c.span   0.9933 | 0.9933 | 0.9933 | 0.9933
+   zzgh.nb       0.0033 | 0.0200 | 0.0033 | 0.0200
+   zzmh.hm       0.9067 | 0.9067 | 0.9067 | 0.9067
+   zzmh.r        0.8933 | 0.8933 | 0.8933 | 0.8933
+   zzvx.high     1.0000 | 1.0000 | 1.0000 | 1.0000
+   zzvx.low      1.0000 | 1.0000 | 1.0000 | 1.0000
+   zzvx.rEmaD    0.9933 | 1.0000 | 0.9933 | 1.0000
+   zzvx.rEmaO    0.9933 | 1.0000 | 0.9933 | 1.0000
+   zzvx.trDEmaD  0.9733 | 1.0000 | 0.9667 | 1.0000
+   zzvx.trDEmaO  0.9733 | 1.0000 | 0.9667 | 1.0000
+   zzvx.trEmaD   0.9900 | 1.0000 | 0.9833 | 1.0000
+   zzvx.trEmaO   0.9900 | 1.0000 | 0.9833 | 1.0000
+   zzxu.a        0.9900 | 1.0000 | 0.9867 | 1.0000
+   zzxu.high / last / low  1.0000 on all four columns
+   zzxu.p        0.9733 | 1.0000 | 0.9733 | 1.0000
+   s224_1e6: 41 value keys, mean 0.8800, at 1.0 on 16, below 0.99 on 15
+   s224_1e4: 41 value keys, mean 0.9685, at 1.0 on 31, below 0.99 on 5
+   dysl2_1e6: 41 value keys, mean 0.8986, at 1.0 on 16, below 0.99 on 18
+   dysl2_1e4: 41 value keys, mean 0.9687, at 1.0 on 31, below 0.99 on 5
+[01:00:25] r187 state done
