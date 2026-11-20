@@ -1,0 +1,31 @@
+# R185 on 97 (2026-11-20, done 07:59:40), transcribed from screen (folded at 105; the trk-kinds dict is cut at 260 chars by r185.sh itself).
+# r185.sh 2683022c, runs_po.py ae7b68b7 (74dde4a), GATE OK.
+== 20261118: 3,063 SO lines (columns ['po_ts', 'f2', 'f3', 'f4', 'sid', 'px', 'qty', 'stamp', 'side']); trk kinds {'RPT': 5844, 'ORD': 3063, 'SEND': 2923, 'CXL': 2319, 'TRD': 702, 'CLOCK': 350, 'POS': 300, 'BHOLD': 290, 'REJ': 140, 'INS_RSP': 1, 'ACCT': 1, 'BA
+   SO Qty: == 0 on 0, a multiple of 100 on 1.0000, min / median / max 100 / 300 / 9400; SO Price on the 0.01 grid on 1.0000, min / median / max 2.26 / 28.32 / 1444.54
+shape: (3, 9)
+  po_ts                f2  f3  f4   sid     px     qty  stamp  side
+  1794965400019208960  0   1   101  688521  94     200  SO     sell
+  1794965400460593920  0   2   201  600009  24.78  500  SO     sell
+  1794965400557312000  0   3   301  657     35.72  400  SO     sell
+  j = po.join_asof(t, left_on="po_ts", right_on="t", by="sid", strategy="forward", tolerance=int(a.window * 1e9))
+-- ORD (3,063 rows; time column now): next ORD of the stock within 2 s of the SO line: found 3,063 of 3,063; (a) same qty and px 3,009; (b) swapped 0; (c) neither 54, none found 0
+   ORD time - SO time, ms, q1 / q50 / q99: 1.473 / 4.046 / 20.347
+   (a)  sid 688521  SO px 94.0 qty 200  ->  ORD px 94.0 qty 200 side sell
+   (a)  sid 600009  SO px 24.78 qty 500  ->  ORD px 24.78 qty 500 side sell
+   (a)  sid 000657  SO px 35.72 qty 400  ->  ORD px 35.72 qty 400 side sell
+   (c) neither  sid 600406  SO px 24.58 qty 100  ->  ORD px 24.58 qty 300 side sell
+   (c) neither  sid 600066  SO px 31.57 qty 200  ->  ORD px 31.57 qty 300 side sell
+   (c) neither  sid 002001  SO px 25.96 qty 100  ->  ORD px 25.96 qty 500 side buy
+-- SEND (2,923 rows; time column now): next SEND of the stock within 2 s of the SO line: found 2,923 of 3,063; (a) same qty and px 2,870; (b) swapped 0; (c) neither 53, none found 140
+   SEND time - SO time, ms, q1 / q50 / q99: 1.686 / 4.300 / 20.491
+   (a)  sid 688521  SO px 94.0 qty 200  ->  SEND px 94.0 qty 200 side sell
+   (a)  sid 600009  SO px 24.78 qty 500  ->  SEND px 24.78 qty 500 side sell
+   (a)  sid 000657  SO px 35.72 qty 400  ->  SEND px 35.72 qty 400 side sell
+   (c) neither  sid 600406  SO px 24.58 qty 100  ->  SEND px 24.58 qty 300 side sell
+   (c) neither  sid 600066  SO px 31.57 qty 200  ->  SEND px 31.57 qty 300 side sell
+   (c) neither  sid 002001  SO px 25.96 qty 100  ->  SEND px 25.96 qty 500 side buy
+   none found  sid 601006  SO px 4.98 qty 400  f2 0 f3 2924 f4 292401
+   none found  sid 601006  SO px 4.98 qty 400  f2 0 f3 2925 f4 292501
+   none found  sid 601901  SO px 6.74 qty 100  f2 0 f3 2926 f4 292601
+[done]
+[07:59:40] r185 done
