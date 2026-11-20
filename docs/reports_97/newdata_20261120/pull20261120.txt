@@ -1,0 +1,18 @@
+# pull20261120 (user-approved 2026-11-20 "run today 224 23 new data pulling"; read-only rsync FROM 224 and 2.23; chrono_run_s.json5 excluded)
+# research/pull1120.sh a8021920 (97, uncommitted on 97 -- no git on 97), log data/reports/pull1120.txt, details data/reports/pull20261120/
+[00:04:00] pull 20261120 start; disk: 8.2T/25T used
+[00:04:20] 224 executor/20261120 rc 0: 1.4G, 30 files
+[00:04:21] 224 sig 20261120 rc 0: 22361895 alpha.parquet
+[00:04:21] 224 stsfile rc 0: sod newest 20261119.xr 20261120.xr
+[00:04:22] 224 sht-logs rc 0: 20261120 files 0   (1120's chrono logs are under executor/20261120/chrono_logs)
+[00:04:22] 224 chrono runtime (list-only): chrono.so d4c70b51 (11-20 15:32, replaced; old chrono.so.20261120 b2c1e95f 14:47);
+           plugins/libcatchRun.so 1f4b2f32 (11-19 15:19); plugin.20261119/ backup 11-20 15:12 (same md5); no commit strings
+[00:06:14] 2.23 224_shm_datayes 20261120 rc 0: zips 16398, 7.7G
+[00:06:15] 2.23 PM jz rc 0: 20261118.jz 20261119.jz 20261120.jz
+[00:06:23] 2.23 hstats rc 0;  hstats 20261119: 15 families;  hstats 20261120: 15 families
+[00:06:26] 2.23 stsfile rc 0: sod newest 20261119.xr 20261120.xr
+[00:06:28] 20261119.jz MATCH ; [00:06:30] 20261120.jz MATCH
+[00:06:30] disk after: 8.2T/25T used ; pull 20261120 done
+# follow-up (read-only): 224 plugins/libcatchRun.so copied to /work/crucible_data/so_probe/pm224_1119/ (md5 1f4b2f32):
+#   same 552 PM functions/sizes as 97's 11-16 copy; it is newer SOURCE than libshtst.a: runS::place_order(sym, qty, px, side)
+#   and book2msg copies lv2 volume/amount (both seams the -O0 libshtst.a decode had wrong). sht-demo-runs feat/run-s deployed_vs_decoded.md
