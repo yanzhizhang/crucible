@@ -1,0 +1,34 @@
+# R190 on 97 (2026-11-21 02:30:02-02:30:04), transcribed from screen; data/reports/r190.txt md5 5766cbcf9388983bb95f4d8a5e38d9dd (36 lines).
+# r190.sh 3918cb9a, runs_ord.py 4a629d65 (87128c2), GATE OK.
+[02:30:02] 20261118 book from /work/crucible_data/catalog_s224.duckdb
+== 20261118: 769,310 decisions, 1,525 with an order, 2,222 inside the log-only rule; replaying 2,225
+-- A  snapshot found (mid == mp within 3 s) on 0.9987; tick-store receive time - PM's, ms, q1/10/50/90/99: 42.2 / 80.4 / 359.0 / 942.0 / 1691.3
+   order decisions per stock == SO lines per stock on 30 of 259 stocks (60 orders); SO lines in all 3,063
+-- B  order / no order with the book: replay orders 24; precision 1.0000, recall 0.0158; rule-only rows that the replay drops, by reason:
+   {'star below 200': 664, 'pending leg opposes': 18, 'top of book below 100': 18}
+-- C  60 orders paired with an SO line (1462 unpaired): replay has an order on 0.0500; side 0.0500, price 0.0500, quantity 0.0000, all three 0.0000
+   quantity set by: none: top of book below 100 57 (exact 0.000); top of book 3 (exact 0.000)
+   first 15 mismatches (SO | replay | fa hs lthr cur pp ep room asq):
+   000657 SO sell 400 @ 35.72 | none (top of book below 100) | fa -0.0025761 hs 0.00027988 lthr 0 cur 0 pp 0.0 ep -400.0 room 60953 asq 400
+   000157 SO buy 2000 @ 5.94 | none (tob<100) | fa 0.0016056 hs 0.00084246 lthr 0 cur 0 pp 0.0 ep 2000.0 room 53982 asq 2000
+   002202 SO sell 1100 @ 13.62 | none (tob<100) | fa -0.0010289 hs 0.00036697 lthr 0 cur 0 pp 0.0 ep -1100.0 room 35276 asq 1100
+   601698 SO sell 500 @ 20.76 | none (tob<100) | fa -0.0022147 hs 0.00096246 lthr 0 cur 0 pp 0.0 ep -500.0 room 75671 asq 500
+   600438 SO sell 1100 @ 11.2 | none (tob<100) | fa -0.0016192 hs 0.00044623 lthr 0 cur 0 pp 0.0 ep -1100.0 room 124359 asq 1100
+   601186 SO sell 1800 @ 5.89 | none (tob<100) | fa -0.0018444 hs 0.00084818 lthr 0 cur 0 pp 0.0 ep -1800.0 room 191629 asq 1800
+   300760 SO buy 200 @ 184.62 | none (tob<100) | fa 0.00099505 hs 0.00018961 lthr 0 cur 0 pp 0.0 ep 200.0 room 15296 asq 200
+   601688 SO buy 2300 @ 17.25 | none (tob<100) | fa 0.0023912 hs 0.00087032 lthr 0 cur 0 pp 0.0 ep 2300.0 room 211190 asq 2300
+   601939 SO buy 3400 @ 12.26 | none (tob<100) | fa 0.0020534 hs 0.000408 lthr 0 cur 0 pp 0.0 ep 3400.0 room 499329 asq 3400
+   600176 SO sell 1000 @ 26.21 | none (tob<100) | fa -0.0023121 hs 0.00057197 lthr 0 cur 0 pp 0.0 ep -1000.0 room 214560 asq 1000
+   601995 SO sell 900 @ 27.26 | none (tob<100) | fa -0.0022963 hs 0.00073314 lthr 0 cur -100 pp 0.0 ep -1000.0 room 76833 asq 900
+   600000 SO buy 5300 @ 10.82 | none (tob<100) | fa 0.0023223 hs 0.00046223 lthr 0 cur 0 pp 0.0 ep 5300.0 room 443276 asq 5300
+   600048 SO buy 2500 @ 5.27 | none (tob<100) | fa 0.0016985 hs 0.00094967 lthr 0 cur 0 pp 0.0 ep 2547.8 room 657252 asq 2900
+   000100 SO buy 2400 @ 4.77 | none (tob<100) | fa 0.0019143 hs 0.0010493 lthr 0 cur 0 pp 0.0 ep 2478.6 room 815981 asq 8700
+   601878 SO buy 1100 @ 8.67 | none (tob<100) | fa 0.0012733 hs 0.00057703 lthr 0 cur 0 pp 0.0 ep 1100.0 room 1100 asq 1100
+-- D  order life
+   SO lines by half hour: 09:30 1209, 10:00 80, 10:30 32, 11:00 17, 13:00 91, 13:30 190, 14:00 354, 14:30 1090
+   chrono trk kinds: RPT 5844, ORD 3063, SEND 2923, CXL 2319, TRD 702, CLOCK 350, POS 300, BHOLD 290, REJ 140, ACCT 1, BASSET 1, SCASH 1
+   REJ reasons: 140 x leg blocked at gate -- xtp_# # shares: outside_session (rule ...); REJ by half hour: 14:30 140
+   chrono TRD: 702 fills, 455,892 shares; PM order-life lines {'OnECM': 2319, 'cxl_req': 2319, 'OnEOM': 702}; PM fills (OnEOM): 702 lines, 455,892 shares
+   cancel requests keyed by SO f3: 2,319 on 2,319 orders; first request seconds after the SO stamp q1/10/50/90/99: 4.60 / 5.31 / 5.79 / 6.58 / 6.81
+   cancel requests keyed by SO f4: 24 on 24 orders; q1/10/50/90/99: 17.05 / 33.13 / 16253.69 / 19299.08 / 19464.02
+[done] [02:30:04] r190 done
