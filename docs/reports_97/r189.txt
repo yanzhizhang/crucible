@@ -1,0 +1,29 @@
+# R189 on 97 (2026-11-21 02:22-02:26), transcribed from screen; data/reports/r189.txt md5 c4113eacbd3958d23b28567ec0dc1050 (62 lines).
+# r189.sh 4291ad74, runs_ftp.py 5c592321 (cfb848e), GATE OK.  Columns in 3/4: band only | band + caps (GTp) | GTp + cFtp replay
+== 20261118: 1  1,367,972 evaluation lines; with a decision line 769,136, without 598,836; stocks 300
+   lines without a decision: before 13:00 598,527, after 309
+-- 2  lthr == -w (cr + msr / 2) on 0.9840 at 1e-6, 1.0000 at 1e-3, of 675,851 decisions after 13:00 (tolerance relative to max(1, |lthr|): see 2b)
+   2b ratio lthr / formula - 1: |.| q50/90/99/max 2.22e-16 / 4.44e-16 / 8.59e-02 / 1.84e+00
+-- 3 / 4  executp exact (1e-6) by the sign of the GTp step
+   buy step  173,805: 0.9743 | 1.0000 | 1.0000
+   sell step 195,047: 0.9805 | 1.0000 | 1.0000
+   no step   400,284: 0.8947 | 1.0000 | 1.0000
+   all       769,136: 0.9345 | 1.0000 | 1.0000
+   buy steps logged vs replayed: logged kept -> kept 173,805, scaled 0, cut 0; logged scaled / cut / other: 0 rows
+-- 5  no logged scaled buy
+-- 6  state: 09:30:00 nmv 0 bp 0 sp -18,810; 09:49:07 nmv -1,903,087 bp 871,447 sp -243,382; 10:08:25 nmv -1,329,370 bp 838,080 sp -243,002; 10:28:09 nmv -1,184,380 bp 768,743 (cut)
+   first 0 mismatches of the full replay
+[02:23:36] == 20261119: 1,364,910 evaluation lines; with a decision 756,256, without 608,654; stocks 300; without a decision: before 13:00 608,367, after 287
+-- 2  lthr formula on 0.9865 at 1e-6, 1.0000 at 1e-3, of 672,470 decisions after 13:00; 2b q50/90/99/max 2.22e-16 / 4.44e-16 / 6.97e-02 / 3.62e+00
+-- 3/4 buy 198,285: 0.9783 | 1.0000 | 1.0000 ; sell 174,513: 0.9885 | 1.0000 | 1.0000 ; no step 383,458: 0.9021 | 1.0000 | 1.0000 ; all 756,256: 0.9420 | 1.0000 | 1.0000
+   buy steps: logged kept -> kept 198,285, scaled 0, cut 0; no logged scaled buy
+-- 6  09:30:00 nmv -816 bp 0 sp 0; 09:49:03 nmv -859,715 bp 350,393 sp -264,288; 10:08:27 nmv -818,987 bp 554,522 sp -198,136; 10:28:06 nmv -463,180 bp 438,412 sp -305,7(cut)
+   first 0 mismatches of the full replay
+[02:24:55] == 20261120: 1,382,199 evaluation lines; with a decision 740,030, without 642,169; stocks 300; without a decision: before 13:00 641,889, after 280
+-- 2  lthr formula on 0.9873 at 1e-6, 1.0000 at 1e-3, of 678,586 decisions after 13:00; 2b q50/90/99/max 2.22e-16 / 4.44e-16 / 8.06e-02 / 4.07e+00
+-- 3/4 buy 201,299: 0.9786 | 1.0000 | 1.0000 ; sell 126,653: 0.9710 | 1.0000 | 1.0000 ; no step 412,078: 0.9192 | 1.0000 | 1.0000 ; all 740,030: 0.9442 | 1.0000 | 1.0000
+   buy steps: logged kept -> kept 201,299, scaled 0, cut 0; no logged scaled buy
+-- 6  09:30:00 nmv 0 bp 0 sp 0; 09:49:14 nmv -1,034,935 bp 465,340 sp -173,115; 10:08:35 nmv -727,126 bp 305,880 sp -167,883; 10:28:09 nmv -665,563 bp 264,491 sp -174,14(cut)
+   first 0 mismatches of the full replay
+[02:26:18] r189 done
+# NB "lthr 1.0000 at 1e-3" uses tolerance relative to max(1,|lthr|); 2b's q99 ~0.07-0.09 / max 1.8-4.1 relative ratio is on |lthr| < 1 rows.
