@@ -1,0 +1,35 @@
+# R186 on 97 (2026-11-20, done 08:09:08), transcribed from screen; account id masked as xtp_<acct>. r186.sh d0057752, runs_rej.py 836c1fff (d966b73), GATE OK.
+# /work/crucible/data/reports/r186.txt md5 ae7ac1ba4a3a168ef87fe83af60210d8, 33 lines.
+== 20261118: 140 trk REJ; filled columns ['kind', 'now', 'idx', 'reason']
+   reasons: 140 x leg blocked at gate -- xtp_# # shares: outside_session (rule
+  m = ordl.join_asof(po.select("sid", "po_ts", "f3", "f4", "px", "qty"), left_on="t", right_on="po_ts", by="sid", strategy="backward", tolerance=2_000_000_000)
+   ORD -> SO match (the SO line just before, same stock, within 2 s): 3,063 of 3,063; same px and qty on 3,009
+   REJ idx with an ORD line: 140; with a matched SO line: 140; side: {'SELL': 32, 'BUY': 108}; by half hour: 14:30 140
+   chrono trk CXL: 2,319 rows in all; for the rejected idx: 0 rows on 0 orders
+   chrono trk RPT: 5,844 rows in all; for the rejected idx: 0 rows on 0 orders
+   chrono trk SEND: 2,923 rows in all; for the rejected idx: 0 rows on 0 orders
+   chrono trk INS_RSP: 1 rows in all; for the rejected idx: 0 rows on 0 orders
+   chrono trk TRD: 702 rows in all; for the rejected idx: 0 rows on 0 orders
+-- PM order-life lines: 5,340; events {'cxl_req': 2319, 'OnECM': 2319, 'OnEOM': 702}; columns ['ev', 'ts', 'exoid', 'fill_qty', 'fill_px', 'sid', 'cxl_px', 'cxl_qty']
+   keyed by the SO line's f3: life lines for rejected orders 0 on 0 orders; events {}
+   keyed by the SO line's f4: life lines for rejected orders 0 on 0 orders; events {}
+   all cancel requests in the day: 2,319 on 2,319 exOid; requests per exOid q50 / q90 / max 1 / 1 / 1
+[done]
+== raw log: lines mentioning a cancel for the rejected idx (chrono's own lines carry idx=<n>)
+== raw log: PM's own cancel lines of the whole day, by text (digits squeezed)
+   2319 [es.cpp:#] cxl ords, sid: #, exOid: #
+   2319 [es.cpp:#] cancelExOrd, sid: #, exOid: #, prc: #, exSoQ: #
+    141 [es.cpp:#] OnFOM sid: , exOid:
+    141 [es.cpp:#] OnFOM erase order, sid:
+== raw log: chrono WARNING-or-worse lines about cancels, by text
+== three rejected orders: every raw line with their idx (first 8 lines each)
+-- idx 2924
+[2026-11-18 14:55:01.719346804] [INFO] [analytics_core.cpp:194] trk ORD now=1794984901719343750 idx=2924 strategy=runS_a symbol=601006.SH side=SELL qty=400 px=4.98
+[2026-11-18 14:55:01.719434498] [WARNING] [analytics_core.cpp:209] trk REJ now=1794984901719434440 idx=2924 reason='leg blocked at gate -- xtp_<acct> 400 shares: outside_session (rule 'trading_window')'
+-- idx 2925
+[2026-11-18 14:55:01.723046648] [INFO] [analytics_core.cpp:194] trk ORD now=1794984901723046141 idx=2925 strategy=runS_a symbol=601006.SH side=SELL qty=400 px=4.98
+[2026-11-18 14:55:01.723055194] [WARNING] [analytics_core.cpp:209] trk REJ now=1794984901723055158 idx=2925 reason='leg blocked at gate -- xtp_<acct> 400 shares: outside_session (rule 'trading_window')'
+-- idx 2926
+[2026-11-18 14:55:02.913494049] [INFO] [analytics_core.cpp:194] trk ORD now=1794984902913468926 idx=2926 strategy=runS_a symbol=601901.SH side=SELL qty=100 px=6.74
+[2026-11-18 14:55:02.913531209] [WARNING] [analytics_core.cpp:209] trk REJ now=1794984902913531223 idx=2926 reason='leg blocked at gate -- xtp_<acct> 100 shares: outside_session (rule 'trading_window')'
+[08:09:08] r186 done
