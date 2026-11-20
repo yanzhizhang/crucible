@@ -7,7 +7,7 @@ bid / ask and their sizes, then cOrd is replayed (alg.cpp @310-@491, normal mode
     d = executp - cur limited to the participation room (the room itself limited to asq when cur > executp);
     buy (sa > 0, d > 0) at the ask / sell (sa < 0, d < 0) at the bid; quantity -> board cap (STAR 90,000 and none below 200,
     ChiNext 270,000, else 900,000) -> 5e6 yuan cap -> min(top-of-book size) -> down to 100; STAR: none below 200, max 100,000.
-Scored against PM's SO lines (the k-th order decision of a stock <-> its k-th SO line):
+Scored against PM's SO lines (each SO line <-> the stock's decision nearest in time; book sizes tried as shares and as lots):
   A  the snapshot lookup: found share, receive-time lag, so the book fields can be trusted;
   B  order / no order with the book known (precision, recall; what the remaining false positives have in common);
   C  side, price == ask / bid, quantity == replay: exact shares, and which limit set the quantity; first mismatches;
@@ -35,7 +35,7 @@ def board(sid: int) -> str:
     return "star" if s.startswith(("688", "689")) else "chinext" if s.startswith("30") else "main"
 
 
-def cord(r: dict, pend_key: str = "pp") -> tuple[str, float, float, str]:
+def cord(r: dict, pend_key: str = "pp", unit: float = 1.0) -> tuple[str, float, float, str]:
     """(side, price, qty, what set the qty) of the decoded cOrd on one decision row with the book joined; side '' = no order."""
     sa = r["fa"] * ASF
     vf0 = r.get(pend_key) or 0.0
@@ -52,6 +52,7 @@ def cord(r: dict, pend_key: str = "pp") -> tuple[str, float, float, str]:
         return "", 0.0, 0.0, "step against alpha"
     buy = sa > 0
     px, top = (r["a1"], r["av1"]) if buy else (r["b1"], r["bv1"])
+    top = top * unit if top is not None else None
     q, why = abs(d), ("room" if abs(d) < abs(ep - cur) else "step")
     b = board(r["sid"])
     if b == "star":
@@ -93,8 +94,24 @@ def main() -> None:
     tr = g("executp") - g("ev_cpos")
     lot = np.floor(np.minimum(np.abs(tr), g("winsdQty")) / 100) * 100
     rule = (np.abs(g("fa")) * ASF >= CR + g("hs") + g("lthr")) & (lot >= 100) & (np.sign(tr) == np.sign(g("fa")))
-    x = d.filter(pl.Series(d["order"].fill_null(False).to_numpy() | rule))
-    print(f"== {a.date}: {d.height:,} decisions, {int(d['order'].sum()):,} with an order, {int(rule.sum()):,} inside the log-only rule; replaying {x.height:,}")
+    po = pl.read_parquet(root / "po.parquet").with_columns(c("sid").cast(pl.Int64), c("po_ts").cast(pl.Int64), c("px").cast(pl.Float64), c("qty").cast(pl.Float64)).sort("po_ts")
+    pj = po.select("sid", "po_ts", c("px").alias("so_px"), c("qty").alias("so_qty"), *([c("side").alias("so_side")] if "side" in po.columns else []))
+    pj = pj.join_asof(d.select("sid", "src_epoch", "row").sort("src_epoch"), left_on="po_ts", right_on="src_epoch", by="sid", strategy="nearest", tolerance=3_000_000_000)
+    hit = pj.drop_nulls("row")
+    dup = hit.height - hit["row"].n_unique()
+    lagp = ((hit["src_epoch"] - hit["po_ts"]).to_numpy() / 1e6) if hit.height else np.array([np.nan])
+    print(f"== {a.date}: {d.height:,} decisions, {int(d['order'].sum()):,} flagged with an order, {int(rule.sum()):,} inside the log-only rule; SO lines {po.height:,}")
+    print(f"   SO line -> the stock's nearest decision to the SO stamp (within 3 s): found {hit.height:,}; two SO lines on one decision {dup}; decision receive time - SO stamp, ms, q1/10/50/90/99: {' / '.join(f'{v:.0f}' for v in np.nanpercentile(lagp, [1, 10, 50, 90, 99]))}")
+    hit = hit.unique("row", keep="first")
+    d = d.join(hit.select("row", "so_px", "so_qty", *(["so_side"] if "so_side" in hit.columns else []), "po_ts"), on="row", how="left").sort("row")
+    has_so = d["so_qty"].is_not_null().to_numpy()
+    flag = d["order"].fill_null(False).to_numpy()
+    print(f"   decisions paired with an SO line: flagged as order {int((has_so & flag).sum()):,}, not flagged {int((has_so & ~flag).sum()):,}; flagged but no SO line {int((~has_so & flag).sum()):,}")
+    sodh = ((d["src_epoch"].to_numpy() / 1e9 + 28800) % 86400) // 1800
+    print("   by half hour (SO-paired / flagged): " + ", ".join(f"{int(b) // 2:02d}:{'30' if int(b) % 2 else '00'} {int((has_so & (sodh == b)).sum())}/{int((flag & (sodh == b)).sum())}" for b in sorted(set(sodh[has_so | flag].tolist()))))
+    d = d.with_columns(pl.Series("order", has_so))
+    x = d.filter(pl.Series(has_so | rule))
+    print(f"   from here 'order' = paired with an SO line; replaying {x.height:,} decisions")
 
     import duckdb
 
@@ -110,52 +127,49 @@ def main() -> None:
     lag = x.filter(found)["lag"].to_numpy() / 1e6
     print(f"-- A  snapshot found (mid == mp within {a.win:g} s) on {float(found.mean()):.4f}; tick-store receive time - PM's, ms, q1/10/50/90/99: {' / '.join(f'{v:.1f}' for v in np.percentile(lag, [1, 10, 50, 90, 99])) if lag.size else '-'}")
 
-    po = pl.read_parquet(root / "po.parquet").with_columns(c("sid").cast(pl.Int64), c("po_ts").cast(pl.Int64), c("px").cast(pl.Float64), c("qty").cast(pl.Float64)).sort("po_ts")
-    po = po.with_columns(pl.int_range(pl.len()).over("sid").alias("k")).select("sid", "k", c("px").alias("so_px"), c("qty").alias("so_qty"), *( [c("side").alias("so_side")] if "side" in po.columns else []), "po_ts")
-    od = x.filter(c("order")).with_columns(pl.int_range(pl.len()).over("sid").alias("k"))
-    cnt = od.group_by("sid").len().join(po.group_by("sid").len().rename({"len": "n_so"}), on="sid", how="full", coalesce=True).fill_null(0)
-    okc = cnt.filter(c("len") == c("n_so"))
-    print(f"   order decisions per stock == SO lines per stock on {okc.height} of {cnt.height} stocks ({int(okc['len'].sum()):,} orders); SO lines in all {po.height:,}")
-    od = od.join(okc.select("sid"), on="sid", how="inner").join(po, on=["sid", "k"], how="left")
-    so = {r["row"]: r for r in od.iter_rows(named=True)}
+    for k in ("bv1", "av1"):
+        v = x.filter(found)[k].to_numpy()
+        print(f"   {k} in the tick store: q1/10/50/90 {' / '.join(f'{t:.0f}' for t in np.nanpercentile(v, [1, 10, 50, 90]))}; a multiple of 100 on {float((v % 100 == 0).mean()):.3f}")
+    so = {r["row"]: r for r in x.filter(c("order")).iter_rows(named=True)}
 
-    st, why_all, conf, fp_why, mism = Counter(), Counter(), Counter(), Counter(), []
-    for r in x.filter(found).iter_rows(named=True):
-        side, px, q, why = cord(r)
-        conf[("order" if r["order"] else "none", "order" if side else "none")] += 1
-        if not r["order"]:
-            fp_why[why if not side else "replay orders too"] += 1
-            continue
-        s = so.get(r["row"])
-        if s is None or s.get("so_qty") is None:
-            st["no SO pair"] += 1
-            continue
-        st["n"] += 1
-        if not side:
-            st["replay says no order"] += 1
-            why_all[f"none: {why}"] += 1
-            if len(mism) < a.show:
-                mism.append(f"   {r['sid']:06d} SO {s.get('so_side', '?')} {s['so_qty']:.0f} @ {s['so_px']} | replay none ({why}) | fa {r['fa']:.5g} hs {r['hs']:.5g} lthr {r['lthr']:.5g} cur {r['ev_cpos']:.0f} pp {r.get('pp')} ep {r['executp']:.1f} room {r['winsdQty']:.0f} asq {r['asq']:.0f}")
-            continue
-        sd_ok = ("so_side" not in s) or s["so_side"] is None or s["so_side"] == side
-        px_ok, q_ok = abs(px - s["so_px"]) < 1e-6, abs(q - s["so_qty"]) < 1e-6
-        st["side"] += sd_ok
-        st["px"] += px_ok
-        st["qty"] += q_ok
-        st["all"] += sd_ok and px_ok and q_ok
-        why_all[why] += 1
-        if q_ok:
-            st[f"qty ok when set by {why}"] += 1
-        if not (sd_ok and px_ok and q_ok) and len(mism) < a.show:
-            mism.append(f"   {r['sid']:06d} SO {s.get('so_side', '?')} {s['so_qty']:.0f} @ {s['so_px']} | replay {side} {q:.0f} @ {px} ({why}) | bid {r['b1']} x {r['bv1']:.0f} ask {r['a1']} x {r['av1']:.0f} cur {r['ev_cpos']:.0f} ep {r['executp']:.1f}"
-                        f" room {r['winsdQty']:.0f} asq {r['asq']:.0f} pp {r.get('pp')}")
-    tp, fp, fn = conf[("order", "order")], conf[("none", "order")], conf[("order", "none")]
-    print(f"-- B  order / no order with the book: replay orders {tp + fp:,}; precision {tp / max(tp + fp, 1):.4f}, recall {tp / max(tp + fn, 1):.4f}; rule-only rows that the replay drops, by reason: {dict(fp_why.most_common(8))}")
-    n = max(st["n"], 1)
-    print(f"-- C  {st['n']:,} orders paired with an SO line ({st['no SO pair']} unpaired): replay has an order on {1 - st['replay says no order'] / n:.4f}; side {st['side'] / n:.4f}, price {st['px'] / n:.4f}, quantity {st['qty'] / n:.4f}, all three {st['all'] / n:.4f}")
-    print("   quantity set by: " + "; ".join(f"{k} {v:,} (exact {st[f'qty ok when set by {k}'] / max(v, 1):.3f})" for k, v in why_all.most_common(8)))
-    print(f"   first {len(mism)} mismatches:")
-    print("\n".join(mism))
+    for unit in (1.0, 100.0):  # the tick store's book sizes read as shares, then as lots
+        st, why_all, conf, fp_why, mism = Counter(), Counter(), Counter(), Counter(), []
+        for r in x.filter(found).iter_rows(named=True):
+            side, px, q, why = cord(r, unit=unit)
+            conf[("order" if r["order"] else "none", "order" if side else "none")] += 1
+            if not r["order"]:
+                fp_why[why if not side else "replay orders too"] += 1
+                continue
+            s = so.get(r["row"])
+            if s is None or s.get("so_qty") is None:
+                st["no SO pair"] += 1
+                continue
+            st["n"] += 1
+            if not side:
+                st["replay says no order"] += 1
+                why_all[f"none: {why}"] += 1
+                if len(mism) < a.show:
+                    mism.append(f"   {r['sid']:06d} SO {s.get('so_side', '?')} {s['so_qty']:.0f} @ {s['so_px']} | replay none ({why}) | fa {r['fa']:.5g} hs {r['hs']:.5g} lthr {r['lthr']:.5g} cur {r['ev_cpos']:.0f} pp {r.get('pp')} ep {r['executp']:.1f} room {r['winsdQty']:.0f} asq {r['asq']:.0f}")
+                continue
+            sd_ok = ("so_side" not in s) or s["so_side"] is None or s["so_side"] == side
+            px_ok, q_ok = abs(px - s["so_px"]) < 1e-6, abs(q - s["so_qty"]) < 1e-6
+            st["side"] += sd_ok
+            st["px"] += px_ok
+            st["qty"] += q_ok
+            st["all"] += sd_ok and px_ok and q_ok
+            why_all[why] += 1
+            if q_ok:
+                st[f"qty ok when set by {why}"] += 1
+            if not (sd_ok and px_ok and q_ok) and len(mism) < a.show:
+                mism.append(f"   {r['sid']:06d} SO {s.get('so_side', '?')} {s['so_qty']:.0f} @ {s['so_px']} | replay {side} {q:.0f} @ {px} ({why}) | bid {r['b1']} x {r['bv1']:.0f} ask {r['a1']} x {r['av1']:.0f} cur {r['ev_cpos']:.0f} ep {r['executp']:.1f}"
+                            f" room {r['winsdQty']:.0f} asq {r['asq']:.0f} pp {r.get('pp')}")
+        tp, fp, fn = conf[("order", "order")], conf[("none", "order")], conf[("order", "none")]
+        print(f"-- B  [book size x {unit:g}] order / no order with the book: replay orders {tp + fp:,}; precision {tp / max(tp + fp, 1):.4f}, recall {tp / max(tp + fn, 1):.4f}; rule-only rows that the replay drops, by reason: {dict(fp_why.most_common(8))}")
+        n = max(st["n"], 1)
+        print(f"-- C  {st['n']:,} orders paired with an SO line ({st['no SO pair']} unpaired): replay has an order on {1 - st['replay says no order'] / n:.4f}; side {st['side'] / n:.4f}, price {st['px'] / n:.4f}, quantity {st['qty'] / n:.4f}, all three {st['all'] / n:.4f}")
+        print("   quantity set by: " + "; ".join(f"{k} {v:,} (exact {st[f'qty ok when set by {k}'] / max(v, 1):.3f})" for k, v in why_all.most_common(8)))
+        print(f"   first {len(mism)} mismatches:")
+        print("\n".join(mism))
 
     hh = lambda e: (((e / 1e9 + 28800) % 86400) // 1800).cast(pl.Int64)  # noqa: E731
     lab = lambda b: f"{int(b) // 2:02d}:{'30' if int(b) % 2 else '00'}"  # noqa: E731
