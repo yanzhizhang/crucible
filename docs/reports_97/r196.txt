@@ -1,0 +1,65 @@
+R196 on 97 (2026-11-21 11:37-11:39), crucible 3237cf5 (r196.sh 0e262274, runs_silent.py 9db2e5df; gate OK).
+data/reports/r196.txt md5 bf50891e125e.., 62 lines. Transcribed from screen.
+
+[11:37:51] 20261118 book from s224
+== 20261118: 1,351,318 logged blocks with an evaluation line on 300 stocks; 3,063 SO lines, with a side 3063, printed in their own stock's block 1448
+   signals: 1,371,719 trk SIG on 300 stocks; block fa == the last signal's prediction before the block (1e-9) on 0.0000 of 15,001 sampled blocks; that signal's age at the block, s, q10/50/90: 2.960 / 2.996 / 3.052
+   snapshot found for 3,063 SO lines; tick-store receive - SO field 2, ms, q1/10/50/90/99: -0 / -0 / -0 / 0 / 0
+   SO lines on their own block, by the block's logged flag and whether a signal of the stock was handled within 1.5 s after the snapshot: {('flagged', 'signal after'): 1688, ('not flagged', 'signal after'): 778, ('no decision line', 'signal after'): 562}
+-- alpha = block alpha: class: SO lines | replay has an order | side | price | quantity | all three
+   all              3,063 | 0.5540 | 0.5540 | 0.5540 | 0.5354 | 0.5354
+   own block        3,028 | 0.5585 | 0.5585 | 0.5585 | 0.5403 | 0.5403
+   silent 1.5-3.5 s    28 | 0.1786 | 0.1786 | 0.1786 | 0.1071 | 0.1071
+   silent 3.5-12 s      7 | 0.1429 | 0.1429 | 0.1429 | 0.1429 | 0.1429
+   hh 09:30         1,209 | 0.5277 | 0.5277 | 0.5277 | 0.5128 | 0.5128
+   hh 10:00            80 | 0.4500 | 0.4500 | 0.4500 | 0.4375 | 0.4375
+   hh 10:30            32 | 0.6875 | 0.6875 | 0.6875 | 0.6875 | 0.6875
+   hh 11:00            17 | 0.6471 | 0.6471 | 0.6471 | 0.6471 | 0.6471
+   hh 13:00            91 | 0.6154 | 0.6154 | 0.6154 | 0.6044 | 0.6044
+   hh 13:30           190 | 0.5053 | 0.5053 | 0.5053 | 0.5000 | 0.5000
+   hh 14:00           354 | 0.6328 | 0.6328 | 0.6328 | 0.6130 | 0.6130
+   hh 14:30         1,090 | 0.5633 | 0.5633 | 0.5633 | 0.5367 | 0.5367
+-- alpha = next signal alpha: class: SO lines | replay has an order | side | price | quantity | all three
+   all              3,063 | 0.5547 | 0.5547 | 0.5547 | 0.5367 | 0.5367
+   own block        3,028 | 0.5581 | 0.5581 | 0.5581 | 0.5403 | 0.5403
+   silent 1.5-3.5 s    28 | 0.2857 | 0.2857 | 0.2857 | 0.2500 | 0.2500
+   silent 3.5-12 s      7 | 0.1429 | 0.1429 | 0.1429 | 0.1429 | 0.1429
+   hh 09:30         1,209 | 0.5277 | 0.5277 | 0.5277 | 0.5136 | 0.5136
+   hh 10:00            80 | 0.4375 | 0.4375 | 0.4375 | 0.4250 | 0.4250
+   hh 10:30            32 | 0.6875 | 0.6875 | 0.6875 | 0.6875 | 0.6875
+   hh 11:00            17 | 0.6471 | 0.6471 | 0.6471 | 0.6471 | 0.6471
+   hh 13:00            91 | 0.6374 | 0.6374 | 0.6374 | 0.6264 | 0.6264
+   hh 13:30           190 | 0.5105 | 0.5105 | 0.5105 | 0.5053 | 0.5053
+   hh 14:00           354 | 0.6328 | 0.6328 | 0.6328 | 0.6158 | 0.6158
+   hh 14:30         1,090 | 0.5633 | 0.5633 | 0.5633 | 0.5367 | 0.5367
+-- alpha = block, else next signal: class: SO lines | replay has an order | side | price | quantity | all three
+   all              3,063 | 0.5563 | 0.5563 | 0.5563 | 0.5377 | 0.5377
+   own block        3,028 | 0.5585 | 0.5585 | 0.5585 | 0.5403 | 0.5403
+   silent 1.5-3.5 s    28 | 0.3929 | 0.3929 | 0.3929 | 0.3214 | 0.3214
+   silent 3.5-12 s      7 | 0.2857 | 0.2857 | 0.2857 | 0.2857 | 0.2857
+   hh 09:30         1,209 | 0.5285 | 0.5285 | 0.5285 | 0.5136 | 0.5136
+   hh 10:00            80 | 0.4500 | 0.4500 | 0.4500 | 0.4375 | 0.4375
+   hh 10:30            32 | 0.6875 | 0.6875 | 0.6875 | 0.6875 | 0.6875
+   hh 11:00            17 | 0.6471 | 0.6471 | 0.6471 | 0.6471 | 0.6471
+   hh 13:00            91 | 0.6374 | 0.6374 | 0.6374 | 0.6264 | 0.6264
+   hh 13:30           190 | 0.5105 | 0.5105 | 0.5105 | 0.5053 | 0.5053
+   hh 14:00           354 | 0.6384 | 0.6384 | 0.6384 | 0.6186 | 0.6186
+   hh 14:30         1,090 | 0.5642 | 0.5642 | 0.5642 | 0.5376 | 0.5376
+-- no replay / no order, by reason (block, else next signal): {'own: below threshold': 591, 'own: step against alpha': 469, 'own: step below 100': 180, 'own: pending leg opposes': 95, 'silent: below threshold': 15, 'silent: step against alpha': 4, 'silent: step below 100': 3, 'own: star below 200': 2}
+   first 14 mismatches of 'block, else next signal':
+   600584 SO sell 600 @ 52.54 | replay none 0 @ 0.0 (below threshold) | block age -0.000 s flagged None fa -2.3611e-05 -> ep -600.0 (below threshold) | signal fa -2.36e-05 after 4.1 ms -> ep -600.0 | hs 0.00038052 lthr 0 cur -600 (block -600 + sent 0) asq 0 room 1000000000000 | bid 52.54 x 37200 ask 52.58 x 100
+   600893 SO sell 500 @ 35.1 | replay none 0 @ 0.0 (pending leg opposes) | block age 0.000 s flagged False fa 0.0017203 -> ep 0.0 (pending leg opposes) | signal fa 0.0017203 after 4.3 ms -> ep 0.0 | hs 0.00014243 lthr 0 cur -500 (block -500 + sent 0) asq 0 room 77921 | bid 35.1 x 8100 ask 35.11 x 2000
+   000568 SO buy 100 @ 81.31 | replay none 0 @ 0.0 (below threshold) | block age 0.000 s flagged None fa 0.00051294 -> ep 300.0 (below threshold) | signal fa 0.0005129 after 4.7 ms -> ep 300.0 | hs 6.1497e-05 lthr 0 cur 300 (block 300 + sent 0) asq 300 room 1000000000000 | bid 81.3 x 800 ask 81.31 x 6000
+   000596 SO buy 100 @ 110.92 | replay none 0 @ 0.0 (step against alpha) | block age 0.000 s flagged None fa 0.00063756 -> ep 100.0 (step against alpha) | signal fa 0.0006376 after 4.2 ms -> ep 100.0 | hs 9.0163e-05 lthr 0 cur 100 (block 100 + sent 0) asq 100 room 1000000000000 | bid 110.9 x 19900 ask 110.92 x 200
+   601877 SO sell 400 @ 23.8 | replay none 0 @ 0.0 (below threshold) | block age -0.000 s flagged None fa -0.00028031 -> ep -400.0 (below threshold) | signal fa -0.0002803 after 4.9 ms -> ep -400.0 | hs 0.00021004 lthr 0 cur -400 (block -400 + sent 0) asq 0 room 1000000000000 | bid 23.8 x 2600 ask 23.81 x 2300
+   000895 SO buy 400 @ 25.57 | replay none 0 @ 0.0 (step against alpha) | block age -0.000 s flagged None fa 0.0016936 -> ep 400.0 (step against alpha) | signal fa 0.0016936 after 6.0 ms -> ep 400.0 | hs 0.00019558 lthr 0 cur 400 (block 400 + sent 0) asq 400 room 1000000000000 | bid 25.56 x 100 ask 25.57 x 700
+   000988 SO buy 400 @ 62.22 | replay none 0 @ 0.0 (below threshold) | block age 0.000 s flagged None fa 0.00037385 -> ep 400.0 (below threshold) | signal fa 0.0003738 after 7.5 ms -> ep 400.0 | hs 0.00016075 lthr 0 cur 400 (block 400 + sent 0) asq 400 room 1000000000000 | bid 62.2 x 19200 ask 62.22 x 1300
+   600111 SO sell 700 @ 32.3 | replay none 0 @ 0.0 (below threshold) | block age 0.000 s flagged None fa -0.00084248 -> ep -700.0 (below threshold) | signal fa -0.0008425 after 6.7 ms -> ep -700.0 | hs 0.00092793 lthr 0 cur -700 (block -700 + sent 0) asq 300 room 1000000000000 | bid 32.3 x 700 ask 32.36 x 8400
+   002230 SO sell 800 @ 36.73 | replay none 0 @ 0.0 (below threshold) | block age 0.000 s flagged None fa -0.00026146 -> ep -800.0 (below threshold) | signal fa -0.0002615 after 6.3 ms -> ep -800.0 | hs 0.00013611 lthr 0 cur -800 (block -800 + sent 0) asq 0 room 1000000000000 | bid 36.73 x 2200 ask 36.74 x 2800
+   002837 SO sell 100 @ 34.66 | replay none 0 @ 0.0 (step against alpha) | block age 0.000 s flagged None fa -0.0011477 -> ep -300.0 (step against alpha) | signal fa -0.0011477 after 6.4 ms -> ep -300.0 | hs 0.00028843 lthr 0 cur -300 (block -300 + sent 0) asq 0 room 1000000000000 | bid 34.66 x 6200 ask 34.68 x 1200
+   600406 SO sell 300 @ 24.58 | replay sell 100 @ 24.58 (step) | block age 0.000 s flagged True fa -0.0026399 -> ep -1600.0 (step) | signal fa -0.0026399 after 6.5 ms -> ep -1600.0 | hs 0.00040667 lthr 0 cur -1500 (block -1500 + sent 0) asq 100 room 287912 | bid 24.58 x 300 ask 24.6 x 37600
+   605117 SO sell 200 @ 77.53 | replay none 0 @ 0.0 (below threshold) | block age 0.000 s flagged None fa -0.00055802 -> ep -200.0 (below threshold) | signal fa -0.000558 after 5.7 ms -> ep -200.0 | hs 0.00012897 lthr 0 cur -200 (block -200 + sent 0) asq 0 room 1000000000000 | bid 77.53 x 49700 ask 77.55 x 2000
+   603260 SO sell 100 @ 27.46 | replay none 0 @ 0.0 (pending leg opposes) | block age 0.000 s flagged False fa 0.00055926 -> ep 0.0 (pending leg opposes) | signal fa 0.0005593 after 4.2 ms -> ep 0.0 | hs 0.00036403 lthr 0 cur -100 (block -100 + sent 0) asq 0 room 14245 | bid 27.46 x 2900 ask 27.48 x 400
+   601225 SO sell 1500 @ 27.46 | replay none 0 @ 0.0 (pending leg opposes) | block age 0.000 s flagged False fa 0.00028298 -> ep -453.0 (pending leg opposes) | signal fa 0.000283 after 8.0 ms -> ep -453.0 | hs 0.00018205 lthr 0 cur -1500 (block -1500 + sent 0) asq 0 room 101911 | bid 27.46 x 4200 ask 27.47 x 700
+[done]
+[11:39:19] r196 done
