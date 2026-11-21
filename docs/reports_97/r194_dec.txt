@@ -1,0 +1,14 @@
+R194 dec on 97 (user-approved 2026-11-21; 10:57-10:58, alone), crucible 6f8d044 (r194.sh 5bfe8d8f, decode_tdf_day.py 0f6b233f gate OK).
+data/reports/r194_dec.txt md5 87274f8beb36.., 20 lines. Overwrote /work/crucible_data/s224_raw quotation parts for 1118/1119/1120. Transcribed from screen.
+
+[10:57:23] s224 snapshots 20261118, level sizes x 10000
+   (decode summary, tail -4, no header shown)  | 3553 | 4654.0 | 800 | 2720.0 | 2319 |   | 3554 | 4288.0 | 399 | 2655.0 | 2905 |
+[10:57:46] s224 snapshots 20261119, level sizes x 10000
+   | 3553 | 4586.0 | 800 | 2682.0 | 2319 |   | 3554 | 4212.0 | 399 | 2604.0 | 2905 |
+[10:58:10] s224 snapshots 20261120, level sizes x 10000
+   | 3553 | 4688.0 | 797 | 2835.0 | 2319 |   | 3554 | 4342.0 | 399 | 2816.0 | 2905 |
+s224 600000 at the last snapshot before 10:00 on 20261118 (bid_vol[1:3], ask_vol[1:3], total_volume): [([3700, 49700, 242000], [10800, 93200, 105900], 12553976)]
+   rows per day: [(20261118, 22062028, Decimal('0.0113')), (20261119, 21811016, Decimal('0.0125')), (20261120, 22378325, Decimal('0.0089'))]
+dysl2 600000 at the last snapshot before 10:00 on 20261118 (bid_vol[1:3], ask_vol[1:3], total_volume): [([3700, 49700, 242000], [10800, 93200, 105900], 12553976)]
+   rows per day: [(20261118, 22107430, Decimal('0.0133')), (20261119, 21856308, Decimal('0.0145')), (20261120, 22423851, Decimal('0.0109'))]
+[10:58:33] r194 dec done
