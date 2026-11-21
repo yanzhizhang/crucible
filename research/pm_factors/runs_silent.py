@@ -144,8 +144,8 @@ def main() -> None:
     print(f"   snapshot found for {len(book):,} SO lines; tick-store receive - SO field 2, ms, q1/10/50/90/99: {' / '.join(f'{v:.0f}' for v in np.percentile(lag, [1, 10, 50, 90, 99])) if lag.size else '-'}")
 
     sent: dict[int, list[tuple[float, float]]] = defaultdict(list)  # stock -> (E, signed qty) of the SO lines so far
-    res = {hsk: Counter() for hsk in ("block alpha", "next signal alpha")}
-    flag = Counter()
+    res = {hsk: Counter() for hsk in ("alpha run (block as logged)", "snapshot run (previous alpha, state before the order)")}
+    flag, which = Counter(), Counter()
     mism: list[str] = []
     why_no = Counter()
     for i, s in enumerate(sorted(range(len(sos)), key=lambda k: sos[k]["e"])):
@@ -170,28 +170,37 @@ def main() -> None:
         mid = (b["b1"] + b["a1"]) / 2
         asq = blk["asq"] - sells
         cur = blk["cpos"] + pend
+        fa_prev, prev_age = None, float("nan")  # the last signal handled before the snapshot: the alpha a snapshot-driven run still holds
         fa_sig, sig_dt = None, float("nan")  # the first signal of the stock handled from the snapshot's receive time on (within 1.5 s)
         sg = sigs.get(sid)
         if sg:
             k = bisect.bisect_left(sg[0], e - 0.002)
             if k < len(sg[0]) and sg[0][k] <= e + 1.5:
                 fa_sig, sig_dt = sg[1][k], sg[0][k] - e
+            if k > 0:
+                fa_prev, prev_age = sg[1][k - 1], e - sg[0][k - 1]
         if own:
             flag[("flagged" if blk.get("order") else "not flagged" if blk.get("dec") else "no decision line", "signal after" if fa_sig is not None else "no signal after")] += 1
         outcome = {}
+        sq = sign * o["qty"]
+        wq0 = blk.get("wq") if blk.get("wq") == blk.get("wq") and blk.get("wq") is not None else 1e12
         for hsk in res:
             hs = blk["hs"]
-            fa = blk["fa"] if hsk == "block alpha" or fa_sig is None else fa_sig
-            if hsk == "block alpha" and own and blk.get("dec"):
-                ep = blk["executp"]
-            else:
-                ep = gtp(mid, fa, blk["vpen"], blk["vr"], blk["poscst"], cur, asq, hs)
-            r = {"sid": sid, "fa": fa, "pp": (blk.get("pp") or 0.0) if own else pend, "hs": hs, "lthr": blk.get("lthr") or 0.0, "ev_cpos": cur, "executp": ep,
-                 "winsdQty": blk.get("wq") if blk.get("wq") == blk.get("wq") and blk.get("wq") is not None else 1e12, "asq": asq, "a1": b["a1"], "av1": b["av1"], "b1": b["b1"], "bv1": b["bv1"]}
+            if hsk == "alpha run (block as logged)":
+                fa, cur_, asq_, wq_, pp_ = blk["fa"], cur, asq, wq0, ((blk.get("pp") or 0.0) if own else pend)
+                ep = blk["executp"] if own and blk.get("dec") else gtp(mid, fa, blk["vpen"], blk["vr"], blk["poscst"], cur_, asq_, hs)
+            else:  # the snapshot-driven run just before the logged one: the previous alpha (0 when older than adur), the state before this order
+                fa = fa_prev if fa_prev is not None and prev_age < ADUR else 0.0
+                cur_, asq_, wq_ = cur - sq, asq + (o["qty"] if sign < 0 else 0.0), wq0 + o["qty"] / 0.85
+                pp_ = ((blk.get("pp") or 0.0) if own else pend) - sq
+                ep = gtp(mid, fa, blk["vpen"], blk["vr"], blk["poscst"], cur_, asq_, hs)
+            r = {"sid": sid, "fa": fa, "pp": pp_, "hs": hs, "lthr": blk.get("lthr") or 0.0, "ev_cpos": cur_, "executp": ep,
+                 "winsdQty": wq_, "asq": asq_, "a1": b["a1"], "av1": b["av1"], "b1": b["b1"], "bv1": b["bv1"]}
             side, px, q, why = cord(r)
             good = bool(side) and (o["side"] is None or side == o["side"]) and abs(px - o["px"]) < 1e-6 and abs(q - o["qty"]) < 1e-6
             outcome[hsk] = (side, px, q, why, good, fa, ep)
-        outcome["block, else next signal"] = outcome["block alpha"] if outcome["block alpha"][0] else outcome["next signal alpha"]
+        ka, kb = "alpha run (block as logged)", "snapshot run (previous alpha, state before the order)"
+        outcome["alpha run if exact, else snapshot run"] = outcome[ka] if outcome[ka][4] else outcome[kb]
         for hsk, (side, px, q, why, good, fa, ep) in outcome.items():
             c = res.setdefault(hsk, Counter())
             for key in (cls, f"hh {hh // 2:02d}:{'30' if hh % 2 else '00'}", "all"):
@@ -201,24 +210,26 @@ def main() -> None:
                 c[(key, "px")] += bool(side) and abs(px - o["px"]) < 1e-6
                 c[(key, "qty")] += bool(side) and abs(q - o["qty"]) < 1e-6
                 c[(key, "all3")] += good
-        side, px, q, why, good, fa, ep = outcome["block, else next signal"]
+        side, px, q, why, good, fa, ep = outcome["alpha run if exact, else snapshot run"]
+        which[("alpha run exact" if outcome[ka][4] else "snapshot run exact" if outcome[kb][4] else "neither", "flagged" if blk.get("order") else "not flagged")] += 1
         if not side:
             why_no[f"{'own' if own else 'silent'}: {why}"] += 1
         if not good and len(mism) < a.show:
-            sb = outcome["block alpha"]
+            sb = outcome[ka]
             mism.append(f"   {sid:06d} SO {o['side']} {o['qty']:.0f} @ {o['px']} | replay {side or 'none'} {q:.0f} @ {px} ({why}) | block age {age:.3f} s flagged {blk.get('order')} fa {blk['fa']:.5g} -> ep {sb[6]:.1f} ({sb[3]})"
-                        f" | signal fa {fa_sig if fa_sig is None else round(fa_sig, 7)} after {sig_dt * 1e3:.1f} ms -> ep {ep:.1f} | hs {blk['hs']:.5g} lthr {blk.get('lthr') or 0:.4g}"
+                        f" | previous signal fa {fa_prev if fa_prev is None else round(fa_prev, 7)} ({prev_age:.2f} s old) -> ep {ep:.1f}, state before: cur {cur - sq:.0f} | next signal after {sig_dt * 1e3:.1f} ms | hs {blk['hs']:.5g} lthr {blk.get('lthr') or 0:.4g}"
                         f" cur {cur:.0f} (block {blk['cpos']:.0f} + sent {pend:.0f}) asq {asq:.0f} room {r['winsdQty']:.0f} | bid {b['b1']} x {b['bv1']:.0f} ask {b['a1']} x {b['av1']:.0f}")
         sent[sid].append((e, sign * o["qty"]))
     print(f"   SO lines on their own block, by the block's logged flag and whether a signal of the stock was handled within 1.5 s after the snapshot: {dict(flag.most_common())}")
+    print(f"   which run explains the SO line exactly, by the block's logged flag: {dict(which.most_common())}")
     for hsk, c in res.items():
-        print(f"-- alpha = {hsk}: class: SO lines | replay has an order | side | price | quantity | all three")
+        print(f"-- {hsk}: class: SO lines | replay has an order | side | price | quantity | all three")
         keys = [k for k in ("all", "own block", "silent <1.5 s", "silent 1.5-3.5 s", "silent 3.5-12 s", "silent, alpha older than 12 s") if c[(k, "n")]] + sorted(k for k in {k for k, _ in c} if k.startswith("hh "))
         for k in keys:
             n = c[(k, "n")]
             print(f"   {k:<30} {n:>6,} | " + " | ".join(f"{c[(k, m)] / n:.4f}" for m in ("order", "side", "px", "qty", "all3")))
-    print(f"-- no replay / no order, by reason (block, else next signal): {dict(why_no.most_common(12))}")
-    print(f"   first {len(mism)} mismatches of 'block, else next signal':")
+    print(f"-- no replay / no order, by reason (alpha run if exact, else snapshot run): {dict(why_no.most_common(12))}")
+    print(f"   first {len(mism)} mismatches of the combined replay:")
     print("\n".join(mism))
     print("[done]")
 
