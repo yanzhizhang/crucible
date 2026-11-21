@@ -144,7 +144,8 @@ def main() -> None:
     print(f"   snapshot found for {len(book):,} SO lines; tick-store receive - SO field 2, ms, q1/10/50/90/99: {' / '.join(f'{v:.0f}' for v in np.percentile(lag, [1, 10, 50, 90, 99])) if lag.size else '-'}")
 
     sent: dict[int, list[tuple[float, float]]] = defaultdict(list)  # stock -> (E, signed qty) of the SO lines so far
-    res = {hsk: Counter() for hsk in ("alpha run (block as logged)", "snapshot run (previous alpha, state before the order)")}
+    res = {hsk: Counter() for hsk in ("alpha run (block as logged)", "snapshot run (previous alpha, state before the order; pending = logged - order)",
+                                      "snapshot run (previous alpha, state before the order; pending = logged)", "snapshot run (previous alpha, state before the order; pending = 0)")}
     flag, which = Counter(), Counter()
     mism: list[str] = []
     why_no = Counter()
@@ -192,16 +193,22 @@ def main() -> None:
             else:  # the snapshot-driven run just before the logged one: the previous alpha (0 when older than adur), the state before this order
                 fa = fa_prev if fa_prev is not None and prev_age < ADUR else 0.0
                 cur_, asq_, wq_ = cur - sq, asq + (o["qty"] if sign < 0 else 0.0), wq0 + o["qty"] / 0.85
-                pp_ = ((blk.get("pp") or 0.0) if own else pend) - sq
+                base = (blk.get("pp") or 0.0) if own else pend  # the pending leg the snapshot run saw: the logged pp_ less this order, as logged, or none
+                pp_ = base - sq if hsk.endswith("pending = logged - order)") else base if hsk.endswith("pending = logged)") else 0.0
                 ep = gtp(mid, fa, blk["vpen"], blk["vr"], blk["poscst"], cur_, asq_, hs)
             r = {"sid": sid, "fa": fa, "pp": pp_, "hs": hs, "lthr": blk.get("lthr") or 0.0, "ev_cpos": cur_, "executp": ep,
                  "winsdQty": wq_, "asq": asq_, "a1": b["a1"], "av1": b["av1"], "b1": b["b1"], "bv1": b["bv1"]}
             side, px, q, why = cord(r)
             good = bool(side) and (o["side"] is None or side == o["side"]) and abs(px - o["px"]) < 1e-6 and abs(q - o["qty"]) < 1e-6
             outcome[hsk] = (side, px, q, why, good, fa, ep)
-        ka, kb = "alpha run (block as logged)", "snapshot run (previous alpha, state before the order)"
-        outcome["alpha run if exact, else snapshot run"] = outcome[ka] if outcome[ka][4] else outcome[kb]
+        ka = "alpha run (block as logged)"
+        for tag in ("pending = logged)", "pending = 0)"):
+            kb = next(k for k in res if k.endswith(tag))
+            outcome[f"alpha run if exact, else snapshot run with {tag[:-1]}"] = outcome[ka] if outcome[ka][4] else outcome[kb]
+        outcome["alpha run if exact, else snapshot run"] = outcome["alpha run if exact, else snapshot run with pending = logged"]
         for hsk, (side, px, q, why, good, fa, ep) in outcome.items():
+            if hsk == "alpha run if exact, else snapshot run":
+                continue
             c = res.setdefault(hsk, Counter())
             for key in (cls, f"hh {hh // 2:02d}:{'30' if hh % 2 else '00'}", "all"):
                 c[(key, "n")] += 1
@@ -211,7 +218,7 @@ def main() -> None:
                 c[(key, "qty")] += bool(side) and abs(q - o["qty"]) < 1e-6
                 c[(key, "all3")] += good
         side, px, q, why, good, fa, ep = outcome["alpha run if exact, else snapshot run"]
-        which[("alpha run exact" if outcome[ka][4] else "snapshot run exact" if outcome[kb][4] else "neither", "flagged" if blk.get("order") else "not flagged")] += 1
+        which[("alpha run exact" if outcome[ka][4] else "snapshot run exact" if good else "neither", "flagged" if blk.get("order") else "not flagged")] += 1
         if not side:
             why_no[f"{'own' if own else 'silent'}: {why}"] += 1
         if not good and len(mism) < a.show:
