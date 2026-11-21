@@ -150,6 +150,10 @@ inline void on_snap(stock& st, const compiled_rules& cr, double t, double s, dou
     if (op > 0) st.op = op;
     if (pc > 0) st.pc = pc;
     if (34200 <= s && s < 53820 && price > 0 && !(st.hm >= price)) st.hm = price;
+    if (s >= 34200 && price > 0) {
+        if (!(st.hm_o >= price)) st.hm_o = price;
+        if (!(st.hm_ot >= price)) st.hm_ot = price;
+    }
     if (34200 <= s && s <= 54000 && price > 0 && !(st.hm_c >= price)) st.hm_c = price;
     if (34200 <= s && s < 53820 && price > 0 && !(st.lm <= price)) st.lm = price;
     if (price > 0) {
@@ -197,6 +201,7 @@ inline void on_trade(stock& st, const compiled_rules& cr, double t, double s, do
         if (!(st.low <= price)) st.low = price;
         if (std::isnan(st.open)) st.open = price;
         st.last = price;
+        if (s >= 34200 && !(st.hm_ot >= price)) st.hm_ot = price;
         if (34200 <= s && s < 53820) {
             if (!(st.c_high >= price)) st.c_high = price;
             if (!(st.c_low <= price)) st.c_low = price;

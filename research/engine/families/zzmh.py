@@ -10,3 +10,5 @@ class Zzmh(Family):
     def dump(self, st, out):
         out["zzmh.hm"] = st.hm
         out["zzmh.hm|le1500"], out["zzmh.hm|all"] = st.hm_c, st.sp_hi
+        out["zzmh.hm|ge930"], out["zzmh.hm|ge930t"] = st.hm_o, st.hm_ot
+        out["zzmh.hm|last"] = max(st.hm, st.last) if st.hm == st.hm and st.last == st.last else st.hm
