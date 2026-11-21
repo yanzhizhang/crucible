@@ -1,0 +1,53 @@
+R193 hm on 97, crucible 4c170e0 (7 files gate OK: 3998fb5c 2332d9de 0c538c97 18027e52 ad9e86b1 c8458d67 b7654eb6).
+NOTE: the first launch (~10:16) ran TWICE concurrently (a stale clipboard re-pasted the bundle into the terminal); both copies printed identical numbers. Rerun alone in the foreground 10:22-10:24; this transcript is from the clean rerun: data/reports/r193_hm.txt md5 3ca5eaad67fd.., 112 lines.
+
+selftest: 20 stocks, 58400 day-end values + 37600 mark values compared, 0 mismatches
+[10:22:59] == 20261118 hm
+key,n,all,SZSE,all_1e4,SZSE_1e4,mre
+zzmh.hm|ge930t,300,0.4166666666666667,0.4017857142857143,0.43,0.4107142857142857,0.00033522476960715715
+zzmh.r.t,300,0.6233333333333333,0.6696428571428571,1.0,1.0,5.586824127912171e-7
+zzmh.hm|all,300,0.79,0.9464285714285714,0.7933333333333333,0.9464285714285714,0.0
+zzmh.r,300,0.9733333333333334,0.9821428571428571,0.9733333333333334,0.9821428571428571,0.00009851883602690642
+zzmh.hm,300,0.9833333333333333,1.0,0.9833333333333333,1.0,0.0
+zzmh.hm|le1500,300,0.9933333333333333,1.0,0.9933333333333333,1.0,0.0
+zzmh.hm|ge930,300,1.0,1.0,1.0,1.0,0.0
+zzmh.hm|last,300,1.0,1.0,1.0,1.0,0.0
+zzmh.hm: 300 stocks, 5 differ at 1e-6
+   {'ours < pm SH': 5}; relative gap median 1.30e-03, 90% 1.69e-03, max 1.70e-03
+   other engine keys equal to PM's value on those stocks: zzxu.last 5, zzmh.hm|ge930 5, zzmh.hm|last 5, zzxo.last 5, cdc.lp 5, zzmh.hm|le1500 3, zzpk.high 3, zzxu.high 3, zzvx.high 3, zzeg.c.high 3, zzmh.hm|all 3, z...
+   (PM keys / e.g. lines as R191)
+zzmh.r: 300 stocks, 8 differ at 1e-6
+   {'ours > pm SZ': 2, 'ours > pm SH': 3, 'ours < pm SH': 3}; relative gap median 1.06e-03, 90% 9.35e+02, max 1.33e+03
+   other engine keys equal to PM's value on those stocks: zzgh.c.40 3, zzgh.c.152 3, zzgh.c.153 3, zzgh.c.165 3, zzgh.c.171 3, zzgh.c.297 3, zzgh.c.307 3, zzgh.c.314 3, zzgh.c.395 3, zzgh.c.407 3, zzgh.c.509 3, ...
+[10:23:29] == 20261119 hm
+key,n,all,SZSE,all_1e4,SZSE_1e4,mre
+zzmh.hm|ge930t,300,0.39,0.2857142857142857,0.4066666666666667,0.29464285714285715,0.00040653214719264504
+zzmh.hm|all,300,0.7766666666666666,0.9017857142857143,0.7766666666666666,0.9017857142857143,0.0
+zzmh.r.t,300,0.9266666666666666,0.8125,0.9966666666666667,1.0,3.3504283354213054e-7
+zzmh.hm,300,0.9733333333333334,1.0,0.9733333333333334,1.0,0.0
+zzmh.r,300,0.9766666666666667,0.9910714285714286,0.9766666666666667,0.9910714285714286,0.00007760355215516494
+zzmh.hm|le1500,300,0.9833333333333333,1.0,0.9833333333333333,1.0,0.0
+zzmh.hm|ge930,300,1.0,1.0,1.0,1.0,0.0
+zzmh.hm|last,300,1.0,1.0,1.0,1.0,0.0
+zzmh.hm: 300 stocks, 8 differ at 1e-6
+   {'ours < pm SH': 8}; relative gap median 7.42e-04, 90% 6.23e-03, max 6.72e-03
+   other engine keys equal to PM's value on those stocks: zzxu.last 8, zzmh.hm|ge930 8, zzmh.hm|last 8, zzxo.last 8, cdc.lp 8, zzmh.hm|ge930t 7, zzpk.high 6, zzxu.high 6, zzvx.high 6, zzmh.hm|all 6, zzeg.c.high 3, z...
+zzmh.r: 300 stocks, 7 differ at 1e-6
+   {'ours > pm SZ': 1, 'ours > pm SH': 6}; relative gap median 2.75e+02, 90% 2.31e+06, max 3.45e+06
+[10:23:55] == 20261120 hm
+key,n,all,SZSE,all_1e4,SZSE_1e4,mre
+zzmh.hm|ge930t,300,0.4066666666666667,0.32142857142857145,0.42,0.33035714285714285,0.0004229766914214759
+zzmh.r,300,0.8933333333333333,0.9821428571428571,0.8933333333333333,0.9821428571428571,0.00009996160952340305
+zzmh.hm,300,0.9066666666666666,1.0,0.9066666666666666,1.0,0.0
+zzmh.hm|le1500,300,0.9566666666666667,1.0,0.9566666666666667,1.0,0.0
+zzmh.r.t,300,0.9866666666666667,0.9642857142857143,1.0,1.0,3.412398674979098e-7
+zzmh.hm|all,300,0.99,1.0,0.99,1.0,0.0
+zzmh.hm|ge930,300,1.0,1.0,1.0,1.0,0.0
+zzmh.hm|last,300,1.0,1.0,1.0,1.0,0.0
+zzmh.hm: 300 stocks, 28 differ at 1e-6
+   {'ours < pm SH': 28}; relative gap median 2.52e-03, 90% 1.08e-02, max 1.83e-02
+   other engine keys equal to PM's value on those stocks: zzxu.last 28, zzmh.hm|all 28, zzmh.hm|ge930 28, zzmh.hm|last 28, zzxo.last 28, cdc.lp 28, zzpk.high 26, zzxu.high 26, zzvx.high 26, zzmh.hm|ge930t 26, zzmh.hm|le1500 15, ...
+zzmh.r: 300 stocks, 32 differ at 1e-6
+   {'ours < pm SZ': 1, 'ours > pm SZ': 1, 'ours > pm SH': 27, 'ours < pm SH': 3}; relative gap median 1.92e+03, 90% 2.00e+06, max 1.36e+07
+[10:24:21] r193 hm done
+(1120 rows read from the clean rerun at low zoom; identical to the concurrent run's 1120 rows read at full zoom)
