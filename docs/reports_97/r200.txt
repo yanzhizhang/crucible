@@ -1,0 +1,221 @@
+R200 on 97 (2026-11-21 13:06-13:13:01), crucible 4529cfa (r200.sh 57fef1d6, ema_probe.py 439af0b0; gate OK).
+data/reports/r200.txt md5 0dc5f47c6751.., 217 lines. Transcribed from screen.
+
+[13:06:38] 20261118
+== 20261118: 300 stocks, stop 54149.899 local (trading clock 14549.899)
+
+-- zzhj.p weight: share of stocks with PM's wgt exactly (1e-7), median ours / PM -- best 6 of 174 (clock, stop, half-life s)
+   0.000  median 0.999873  snap   PM's own t  half 30
+   0.000  median 0.999294  trade  PM's own t  half 1.5
+   0.000  median 1.019922  both   PM's own t  half 1.5
+   0.000  median 1.179862  snap   day stop    half 90
+   0.000  median 1.301147  trade  PM's own t  half 2
+   0.000  median 1.321815  snap   PM's own t  half 40
+   value sum / wgt: share exact (1e-6), median PM / ours -- best 6 of 406 (input, stop, half-life)
+   0.000  median 11.870978  amount since previous snapshot PM's own t  half 1
+   0.000  median 11.722462  amount since previous snapshot PM's own t  half 1.5
+   0.000  median 11.264243  amount since previous snapshot PM's own t  half 2
+   0.000  median 10.752909  amount since previous snapshot PM's own t  half 3
+   0.000  median 10.423954  amount since previous snapshot PM's own t  half 4
+   0.000  median 9.990492  amount since previous snapshot PM's own t  half 5
+
+-- zzui.r weight: share of stocks with PM's wgt exactly (1e-7), median ours / PM -- best 6 of 174 (clock, stop, half-life s)
+   0.000  median 0.990214  snap   PM's own t  half 3
+   0.000  median 1.221234  snap   PM's own t  half 4
+   0.000  median 1.224657  snap   day stop    half 30
+   0.000  median 0.789423  snap   day stop    half 20
+   0.000  median 0.765856  snap   PM's own t  half 2
+   0.000  median 1.334217  both   day stop    half 15
+   value sum / wgt: share exact (1e-6), median PM / ours -- best 6 of 116 (input, stop, half-life)
+   0.007  median 1.000325  mid                            PM's own t  half 1.5
+   0.003  median 1.000296  snapshot price                 PM's own t  half 2
+   0.003  median 1.000304  snapshot price                 PM's own t  half 6
+   0.003  median 0.999953  snapshot price                 PM's own t  half 45
+   0.003  median 0.999873  snapshot price                 PM's own t  half 90
+   0.003  median 1.000031  snapshot price                 PM's own t  half 180
+
+-- zzvm.c.re weight: share of stocks with PM's wgt exactly (1e-7), median ours / PM -- best 6 of 174 (clock, stop, half-life s)
+   0.000  median 0.998579  trade  day stop    half 300
+   0.000  median 1.026202  trade  PM's own t  half 240
+   0.000  median 1.052097  snap   day stop    half 5400
+   0.000  median 1.067757  snap   PM's own t  half 5400
+   0.000  median 0.885274  both   PM's own t  half 300
+   0.000  median 1.242103  trade  PM's own t  half 300
+   value sum / wgt: share exact (1e-6), median PM / ours -- best 6 of 116 (input, stop, half-life)
+   0.997  median 1.000000  running VWAP from 09:30        day stop    half 300
+   0.047  median 1.000010  running VWAP from 09:30        PM's own t  half 240
+   0.040  median 1.000004  running VWAP from 09:30        PM's own t  half 180
+   0.017  median 1.000021  running VWAP from 09:30        PM's own t  half 300
+   0.017  median 0.999986  running VWAP from 09:30        day stop    half 240
+   0.013  median 0.999979  running VWAP from 09:30        PM's own t  half 90
+
+-- zzcb.r weight: share of stocks with PM's wgt exactly (1e-7), median ours / PM -- best 6 of 174 (clock, stop, half-life s)
+   0.000  median 1.000034  snap   day stop    half 30
+   0.000  median 1.155785  both   day stop    half 15
+   0.000  median 1.258164  snap   PM's own t  half 30
+   0.000  median 0.793588  both   PM's own t  half 10
+   0.000  median 0.695549  snap   PM's own t  half 20
+   0.000  median 0.649701  snap   day stop    half 20
+
+-- zzeb.r weight: share of stocks with PM's wgt exactly (1e-7), median ours / PM -- best 6 of 174 (clock, stop, half-life s)
+   0.000  median 1.001560  snap   PM's own t  half 90
+   0.000  median 1.070610  both   PM's own t  half 20
+   0.000  median 0.831960  snap   day stop    half 90
+   0.000  median 1.353213  both   day stop    half 30
+   0.000  median 1.357209  snap   day stop    half 120
+   0.000  median 1.558271  snap   PM's own t  half 120
+
+-- zztx.r weight: share of stocks with PM's wgt exactly (1e-7), median ours / PM -- best 6 of 174 (clock, stop, half-life s)
+   0.000  median 0.909430  trade  day stop    half 90
+   0.000  median 0.888586  snap   PM's own t  half 1200
+   0.000  median 1.193841  trade  day stop    half 120
+   0.000  median 0.825789  snap   day stop    half 1200
+   0.000  median 0.821949  trade  PM's own t  half 60
+   0.000  median 1.226761  both   day stop    half 180
+[done]
+[13:08:45] 20261119
+== 20261119: 300 stocks, stop 54149.958 local (trading clock 14549.958)
+
+-- zzhj.p weight: share of stocks with PM's wgt exactly (1e-7), median ours / PM -- best 6 of 174 (clock, stop, half-life s)
+   0.000  median 1.000001  snap   PM's own t  half 30
+   0.000  median 1.176711  both   PM's own t  half 1
+   0.000  median 1.189574  snap   day stop    half 90
+   0.000  median 1.195287  trade  PM's own t  half 1
+   0.000  median 1.321946  snap   PM's own t  half 40
+   0.000  median 1.383685  both   day stop    half 30
+   value sum / wgt: share exact (1e-6), median PM / ours -- best 6 of 406 (input, stop, half-life)
+   0.000  median 11.365047  amount since previous snapshot PM's own t  half 1
+   0.000  median 11.217296  amount since previous snapshot PM's own t  half 1.5
+   0.000  median 10.946864  amount since previous snapshot PM's own t  half 2
+   0.000  median 10.594363  amount since previous snapshot PM's own t  half 3
+   0.000  median 10.265584  amount since previous snapshot PM's own t  half 4
+   0.000  median 9.898097  amount since previous snapshot PM's own t  half 5
+
+-- zzui.r weight: share of stocks with PM's wgt exactly (1e-7), median ours / PM -- best 6 of 174 (clock, stop, half-life s)
+   0.000  median 0.989324  snap   PM's own t  half 3
+   0.000  median 1.125589  both   day stop    half 15
+   0.000  median 1.220175  snap   PM's own t  half 4
+   0.000  median 1.230730  snap   day stop    half 30
+   0.000  median 0.791612  snap   day stop    half 20
+   0.000  median 0.765210  snap   PM's own t  half 2
+   value sum / wgt: share exact (1e-6), median PM / ours -- best 6 of 116 (input, stop, half-life)
+   0.010  median 0.999936  mid                            PM's own t  half 60
+   0.007  median 0.999925  mid                            PM's own t  half 45
+   0.003  median 1.000621  snapshot price                 PM's own t  half 1
+   0.003  median 1.000276  snapshot price                 PM's own t  half 6
+   0.003  median 1.000162  snapshot price                 PM's own t  half 8
+   0.003  median 0.999696  snapshot price                 PM's own t  half 30
+
+-- zzvm.c.re weight: share of stocks with PM's wgt exactly (1e-7), median ours / PM -- best 6 of 174 (clock, stop, half-life s)
+   0.000  median 0.999024  trade  day stop    half 300
+   0.000  median 0.942706  both   PM's own t  half 300
+   0.000  median 0.920515  snap   PM's own t  half 7200
+   0.000  median 0.909134  snap   day stop    half 7200
+   0.000  median 0.889727  trade  PM's own t  half 180
+   0.000  median 1.137081  trade  PM's own t  half 240
+   value sum / wgt: share exact (1e-6), median PM / ours -- best 6 of 116 (input, stop, half-life)
+   0.997  median 1.000000  running VWAP from 09:30        day stop    half 300
+   0.040  median 0.999997  running VWAP from 09:30        PM's own t  half 180
+   0.023  median 1.000043  running VWAP from 09:30        day stop    half 450
+   0.020  median 1.000018  running VWAP from 09:30        PM's own t  half 240
+   0.013  median 0.999910  running VWAP from 09:30        PM's own t  half 90
+   0.013  median 0.999970  running VWAP from 09:30        day stop    half 240
+
+-- zzcb.r weight: share of stocks with PM's wgt exactly (1e-7), median ours / PM -- best 6 of 174 (clock, stop, half-life s)
+   0.007  median 1.000019  snap   day stop    half 30
+   0.000  median 1.054520  both   day stop    half 15
+   0.000  median 1.258064  snap   PM's own t  half 30
+   0.000  median 0.727772  both   PM's own t  half 10
+   0.000  median 0.694383  snap   PM's own t  half 20
+   0.000  median 0.649784  snap   day stop    half 20
+
+-- zzeb.r weight: share of stocks with PM's wgt exactly (1e-7), median ours / PM -- best 6 of 174 (clock, stop, half-life s)
+   0.000  median 1.002552  snap   PM's own t  half 90
+   0.000  median 1.012827  both   PM's own t  half 20
+   0.000  median 0.831924  snap   day stop    half 90
+   0.000  median 1.219579  both   day stop    half 30
+   0.000  median 1.357202  snap   day stop    half 120
+   0.000  median 1.558210  snap   PM's own t  half 120
+
+-- zztx.r weight: share of stocks with PM's wgt exactly (1e-7), median ours / PM -- best 6 of 174 (clock, stop, half-life s)
+   0.000  median 1.059174  snap   day stop    half 1800
+   0.000  median 1.098962  trade  PM's own t  half 60
+   0.000  median 0.908594  both   PM's own t  half 120
+   0.000  median 1.110654  snap   PM's own t  half 1800
+   0.000  median 0.875909  trade  day stop    half 90
+   0.000  median 1.263769  trade  day stop    half 120
+[done]
+[13:10:44] 20261120
+== 20261120: 300 stocks, stop 54149.668 local (trading clock 14549.668)
+
+-- zzhj.p weight: share of stocks with PM's wgt exactly (1e-7), median ours / PM -- best 6 of 174 (clock, stop, half-life s)
+   0.000  median 1.000032  snap   PM's own t  half 30
+   0.000  median 0.851728  trade  PM's own t  half 1
+   0.000  median 1.189565  snap   day stop    half 90
+   0.000  median 0.822754  both   PM's own t  half 1
+   0.000  median 1.280671  both   PM's own t  half 1.5
+   0.000  median 1.292788  trade  PM's own t  half 1.5
+   value sum / wgt: share exact (1e-6), median PM / ours -- best 6 of 406 (input, stop, half-life)
+   0.000  median 15.454212  amount since previous snapshot PM's own t  half 1
+   0.000  median 13.895524  amount since previous snapshot PM's own t  half 1.5
+   0.000  median 12.958545  amount since previous snapshot PM's own t  half 2
+   0.000  median 11.459939  amount since previous snapshot PM's own t  half 3
+   0.000  median 10.939059  amount since previous snapshot PM's own t  half 4
+   0.000  median 10.371214  amount since previous snapshot PM's own t  half 5
+
+-- zzui.r weight: share of stocks with PM's wgt exactly (1e-7), median ours / PM -- best 6 of 174 (clock, stop, half-life s)
+   0.000  median 0.989482  snap   PM's own t  half 3
+   0.000  median 1.220403  snap   PM's own t  half 4
+   0.000  median 1.240736  snap   day stop    half 30
+   0.000  median 0.791005  snap   day stop    half 20
+   0.000  median 0.765320  snap   PM's own t  half 2
+   0.000  median 1.326090  both   day stop    half 15
+   value sum / wgt: share exact (1e-6), median PM / ours -- best 6 of 116 (input, stop, half-life)
+   0.007  median 0.999525  snapshot price                 PM's own t  half 40
+   0.007  median 1.000348  snapshot price                 day stop    half 300
+   0.007  median 0.999510  mid                            PM's own t  half 20
+   0.003  median 0.999443  snapshot price                 PM's own t  half 15
+   0.003  median 0.999413  snapshot price                 PM's own t  half 20
+   0.003  median 0.999831  snapshot price                 PM's own t  half 90
+
+-- zzvm.c.re weight: share of stocks with PM's wgt exactly (1e-7), median ours / PM -- best 6 of 174 (clock, stop, half-life s)
+   0.000  median 0.998473  trade  day stop    half 300
+   0.000  median 0.921617  both   PM's own t  half 300
+   0.000  median 1.097924  trade  PM's own t  half 240
+   0.000  median 0.853900  trade  PM's own t  half 180
+   0.000  median 0.806721  snap   PM's own t  half 7200
+   0.000  median 0.799133  snap   day stop    half 7200
+   value sum / wgt: share exact (1e-6), median PM / ours -- best 6 of 116 (input, stop, half-life)
+   0.960  median 1.000000  running VWAP from 09:30        day stop    half 300
+   0.023  median 1.000009  running VWAP from 09:30        PM's own t  half 240
+   0.010  median 0.999982  running VWAP from 09:30        PM's own t  half 180
+   0.010  median 1.000046  running VWAP from 09:30        PM's own t  half 300
+   0.007  median 0.999952  running VWAP from 09:30        day stop    half 240
+   0.003  median 0.996507  trade price                    PM's own t  half 450
+
+-- zzcb.r weight: share of stocks with PM's wgt exactly (1e-7), median ours / PM -- best 6 of 174 (clock, stop, half-life s)
+   0.010  median 1.000005  snap   day stop    half 30
+   0.007  median 1.236806  snap   PM's own t  half 30
+   0.000  median 1.177410  both   day stop    half 15
+   0.000  median 0.760058  both   PM's own t  half 10
+   0.000  median 0.690313  snap   PM's own t  half 20
+   0.000  median 0.646905  snap   day stop    half 20
+
+-- zzeb.r weight: share of stocks with PM's wgt exactly (1e-7), median ours / PM -- best 6 of 174 (clock, stop, half-life s)
+   0.000  median 0.998959  snap   PM's own t  half 90
+   0.000  median 0.935037  both   PM's own t  half 20
+   0.000  median 0.832823  snap   day stop    half 90
+   0.000  median 1.356180  snap   day stop    half 120
+   0.000  median 1.408103  both   day stop    half 30
+   0.000  median 1.552538  snap   PM's own t  half 120
+
+-- zztx.r weight: share of stocks with PM's wgt exactly (1e-7), median ours / PM -- best 6 of 174 (clock, stop, half-life s)
+   0.000  median 0.972529  snap   PM's own t  half 1800
+   0.000  median 1.032876  trade  PM's own t  half 60
+   0.000  median 0.928501  snap   day stop    half 1800
+   0.000  median 0.888605  trade  day stop    half 90
+   0.000  median 0.829166  both   PM's own t  half 120
+   0.000  median 1.234357  trade  day stop    half 120
+[done]
+[13:13:01] r200 done
+(lines 1118 zzcb.r row 6 and 1119 zzvm.c.re weight rows 1-2 / zztx header etc. transcribed as seen; no other gaps)
