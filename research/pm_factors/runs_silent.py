@@ -32,10 +32,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 ADUR = 12.0
 
 
-def parse(files: list[str]) -> tuple[dict[int, list[dict]], list[dict]]:
-    """(per stock: its logged blocks in order, every SO line) of the day's log."""
-    from pm_orders import GLUE, PLUGIN, SRC
-    from pm_signals import NUM
+def parse(files: list[str]) -> tuple[dict[int, list[dict]], list[dict], dict[int, tuple[list[float], list[float]]]]:
+    """(per stock: its logged blocks in order; every SO line; per stock: chrono's trk SIG handle times (epoch s) and predictions)."""
+    from pm_orders import GLUE, KV, PLUGIN, SRC, TRK
+    from pm_signals import NUM, repair
+
+    sig: dict[int, tuple[list[float], list[float]]] = defaultdict(lambda: ([], []))
 
     blocks: dict[int, list[dict]] = defaultdict(list)
     sos: list[dict] = []
@@ -45,6 +47,15 @@ def parse(files: list[str]) -> tuple[dict[int, list[dict]], list[dict]]:
         with open(f, encoding="utf-8", errors="replace") as fh:
             for line in (part for raw in fh for part in GLUE.split(raw) if part.strip()):
                 if " trk " in line:
+                    m = TRK.search(line)
+                    if m and m.group(1) == "SIG":
+                        kv = repair({k.group(1): k.group(3) if k.group(3) is not None else k.group(4) for k in KV.finditer(m.group(2))})
+                        try:
+                            t = sig[int(str(kv.get("symbol"))[:6])]
+                            t[0].append(float(kv["handle_ts"]) / 1e9)
+                            t[1].append(float(kv["prediction"]))
+                        except (KeyError, ValueError, TypeError):
+                            pass
                     continue
                 s = SRC.search(line)
                 if not s or (line.startswith("[20") and not PLUGIN.search(line)):
@@ -80,7 +91,10 @@ def parse(files: list[str]) -> tuple[dict[int, list[dict]], list[dict]]:
                     if m and int(m.group(1)) == last_so["sid"]:
                         last_so["side"] = m.group(4).lower()
                     last_so = None
-    return blocks, sos
+    for sid, (ts, pv) in sig.items():
+        o = np.argsort(ts, kind="stable")
+        sig[sid] = ([ts[i] for i in o], [pv[i] for i in o])
+    return blocks, sos, dict(sig)
 
 
 def main() -> None:
@@ -95,11 +109,26 @@ def main() -> None:
     from runs_ftp import gtp
     from runs_ord import cord
 
-    blocks, sos = parse(log_files(a.logs, a.date))
+    blocks, sos, sigs = parse(log_files(a.logs, a.date))
     for s in blocks:
         blocks[s] = [b for b in blocks[s] if b.get("ev")]
     recs = {s: [b["rec"] for b in v] for s, v in blocks.items()}
     print(f"== {a.date}: {sum(len(v) for v in blocks.values()):,} logged blocks with an evaluation line on {len(blocks)} stocks; {len(sos):,} SO lines, with a side {sum(1 for s in sos if s['side'])}, printed in their own stock's block {sum(s['in_block'] for s in sos)}")
+    cal = []  # the logged fa against the last signal handled before the block (is fa the signal's prediction?)
+    for sid, v in blocks.items():
+        sg = sigs.get(sid)
+        if not sg:
+            continue
+        for blk in v[:: max(len(v) // 50, 1)]:
+            k = bisect.bisect_right(sg[0], blk["rec"]) - 1
+            if k >= 0 and blk.get("fa") == blk.get("fa") and blk.get("fa") is not None:
+                cal.append((blk["fa"], sg[1][k], blk["rec"] - sg[0][k]))
+    if cal:
+        c_ = np.array(cal)
+        print(f"   signals: {sum(len(v[0]) for v in sigs.values()):,} trk SIG on {len(sigs)} stocks; block fa == the last signal's prediction before the block (1e-9) on {float((np.abs(c_[:, 0] - c_[:, 1]) < 1e-9).mean()):.4f} of {len(c_):,} sampled blocks;"
+              f" that signal's age at the block, s, q10/50/90: {' / '.join(f'{x:.3f}' for x in np.percentile(c_[:, 2], [10, 50, 90]))}")
+    else:
+        print("   no trk SIG lines parsed")
     if not sos:
         return
     import duckdb
@@ -115,7 +144,8 @@ def main() -> None:
     print(f"   snapshot found for {len(book):,} SO lines; tick-store receive - SO field 2, ms, q1/10/50/90/99: {' / '.join(f'{v:.0f}' for v in np.percentile(lag, [1, 10, 50, 90, 99])) if lag.size else '-'}")
 
     sent: dict[int, list[tuple[float, float]]] = defaultdict(list)  # stock -> (E, signed qty) of the SO lines so far
-    res = {hsk: Counter() for hsk in ("logged hs", "book spread / mid")}
+    res = {hsk: Counter() for hsk in ("block alpha", "next signal alpha")}
+    flag = Counter()
     mism: list[str] = []
     why_no = Counter()
     for i, s in enumerate(sorted(range(len(sos)), key=lambda k: sos[k]["e"])):
@@ -140,38 +170,55 @@ def main() -> None:
         mid = (b["b1"] + b["a1"]) / 2
         asq = blk["asq"] - sells
         cur = blk["cpos"] + pend
+        fa_sig, sig_dt = None, float("nan")  # the first signal of the stock handled from the snapshot's receive time on (within 1.5 s)
+        sg = sigs.get(sid)
+        if sg:
+            k = bisect.bisect_left(sg[0], e - 0.002)
+            if k < len(sg[0]) and sg[0][k] <= e + 1.5:
+                fa_sig, sig_dt = sg[1][k], sg[0][k] - e
+        if own:
+            flag[("flagged" if blk.get("order") else "not flagged" if blk.get("dec") else "no decision line", "signal after" if fa_sig is not None else "no signal after")] += 1
+        outcome = {}
         for hsk in res:
-            hs = blk["hs"] if hsk == "logged hs" else (b["a1"] - b["b1"]) / mid
-            if own and blk.get("dec"):
+            hs = blk["hs"]
+            fa = blk["fa"] if hsk == "block alpha" or fa_sig is None else fa_sig
+            if hsk == "block alpha" and own and blk.get("dec"):
                 ep = blk["executp"]
             else:
-                ep = gtp(mid, blk["fa"], blk["vpen"], blk["vr"], blk["poscst"], cur, asq, hs)
-            r = {"sid": sid, "fa": blk["fa"], "pp": (blk.get("pp") or 0.0) if own else pend, "hs": hs, "lthr": blk.get("lthr") or 0.0, "ev_cpos": cur, "executp": ep,
+                ep = gtp(mid, fa, blk["vpen"], blk["vr"], blk["poscst"], cur, asq, hs)
+            r = {"sid": sid, "fa": fa, "pp": (blk.get("pp") or 0.0) if own else pend, "hs": hs, "lthr": blk.get("lthr") or 0.0, "ev_cpos": cur, "executp": ep,
                  "winsdQty": blk.get("wq") if blk.get("wq") == blk.get("wq") and blk.get("wq") is not None else 1e12, "asq": asq, "a1": b["a1"], "av1": b["av1"], "b1": b["b1"], "bv1": b["bv1"]}
             side, px, q, why = cord(r)
-            c = res[hsk]
+            good = bool(side) and (o["side"] is None or side == o["side"]) and abs(px - o["px"]) < 1e-6 and abs(q - o["qty"]) < 1e-6
+            outcome[hsk] = (side, px, q, why, good, fa, ep)
+        outcome["block, else next signal"] = outcome["block alpha"] if outcome["block alpha"][0] else outcome["next signal alpha"]
+        for hsk, (side, px, q, why, good, fa, ep) in outcome.items():
+            c = res.setdefault(hsk, Counter())
             for key in (cls, f"hh {hh // 2:02d}:{'30' if hh % 2 else '00'}", "all"):
                 c[(key, "n")] += 1
                 c[(key, "order")] += bool(side)
                 c[(key, "side")] += bool(side) and (o["side"] is None or side == o["side"])
                 c[(key, "px")] += bool(side) and abs(px - o["px"]) < 1e-6
                 c[(key, "qty")] += bool(side) and abs(q - o["qty"]) < 1e-6
-                c[(key, "all3")] += bool(side) and (o["side"] is None or side == o["side"]) and abs(px - o["px"]) < 1e-6 and abs(q - o["qty"]) < 1e-6
-            if hsk == "logged hs":
-                if not side:
-                    why_no[f"{'own' if own else 'silent'}: {why}"] += 1
-                if (not side or abs(q - o["qty"]) > 1e-6 or abs(px - o["px"]) > 1e-6) and not own and len(mism) < a.show:
-                    mism.append(f"   {sid:06d} SO {o['side']} {o['qty']:.0f} @ {o['px']} | replay {side or 'none'} {q:.0f} @ {px} ({why}) | age {age:.2f} s fa {blk['fa']:.5g} hs {blk['hs']:.5g} book hs {(b['a1'] - b['b1']) / mid:.5g} lthr {blk.get('lthr') or 0:.4g}"
-                                f" cur {cur:.0f} (block {blk['cpos']:.0f} + sent {pend:.0f}) asq {asq:.0f} ep {ep:.1f} room {r['winsdQty']:.0f} | bid {b['b1']} x {b['bv1']:.0f} ask {b['a1']} x {b['av1']:.0f} | block mp {blk['mp']}")
+                c[(key, "all3")] += good
+        side, px, q, why, good, fa, ep = outcome["block, else next signal"]
+        if not side:
+            why_no[f"{'own' if own else 'silent'}: {why}"] += 1
+        if not good and len(mism) < a.show:
+            sb = outcome["block alpha"]
+            mism.append(f"   {sid:06d} SO {o['side']} {o['qty']:.0f} @ {o['px']} | replay {side or 'none'} {q:.0f} @ {px} ({why}) | block age {age:.3f} s flagged {blk.get('order')} fa {blk['fa']:.5g} -> ep {sb[6]:.1f} ({sb[3]})"
+                        f" | signal fa {fa_sig if fa_sig is None else round(fa_sig, 7)} after {sig_dt * 1e3:.1f} ms -> ep {ep:.1f} | hs {blk['hs']:.5g} lthr {blk.get('lthr') or 0:.4g}"
+                        f" cur {cur:.0f} (block {blk['cpos']:.0f} + sent {pend:.0f}) asq {asq:.0f} room {r['winsdQty']:.0f} | bid {b['b1']} x {b['bv1']:.0f} ask {b['a1']} x {b['av1']:.0f}")
         sent[sid].append((e, sign * o["qty"]))
+    print(f"   SO lines on their own block, by the block's logged flag and whether a signal of the stock was handled within 1.5 s after the snapshot: {dict(flag.most_common())}")
     for hsk, c in res.items():
-        print(f"-- cost x = {hsk}: class: SO lines | replay has an order | side | price | quantity | all three")
+        print(f"-- alpha = {hsk}: class: SO lines | replay has an order | side | price | quantity | all three")
         keys = [k for k in ("all", "own block", "silent <1.5 s", "silent 1.5-3.5 s", "silent 3.5-12 s", "silent, alpha older than 12 s") if c[(k, "n")]] + sorted(k for k in {k for k, _ in c} if k.startswith("hh "))
         for k in keys:
             n = c[(k, "n")]
             print(f"   {k:<30} {n:>6,} | " + " | ".join(f"{c[(k, m)] / n:.4f}" for m in ("order", "side", "px", "qty", "all3")))
-    print(f"-- no replay / no order, by reason (logged hs): {dict(why_no.most_common(12))}")
-    print(f"   first {len(mism)} silent-run mismatches:")
+    print(f"-- no replay / no order, by reason (block, else next signal): {dict(why_no.most_common(12))}")
+    print(f"   first {len(mism)} mismatches of 'block, else next signal':")
     print("\n".join(mism))
     print("[done]")
 
