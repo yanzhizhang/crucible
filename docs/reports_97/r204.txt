@@ -1,0 +1,27 @@
+R204 on 97 (2026-11-21 ~14:15-14:20:09), crucible d2753c1 (r204.sh e976cbee, families/zzvm.py 04dbeb5d, cpp/families/zzvm.hpp 6b01171a; gate OK; no other engine job running).
+data/reports/r204.txt md5 7890c49f439a.., 82 lines (3 of them polars tracebacks from the 'moved against R194' snippet). Transcribed from screen.
+
+built-in rule table: 24 rules, equal to the Python families' table
+engine: 20 stocks, 80000 events, 24 rules, 4 threads, 0.01s
+20 stocks, 58360 day-end values + 38540 mark values compared, 0 mismatches
+[14:18:43] == 20261118
+key,n,all,SZSE,all_1e4,SZSE_1e4,mre
+zzvm.c.re.t,300,0.0,0.0,1.0,1.0,0.00001171693287864503
+zzvm.c.re,300,0.7466666666666667,0.6696428571428571,1.0,1.0,9.185100140764602e-9
+zzvm.c.tpv,300,1.0,1.0,1.0,1.0,0.0
+zzvm.c.v,300,1.0,1.0,1.0,1.0,0.0
+   'keys whose share moved against R194' snippet: polars.exceptions.InvalidOperationError: `bitor` operation not supported for dtype `f64`
+     in [(col("r194") - col("r204")).abs() > ((dyn float: 0.000000001) | col("r194").is_null()) | col("r204").is_null()]  (operator precedence: '> 1e-9 | ...' needs parentheses)
+[14:19:15] == 20261119
+zzvm.c.re.t,300,0.22,0.0,1.0,1.0,4.018394640479862e-6
+zzvm.c.re,300,0.77,0.6607142857142857,1.0,1.0,3.9724183782741245e-9
+zzvm.c.tpv,300,1.0,1.0,1.0,1.0,0.0
+zzvm.c.v,300,1.0,1.0,1.0,1.0,0.0
+   (same snippet error)
+[14:19:40] == 20261120
+zzvm.c.re.t,300,0.14333333333333334,0.0,1.0,1.0,6.191407127245884e-6
+zzvm.c.re,300,0.66,0.625,1.0,1.0,9.901260115897368e-9
+zzvm.c.tpv,300,1.0,1.0,1.0,1.0,0.0
+zzvm.c.v,300,1.0,1.0,1.0,1.0,0.0
+   (same snippet error)
+[14:20:09] r204 done
