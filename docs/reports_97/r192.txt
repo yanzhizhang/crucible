@@ -1,0 +1,59 @@
+R192 on 97 (2026-11-21 ~10:12), crucible 9656184f (r192.sh 822ad10f, runs_soctx.py 937ad547; gate OK).
+data/reports/r192_tdf.txt md5 de2a7df73df3.. 18 lines; data/reports/r192_so.txt md5 b2a4ef224564.. 210 lines. Transcribed from screen (raw rows OCR'd: digits may carry reading errors).
+
+==== tdf
+== /work/crucible_data/tdf_224/600000.SH/0/20261118.zip:   2398176   1 file
+LocalTime,WindCode,Code,ActionDay,Time,Match,0,0,NumTrades,IOPV,0,0,Volume,Turnover,High,Low,Open,PreClose,AskPrice1,AskPrice2,AskPrice3,AskPrice4,AskPrice5,AskPrice6,AskPrice7,AskPrice8,AskPrice9,AskPrice10,AskVol1,AskVol2,AskVol3,AskVol4,AskVol5,AskVol6,AskVol7,AskVol8,AskVol9,AskVol10,BidPrice1,BidPrice2,BidPrice3,BidPrice4,BidPrice5,BidPrice6,BidPrice7,BidPrice8,BidPrice9,BidPrice10,BidVol1,BidVol2,BidVol3,BidVol4,BidVol5,BidVol6,BidVol7,BidVol8,BidVol9,BidVol10,WeightedAvgAskPrice,WeightedAvgBidPrice,TotalAskVol,TotalBidVol,HighLimited,LowLimited,Vendor
+20261118-10:33:02.993598190,600000.SH,600000,20261118,103302000,10.7900,0,0,20274,0,0,0,19089176,206362965,10.8900,10.7500,10.7600,10.8600,10.8000,10.8100,10.8200,10.8300,10.8400,10.8500,10.8600,10.8700,10.8800,10.8900,7.87,7.35,4.31,9.03,8.66,9.16,10.06,17.1,24.89,14.1328,10.7900,10.7800,10.7700,10.7600,10.7500,10.7400,10.7300,10.7200,10.7100,10.7000,11.97,10.77,6.81,26.5,30.94,11.27,12.45,13.54,8.89,23.28,11.1600,10.4700,7948686,4078600,11.9500,9.7700,16
+20261118-13:09:05.993615246,600000.SH,600000,20261118,130905000,10.7800,0,0,36130,0,0,0,34177305,368612403,10.8900,10.7000,10.7600,10.8600,10.7900,10.8000,10.8100,10.8200,10.8300,10.8400,10.8500,10.8600,10.8700,10.8800,4.36,13.0043,8.47,4.53,3.21,2.65,12.1759,12.62,12.4,31.39,10.7800,10.7700,10.7600,10.7500,10.7400,10.7300,10.7200,10.7100,10.7000,10.6900,1.97,14.55,8.51,2.5,2.06,2.36,14.46,12.67,33,10.37,11.1700,10.4300,8365267,3926800,11.9500,9.7700,16
+20261118-14:24:08.996835942,600000.SH,600000,20261118,142408000,10.7000,0,0,52823,0,0,0,51852136,558269011,10.8900,10.6800,10.7600,10.8600,10.7100,10.7200,10.7300,10.7400,10.7500,10.7600,10.7700,10.7800,10.7900,10.8000,3.49,6.59,5.07,9.41,6.53,4.29,9.6839,5.14,2.82,12.4943,10.7000,10.6900,10.6800,10.6700,10.6600,10.6500,10.6400,10.6300,10.6200,10.6100,56.37,10.94,26.46,9.12,18.94,12.82,5.18,10.45,13.58,11.47,11.1500,10.4300,8793147,4018500,11.9500,9.7700,16
+== /work/crucible_data/tdf_224/000001.SZ/0/20261118.zip:   2338146   1 file
+(000001.SZ header identical to 600000.SH)
+20261118-10:40:45.171267207,000001.SZ,000001,20261118,104045000,12.2600,0,0,53941,0,0,0,62698999,766868971,12.3100,12.1600,12.2400,12.2500,12.2600,12.2700,12.2800,12.2900,12.3000,12.3100,12.3200,12.3300,12.3400,12.3500,49.23,20.72,29.79,30.02,140.232,27.8,36.75,43.55,19.46,63.24,12.2500,12.2400,12.2300,12.2200,12.2100,12.2000,12.1900,12.1800,12.1700,12.1600,18.84,15.1948,15.41,9.11,17.38,18.42,29.06,17.4316,18.9,32.76,12.8500,11.9300,22663363,11661464,13.4800,11.0300,16
+20261118-13:21:15.168192067,000001.SZ,000001,20261118,132115000,12.1100,0,0,88283,0,0,0,92229203,1126545533,12.3100,12.0900,12.2400,12.2500,12.1200,12.1300,12.1400,12.1500,12.1600,12.1700,12.1800,12.1900,12.2000,12.2100,4.63,8.64,7.84,9.62,8.76,14.85,18.67,26.558,26.53,21.77,12.1100,12.1000,12.0900,12.0800,12.0700,12.0600,12.0500,12.0400,12.0300,12.0200,9.24,22.44,9.75,54.95,21.68,20.48,39.42,6.32,16.2,16.69,12.6800,11.8000,26333358,7501600,13.4800,11.0300,16
+20261118-14:36:15.167543699,000001.SZ,000001,20261118,143615000,12.1300,0,0,125424,0,0,0,121216228,1477537353,12.3100,12.0300,12.2400,12.2500,12.1400,12.1500,12.1600,12.1700,12.1800,12.1900,12.2000,12.2100,12.2200,12.2300,7.07,28.37,42.54,36.87,24.38,19.36,48.96,29.23,24.79,21.1377,12.1300,12.1200,12.1100,12.1000,12.0900,12.0800,12.0700,12.0600,12.0500,12.0400,13.47,25.62,24.9,56.26,17.51,38.64,10.75,16.66,28.78,22.61,12.6400,11.8600,26505358,9156900,13.4800,11.0300,16
+== /work/crucible_data/tdf_224/300750.SZ/0/20261118.zip:   2370394   1 file
+(header identical)
+20261118-10:40:43.417019319,300750.SZ,300750,20261118,104042000,239.4100,0,0,40903,0,0,0,8898430,2133739428,241.8900,237.2800,238.2400,238.5000,239.4200,239.4300,239.4400,239.4500,239.4600,239.5300,239.5400,239.5500,239.5600,239.5800,0.03,0.04,0.12,0.02,0.01,0.01,0.07,0.05,0.02,0.02,239.4100,239.4000,239.3900,239.3800,239.3700,239.3600,239.3500,239.3400,239.3200,239.3100,0.13,0.1,0.22,0.05,0.17,0.09,0.02,0.11,0.37,0.04,250.7500,231.3500,2782929,1230692,286.2000,190.8000,16
+20261118-13:21:13.473231328,300750.SZ,300750,20261118,132112000,239.3900,0,0,63693,0,0,0,13698313,3280259024,241.8900,237.2800,238.2400,238.5000,239.5100,239.5200,239.5400,239.5800,239.5900,239.6000,239.6100,239.6200,239.6400,0.15,0.01,0.06,0.01,0.06,0.01,0.05,0.12,0.11,0.02,239.3900,239.3400,239.3300,239.3200,239.3100,239.2300,239.2200,239.2100,239.2000,239.1900,0.02,0.02,0.08,0.1,0.01,0.04,0.03,0.04,0.03,0.01,250.7500,230.4100,2898870,1209900,286.2000,190.8000,16
+   (this row shows 9 ask prices on screen -- an OCR/wrap slip on my side, not necessarily the file)
+20261118-14:36:13.519294835,300750.SZ,300750,20261118,143612000,240.2900,0,0,105404,0,0,0,22426163,5381875218,242.6600,237.2800,238.2400,238.5000,240.2900,240.3000,240.3100,240.3200,240.3300,240.3400,240.3500,240.3600,240.3700,240.3800,0.96,0.26,0.01,0.13,3.93,0.12,0.05,0.12,3.01,0.01,240.2800,240.2700,240.2600,240.2500,240.2400,240.2300,240.2200,240.2100,240.2000,240.1900,0.73,0.7,0.41,0.11,0.36,0.61,3.27,0.14,0.65,0.1,252.0100,233.1600,2816590,1371200,286.2000,190.8000,16
+s224 600000 at the last snapshot before 10:00: total_volume, total_amount, total_bid_volume, total_ask_volume, bid_vol[1:3], ask_vol[1:3]: [(12553976, 135802169.0, 4582500, 7508107, [0, 4, 24], [1, 9, 10])]
+dysl2 600000 at the last snapshot before 10:00: total_volume, total_amount, total_bid_volume, total_ask_volume, bid_vol[1:3], ask_vol[1:3]: [(12553976, 135802169.13, 4582500, 7508107, [3700, 49700, 242000], [10800, 93200, 105900])]
+[10:11:25] r192 tdf done
+
+==== so
+== 20261118: 3,063 SO lines; source lines that print them: {'es.cpp:399': 3063}; SO lines per snapshot block: {1: 2969, 2: 45, 4: 1}
+--  1433  evaluation lines 1 | decision lines 0 | nullptr values false | SO no. 1 of the block | same stock | lines in block <=6
+--   934  evaluation lines 1 | decision lines 0 | nullptr values true | SO no. 1 of the block | OTHER stock than the block's snapshot | lines in block <=6
+--   482  evaluation lines 1 | decision lines 0 | nullptr values none | SO no. 1 of the block | OTHER stock than the block's snapshot | lines in block <=6
+--    73  evaluation lines 0 | decision lines 0 | nullptr values none | SO no. 1 of the block | OTHER stock than the block's snapshot | lines in block <=6
+--    27  evaluation lines 1 | decision lines 0 | nullptr values false | SO no. 2 of the block | OTHER stock than the block's snapshot | lines in block <=20
+--    22  evaluation lines 1 | decision lines 0 | nullptr values true | SO no. 1 of the block | OTHER stock than the block's snapshot | lines in block <=20
+--    22  evaluation lines 1 | decision lines 0 | nullptr values none | SO no. 1 of the block | OTHER stock than the block's snapshot | lines in block <=20
+--    15  evaluation lines 1 | decision lines 0 | nullptr values false | SO no. 1 of the block | OTHER stock than the block's snapshot | lines in block <=6
+--    12  evaluation lines 2 | decision lines 0 | nullptr values true,false | SO no. 1 of the block | same stock | lines in block <=20
+--     7  evaluation lines 1 | decision lines 0 | nullptr values true | SO no. 2 of the block | OTHER stock than the block's snapshot | lines in block <=20
+--     7  evaluation lines 1 | decision lines 0 | nullptr values none | SO no. 2 of the block | OTHER stock than the block's snapshot | lines in block <=6
+--     7  evaluation lines 2 | decision lines 0 | nullptr values true,true | SO no. 1 of the block | OTHER stock than the block's snapshot | lines in block <=20
+[done]
+[10:12:31] r192 so done
+
+Examples (my view masked every run of 9+ digits as <N>, so epochs and fractions are cut; account is <ac> in the script's own output):
+-- 1433 class, example 1:
+ [2026-11-18 09:30:00.<N>] [INFO] [catchRun.cpp:73] srcEpoch: <N>, recEpoch: <N>.0192087, sid: 688521, name: alpha.1
+ [2026-11-18 09:30:00.<N>] [INFO] [alg.cpp:169] sidIdx = 298, aIdx = 0, fa = -0.<N>, book->epoch = <N>.0192087, emsOurVol = 0, emsMktVol = 272676
+ [2026-11-18 09:30:00.<N>] [INFO] [alg.cpp:213] mp: 94.05, fa: -0.<N>, vpen: 1e-07, vr: 0.<N>, poscst: 10900, cpos: 0, asq: 200, hs: 0.<N>
+ [2026-11-18 09:30:00.<N>] [INFO] [alg.cpp:257] aIdx = 0, sid = 688521, fa = -0.<N>, pos = 0, pp_ = 0, this->executp = -200, asq = 200, lthr = 0, hs = 0.<N>, liid = 0, winsdQty = 48119
+ [2026-11-18 09:30:00.<N>] [INFO] [alg.cpp:258] order is nullptr : false
+ [2026-11-18 09:30:00.<N>] [INFO] [es.cpp:399] Po nowTs:20261118 09:30:00.043218SO,<N>.019209,<ac>,1,101,688521,94.00,200
+   example 2: 600009, sidIdx 113, mp 24.785, poscst 45600, asq 500, executp -500, winsdQty 5862, nullptr false; SO line: Po nowTs:20261118 09:30:00.466986SO,<N>.460594,<ac>,2,201,600009,24.78,500
+-- 934 class (nullptr true, SO for ANOTHER stock), example 1:
+ [2026-11-18 09:30:03.<N>] [INFO] [catchRun.cpp:73] srcEpoch: <N>, recEpoch: <N>.0751345, sid: 600089, name: alpha.1
+ [... alg.cpp:169] sidIdx = 135, aIdx = 0, fa = -0.<N>, book->epoch = <N>.0751345, emsOurVol = 0, emsMktVol = 1356570.<N>
+ [... alg.cpp:213] mp: 18.<N>, fa: -0.<N>, vpen: 1e-07, vr: 0.<N>, poscst: 279200, cpos: 0, asq: 2000, hs: 0.<N>
+ [... alg.cpp:257] aIdx = 0, sid = 600089, fa = -0.<N>, pos = 0, pp_ = 0, this->executp = -73.<N>, asq = 2000, lthr = 0, hs = 0.<N>, liid = 0,
+ [... alg.cpp:258] order is nullptr : true
+ [2026-11-18 09:30:03.<N>] [INFO] [es.cpp:399] Po nowTs:20261118 09:30:03.090973SO,<N>.088979,<ac>,76,7601,600584,52.54,600
+   example 2: block of 601012 (sidIdx 198, mp 11.265, poscst 571900, asq 2400, executp -370.<N>, nullptr true); SO line: Po nowTs:20261118 09:30:03.577538SO,<N>.573055,<ac>,95,9501,2230,36.73,800
+(examples of the 482 / 73 classes not viewed)
