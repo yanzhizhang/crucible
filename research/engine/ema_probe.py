@@ -7,8 +7,12 @@ exp(-(T - t_i) ln2 / half) over the updates t_i up to the stop (T = the last of 
   clocks: snap (every snapshot received), trade (every trade), both (snapshots and trades), each on the local trading clock;
   stops : PM's own .t of the stock (where the average stopped, whatever the rule), and the day's stop;
 then, where the weight matches, input candidates are scored on the value sum / wgt (exact share at 1e-6, median PM / ours):
-  zzhj.p   snapshot amount since the previous snapshot, x20, cumulative amount, amount over the last 30 / 60 / 180 / 300 s;
-  zzui.r   snapshot price, mid;  zzvm.c.re  trade price, running VWAP from 09:30;  others: weight only.
+  snapshot-clock keys (zzhj.p, zzui.r, zzcb.r, zzeb.r): price, mid, 1 / price, amount / volume since the previous snapshot,
+  cumulative amount / volume, amount per minute, snapshot VWAP, amount over the last 30 / 60 / 180 / 300 s, level-1 sizes,
+  top imbalance, spread (ticks, / mid), and 0/1 indicators (volume / price / mid unchanged), at half-lives near R200's weights;
+  zzvm.c.re  trade price, running VWAP from 09:30. Besides the exact share, the tightest PM / ours ratios are printed: a
+  ratio constant across stocks is a scale factor on the right input. Clocks also come in event-set variants (snapshots with a
+  new exchange stamp / a volume change / from 09:30; trades from 09:30 / 09:30-14:57).
 Read-only.
 
     python research/engine/ema_probe.py --date 20261120 --jz /work/crucible_data/seed_probe/HS300/20261120.jz --catalog /work/crucible_data/catalog_s224.duckdb
@@ -30,6 +34,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "pm_factors"))
 
 LN2 = math.log(2.0)
 HALVES = (1, 1.5, 2, 3, 4, 5, 6, 8, 10, 15, 20, 30, 40, 45, 60, 90, 120, 180, 240, 300, 450, 600, 900, 1200, 1800, 2700, 3600, 5400, 7200)
+VHALVES = {"zzhj.p": (20, 30, 40), "zzui.r": (2, 3, 4), "zzcb.r": (20, 30, 40), "zzeb.r": (60, 90, 120), "zzvm.c.re": (240, 300, 450)}  # value candidates only near R200's weights
 KEYS = ("zzhj.p", "zzui.r", "zzvm.c.re", "zzcb.r", "zzeb.r", "zztx.r")
 
 
@@ -73,7 +78,14 @@ def main() -> None:
             continue
         tf, ts = gf["t_local"].to_numpy().astype(float), gs["t_local"].to_numpy().astype(float)
         sf = gf["s"].to_numpy().astype(float)
-        clocks = {"snap": tf, "trade": ts, "both": np.sort(np.concatenate([tf, ts]), kind="stable")}
+        sx = gf["t_exch"].to_numpy().astype(float) if "t_exch" in gf.columns else sf
+        cvv = gf["cv"].to_numpy().astype(float)
+        newx = np.concatenate([[True], np.diff(sf) > 0])  # the exchange stamp moved on
+        newv = np.concatenate([[True], np.diff(cvv) != 0])  # the volume moved on
+        ss0 = gs["s"].to_numpy().astype(float)
+        clocks = {"snap": tf, "snap, new exchange stamp": tf[newx], "snap, volume changed": tf[newv], "snap from 09:30": tf[sf >= 34200],
+                  "trade": ts, "trade from 09:30": ts[ss0 >= 34200], "trade 09:30-14:57": ts[(ss0 >= 34200) & (ss0 < 53820)],
+                  "both": np.sort(np.concatenate([tf, ts]), kind="stable")}
         px = gf["price"].to_numpy().astype(float)
         px = np.where(px > 0, px, np.nan)
         b1, a1 = gf["b1"].to_numpy().astype(float), gf["a1"].to_numpy().astype(float)
@@ -90,9 +102,17 @@ def main() -> None:
         cv, cam = np.cumsum(np.where(ss_ >= 34200, gs["vol"].to_numpy(), 0.0)), np.cumsum(np.where(ss_ >= 34200, gs["amt"].to_numpy(), 0.0))
         with np.errstate(divide="ignore", invalid="ignore"):
             vwap = np.where(cv > 0, cam / cv, np.nan)
-        inputs = {"zzhj.p": ("snap", {"amount since previous snapshot": da, "x20": da * 20, "cumulative amount": ca,
-                                      **{f"amount over last {n} s": v for n, v in roll.items()}}),
-                  "zzui.r": ("snap", {"snapshot price": px, "mid": mid}),
+        dv = np.diff(cvv, prepend=0.0)
+        dt = np.diff(sf, prepend=np.nan)
+        bv, av = gf["bv1"].to_numpy().astype(float), gf["av1"].to_numpy().astype(float)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            snapc = {"snapshot price": px, "mid": mid, "1 / price": 1.0 / px, "amount since previous snapshot": da, "volume since previous snapshot": dv,
+                     "cumulative amount": ca, "cumulative volume": cvv, "amount per minute (da / dt x 60)": da / dt * 60, "snapshot VWAP (da / dv)": np.where(dv > 0, da / dv, np.nan),
+                     **{f"amount over last {n} s": v for n, v in roll.items()}, "bid1 size": bv, "ask1 size": av, "bid1 + ask1 size": bv + av,
+                     "top imbalance": (bv - av) / (bv + av), "spread in ticks": np.round((a1 - b1) / 0.01, 6), "spread / mid": (a1 - b1) / mid,
+                     "volume unchanged (0/1)": (dv == 0).astype(float), "price unchanged (0/1)": np.concatenate([[0.0], (np.diff(px) == 0).astype(float)]),
+                     "mid unchanged (0/1)": np.concatenate([[0.0], (np.diff(mid) == 0).astype(float)])}
+        inputs = {"zzhj.p": ("snap", snapc), "zzui.r": ("snap", snapc), "zzcb.r": ("snap", snapc), "zzeb.r": ("snap", snapc),
                   "zzvm.c.re": ("trade", {"trade price": tp, "running VWAP from 09:30": vwap})}
         kv = pm.get(sid, {})
         for k in keys:
@@ -113,7 +133,7 @@ def main() -> None:
                 t = clocks[cn]
                 for nm, x in cand.items():
                     for sn, st in stops.items():
-                        for h in HALVES:
+                        for h in (VHALVES.get(k) or HALVES):
                             s, w, _ = end_state(t, x, h, st)
                             v, vp = s / w if w else math.nan, s_pm / w_pm
                             r = vres[k].setdefault((nm, sn, h), [0, 0, []])
@@ -126,10 +146,23 @@ def main() -> None:
         for sh, med, (cn, sn, h) in rows[:6]:
             print(f"   {sh:.3f}  median {med:.6f}  {cn:<6} {sn:<11} half {h:g}")
         if vres[k]:
-            vr = sorted(((r[1] / max(r[0], 1), float(np.nanmedian(r[2])), key) for key, r in vres[k].items()), key=lambda x: -x[0])
-            print(f"   value sum / wgt: share exact (1e-6), median PM / ours -- best 6 of {len(vr)} (input, stop, half-life)")
-            for sh, med, (nm, sn, h) in vr[:6]:
-                print(f"   {sh:.3f}  median {med:.6f}  {nm:<30} {sn:<11} half {h:g}")
+            def spread(v):
+                v = np.asarray(v, dtype=float)
+                v = v[np.isfinite(v) & (v != 0)]
+                if v.size < 10:
+                    return math.nan, math.nan, math.nan
+                q10, q50, q90 = np.percentile(v, [10, 50, 90])
+                return float(q50), float(q10), float(q90)
+            vr = []
+            for key, r in vres[k].items():
+                q50, q10, q90 = spread(r[2])
+                disp = abs(math.log(q90 / q10)) if q10 and q90 and q10 > 0 and q90 > 0 else 9.0
+                vr.append((r[1] / max(r[0], 1), disp, q50, q10, q90, key))
+            print(f"   value sum / wgt: share exact (1e-6); PM / ours median and q10 / q90 -- best 6 by exact share, then the 8 with the tightest PM / ours (a constant factor)")
+            for sh, disp, q50, q10, q90, (nm, sn, h) in sorted(vr, key=lambda x: (-x[0], x[1]))[:6]:
+                print(f"   {sh:.3f}  ratio {q50:.6g} ({q10:.6g} .. {q90:.6g})  {nm:<34} {sn:<11} half {h:g}")
+            for sh, disp, q50, q10, q90, (nm, sn, h) in sorted(vr, key=lambda x: x[1])[:8]:
+                print(f"   tight  ratio {q50:.6g} ({q10:.6g} .. {q90:.6g})  exact {sh:.3f}  {nm:<34} {sn:<11} half {h:g}")
     print("[done]")
 
 
