@@ -1,0 +1,86 @@
+R190c on 97 (2026-11-21 09:58), crucible c7d51f23 (r190c.sh b2b6bd22, runs_ord.py 09cfb5c6), output data/reports/r190c.txt md5 2a4a34c5cf1c3a36b9fe6b57e75b3555, 249 lines. Transcribed from screen.
+
+== s224 level 1 on 4 stocks, continuous session: rows 19501; bid_vol[1] == 0 on 0.528, ask_vol[1] == 0 on 0.538; median bid / ask size 0.0 / 0.0; bid_px[1] > 0 on 1.000; levels per row 10.0; median sum of all bid levels 15.0
+   three rows of 600000 near 10:00: [('18:00:02', [10.8, 10.79, 10.78], [0, 5, 24], [10.81, 10.82, 10.83], [1, 9, 10]), ('18:00:05', [10.8, 10.79, 10.78], [2, 5, 24], [10.81, 10.82, 10.83], [1, 9, 10]), ('18:00:08', [10.8, 10.79, 10.78], [10.81, 10 ...
+== dysl2 level 1 on 4 stocks, continuous session: rows 19501; bid_vol[1] == 0 on 0.000, ask_vol[1] == 0 on 0.000; median bid / ask size 6006.0 / 4982.0; bid_px[1] > 0 on 1.000; levels per row 10.0; median sum of all bid levels 191398.0
+   three rows of 600000 near 10:00: [('18:00:02', [10.8, 10.79, 10.78], [8300, 52700, 242000], [10.81, 10.82, 10.83], [17200, 93200, 107600]), ('18:00:05', [10.8, 10.79, 10.78], [23400, 54000, 242400], [10.81, 10.82, 10.83], [18600, 93200, 107600]), ('18:00:08 ...
+   (note: the clock label prints 18:00 -- the query adds +8 h to a time column that is already local; the rows are 10:00)
+[09:58:45] ==== book from dysl2, pairing backward
+== 20261118: 769,310 decisions, 1,525 flagged with an order, 2,222 inside the log-only rule; SO lines 3,063
+   SO line -> the stock's decision by --pair backward (within 3 s of the SO stamp): found 2,491; two SO lines on one decision 186; decision receive time - SO stamp, ms, q1/10/50/90/99: -1669 / -952 / -516 / -147 / -42
+   decisions paired with an SO line: flagged as order 1,521, not flagged 784; flagged but no SO line 4
+   by half hour (SO-paired / flagged): 09:30 634/574, 10:00 35/30, 10:30 21/20, 11:00 12/11, 13:00 88/57, 13:30 183/95, 14:00 329/206, 14:30 1003/532
+   from here 'order' = paired with an SO line; replaying 3,003 decisions
+-- A  snapshot found (mid == mp within 3 s) on 0.9990; tick-store receive time - PM's, ms, q1/10/50/90/99: 43.1 / 81.2 / 395.9 / 909.4 / 1640.8
+   bv1 in the tick store: q1/10/50/90 38 / 186 / 1880 / 72260; a multiple of 100 on 0.784
+   av1 in the tick store: q1/10/50/90 65 / 200 / 2500 / 293000; a multiple of 100 on 0.744
+   bv5 in the tick store: q1/10/50/90 1224 / 3200 / 24050 / 1738800; a multiple of 100 on 0.652
+   av5 in the tick store: q1/10/50/90 1300 / 3440 / 34718 / 2994120; a multiple of 100 on 0.571
+-- B  [book size: level 1, shares] order / no order with the book: replay orders 1,518; precision 1.0000, recall 0.6594; rule-only rows that the replay drops, by reason: {'star below 200': 664, 'top of book below 100': 18, 'pending leg opposes': 12, 'top of book: star below 200': 4}
+-- C  2,302 orders paired with an SO line (0 unpaired): replay has an order on 0.6594; side 0.6594, price 0.6594, quantity 0.6360, all three 0.6360
+   quantity set by: step 1,081 (exact 0.950); top of book 437 (exact 1.000); none: below threshold 310 (exact 0.000); none: step against alpha 195 (exact 0.000); none: step below 100 180 (exact 0.000); none: pending leg opposes 97 (exact 0.000); none: star below 200 2 (exact 0.000)
+   first 6 mismatches:
+   600893 SO sell 500 @ 35.1 | replay none (pending leg opposes) | fa 0.0017203 hs 0.00014243 lthr 0 cur -500 pp -500.0 ep 0.0 room 77921 asq 0
+-- B  [book size: level 1, lots] order / no order with the book: replay orders 1,539; precision 0.9864, recall 0.6594; rule-only rows that the replay drops, by reason: {'star below 200': 664, 'replay orders too': 21, 'pending leg opposes': 12, 'top of book: star below 200': 1}
+-- C  2,302 orders paired with an SO line (0 unpaired): replay has an order on 0.6594; side 0.6594, price 0.6594, quantity 0.4574, all three 0.4574
+   quantity set by: step 1,518 (exact 0.694); none: below threshold 310 (exact 0.000); none: step against alpha 195 (exact 0.000); none: step below 100 180 (exact 0.000); none: pending leg opposes 97 (exact 0.000); none: star below 200 2 (exact 0.000)
+-- B  [book size: levels 1-5, lots] order / no order with the book: replay orders 1,540; precision 0.9857, recall 0.6594; rule-only rows that the replay drops, by reason: {'star below 200': 664, 'replay orders too': 22, 'pending leg opposes': 12}
+-- C  2,302 orders paired with an SO line (0 unpaired): replay has an order on 0.6594; side 0.6594, price 0.6594, quantity 0.4574, all three 0.4574
+   quantity set by: step 1,518 (exact 0.694); none: below threshold 310 (exact 0.000); none: step against alpha 195 (exact 0.000); none: step below 100 180 (exact 0.000); none: pending leg opposes 97 (exact 0.000); none: star below 200 2 (exact 0.000)
+-- B  [book size: all levels, lots] order / no order with the book: replay orders 1,540; precision 0.9857, recall 0.6594; rule-only rows that the replay drops, by reason: {'star below 200': 664, 'replay orders too': 22, 'pending leg opposes': 12}
+-- C  2,302 orders paired with an SO line (0 unpaired): replay has an order on 0.6594; side 0.6594, price 0.6594, quantity 0.4574, all three 0.4574
+   quantity set by: step 1,518 (exact 0.694); none: below threshold 310 (exact 0.000); none: step against alpha 195 (exact 0.000); none: step below 100 180 (exact 0.000); none: pending leg opposes 97 (exact 0.000); none: star below 200 2 (exact 0.000)
+-- B  [book size: no size cap] order / no order with the book: replay orders 1,540; precision 0.9857, recall 0.6594; rule-only rows that the replay drops, by reason: {'star below 200': 664, 'replay orders too': 22, 'pending leg opposes': 12}
+-- C  2,302 orders paired with an SO line (0 unpaired): replay has an order on 0.6594; side 0.6594, price 0.6594, quantity 0.4574, all three 0.4574
+   quantity set by: step 1,518 (exact 0.694); none: below threshold 310 (exact 0.000); none: step against alpha 195 (exact 0.000); none: step below 100 180 (exact 0.000); none: pending leg opposes 97 (exact 0.000); none: star below 200 2 (exact 0.000)
+[09:58:47] ==== book from dysl2, pairing nearest
+== 20261118: 769,310 decisions, 1,525 flagged with an order, 2,222 inside the log-only rule; SO lines 3,063
+   SO line -> the stock's decision by --pair nearest (within 3 s of the SO stamp): found 2,537; two SO lines on one decision 206; decision receive time - SO stamp, ms, q1/10/50/90/99: -1664 / -944 / -496 / -127 / 2288
+-- A  snapshot found (mid == mp within 3 s) on 0.9990; tick-store receive time - PM's, ms, q1/10/50/90/99: 42.7 / 81.2 / 396.7 / 914.4 / 1642.2
+   bv1 in the tick store: q1/10/50/90 39 / 186 / 1900 / 72680; a multiple of 100 on 0.786
+   av1 in the tick store: q1/10/50/90 66 / 200 / 2500 / 285220; a multiple of 100 on 0.746
+   bv5 in the tick store: q1/10/50/90 1208 / 3200 / 24000 / 1718660; a multiple of 100 on 0.655
+   av5 in the tick store: q1/10/50/90 1299 / 3419 / 34800 / 2970980; a multiple of 100 on 0.574
+-- B  [book size: level 1, shares] order / no order with the book: replay orders 1,518; precision 0.9954, recall 0.6491; rule-only rows that the replay drops, by reason: {'star below 200': 664, 'top of book below 100': 18, 'pending leg opposes': 12, 'replay orders too': 7, 'top of book: star below 2[00 ...]
+-- C  2,328 orders paired with an SO line (0 unpaired): replay has an order on 0.6491; side 0.6491, price 0.6435, quantity 0.6220, all three 0.6198
+   quantity set by: step 1,078 (exact 0.943); top of book 433 (exact 0.995); none: below threshold 332 (exact 0.000); none: step against alpha 195 (exact 0.000); none: step below 100 182 (exact 0.000); none: pending leg opposes 106 (exact 0.000); none: star below 200 2 (exact 0.000)
+-- B  [book size: level 1, lots] order / no order with the book: replay orders 1,539; precision 0.9818, recall 0.6491; rule-only rows that the replay drops, by reason: {'star below 200': 664, 'replay orders too': 28, 'pending leg opposes': 12, 'top of book: star below 200': 1}
+-- C  2,328 orders paired with an SO line (0 unpaired): replay has an order on 0.6491; side 0.6491, price 0.6435, quantity 0.4480, all three 0.4467
+   quantity set by: step 1,511 (exact 0.690); none: below threshold 332 (exact 0.000); none: step against alpha 195 (exact 0.000); none: step below 100 182 (exact 0.000); none: pending leg opposes 106 (exact 0.000); none: star below 200 2 (exact 0.000)
+-- B  [book size: levels 1-5, lots] order / no order with the book: replay orders 1,540; precision 0.9812, recall 0.6491; rule-only rows that the replay drops, by reason: {'star below 200': 664, 'replay orders too': 29, 'pending leg opposes': 12}
+-- C  2,328 orders paired with an SO line (0 unpaired): replay has an order on 0.6491; side 0.6491, price 0.6435, quantity 0.4480, all three 0.4467
+   quantity set by: step 1,511 (exact 0.690); none: below threshold 332 (exact 0.000); none: step against alpha 195 (exact 0.000); none: step below 100 182 (exact 0.000); none: pending leg opposes 106 (exact 0.000); none: star below 200 2 (exact 0.000)
+-- B  [book size: all levels, lots] and [no size cap]: both identical to levels 1-5 lots (replay orders 1,540; precision 0.9812, recall 0.6491; drops {'star below 200': 664, 'replay orders too': 29, 'pending leg opposes': 12}; C 0.6491 / 0.6491 / 0.6435 / 0.4480 / 0.4467; step 1,511 exact 0.690, rest as above)
+[09:58:49] ==== book from s224, pairing backward
+== 20261118: 769,310 decisions, 1,525 flagged with an order, 2,222 inside the log-only rule; SO lines 3,063
+   SO line -> the stock's decision by --pair backward (within 3 s of the SO stamp): found 2,491; two SO lines on one decision 186; decision receive time - SO stamp, ms, q1/10/50/90/99: -1669 / -952 / -516 / -147 / -42
+-- A  snapshot found (mid == mp within 3 s) on 0.9990; tick-store receive time - PM's, ms, q1/10/50/90/99: 42.4 / 81.0 / 395.7 / 908.7 / 1640.4
+   bv1 in the tick store: q1/10/50/90 0 / 0 / 0 / 7; a multiple of 100 on 0.741
+   av1 in the tick store: q1/10/50/90 0 / 0 / 0 / 29; a multiple of 100 on 0.678
+   bv5 in the tick store: q1/10/50/90 0 / 0 / 1 / 172; a multiple of 100 on 0.469
+   av5 in the tick store: q1/10/50/90 0 / 0 / 2 / 296; a multiple of 100 on 0.403
+-- B  [book size: level 1, shares] order / no order with the book: replay orders 24; precision 1.0000, recall 0.0104; rule-only rows that the replay drops, by reason: {'star below 200': 664, 'top of book below 100': 22, 'pending leg opposes': 12}
+-- C  2,302 orders paired with an SO line (0 unpaired): replay has an order on 0.0104; side 0.0104, price 0.0104, quantity 0.0026, all three 0.0026
+   quantity set by: none: top of book below 100 1,643 (exact 0.000); none: below threshold 310 (exact 0.000); none: step against alpha 195 (exact 0.000); none: pending leg opposes 97 (exact 0.000); none: step below 100 31 (exact 0.000); top of book 17 (exact 0.000); step 7 (exact 0.857); none: star ...
+-- B  [book size: level 1, lots] order / no order with the book: replay orders 296; precision 1.0000, recall 0.1286; rule-only rows that the replay drops, by reason: {'star below 200': 664, 'top of book below 100': 22, 'pending leg opposes': 12}
+-- C  2,302 orders paired with an SO line (0 unpaired): replay has an order on 0.1286; side 0.1286, price 0.1286, quantity 0.0469, all three 0.0469
+   quantity set by: none: top of book below 100 1,308 (exact 0.000); none: below threshold 310 (exact 0.000); none: step against alpha 195 (exact 0.000); top of book 188 (exact 0.043); step 108 (exact 0.926); none: pending leg opposes 97 (exact 0.000); none: step below 100 92 (exact 0.000); none: to...
+-- B  [book size: levels 1-5, lots] order / no order with the book: replay orders 1,013; precision 0.9970, recall 0.4387; rule-only rows that the replay drops, by reason: {'star below 200': 664, 'top of book below 100': 19, 'pending leg opposes': 12, 'replay orders too': 3}
+-- C  2,302 orders paired with an SO line (0 unpaired): replay has an order on 0.4387; side 0.4387, price 0.4387, quantity 0.2268, all three 0.2268
+   quantity set by: step 653 (exact 0.743); none: top of book below 100 524 (exact 0.000); top of book 357 (exact 0.104); none: below threshold 310 (exact 0.000); none: step against alpha 195 (exact 0.000); none: step below 100 161 (exact 0.000); none: pending leg opposes 97 (exact 0.000); none: top...
+-- B  [book size: all levels, lots] order / no order with the book: replay orders 1,162; precision 0.9957, recall 0.5026; rule-only rows that the replay drops, by reason: {'star below 200': 664, 'top of book below 100': 16, 'pending leg opposes': 12, 'replay orders too': 5, 'top of book: star below ...
+-- C  2,302 orders paired with an SO line (0 unpaired): replay has an order on 0.5026; side 0.5026, price 0.5026, quantity 0.2828, all three 0.2828
+   quantity set by: step 852 (exact 0.731); none: top of book below 100 369 (exact 0.000); none: below threshold 310 (exact 0.000); top of book 305 (exact 0.092); none: step against alpha 195 (exact 0.000); none: step below 100 169 (exact 0.000); none: pending leg opposes 97 (exact 0.000); none: top...
+-- B  [book size: no size cap] order / no order with the book: replay orders 1,540; precision 0.9857, recall 0.6594; rule-only rows that the replay drops, by reason: {'star below 200': 664, 'replay orders too': 22, 'pending leg opposes': 12}
+-- C  2,302 orders paired with an SO line (0 unpaired): replay has an order on 0.6594; side 0.6594, price 0.6594, quantity 0.4574, all three 0.4574
+   quantity set by: step 1,518 (exact 0.694); none: below threshold 310 (exact 0.000); none: step against alpha 195 (exact 0.000); none: step below 100 180 (exact 0.000); none: pending leg opposes 97 (exact 0.000); none: star below 200 2 (exact 0.000)
+[09:58:51] ==== book from s224, pairing nearest
+== 20261118: SO lines 3,063; --pair nearest found 2,537; two SO lines on one decision 206; decision receive time - SO stamp, ms, q1/10/50/90/99: -1664 / -944 / -496 / -127 / 2288
+-- A  snapshot found on 0.9990; tick-store receive time - PM's, ms, q1/10/50/90/99: 42.1 / 81.0 / 396.4 / 913.5 / 1642.2
+-- s224 nearest, B / C per size reading:
+   level 1 shares: replay orders 24; precision 1.0000, recall 0.0103 | C 2,328 paired: order 0.0103; side 0.0103, price 0.0103, quantity 0.0026, all three 0.0026
+   level 1 lots:   replay orders 296; precision 0.9966, recall 0.1267 | C order 0.1267; side 0.1267, price 0.1267, quantity 0.0460, all three 0.0460
+   levels 1-5 lots: replay orders 1,013; precision 0.9941, recall 0.4326 | C order 0.4326; side 0.4326, price 0.4304, quantity 0.2234, all three 0.2229
+   all levels lots: replay orders 1,162; precision 0.9923, recall 0.4953 | C order 0.4953; side 0.4953, price 0.4923, quantity 0.2779, all three 0.2775
+   no size cap:    replay orders 1,540; precision 0.9812, recall 0.6491 | C order 0.6491; side 0.6491, price 0.6435, quantity 0.4480, all three 0.4467
+[09:58:53] r190c done
