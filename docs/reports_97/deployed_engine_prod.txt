@@ -1,0 +1,27 @@
+Deployed libcatchRun.so (224, md5 1f4b2f32, built 11-19): what makes Alg run twice per snapshot. Read-only objdump on 97, 2026-11-21.
+Dumps: /work/crucible_data/so_probe/pm224_1119/dis_engine/{onInnerMsg,onAlpEvent,toAlg,Check,Manage,TimerLoop,aeOnInner,aeOnAlpha}.txt (-O2 code).
+
+Engine::onInnerMsg(FBB*)  (0x2dc): idx = sidsIdx.at(f->I10); fbbs_[idx]->CPT(*f); alp_->onInnerMsg(idx, f);
+    if (alp_->Check(idx)) return toAlg(idx, false);                       (+0xeb..+0x132, edx = 0)
+    else if (alp_->aDur() > 0) push TsEvent{due = F18 + aDur, ...}        (+0xff..+0x140, addsd [rbx+0x18])
+Engine::onAlpEvent(AlphaMsg const&)  (0xb7): idx = sidsIdx.at(sid); alp_->OnAlphaMsg(&a, idx); if (alp_->Check(idx)) toAlg(idx, true)   (+0xaa edx = 1)
+qAlpEngine::Check(int) const  (0x3e9): rdlock; if (GlobalConfig::Instance()->prod (byte +0x88) == 0) return true;   (+0x49..+0x57 -> +0x168: r12d = 1)
+    else (prod): bt = bookTs_[idx]; bt > 0; |now - bt| <= 5 s (wall clock); every alpha: bt - 1e-5 <= recvTs <= bt + adur + 1e-5 (as libshtst; failure logged)
+Engine::toAlg(int, bool)  (0x4b9): f = fbbs_[idx]; book must have levels and not be crossed (bid/ask compares +0x51..+0x9e) else return;
+    if (GlobalConfig::Instance()->prod) { if (lastTs_[idx] + 1e-5 >= f->F18) skip (+0xc1..+0xe1 -> +0x408) }   <- same-book dedupe ONLY in prod
+    lastTs_[idx] = F18; copy the book into a message (the bool stored at [rsp+0x82]); algW_->OnMsg(...) (+0x1a2 call [rax+0x28])
+GlobalConfig::setProd(bool) (0x8): mov BYTE PTR [rdi+0x88], sil.  Callers: qTrader::qTrader (+0x2a5 @546895) and testObs::testObs.
+qTrader::qTrader: cfg_ ([rbx+0x28]) = root->(vtable call)("trader") (+0x679 key 0x64617274 "trad.."); ...;
+    prod = cfg_->(vtable+0x10)("prod", default false) (+0x84b..+0x886, key 0x646f7270 "prod", xor edx,edx); setProd(prod).
+
+224's config2_HS300.json (R133 / R168): "prod": true is at the TOP level; the "trader" block has no "prod".
+  -> qTrader reads prod from "trader" -> default false -> prod = false in the live run (assuming the getter returns the default for a missing key;
+     the order timing measured by crucible R194-R198 is exactly the prod = false behaviour).
+With prod = false:
+  (1) every book: Check() == true at once -> toAlg(idx, false) -> Alg runs on the new book with the alpha it holds (the previous signal, ~3 s old);
+      no log block; orders go out ~2 ms after the book.
+  (2) every signal: OnAlphaMsg stores it, Check() == true -> toAlg(idx, true) on the SAME book (no lastTs dedupe outside prod) -> the logged
+      catchRun:73 / alg.cpp block, 4-8 ms after the book.
+  The aDur timer is never armed (Check never fails), so alpha_dur (0.03 s, trader.fac[0].alpha_dur) does not matter in this run.
+With prod = true it would be the libshtst behaviour: one run per book, only once the new alpha (received within [bt, bt + 0.03 s]) is in.
+Alg's own adur (sc.p3.json, 12 s) still drops alphas older than 12 s in GAlpha.
