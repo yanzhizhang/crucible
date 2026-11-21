@@ -9,3 +9,4 @@ class Zzmh(Family):
 
     def dump(self, st, out):
         out["zzmh.hm"] = st.hm
+        out["zzmh.hm|le1500"], out["zzmh.hm|all"] = st.hm_c, st.sp_hi

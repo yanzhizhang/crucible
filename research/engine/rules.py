@@ -145,6 +145,8 @@ def on_snap(st: Stock, t: float, s: float, lsod: float, price: float, b1: float,
         st.pc = pc
     if 34200 <= s < 53820 and price > 0 and not (st.hm >= price):
         st.hm = price
+    if 34200 <= s <= 54000 and price > 0 and not (st.hm_c >= price):
+        st.hm_c = price
     if 34200 <= s < 53820 and price > 0 and not (st.lm <= price):
         st.lm = price
     if price > 0:

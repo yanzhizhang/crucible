@@ -121,6 +121,49 @@ def nb(con, date: int, pm: dict[int, dict[str, float]]) -> None:
         print(f"   corr {c:+.4f}  exact 1e-6 {e6:.3f}  {name}")
 
 
+def nb_sweep(con, date: int, pm: dict[int, dict[str, float]]) -> None:
+    """zzgh.nb as the amount imbalance over [start, end): every start / end on a 1 s grid, exchange and local clock."""
+    import polars as pl
+
+    tgt = {s: kv["zzgh.nb"] for s, kv in pm.items() if "zzgh.nb" in kv and kv["zzgh.nb"] == kv["zzgh.nb"]}
+    con.register("want_sw", pl.DataFrame({"sid": list(tgt)}))
+    df = con.sql(f"""SELECT symbol_id AS sid, {SOD} AS s, {LSOD} AS l, (volume * price)::DOUBLE AS amt, CASE dir WHEN 1063 THEN 1 WHEN 1550 THEN -1 ELSE 0 END AS side
+        FROM raw_transaction r JOIN want_sw w ON w.sid = r.symbol_id WHERE r.date = {date} AND r.trade_type = 1 AND {SOD} >= 33300""").pl()
+    starts = [33900.0, 34200.0, 34200.001, 34203.0, 34215.0, 34260.0, 34500.0]
+    ends = [float(x) for x in range(53400, 54061)] + [53820.001, 54000.001, 99999.0]
+    res = []
+    gaps = {}
+    for clock in ("s", "l"):
+        hit = np.zeros((len(starts), len(ends)))
+        hit4 = np.zeros((len(starts), len(ends)))
+        n = 0
+        for g in df.sort("sid", clock).partition_by("sid", maintain_order=True):
+            t, amt, sd = g[clock].to_numpy(), g["amt"].to_numpy(), g["side"].to_numpy()
+            cb, cs = np.concatenate([[0.0], np.cumsum(amt * (sd == 1))]), np.concatenate([[0.0], np.cumsum(amt * (sd == -1))])
+            i0, i1 = np.searchsorted(t, starts, side="left"), np.searchsorted(t, ends, side="left")
+            b, s_ = cb[i1][None, :] - cb[i0][:, None], cs[i1][None, :] - cs[i0][:, None]
+            with np.errstate(divide="ignore", invalid="ignore"):
+                x = (b - s_) / (b + s_)
+            d = np.abs(x - tgt[int(g["sid"][0])])
+            hit += d <= 1e-6
+            hit4 += d <= 1e-4
+            n += 1
+            if clock == "s":
+                gaps[int(g["sid"][0])] = (float(x[1, ends.index(53820.0)]), float(b[1, ends.index(53820.0)] + s_[1, ends.index(53820.0)]))
+        for i, st in enumerate(starts):
+            for j, en in enumerate(ends):
+                res.append((hit[i, j] / max(n, 1), hit4[i, j] / max(n, 1), clock, st, en))
+    res.sort(reverse=True)
+    hms = lambda v: f"{int(v // 3600):02d}:{int(v % 3600 // 60):02d}:{v % 60:06.3f}"  # noqa: E731
+    print(f"nb sweep, amount imbalance over [start, end) on {len(tgt)} stocks: best 10 of {len(res)} (clock s = exchange, l = local)")
+    for e6, e4, clock, st, en in res[:10]:
+        print(f"   exact 1e-6 {e6:.3f}  1e-4 {e4:.3f}  clock {clock}  {hms(st)} -> {hms(en)}")
+    g = np.array([(tgt[s] - x, (tgt[s] - x) * tot) for s, (x, tot) in gaps.items() if x == x])
+    if len(g):
+        print(f"   PM - ours (09:30 -> 14:57, exchange): q1/10/50/90/99 {' / '.join(f'{v:+.2e}' for v in np.percentile(g[:, 0], [1, 10, 50, 90, 99]))}; as yuan of (buy - sell): {' / '.join(f'{v:+,.0f}' for v in np.percentile(g[:, 1], [1, 10, 50, 90, 99]))}")
+        print(f"   sign of PM - ours: + {int((g[:, 0] > 0).sum())}, - {int((g[:, 0] < 0).sum())}; SH + {sum(1 for s, (x, _) in gaps.items() if s >= 600000 and tgt[s] > x)} of {sum(1 for s in gaps if s >= 600000)}, SZ + {sum(1 for s, (x, _) in gaps.items() if s < 600000 and tgt[s] > x)} of {sum(1 for s in gaps if s < 600000)}")
+
+
 def main() -> None:
     """CLI entry point."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
@@ -136,7 +179,9 @@ def main() -> None:
     if a.catalog:
         import duckdb
 
-        nb(duckdb.connect(str(a.catalog), read_only=True), a.date, pm)
+        con = duckdb.connect(str(a.catalog), read_only=True)
+        nb(con, a.date, pm)
+        nb_sweep(con, a.date, pm)
 
 
 if __name__ == "__main__":

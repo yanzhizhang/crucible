@@ -124,6 +124,7 @@ class Stock:
         self.vol_all = self.amt_all = self.vol_o = self.amt_o = self.vol_loc = self.amt_loc = 0.0
         self.hm = math.nan  # highest snapshot price in the continuous session (exchange time)
         self.lm = math.nan  # lowest snapshot price in the continuous session
+        self.hm_c = math.nan  # zzmh.hm variant: highest snapshot price 09:30:00 .. 15:00:00 inclusive (the SH closing snapshot is stamped 15:00:00)
         self.sp_hi = self.sp_lo = math.nan  # highest / lowest snapshot price of the whole day
         self.c_high = self.c_low = math.nan  # highest / lowest trade price in the continuous session
         self.pc = self.op = math.nan  # previous close / open from the snapshots

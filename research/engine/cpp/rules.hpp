@@ -150,6 +150,7 @@ inline void on_snap(stock& st, const compiled_rules& cr, double t, double s, dou
     if (op > 0) st.op = op;
     if (pc > 0) st.pc = pc;
     if (34200 <= s && s < 53820 && price > 0 && !(st.hm >= price)) st.hm = price;
+    if (34200 <= s && s <= 54000 && price > 0 && !(st.hm_c >= price)) st.hm_c = price;
     if (34200 <= s && s < 53820 && price > 0 && !(st.lm <= price)) st.lm = price;
     if (price > 0) {
         if (!(st.sp_hi >= price)) st.sp_hi = price;
