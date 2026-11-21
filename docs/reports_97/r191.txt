@@ -1,0 +1,154 @@
+R191 on 97 (2026-11-21 ~10:03-10:07), crucible 23d028b0 (8 files gate OK: c9f6d18f 9e541459 00e8db0e 328d0a69 02fbce98 11ea3137 63bf96a5 aed3f89b).
+data/reports/r191_hm.txt md5 944101dcfa9d.. 104 lines; data/reports/r191_nb.txt md5 975a11445c58.. 43 lines. Transcribed from screen.
+
+==== hm
+building /work/crucible/research/engine/cpp/build/engine ...
+built-in rule table: 23 rules, equal to the Python families' table
+engine: 20 stocks, 80000 events, 23 rules, 4 threads, 0.01s
+20 stocks, 58340 day-end values + 37600 mark values compared, 0 mismatches
+[10:04:01] == 20261118 hm
+key,n,all,SZSE,all_1e4,SZSE_1e4,mre
+zzmh.r.t,300,0.6233333333333333,0.6696428571428571,1.0,1.0,5.586824127912171e-7
+zzpk.p.t,300,0.6233333333333333,0.6696428571428571,1.0,1.0,5.586824127912171e-7
+zzmh.hm|all,300,0.79,0.9464285714285714,0.7933333333333333,0.9464285714285714,0.0
+zzpk.p,300,0.9433333333333334,0.9017857142857143,1.0,1.0,4.537343324079484e-9
+zzmh.r,300,0.9733333333333334,0.9821428571428571,0.9733333333333334,0.9821428571428571,0.00009851883602690642
+zzmh.hm,300,0.9833333333333333,1.0,0.9833333333333333,1.0,0.0
+zzmh.hm|le1500,300,0.9933333333333333,1.0,0.9933333333333333,1.0,0.0
+zzpk.high,300,1.0,1.0,1.0,1.0,0.0
+zzpk.low,300,1.0,1.0,1.0,1.0,0.0
+zzpk.open,300,1.0,1.0,1.0,1.0,0.0
+20261118: engine 300 stocks, PM 300 stocks
+
+zzmh.hm: 300 stocks, 5 differ at 1e-6
+   {'ours < pm SH': 5}; relative gap median 1.30e-03, 90% 1.69e-03, max 1.70e-03
+   other engine keys equal to PM's value on those stocks: zzxu.last 5, zzxo.last 5, cdc.lp 5, zzmh.hm|le1500 3, zzpk.high 3, zzxu.high 3, zzvx.high 3, zzeg.c.high 3, zzmh.hm|all 3
+   PM keys equal to OUR value on those stocks: zzxo.r.18 2, zzxo.r.19 2, zzui.r.3 1, zzxo.r.23 1, zzui.r.0 1, zzui.r.1 1, zzui.r.2 1, zzxo.r.0 1
+   e.g. 600009: ours 24.84  pm 24.85
+   e.g. 600028: ours 5.96  pm 5.97
+   e.g. 600150: ours 34.7  pm 34.71
+   e.g. 600941: ours 107.24  pm 107.38
+   e.g. 601727: ours 5.88  pm 5.89
+
+zzmh.r: 300 stocks, 8 differ at 1e-6
+   {'ours > pm SZ': 2, 'ours > pm SH': 3, 'ours < pm SH': 3}; relative gap median 1.06e-03, 90% 9.35e+02, max 1.33e+03
+   other engine keys equal to PM's value on those stocks: zzgh.c.40 3, zzgh.c.152 3, zzgh.c.153 3, zzgh.c.165 3, zzgh.c.171 3, zzgh.c.297 3, zzgh.c.307 3, zzgh.c.314 3, zzgh.c.395 3, zzgh.c.407 3, zzg...
+   PM keys equal to OUR value on those stocks: none
+   e.g. 2371: ours 0.00083589545  pm 0.00083477639
+   e.g. 302132: ours 0.038813446  pm 0.038805804
+   e.g. 600028: ours 1.1260754e-05  pm 1.4711632e-08
+   e.g. 600372: ours 0.0082212876  pm 0.008222308
+   e.g. 600415: ours 0.0015647532  pm 0.0015659807
+[10:04:27] == 20261119 hm
+key,n,all,SZSE,all_1e4,SZSE_1e4,mre
+zzmh.hm|all,300,0.7766666666666666,0.9017857142857143,0.7766666666666666,0.9017857142857143,0.0
+zzmh.r.t,300,0.9266666666666666,0.8125,0.9966666666666667,1.0,3.3504283354213054e-7
+zzpk.p.t,300,0.9266666666666666,0.8125,0.9966666666666667,1.0,3.3504283354213054e-7
+zzpk.p,300,0.9566666666666667,0.9375,1.0,1.0,4.390468923379871e-9
+zzmh.hm,300,0.9733333333333334,1.0,0.9733333333333334,1.0,0.0
+zzmh.r,300,0.9766666666666667,0.9910714285714286,0.9766666666666667,0.9910714285714286,0.00007760355215516494
+zzmh.hm|le1500,300,0.9833333333333333,1.0,0.9833333333333333,1.0,0.0
+zzpk.high,300,1.0,1.0,1.0,1.0,0.0
+zzpk.low,300,1.0,1.0,1.0,1.0,0.0
+zzpk.open,300,1.0,1.0,1.0,1.0,0.0
+20261119: engine 300 stocks, PM 300 stocks
+
+zzmh.hm: 300 stocks, 8 differ at 1e-6
+   {'ours < pm SH': 8}; relative gap median 7.42e-04, 90% 6.23e-03, max 6.72e-03
+   other engine keys equal to PM's value on those stocks: zzxu.last 8, zzxo.last 8, cdc.lp 8, zzpk.high 6, zzxu.high 6, zzvx.high 6, zzmh.hm|all 6, zzeg.c.high 3, zzmh.hm|le1500 3
+   PM keys equal to OUR value on those stocks: zzxo.r.18 1, zzxo.r.19 1, zzui.r.9 1, zzxo.r.29 1
+   e.g. 600031: ours 18.87  pm 18.9
+   e.g. 600089: ours 17.95  pm 17.96
+   e.g. 600760: ours 44.6  pm 44.87
+   e.g. 601318: ours 54.64  pm 54.66
+   e.g. 603259: ours 144.31  pm 144.39
+
+zzmh.r: 300 stocks, 7 differ at 1e-6
+   {'ours > pm SZ': 1, 'ours > pm SH': 6}; relative gap median 2.75e+02, 90% 2.31e+06, max 3.45e+06
+   other engine keys equal to PM's value on those stocks: zzgh.c.383 5, zzgh.c.500 5, zzgh.c.768 5, zzgh.c.202 4, zzgh.c.322 4, zzgh.c.355 4, zzgh.c.361 4, zzgh.c.374 4, zzgh.c.422 4, zzgh.c.603 4, zz...
+   PM keys equal to OUR value on those stocks: zzbd.rEmaT 2
+   e.g. 300413: ours 0.013300897  pm 0.013299149
+   e.g. 600031: ours 1.0110176e-05  pm 3.6580557e-08
+   e.g. 600089: ours 1.2414553e-06  pm 3.3527838e-08
+   e.g. 600760: ours 0.00014659454  pm 5.3346444e-09
+   e.g. 603259: ours 1.2292695e-06  pm 1.7041775e-08
+[10:04:56] == 20261120 hm
+key,n,all,SZSE,all_1e4,SZSE_1e4,mre
+zzmh.r,300,0.8933333333333333,0.9821428571428571,0.8933333333333333,0.9821428571428571,0.00009996160952340305
+zzmh.hm,300,0.9066666666666666,1.0,0.9066666666666666,1.0,0.0
+zzmh.hm|le1500,300,0.9566666666666667,1.0,0.9566666666666667,1.0,0.0
+zzpk.p,300,0.9733333333333334,0.9910714285714286,1.0,1.0,1.6332268408195167e-9
+zzmh.r.t,300,0.9866666666666667,0.9642857142857143,1.0,1.0,3.412398674979098e-7
+zzpk.p.t,300,0.9866666666666667,0.9642857142857143,1.0,1.0,3.412398674979098e-7
+zzmh.hm|all,300,0.99,1.0,0.99,1.0,0.0
+zzpk.high,300,1.0,1.0,1.0,1.0,0.0
+zzpk.low,300,1.0,1.0,1.0,1.0,0.0
+zzpk.open,300,1.0,1.0,1.0,1.0,0.0
+20261120: engine 300 stocks, PM 300 stocks
+
+zzmh.hm: 300 stocks, 28 differ at 1e-6
+   {'ours < pm SH': 28}; relative gap median 2.52e-03, 90% 1.08e-02, max 1.83e-02
+   other engine keys equal to PM's value on those stocks: zzxu.last 28, zzmh.hm|all 28, zzxo.last 28, cdc.lp 28, zzpk.high 26, zzxu.high 26, zzvx.high 26, zzmh.hm|le1500 15, zzeg.c.high 8, zzxu.upper|...
+   PM keys equal to OUR value on those stocks: zzui.r.9 5, zzxo.r.29 5, zzui.r.8 3, zzxo.r.28 3, zzui.r.7 2, zzxo.r.27 2, zzui.r.5 2, zzxo.r.25 2
+   e.g. 600000: ours 10.85  pm 10.87
+   e.g. 600009: ours 24.97  pm 25
+   e.g. 600039: ours 8.89  pm 8.99
+   e.g. 600066: ours 32.21  pm 32.81
+   e.g. 600104: ours 10.15  pm 10.21
+
+zzmh.r: 300 stocks, 32 differ at 1e-6
+   {'ours < pm SZ': 1, 'ours > pm SZ': 1, 'ours > pm SH': 27, 'ours < pm SH': 3}; relative gap median 1.92e+03, 90% 2.00e+06, max 1.36e+07
+   other engine keys equal to PM's value on those stocks: zzgh.c.383 18, zzgh.c.614 17, zzgh.c.184 16, zzgh.c.249 16, zzgh.c.788 16, zzgh.c.613 16, zzgh.c.779 16, zzgh.c.368 15, zzgh.c.400 15, zzgh.c....
+   PM keys equal to OUR value on those stocks: zzbd.rEmaT 5
+   e.g. 2460: ours 0.0043540732  pm 0.0043553224
+   e.g. 300661: ours 0.014586258  pm 0.014583749
+   e.g. 600000: ours 1.3591285e-05  pm 0
+   e.g. 600009: ours 5.7738489e-06  pm 1.9243583e-09
+   e.g. 600039: ours 0.00050612346  pm 2.7715047e-08
+[10:05:22] r191 hm done
+
+==== nb
+[10:05:22] == 20261118 nb
+nb sweep, amount imbalance over [start, end) on 300 stocks: best 10 of 9296 (clock s = exchange, l = local)
+   exact 1e-6 0.167  1e-4 0.483  clock l  09:30:00.001 -> 14:56:45.000
+   exact 1e-6 0.167  1e-4 0.483  clock l  09:30:00.000 -> 14:56:45.000
+   exact 1e-6 0.117  1e-4 0.477  clock s  09:30:00.000 -> 14:56:45.000
+   exact 1e-6 0.097  1e-4 0.283  clock l  09:25:00.000 -> 14:56:45.000
+   exact 1e-6 0.047  1e-4 0.420  clock s  09:30:00.001 -> 14:56:45.000
+   exact 1e-6 0.047  1e-4 0.277  clock s  09:25:00.000 -> 14:56:45.000
+   exact 1e-6 0.023  1e-4 0.440  clock s  09:30:00.000 -> 14:56:44.000
+   exact 1e-6 0.020  1e-4 0.413  clock l  09:30:00.001 -> 14:56:46.000
+   exact 1e-6 0.020  1e-4 0.413  clock l  09:30:00.000 -> 14:56:46.000
+   exact 1e-6 0.020  1e-4 0.260  clock s  09:25:00.000 -> 14:56:44.000
+   PM - ours (09:30 -> 14:57, exchange): q1/10/50/90/99 -1.00e-02 / -1.19e-03 / +1.02e-04 / +1.58e-03 / +7.11e-03; as yuan of (buy - sell): -2,706,421 / -573,913 / +86,466 / +987,887 / +4,729,165
+   sign of PM - ours: + 175, - 125; SH + 106 of 188, SZ + 69 of 112
+[10:05:27] == 20261119 nb
+nb sweep, amount imbalance over [start, end) on 300 stocks: best 10 of 9296 (clock s = exchange, l = local)
+   exact 1e-6 0.150  1e-4 0.467  clock l  09:30:00.001 -> 14:56:45.000
+   exact 1e-6 0.150  1e-4 0.467  clock l  09:30:00.000 -> 14:56:45.000
+   exact 1e-6 0.110  1e-4 0.463  clock s  09:30:00.000 -> 14:56:45.000
+   exact 1e-6 0.073  1e-4 0.273  clock l  09:25:00.000 -> 14:56:45.000
+   exact 1e-6 0.047  1e-4 0.397  clock s  09:30:00.001 -> 14:56:45.000
+   exact 1e-6 0.040  1e-4 0.270  clock s  09:25:00.000 -> 14:56:45.000
+   exact 1e-6 0.037  1e-4 0.177  clock l  09:30:03.000 -> 14:56:45.000
+   exact 1e-6 0.037  1e-4 0.120  clock l  09:30:15.000 -> 14:56:45.000
+   exact 1e-6 0.013  1e-4 0.330  clock s  09:30:00.001 -> 14:56:43.000
+   exact 1e-6 0.010  1e-4 0.443  clock s  09:30:00.000 -> 14:56:44.000
+   PM - ours (09:30 -> 14:57, exchange): q1/10/50/90/99 -5.93e-03 / -1.19e-03 / +1.41e-04 / +1.38e-03 / +6.04e-03; as yuan of (buy - sell): -3,700,453 / -724,076 / +103,403 / +1,088,095 / +3,919,521
+   sign of PM - ours: + 175, - 125; SH + 111 of 188, SZ + 64 of 112
+[10:05:33] == 20261120 nb
+nb sweep, amount imbalance over [start, end) on 300 stocks: best 10 of 9296 (clock s = exchange, l = local)
+   exact 1e-6 0.173  1e-4 0.533  clock l  09:30:00.001 -> 14:56:45.000
+   exact 1e-6 0.173  1e-4 0.533  clock l  09:30:00.000 -> 14:56:45.000
+   exact 1e-6 0.130  1e-4 0.523  clock s  09:30:00.000 -> 14:56:45.000
+   exact 1e-6 0.080  1e-4 0.290  clock l  09:25:00.000 -> 14:56:45.000
+   exact 1e-6 0.043  1e-4 0.437  clock s  09:30:00.001 -> 14:56:45.000
+   exact 1e-6 0.040  1e-4 0.280  clock s  09:25:00.000 -> 14:56:45.000
+   exact 1e-6 0.023  1e-4 0.183  clock l  09:30:03.000 -> 14:56:45.000
+   exact 1e-6 0.023  1e-4 0.150  clock l  09:30:15.000 -> 14:56:45.000
+   exact 1e-6 0.017  1e-4 0.423  clock s  09:30:00.000 -> 14:56:44.000
+   exact 1e-6 0.017  1e-4 0.420  clock l  09:30:00.001 -> 14:56:44.000
+   PM - ours (09:30 -> 14:57, exchange): q1/10/50/90/99 -6.39e-03 / -1.69e-03 / -2.27e-05 / +1.26e-03 / +5.22e-03; as yuan of (buy - sell): -6,390,644 / -1,235,343 / -21,730 / +1,270,018 / +13,941,752
+   sign of PM - ours: + 145, - 155; SH + 82 of 188, SZ + 63 of 112
+[10:05:39] r191 nb done
+(1119 lines 9-10 of the best-10 list scrolled off; not transcribed)
