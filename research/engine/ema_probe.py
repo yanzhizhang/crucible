@@ -1,0 +1,137 @@
+r"""Pin the clock and half-life of PM averages from their weight alone, then try inputs for the ones with a lead.
+
+PM's average state is sum / wgt / t with weight 1 per update decayed by exp(-dt ln2 / half). The weight does not depend on
+the input, so matching it pins the clock (which events update the average) and the half-life without guessing the input.
+For every target key and every (clock, half-life, stop) the day-end weight is rebuilt per stock as the sum of
+exp(-(T - t_i) ln2 / half) over the updates t_i up to the stop (T = the last of them) and compared with PM's .wgt:
+  clocks: snap (every snapshot received), trade (every trade), both (snapshots and trades), each on the local trading clock;
+  stops : PM's own .t of the stock (where the average stopped, whatever the rule), and the day's stop;
+then, where the weight matches, input candidates are scored on the value sum / wgt (exact share at 1e-6, median PM / ours):
+  zzhj.p   snapshot amount since the previous snapshot, x20, cumulative amount, amount over the last 30 / 60 / 180 / 300 s;
+  zzui.r   snapshot price, mid;  zzvm.c.re  trade price, running VWAP from 09:30;  others: weight only.
+Read-only.
+
+    python research/engine/ema_probe.py --date 20261120 --jz /work/crucible_data/seed_probe/HS300/20261120.jz --catalog /work/crucible_data/catalog_s224.duckdb
+"""
+
+from __future__ import annotations
+
+import argparse
+import gzip
+import json
+import math
+import sys
+from pathlib import Path
+
+import numpy as np
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "pm_factors"))
+
+LN2 = math.log(2.0)
+HALVES = (1, 1.5, 2, 3, 4, 5, 6, 8, 10, 15, 20, 30, 40, 45, 60, 90, 120, 180, 240, 300, 450, 600, 900, 1200, 1800, 2700, 3600, 5400, 7200)
+KEYS = ("zzhj.p", "zzui.r", "zzvm.c.re", "zzcb.r", "zzeb.r", "zztx.r")
+
+
+def end_state(t: np.ndarray, x: np.ndarray, half: float, stop: float) -> tuple[float, float, float]:
+    """(sum, wgt, last update time) of the average after the updates at t <= stop (NaN inputs skipped)."""
+    m = (t <= stop) & np.isfinite(x)
+    if not m.any():
+        return math.nan, math.nan, math.nan
+    tt, xx = t[m], x[m]
+    d = np.exp(-(tt[-1] - tt) * LN2 / half)
+    return float((xx * d).sum()), float(d.sum()), float(tt[-1])
+
+
+def main() -> None:
+    """CLI entry point."""
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("--date", required=True)
+    ap.add_argument("--jz", type=Path, required=True)
+    ap.add_argument("--catalog", type=Path, required=True)
+    ap.add_argument("--keys", default=",".join(KEYS))
+    a = ap.parse_args()
+    import dcp_ema as E
+    import duckdb
+    from stream import universe_from_state
+
+    with gzip.open(a.jz) as f:
+        pm = {int(s): kv for s, kv in json.load(f).items()}
+    keys = [k for k in a.keys.split(",") if k]
+    sids, stop = universe_from_state(a.jz)
+    con = duckdb.connect(str(a.catalog), read_only=True)
+    up = E.load(con, int(a.date), sids, stop)
+    fast = {int(g["sid"][0]): g for g in up["fast"].partition_by("sid")}
+    slow = {int(g["sid"][0]): g for g in up["slow"].partition_by("sid")}
+    stop_tc = (stop - 34200) if stop <= 41400 else (7200.0 if stop < 46800 else stop - 46800 + 7200)
+    print(f"== {a.date}: {len(sids)} stocks, stop {stop:.3f} local (trading clock {stop_tc:.3f})")
+    wres = {k: {} for k in keys}
+    vres = {k: {} for k in keys}
+    for sid in sids:
+        gf, gs = fast.get(sid), slow.get(sid)
+        if gf is None or gs is None:
+            continue
+        tf, ts = gf["t_local"].to_numpy().astype(float), gs["t_local"].to_numpy().astype(float)
+        sf = gf["s"].to_numpy().astype(float)
+        clocks = {"snap": tf, "trade": ts, "both": np.sort(np.concatenate([tf, ts]), kind="stable")}
+        px = gf["price"].to_numpy().astype(float)
+        px = np.where(px > 0, px, np.nan)
+        b1, a1 = gf["b1"].to_numpy().astype(float), gf["a1"].to_numpy().astype(float)
+        mid = np.where((b1 > 0) & (a1 > 0), (b1 + a1) / 2, px)
+        ca = gf["ca"].to_numpy().astype(float)
+        da = np.diff(ca, prepend=0.0)
+        roll = {}
+        for n in (30, 60, 180, 300):
+            j = np.searchsorted(sf, sf - n, side="right") - 1
+            roll[n] = ca - np.where(j >= 0, ca[np.maximum(j, 0)], 0.0)
+        tp = gs["price"].to_numpy().astype(float)
+        tp = np.where(tp > 0, tp, np.nan)
+        ss_ = gs["s"].to_numpy().astype(float)
+        cv, cam = np.cumsum(np.where(ss_ >= 34200, gs["vol"].to_numpy(), 0.0)), np.cumsum(np.where(ss_ >= 34200, gs["amt"].to_numpy(), 0.0))
+        with np.errstate(divide="ignore", invalid="ignore"):
+            vwap = np.where(cv > 0, cam / cv, np.nan)
+        inputs = {"zzhj.p": ("snap", {"amount since previous snapshot": da, "x20": da * 20, "cumulative amount": ca,
+                                      **{f"amount over last {n} s": v for n, v in roll.items()}}),
+                  "zzui.r": ("snap", {"snapshot price": px, "mid": mid}),
+                  "zzvm.c.re": ("trade", {"trade price": tp, "running VWAP from 09:30": vwap})}
+        kv = pm.get(sid, {})
+        for k in keys:
+            w_pm, t_pm, s_pm = kv.get(f"{k}.wgt"), kv.get(f"{k}.t"), kv.get(f"{k}.sum")
+            if not isinstance(w_pm, (int, float)) or not w_pm:
+                continue
+            stops = {"PM's own t": (t_pm + 1e-6) if isinstance(t_pm, (int, float)) else stop_tc, "day stop": stop_tc}
+            for cn, t in clocks.items():
+                for sn, st in stops.items():
+                    for h in HALVES:
+                        _, w, T = end_state(t, np.ones(len(t)), h, st)
+                        r = wres[k].setdefault((cn, sn, h), [0, 0, []])
+                        r[0] += 1
+                        r[1] += abs(w - w_pm) <= 1e-7 * abs(w_pm)
+                        r[2].append(w / w_pm)
+            if k in inputs and isinstance(s_pm, (int, float)):
+                cn, cand = inputs[k]
+                t = clocks[cn]
+                for nm, x in cand.items():
+                    for sn, st in stops.items():
+                        for h in HALVES:
+                            s, w, _ = end_state(t, x, h, st)
+                            v, vp = s / w if w else math.nan, s_pm / w_pm
+                            r = vres[k].setdefault((nm, sn, h), [0, 0, []])
+                            r[0] += 1
+                            r[1] += abs(v - vp) <= 1e-6 * max(1.0, abs(vp))
+                            r[2].append(vp / v if v else math.nan)
+    for k in keys:
+        rows = sorted(((r[1] / max(r[0], 1), float(np.nanmedian(r[2])), key) for key, r in wres[k].items()), key=lambda x: (-x[0], abs(math.log(abs(x[1]))) if x[1] and x[1] == x[1] else 9))
+        print(f"\n-- {k} weight: share of stocks with PM's wgt exactly (1e-7), median ours / PM -- best 6 of {len(rows)} (clock, stop, half-life s)")
+        for sh, med, (cn, sn, h) in rows[:6]:
+            print(f"   {sh:.3f}  median {med:.6f}  {cn:<6} {sn:<11} half {h:g}")
+        if vres[k]:
+            vr = sorted(((r[1] / max(r[0], 1), float(np.nanmedian(r[2])), key) for key, r in vres[k].items()), key=lambda x: -x[0])
+            print(f"   value sum / wgt: share exact (1e-6), median PM / ours -- best 6 of {len(vr)} (input, stop, half-life)")
+            for sh, med, (nm, sn, h) in vr[:6]:
+                print(f"   {sh:.3f}  median {med:.6f}  {nm:<30} {sn:<11} half {h:g}")
+    print("[done]")
+
+
+if __name__ == "__main__":
+    main()
