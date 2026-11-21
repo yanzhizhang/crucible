@@ -1,0 +1,234 @@
+R201 on 97 (2026-11-21 13:27-~13:48), crucible bcea8e6 (r201.sh ba100f4b, ema_probe.py 6a4cd90a; gate OK). Transcribed from screen.
+Compact per-key view (my awk on 97: W = first weight line, V = first two value lines, T = first 'tight' line; 1118 / 1119), then 1120 in full.
+Header 1118: 300 stocks, stop 54149.899 local (trading clock 14549.899); "best 6 of 464 (clock, stop, half-life s)"
+
+[13:27:23] 20261118 s224
+zzhj.p     W 0.000  median 0.999873  snap   PM's own t  half 30
+           (other weight lines on 1118 s224: snap, new exchange stamp 0.999873 / snap from 09:30 0.999873 / snap, volume changed 0.999850 - all PM's own t half 30; trade PM's own t half 1.5 0.999294; trade from 09:30 half 1.5 0.999294)
+zzhj.p     V 0.000  ratio 0.0896796 (0.0800562 .. 0.0991411)  amount over last 300 s   PM's own t  half 40
+zzhj.p     V 0.000  ratio 0.0882613 (0.078637 .. 0.098474)  amount over last 300 s   PM's own t  half 30
+           (further value lines: last 300 s half 20 0.086573 (0.076899 .. 0.0975232); last 180 s half 40 0.137456 (0.120298 .. 0.159078); last 180 s half 30 0.135166 (0.1173 .. 0.161694); last 180 s half 20 0.13312 (0.114218 .. 0.161088); tight also: last 60 s half 40 0.390809 (0.317076 .. 0.48274); last 30 s half 40 0.781724 (0.620954 .. 0.959672))
+zzhj.p     T tight ratio 0.0896796 (0.0800562 .. 0.0991411) exact 0.000 amount over last 300 s  PM's own t  half 40
+zzui.r     W 0.000  median 0.990214  snap   PM's own t  half 3   (also: snap, new exchange stamp, half 3, 0.990214)
+zzui.r     V 0.003  ratio 1.00032 (0.999412 .. 1.00133)  mid   PM's own t  half 2
+zzui.r     V 0.003  ratio 1.00035 (0.999367 .. 1.00152)  snapshot VWAP (da / dv)   PM's own t  half 2
+zzui.r     T tight ratio 1.00032 (0.999435 .. 1.00124) exact 0.000  mid   PM's own t  half 4
+zzvm.c.re  W 0.000  median 0.998579  trade  day stop  half 300
+zzvm.c.re  V 0.997  ratio 1 (1 .. 1)  running VWAP from 09:30   day stop  half 300
+zzvm.c.re  V 0.047  ratio 1.00001 (0.999988 .. 1.00006)  running VWAP from 09:30   PM's own t  half 240
+zzvm.c.re  T tight ratio 1 (1 .. 1) exact 0.997  running VWAP from 09:30  day stop  half 300
+zzcb.r     W 0.000  median 1.000034  snap   day stop  half 30
+zzcb.r     V 0.000  ratio 159.598 (59.3199 .. 564.325)  1 / price   PM's own t  half 40
+zzcb.r     V 0.000  ratio 159.603 (59.3166 .. 564.354)  1 / price   day stop  half 40
+zzcb.r     T tight ratio 159.598 (59.3199 .. 564.325) exact 0.000  1 / price   PM's own t  half 40
+zzeb.r     W 0.000  median 1.001560  snap   PM's own t  half 90
+zzeb.r     V 0.000  ratio 0.135846 (0.130664 .. 0.187549)  price unchanged (0/1)   day stop  half 60
+zzeb.r     V 0.000  ratio 0.140838 (0.137692 .. 0.206455)  volume unchanged (0/1)   day stop  half 60
+zzeb.r     T tight ratio 0.135846 (0.130664 .. 0.187549) exact 0.000  price unchanged (0/1)  day stop  half 60
+zztx.r     W 0.000  median 1.088148  snap, volume changed  day stop  half 1800
+[13:31:00] 20261118 dysl2
+zzhj.p     W 0.000  median 0.999868  snap   PM's own t  half 30
+zzhj.p     V 0.000  ratio 0.0896796 (0.0800562 .. 0.0991411)  amount over last 300 s   PM's own t  half 40
+zzhj.p     V 0.000  ratio 0.0882613 (0.0786371 .. 0.098474)  amount over last 300 s   PM's own t  half 30
+zzui.r     W 0.000  median 0.990226  snap   PM's own t  half 3
+zzui.r     V 0.003  ratio 1.00032 (0.999412 .. 1.00133)  mid   PM's own t  half 2
+zzui.r     V 0.003  ratio 1.00035 (0.999367 .. 1.00152)  snapshot VWAP (da / dv)   PM's own t  half 2
+zzvm.c.re  W 0.000  median 0.999710  trade  day stop  half 300
+zzvm.c.re  V 1.000  ratio 1 (1 .. 1)  running VWAP from 09:30   day stop  half 300
+zzvm.c.re  V 0.047  ratio 1.00001 (0.999988 .. 1.00006)  running VWAP from 09:30   PM's own t  half 240
+zzcb.r     W 0.000  median 1.000032  snap from 09:30  day stop  half 30
+zzcb.r     V 0.000  ratio 159.598 (59.3199 .. 564.325)  1 / price   PM's own t  half 40
+zzcb.r     V 0.000  ratio 159.603 (59.3166 .. 564.354)  1 / price   day stop  half 40
+zzeb.r     W 0.000  median 1.001876  snap   PM's own t  half 90
+zzeb.r     V 0.000  ratio 0.135846 (0.130664 .. 0.187549)  price unchanged (0/1)   day stop  half 60
+zzeb.r     V 0.000  ratio 0.140838 (0.137692 .. 0.206455)  volume unchanged (0/1)   day stop  half 60
+zztx.r     W 0.000  median 1.088148  snap, volume changed  day stop  half 1800
+[13:34:31] 20261119 s224
+zzhj.p     W 0.000  median 1.000001  snap   PM's own t  half 30
+zzhj.p     V 0.000  ratio 0.0775834 (0.0712859 .. 0.0884801)  amount over last 300 s   PM's own t  half 40
+zzhj.p     V 0.000  ratio 0.0759194 (0.069702 .. 0.0877698)  amount over last 300 s   PM's own t  half 30
+zzui.r     W 0.000  median 0.989324  snap   PM's own t  half 3
+zzui.r     V 0.003  ratio 1.0005 (0.999247 .. 1.00209)  mid   PM's own t  half 3
+zzui.r     V 0.003  ratio 1.00047 (0.999255 .. 1.00201)  mid   PM's own t  half 4
+zzvm.c.re  W 0.000  median 0.999024  trade  day stop  half 300
+zzvm.c.re  V 0.997  ratio 1 (1 .. 1)  running VWAP from 09:30   day stop  half 300
+zzvm.c.re  V 0.023  ratio 1.00004 (0.999919 .. 1.00018)  running VWAP from 09:30   day stop  half 450
+zzcb.r     W 0.007  median 1.000019  snap   day stop  half 30
+zzcb.r     V 0.000  ratio 159.77 (58.242 .. 460.671)  1 / price   PM's own t  half 40
+zzcb.r     V 0.000  ratio 159.781 (58.2275 .. 460.588)  1 / price   PM's own t  half 30
+zzeb.r     W 0.000  median 1.002552  snap   PM's own t  half 90
+zzeb.r     V 0.000  ratio 0.136109 (0.130332 .. 0.193035)  price unchanged (0/1)   day stop  half 60
+zzeb.r     V 0.000  ratio 0.139715 (0.137568 .. 0.206473)  volume unchanged (0/1)   day stop  half 60
+zztx.r     W 0.000  median 1.058596  snap from 09:30  day stop  half 1800
+[13:37:52] 20261119 dysl2
+zzhj.p     W 0.000  median 1.000001  snap   PM's own t  half 30
+zzhj.p     V 0.000  ratio 0.0775834 (0.0712842 .. 0.0882872)  amount over last 300 s   PM's own t  half 40
+zzhj.p     V 0.000  ratio 0.0758412 (0.0695324 .. 0.0877691)  amount over last 300 s   PM's own t  half 30
+zzui.r     W 0.000  median 0.989336  snap   PM's own t  half 3
+zzui.r     V 0.003  ratio 1.0005 (0.999247 .. 1.00211)  mid   PM's own t  half 3
+zzui.r     V 0.003  ratio 1.00035 (0.999042 .. 1.00206)  snapshot price   PM's own t  half 4
+zzvm.c.re  W 0.003  median 0.999904  trade  day stop  half 300
+zzvm.c.re  V 1.000  ratio 1 (1 .. 1)  running VWAP from 09:30   day stop  half 300
+zzvm.c.re  V 0.027  ratio 1.00004 (0.999988 .. 1.00017)  running VWAP from 09:30   PM's own t  half 300
+zzcb.r     W 0.003  median 1.000018  snap   day stop  half 30
+zzcb.r     V 0.000  ratio 159.77 (58.242 .. 460.671)  1 / price   PM's own t  half 40
+zzcb.r     V 0.000  ratio 159.781 (58.2275 .. 460.588)  1 / price   PM's own t  half 30
+zzeb.r     W 0.000  median 1.002550  snap   PM's own t  half 90
+zzeb.r     V 0.000  ratio 0.136109 (0.130332 .. 0.193036)  price unchanged (0/1)   day stop  half 60
+zzeb.r     V 0.000  ratio 0.139715 (0.137568 .. 0.206476)  volume unchanged (0/1)   day stop  half 60
+zztx.r     W 0.000  median 1.058596  snap from 09:30  day stop  half 1800
+
+==================== 1120 in full ====================
+[13:41:09] 20261120 s224
+== 20261120: 300 stocks, stop 54149.668 local (trading clock 14549.668)
+
+-- zzhj.p weight: share of stocks with PM's wgt exactly (1e-7), median ours / PM -- best 6 of 464 (clock, stop, half-life s)
+   0.000  median 1.000007  snap, volume changed PM's own t  half 30
+   0.000  median 1.000032  snap   PM's own t  half 30
+   0.000  median 1.000032  snap, new exchange stamp PM's own t  half 30
+   0.000  median 1.000032  snap from 09:30 PM's own t  half 30
+   0.000  median 0.851728  trade  PM's own t  half 1
+   0.000  median 0.851728  trade from 09:30 PM's own t  half 1
+   value sum / wgt: share exact (1e-6); PM / ours median and q10 / q90 -- best 6 by exact share, then the 8 with the tightest PM / ours (a constant factor)
+   0.000  ratio 0.0810198 (0.0737629 .. 0.0921586)  amount over last 300 s   PM's own t  half 40
+   0.000  ratio 0.0786944 (0.0718418 .. 0.0905021)  amount over last 300 s   PM's own t  half 30
+   0.000  ratio 0.0761156 (0.0696122 .. 0.0879134)  amount over last 300 s   PM's own t  half 20
+   0.000  ratio 0.11693 (0.103237 .. 0.138029)  amount over last 180 s   PM's own t  half 40
+   0.000  ratio 0.11331 (0.0998668 .. 0.135861)  amount over last 180 s   PM's own t  half 30
+   0.000  ratio 0.110572 (0.0965255 .. 0.132563)  amount over last 180 s   PM's own t  half 20
+   tight  ratio 0.0810198 (0.0737629 .. 0.0921586)  exact 0.000  amount over last 300 s   PM's own t  half 40
+   tight  ratio 0.0786944 (0.0718418 .. 0.0905021)  exact 0.000  amount over last 300 s   PM's own t  half 30
+   tight  ratio 0.0761156 (0.0696122 .. 0.0879134)  exact 0.000  amount over last 300 s   PM's own t  half 20
+   tight  ratio 0.11693 (0.103237 .. 0.138029)  exact 0.000  amount over last 180 s   PM's own t  half 40
+   tight  ratio 0.11331 (0.0998668 .. 0.135861)  exact 0.000  amount over last 180 s   PM's own t  half 30
+   tight  ratio 0.110572 (0.0965255 .. 0.132563)  exact 0.000  amount over last 180 s   PM's own t  half 20
+   tight  ratio 0.333596 (0.270139 .. 0.393216)  exact 0.000  amount per minute (da / dt x 60)   PM's own t  half 40
+   tight  ratio 6.67192 (5.40278 .. 7.86432)  exact 0.000  amount since previous snapshot   PM's own t  half 40
+
+-- zzui.r weight: share of stocks with PM's wgt exactly (1e-7), median ours / PM -- best 6 of 464 (clock, stop, half-life s)
+   0.000  median 0.989482  snap   PM's own t  half 3
+   0.000  median 0.989482  snap, new exchange stamp PM's own t  half 3
+   0.000  median 0.989482  snap from 09:30 PM's own t  half 3
+   0.000  median 0.989395  snap, volume changed PM's own t  half 3
+   0.000  median 0.919428  snap, volume changed day stop  half 40
+   0.000  median 1.169184  snap, volume changed day stop  half 45
+   value sum / wgt: share exact (1e-6); PM / ours median and q10 / q90 -- best 6 by exact share, then the 8 with the tightest PM / ours (a constant factor)
+   0.000  ratio 0.999832 (0.997453 .. 1.00289)  snapshot price   PM's own t  half 4
+   0.000  ratio 0.999893 (0.997409 .. 1.00304)  snapshot price   PM's own t  half 3
+   0.000  ratio 0.999717 (0.997259 .. 1.00292)  snapshot VWAP (da / dv)   PM's own t  half 4
+   0.000  ratio 0.999782 (0.997307 .. 1.00303)  snapshot VWAP (da / dv)   PM's own t  half 3
+   0.000  ratio 0.999793 (0.997307 .. 1.00303)  mid   PM's own t  half 4
+   0.000  ratio 0.99999 (0.997414 .. 1.00317)  snapshot price   PM's own t  half 2
+   tight  ratio 0.999832 (0.997453 .. 1.00289)  exact 0.000  snapshot price   PM's own t  half 4
+   tight  ratio 0.999893 (0.997409 .. 1.00304)  exact 0.000  snapshot price   PM's own t  half 3
+   tight  ratio 0.999717 (0.997259 .. 1.00292)  exact 0.000  snapshot VWAP (da / dv)   PM's own t  half 4
+   tight  ratio 0.999782 (0.997307 .. 1.00303)  exact 0.000  snapshot VWAP (da / dv)   PM's own t  half 3
+   tight  ratio 0.999793 (0.997307 .. 1.00303)  exact 0.000  mid   PM's own t  half 4
+   tight  ratio 0.99999 (0.997414 .. 1.00317)  exact 0.000  snapshot price   PM's own t  half 2
+   tight  ratio 0.999913 (0.997366 .. 1.00322)  exact 0.000  snapshot VWAP (da / dv)   PM's own t  half 2
+   tight  ratio 0.999806 (0.997276 .. 1.00316)  exact 0.000  mid   PM's own t  half 3
+
+-- zzvm.c.re weight: share of stocks with PM's wgt exactly (1e-7), median ours / PM -- best 6 of 464 (clock, stop, half-life s)
+   0.000  median 0.998473  trade  day stop  half 300
+   0.000  median 0.998473  trade from 09:30 day stop  half 300
+   0.000  median 0.921617  both   PM's own t  half 300
+   0.000  median 1.097924  trade from 09:30 PM's own t  half 240
+   0.000  median 1.097924  trade  PM's own t  half 240
+   0.000  median 1.100698  trade 09:30-14:57 PM's own t  half 240
+   value sum / wgt: share exact (1e-6); PM / ours median and q10 / q90 -- best 6 by exact share, then the 8 with the tightest PM / ours (a constant factor)
+   0.960  ratio 1 (0.999999 .. 1)  running VWAP from 09:30   day stop  half 300
+   0.023  ratio 1.00001 (0.999936 .. 1.00013)  running VWAP from 09:30   PM's own t  half 240
+   0.010  ratio 1.00005 (0.999899 .. 1.00028)  running VWAP from 09:30   PM's own t  half 300
+   0.007  ratio 0.999952 (0.999779 .. 1.00007)  running VWAP from 09:30   day stop  half 240
+   0.003  ratio 1.00012 (0.999772 .. 1.00064)  running VWAP from 09:30   PM's own t  half 450
+   0.003  ratio 0.996507 (0.987381 .. 1.00973)  trade price   PM's own t  half 450
+   tight  ratio 1 (0.999999 .. 1)  exact 0.960  running VWAP from 09:30   day stop  half 300
+   tight  ratio 1.00001 (0.999936 .. 1.00013)  exact 0.023  running VWAP from 09:30   PM's own t  half 240
+   tight  ratio 0.999952 (0.999779 .. 1.00007)  exact 0.007  running VWAP from 09:30   day stop  half 240
+   tight  ratio 1.00005 (0.999899 .. 1.00028)  exact 0.010  running VWAP from 09:30   PM's own t  half 300
+   tight  ratio 1.00007 (0.99985 .. 1.00039)  exact 0.000  running VWAP from 09:30   day stop  half 450
+   tight  ratio 1.00012 (0.999772 .. 1.00064)  exact 0.003  running VWAP from 09:30   PM's own t  half 450
+   tight  ratio 0.996507 (0.987381 .. 1.00973)  exact 0.003  trade price   PM's own t  half 450
+   tight  ratio 0.99631 (0.986943 .. 1.01016)  exact 0.000  trade price   day stop  half 450
+
+-- zzcb.r weight: share of stocks with PM's wgt exactly (1e-7), median ours / PM -- best 6 of 464 (clock, stop, half-life s)
+   0.010  median 1.000005  snap   day stop  half 30
+   0.010  median 1.000005  snap, new exchange stamp day stop  half 30
+   0.010  median 1.000005  snap from 09:30 day stop  half 30
+   0.007  median 1.236806  snap   PM's own t  half 30
+   0.007  median 1.236806  snap, new exchange stamp PM's own t  half 30
+   0.007  median 1.236806  snap from 09:30 PM's own t  half 30
+   value sum / wgt: share exact (1e-6); PM / ours median and q10 / q90 -- best 6 by exact share, then the 8 with the tightest PM / ours (a constant factor)
+   0.000  ratio 130.579 (53.9823 .. 381.814)  1 / price   PM's own t  half 40
+   0.000  ratio 130.536 (53.9649 .. 381.798)  1 / price   PM's own t  half 30
+   0.000  ratio 130.481 (53.9525 .. 381.793)  1 / price   PM's own t  half 20
+   0.000  ratio 130.509 (53.9495 .. 381.803)  1 / price   day stop  half 40
+   0.000  ratio 130.472 (53.9279 .. 381.794)  1 / price   day stop  half 30
+   0.000  ratio 130.451 (53.9137 .. 381.792)  1 / price   day stop  half 20
+   tight  ratio 130.579 (53.9823 .. 381.814)  exact 0.000  1 / price   PM's own t  half 40
+   tight  ratio 130.536 (53.9649 .. 381.798)  exact 0.000  1 / price   PM's own t  half 30
+   tight  ratio 130.481 (53.9525 .. 381.793)  exact 0.000  1 / price   PM's own t  half 20
+   tight  ratio 130.509 (53.9495 .. 381.803)  exact 0.000  1 / price   day stop  half 40
+   tight  ratio 130.472 (53.9279 .. 381.794)  exact 0.000  1 / price   day stop  half 30
+   tight  ratio 130.451 (53.9137 .. 381.792)  exact 0.000  1 / price   day stop  half 20
+   tight  ratio 17141.6 (6169.06 .. 50599.6)  exact 0.000  spread / mid   PM's own t  half 30
+   tight  ratio 11142.5 (3846.15 .. 32662.6)  exact 0.000  spread / mid   day stop  half 20
+
+-- zzeb.r weight: share of stocks with PM's wgt exactly (1e-7), median ours / PM -- best 6 of 464 (clock, stop, half-life s)
+   0.000  median 0.998959  snap from 09:30 PM's own t  half 90
+   0.000  median 0.998959  snap   PM's own t  half 90
+   0.000  median 0.998959  snap, new exchange stamp PM's own t  half 90
+   0.000  median 0.997190  trade 09:30-14:57 PM's own t  half 3
+   0.000  median 0.997190  trade 09:30-14:57 day stop  half 3
+   0.000  median 0.993176  snap, volume changed PM's own t  half 120
+   value sum / wgt: share exact (1e-6); PM / ours median and q10 / q90 -- best 6 by exact share, then the 8 with the tightest PM / ours (a constant factor)
+   0.000  ratio 0.13636 (0.131377 .. 0.194281)  price unchanged (0/1)   day stop  half 60
+   0.000  ratio 0.140145 (0.137613 .. 0.206314)  volume unchanged (0/1)   day stop  half 60
+   0.000  ratio 0.137238 (0.131592 .. 0.211328)  price unchanged (0/1)   PM's own t  half 60
+   0.000  ratio 0.141751 (0.138047 .. 0.230171)  volume unchanged (0/1)   PM's own t  half 60
+   0.000  ratio 0.168659 (0.137937 .. 0.236596)  mid unchanged (0/1)   day stop  half 60
+   0.000  ratio 0.151243 (0.140873 .. 0.242265)  price unchanged (0/1)   day stop  half 90
+   tight  ratio 0.13636 (0.131377 .. 0.194281)  exact 0.000  price unchanged (0/1)   day stop  half 60
+   tight  ratio 0.140145 (0.137613 .. 0.206314)  exact 0.000  volume unchanged (0/1)   day stop  half 60
+   tight  ratio 0.137238 (0.131592 .. 0.211328)  exact 0.000  price unchanged (0/1)   PM's own t  half 60
+   tight  ratio 0.141751 (0.138047 .. 0.230171)  exact 0.000  volume unchanged (0/1)   PM's own t  half 60
+   tight  ratio 0.168659 (0.137937 .. 0.236596)  exact 0.000  mid unchanged (0/1)   day stop  half 60
+   tight  ratio 0.151243 (0.140873 .. 0.242265)  exact 0.000  price unchanged (0/1)   day stop  half 90
+   tight  ratio 0.160972 (0.157881 .. 0.284552)  exact 0.000  volume unchanged (0/1)   day stop  half 90
+   tight  ratio 0.151702 (0.141014 .. 0.258727)  exact 0.000  price unchanged (0/1)   PM's own t  half 90
+
+-- zztx.r weight: share of stocks with PM's wgt exactly (1e-7), median ours / PM -- best 6 of 464 (clock, stop, half-life s)
+   0.000  median 0.972529  snap   PM's own t  half 1800
+   0.000  median 0.972529  snap, new exchange stamp PM's own t  half 1800
+   0.000  median 0.972141  snap from 09:30 PM's own t  half 1800
+   0.000  median 1.032876  trade  PM's own t  half 60
+   0.000  median 1.032876  trade from 09:30 PM's own t  half 60
+   0.000  median 1.038335  trade 09:30-14:57 PM's own t  half 60
+[done]
+[13:44:51] 20261120 dysl2
+== 20261120: 300 stocks, stop 54149.668 local (trading clock 14549.668)
+-- zzhj.p weight (dysl2):
+   0.000  median 1.000012  snap, volume changed PM's own t  half 30
+   0.000  median 1.000030  snap   PM's own t  half 30
+   0.000  median 1.000030  snap, new exchange stamp PM's own t  half 30
+   0.000  median 1.000030  snap from 09:30 PM's own t  half 30
+   0.000  median 0.851392  trade  PM's own t  half 1
+   0.000  median 0.851392  trade from 09:30 PM's own t  half 1
+   (1120 dysl2 value blocks for zzhj.p / zzui.r: same inputs and order as s224 with 4th-6th-digit differences, e.g. zzhj.p last 300 s half 40 0.0810909 (0.0737629 .. 0.0922131); amount per minute half 40 0.33228; amount since previous snapshot half 40 6.64559 (5.39161 .. 7.86432); zzui.r weight snap half 3 0.989465)
+1120 dysl2 compact (W / first two V per key):
+zzui.r     W 0.000  median 0.989465  snap   PM's own t  half 3
+zzui.r     V 0.000  ratio 0.999832 (0.997418 .. 1.00289)  snapshot price   PM's own t  half 4
+zzui.r     V 0.000  ratio 0.99988 (0.997406 .. 1.00313)  snapshot price   PM's own t  half 3
+zzvm.c.re  W 0.003  median 0.999836  trade  day stop  half 300
+zzvm.c.re  V 0.993  ratio 1 (1 .. 1)  running VWAP from 09:30   day stop  half 300
+zzvm.c.re  V 0.027  ratio 1.00001 (0.999924 .. 1.00012)  running VWAP from 09:30   PM's own t  half 240
+zzcb.r     W 0.003  median 1.000003  snap   day stop  half 30
+zzcb.r     V 0.000  ratio 130.579 (53.9823 .. 381.814)  1 / price   PM's own t  half 40
+zzcb.r     V 0.000  ratio 130.536 (53.9649 .. 381.798)  1 / price   PM's own t  half 30
+zzeb.r     W 0.000  median 1.001431  snap   PM's own t  half 90
+zzeb.r     V 0.000  ratio 0.13636 (0.131377 .. 0.194281)  price unchanged (0/1)   day stop  half 60
+zzeb.r     V 0.000  ratio 0.140145 (0.137613 .. 0.206314)  volume unchanged (0/1)   day stop  half 60
+zztx.r     W 0.000  median 1.002726  trade  PM's own t  half 60
+[done]
+[13:48:49] r201 done
+r201.txt md5 3dbec2019a6c.., 757 lines.
