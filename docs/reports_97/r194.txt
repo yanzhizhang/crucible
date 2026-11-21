@@ -1,0 +1,123 @@
+R194 so + eng on 97 (2026-11-21 10:31-10:37), crucible 6f8d044 (9 files gate OK: 5bfe8d8f cc0ccbed 0f6b233f b0b6e127 4d8f61b9 e0288551 5616cba8 a197b013 fd99fc84).
+data/reports/r194_so.txt md5 b79f07fd56e5.. 380 lines; data/reports/r194_eng.txt md5 38ed1d9d9ca9.. 50 lines. dec NOT run (overwrites s224_raw; held for the user's OK).
+
+==== eng
+engine: 20 stocks, 80000 events, 23 rules, 4 threads, 0.01s
+20 stocks, 58300 day-end values + 37600 mark values compared, 0 mismatches
+[10:35:29] == 20261118
+key,n,all,SZSE,all_1e4,SZSE_1e4,mre
+zzmh.r.t,300,0.6233333333333333,0.6696428571428571,1.0,1.0,5.586824127912171e-7
+zzmh.r,300,0.9833333333333333,0.9821428571428571,0.9833333333333333,0.9821428571428571,0.00009851883602690642
+zzmh.hm,300,1.0,1.0,1.0,1.0,0.0
+20261118: engine 300 stocks, PM 300 stocks
+zzmh.hm: 300 stocks, 0 differ at 1e-6
+zzmh.r: 300 stocks, 5 differ at 1e-6
+   {'ours > pm SZ': 2, 'ours < pm SH': 3}; relative gap median 2.98e-04, 90% 1.12e-03, max 1.34e-03
+   other engine keys equal to PM's value on those stocks: none
+[10:36:04] == 20261119
+key,n,all,SZSE,all_1e4,SZSE_1e4,mre
+zzmh.r.t,300,0.9266666666666666,0.8125,0.9966666666666667,1.0,3.3504283354213054e-7
+zzmh.r,300,0.9966666666666667,0.9910714285714286,0.9966666666666667,0.9910714285714286,0.00007760355215516494
+zzmh.hm,300,1.0,1.0,1.0,1.0,0.0
+20261119: engine 300 stocks, PM 300 stocks
+zzmh.hm: 300 stocks, 0 differ at 1e-6
+zzmh.r: 300 stocks, 1 differ at 1e-6
+   {'ours > pm SZ': 1}; relative gap median 1.31e-04, 90% 1.31e-04, max 1.31e-04
+   other engine keys equal to PM's value on those stocks: none
+[10:36:35] == 20261120
+key,n,all,SZSE,all_1e4,SZSE_1e4,mre
+zzmh.r,300,0.9833333333333333,0.9821428571428571,0.9833333333333333,0.9821428571428571,0.00009996160952340305
+zzmh.r.t,300,0.9866666666666667,0.9642857142857143,1.0,1.0,3.412398674979098e-7
+zzmh.hm,300,1.0,1.0,1.0,1.0,0.0
+20261120: engine 300 stocks, PM 300 stocks
+zzmh.hm: 300 stocks, 0 differ at 1e-6
+zzmh.r: 300 stocks, 5 differ at 1e-6
+   {'ours < pm SZ': 1, 'ours > pm SZ': 1, 'ours < pm SH': 3}; relative gap median 8.54e-04, 90% 1.42e-03, max 1.73e-03
+   other engine keys equal to PM's value on those stocks: none
+[10:37:01] r194 eng done
+
+==== so
+== 20261118: 3,063 SO lines; source lines that print them: {'es.cpp:399': 3063}; SO lines per snapshot block: {1: 2969, 2: 45, 4: 1}
+--  1433  evaluation lines 1 | decision lines 1 | nullptr values false | SO no. 1 of the block | same stock | lines in block <=6
+--   934  evaluation lines 1 | decision lines 1 | nullptr values true | SO no. 1 of the block | OTHER stock than the block's snapshot | lines in block <=6
+--   482  evaluation lines 1 | decision lines 0 | nullptr values none | SO no. 1 of the block | OTHER stock than the block's snapshot | lines in block <=6
+--    73  evaluation lines 0 | decision lines 0 | nullptr values none | SO no. 1 of the block | OTHER stock than the block's snapshot | lines in block <=6
+--    27  evaluation lines 1 | decision lines 1 | nullptr values false | SO no. 2 of the block | OTHER stock than the block's snapshot | lines in block <=20
+--    22  evaluation lines 1 | decision lines 1 | nullptr values true | SO no. 1 of the block | OTHER stock than the block's snapshot | lines in block <=20
+--    22  evaluation lines 1 | decision lines 0 | nullptr values none | SO no. 1 of the block | OTHER stock than the block's snapshot | lines in block <=20
+--    15  evaluation lines 1 | decision lines 1 | nullptr values false | SO no. 1 of the block | OTHER stock than the block's snapshot | lines in block <=6
+--    12  evaluation lines 2 | decision lines 2 | nullptr values true,false | SO no. 1 of the block | same stock | lines in block <=20
+--     7  evaluation lines 1 | decision lines 1 | nullptr values true | SO no. 2 of the block | OTHER stock than the block's snapshot | lines in block <=20
+--     7  evaluation lines 1 | decision lines 0 | nullptr values none | SO no. 2 of the block | OTHER stock than the block's snapshot | lines in block <=6
+--     7  evaluation lines 2 | decision lines 2 | nullptr values true,true | SO no. 1 of the block | OTHER stock than the block's snapshot | lines in block <=20
+== SO lines printed inside ANOTHER stock's block (1,615): the latest block of the order's own stock (age = SO field 2 - that block's srcEpoch)
+--   436  own block: decision lines 1 | nullptr true | SO lines in it 0 | age <10 s
+--   390  own block: decision lines 1 | nullptr true | SO lines in it 0 | age <3.5 s
+--   199  own block: decision lines 1 | nullptr false | SO lines in it 1 | age <3.5 s
+--   189  own block: decision lines 0 | nullptr none | SO lines in it 0 | age <10 s
+--   175  own block: decision lines 1 | nullptr false | SO lines in it 1 | age <10 s
+--   104  own block: decision lines 0 | nullptr none | SO lines in it 0 | age <3.5 s
+--    30  own block: decision lines 1 | nullptr false | SO lines in it 0 | age <1.5 s
+--    22  own block: decision lines 1 | nullptr false | SO lines in it 0 | age <0.5 s
+--    13  own block: decision lines 0 | nullptr none | SO lines in it 0 | age <1.5 s
+--     9  own block: decision lines 1 | nullptr true | SO lines in it 1 | age <3.5 s
+[done]
+[10:35:24] r194 so done
+
+Second table, class 436 (own block nullptr true, SO lines 0, age <10 s):
+  example 1:
+    [2026-11-18 09:30:00.639323564] [INFO] [catchRun.cpp:73] srcEpoch: 1794965400, recEpoch: 1794965400.6330981, sid: 600111, name: alpha.1
+    [2026-11-18 09:30:00.639332832] [INFO] [alg.cpp:169] sidIdx = 137, aIdx = 0, fa = -0.0028105785108696185, book->epoch = 1794965400.6330981, emsOurVol = 0, emsMktVol = 505300
+    [2026-11-18 09:30:00.639334345] [INFO] [alg.cpp:213] mp: 32.23, fa: -0.0028105785108696185, vpen: 1e-07, vr: 0.06974159282878273, poscst: 88100, cpos: 0, asq: 1000, hs: 0.002171889543903205
+    [2026-11-18 09:30:00.639334716] [INFO] [alg.cpp:257] aIdx = 0, sid = 600111, fa = -0.0028105785108696185, pos = 0, pp_ = 0, this->executp = -1000, asq = 1000, lthr = 0, hs = 0.002171889543903205, liid = 0, winsdQty = 891
+    [2026-11-18 09:30:00.639334806] [INFO] [alg.cpp:258] order is nullptr : true
+      ... then, inside another stock's block:
+    [2026-11-18 09:30:03.545519867] [INFO] [es.cpp:399] Po nowTs:20261118 09:30:03.545513SO,1794965403.540585,<ac>,92,9201,600111,32.30,700
+  example 2:
+    [2026-11-18 09:30:01.755607234] [INFO] [catchRun.cpp:73] srcEpoch: 1794965400, recEpoch: 1794965401.7483535, sid: 300316, name: alpha.1
+    [2026-11-18 09:30:01.755616080] [INFO] [alg.cpp:169] sidIdx = 87, aIdx = 0, fa = -0.0014313701700950005, book->epoch = 1794965401.7483535, emsOurVol = 0, emsMktVol = 50800
+    [2026-11-18 09:30:01.755616631] [INFO] [alg.cpp:213] mp: 30.055, fa: -0.0014313701700950005, vpen: 1e-07, vr: 0.2784421048762206, poscst: 11500, cpos: 0, asq: 300, hs: 0.0008318083513558003
+    [2026-11-18 09:30:01.755616962] [INFO] [alg.cpp:257] aIdx = 0, sid = 300316, fa = -0.0014313701700950005, pos = 0, pp_ = 0, this->executp = -300, asq = 300, lthr = 0, hs = 0.0008318083513558003, liid = 0, winsdQty = 8964
+    [2026-11-18 09:30:01.755617032] [INFO] [alg.cpp:258] order is nullptr : true
+      ... then, inside another stock's block:
+    [2026-11-18 09:30:04.380467851] [INFO] [es.cpp:399] Po nowTs:20261118 09:30:04.380460SO,1794965404.374893,<ac>,111,11101,300316,29.99,300
+
+Second table, class 390 (own block nullptr true, SO lines 0, age <3.5 s):
+  example 1:
+    [2026-11-18 09:30:00.183489658] [INFO] [catchRun.cpp:73] srcEpoch: 1794965400, recEpoch: 1794965400.1788483, sid: 600584, name: alpha.1
+    [2026-11-18 09:30:00.183499728] [INFO] [alg.cpp:169] sidIdx = 168, aIdx = 0, fa = -0.0011724426964117953, book->epoch = 1794965400.1788483, emsOurVol = 0, emsMktVol = 618100
+    [2026-11-18 09:30:00.183500228] [INFO] [alg.cpp:213] mp: 52.465, fa: -0.0011724426964117953, vpen: 1e-07, vr: 0.1039342891073258, poscst: 60700, cpos: 0, asq: 600, hs: 0.0006671114076050727
+    [2026-11-18 09:30:00.183501000] [INFO] [alg.cpp:257] aIdx = 0, sid = 600584, fa = -0.0011724426964117953, pos = 0, pp_ = 0, this->executp = -600, asq = 600, lthr = 0, hs = 0.0006671114076050727, liid = 0, winsdQty = 1090
+    [2026-11-18 09:30:00.183501130] [INFO] [alg.cpp:258] order is nullptr : true
+      ... then, inside another stock's block:
+    [2026-11-18 09:30:03.090982504] [INFO] [es.cpp:399] Po nowTs:20261118 09:30:03.090973SO,1794965403.088979,<ac>,76,7601,600584,52.54,600
+  example 2:
+    [2026-11-18 09:30:00.203638278] [INFO] [catchRun.cpp:73] srcEpoch: 1794965400, recEpoch: 1794965400.1989667, sid: 600893, name: alpha.1
+    [2026-11-18 09:30:00.203647285] [INFO] [alg.cpp:169] sidIdx = 184, aIdx = 0, fa = -0.0007811581487050081, book->epoch = 1794965400.1989667, emsOurVol = 0, emsMktVol = 315000
+    [2026-11-18 09:30:00.203649349] [INFO] [alg.cpp:213] mp: 34.975, fa: -0.0007811581487050081, vpen: 1e-07, vr: 0.15296879412123557, poscst: 31200, cpos: 0, asq: 500, hs: 0.0007147962830592875
+    [2026-11-18 09:30:00.203649749] [INFO] [alg.cpp:257] aIdx = 0, sid = 600893, fa = -0.0007811581487050081, pos = 0, pp_ = 0, this->executp = -106.43000096445145, asq = 500, lthr = 0, hs = 0.0007147962830592875, liid = 0,
+    [2026-11-18 09:30:00.203649850] [INFO] [alg.cpp:258] order is nullptr : true
+      ... then, inside another stock's block:
+    [2026-11-18 09:30:03.117902273] [INFO] [es.cpp:399] Po nowTs:20261118 09:30:03.117893SO,1794965403.115460,<ac>,77,7701,600893,35.10,500
+
+Second table, class 199 (own block nullptr false, SO lines in it 1, age <3.5 s):
+  example 1:
+    [2026-11-18 09:30:00.685243798] [INFO] [catchRun.cpp:73] srcEpoch: 1794965400, recEpoch: 1794965400.6728146, sid: 568, name: alpha.1
+    [2026-11-18 09:30:00.685251672] [INFO] [alg.cpp:169] sidIdx = 12, aIdx = 0, fa = 0.001182764799808791, book->epoch = 1794965400.6728146, emsOurVol = 0, emsMktVol = 74200
+    [2026-11-18 09:30:00.685251983] [INFO] [alg.cpp:213] mp: 81.305, fa: 0.001182764799808791, vpen: 1e-07, vr: 0.07668824762230292, poscst: 12100, cpos: 0, asq: 300, hs: 6.149683291313643e-05
+    [2026-11-18 09:30:00.685252534] [INFO] [alg.cpp:257] aIdx = 0, sid = 568, fa = 0.001182764799808791, pos = 0, pp_ = 0, this->executp = 300, asq = 300, lthr = 0, hs = 6.149683291313643e-05, liid = 0, winsdQty = 13094.1176
+    [2026-11-18 09:30:00.685252724] [INFO] [alg.cpp:258] order is nullptr : false
+    [2026-11-18 09:30:00.685265719] [INFO] [es.cpp:399] Po nowTs:20261118 09:30:00.685256SO,1794965400.672815,<ac>,10,1001,568,81.31,200
+    [2026-11-18 09:30:00.685267132] [INFO] [catchRun.cpp:209] place_order symbol = 000568.SZ, volume = 200, price = 81.31, side = buy
+      ... then, inside another stock's block:
+    [2026-11-18 09:30:03.185591197] [INFO] [es.cpp:399] Po nowTs:20261118 09:30:03.185578SO,1794965403.182500,<ac>,78,7801,568,81.31,100
+  example 2:
+    [2026-11-18 09:30:01.931535186] [INFO] [catchRun.cpp:73] srcEpoch: 1794965401, recEpoch: 1794965401.9264684, sid: 600547, name: alpha.1
+    [2026-11-18 09:30:01.931545055] [INFO] [alg.cpp:169] sidIdx = 165, aIdx = 0, fa = -0.004559578939036765, book->epoch = 1794965401.9264684, emsOurVol = 0, emsMktVol = 1552000
+    [2026-11-18 09:30:01.931545556] [INFO] [alg.cpp:213] mp: 23.9, fa: -0.004559578939036765, vpen: 1e-07, vr: 0.1516773859741184, poscst: 65700, cpos: 0, asq: 700, hs: 0.0016736401673640555
+    [2026-11-18 09:30:01.931546197] [INFO] [alg.cpp:257] aIdx = 0, sid = 600547, fa = -0.004559578939036765, pos = 0, pp_ = 0, this->executp = -700, asq = 700, lthr = 0, hs = 0.0016736401673640555, liid = 0, winsdQty = 27388
+    [2026-11-18 09:30:01.931546297] [INFO] [alg.cpp:258] order is nullptr : false
+    [2026-11-18 09:30:01.931557218] [INFO] [es.cpp:399] Po nowTs:20261118 09:30:01.931548SO,1794965401.926468,<ac>,45,4501,600547,23.86,100
+    [2026-11-18 09:30:01.931558109] [INFO] [catchRun.cpp:209] place_order symbol = 600547.SH, volume = 100, price = 23.86, side = sell
+      ... then, inside another stock's block:
+    [2026-11-18 09:30:04.330499716] [INFO] [es.cpp:399] Po nowTs:20261118 09:30:04.330483SO,1794965404.325530,<ac>,108,10801,600547,23.75,600
