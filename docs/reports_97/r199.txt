@@ -1,0 +1,140 @@
+R199 on 97 (2026-11-21, done 12:53:47), crucible dac7699 (r199.sh 0cc54214, key_profile.py ae56657b; gate OK).
+data/reports/r199.txt md5 f7c12a0a5f2e.., 373 lines. Transcribed from screen.
+
+######## leads per key (one entry per day: 1118 || 1119 || 1120)
+   zzbd.drSumS   rank corr +0.989 with engine zzeg.c.high; rank corr hi +0.988 || rank corr +0.987 with engine zzeg.c.high; rank corr hi +0.987 || rank corr +0.988 with engine zzeg.c.high; rank corr pc +0.988
+   zzbd.drSumT   no lead || no lead || no lead
+   zzcb.r        no lead || no lead || no lead
+   zzeb.r        no lead || no lead || no lead
+   zzgh.nb       rank corr buy_share +0.999 || rank corr buy_share +0.999 || rank corr buy_share +0.999
+   zzgh2.nb      rank corr +0.998 with engine zzgh.nb; rank corr buy_share +0.997 || rank corr +0.998 with engine zzgh.nb; rank corr buy_share +0.998 || rank corr +0.999 with engine zzgh.nb; rank corr buy_share +0.999
+   zzhj.p        rank corr amount +0.941 || rank corr amount +0.914 || rank corr amount +0.932
+   zzhj.r.wgt    equals engine zzbd.rEmaT on 0.51; always 0 || equals engine zzbd.rEmaT on 0.58; always 0 || equals engine zzbd.rEmaT on 0.48; always 0
+   zztx.r        no lead || no lead || no lead
+   zzui.er       no lead || no lead || no lead
+   zzui.k        rank corr +1.000 with engine zzxu.p; rank corr last +1.000 || rank corr +1.000 with engine zzbd.pEmaS; rank corr last +1.000 || rank corr +1.000 with engine zzxu.p; rank corr last +1.000
+   zzui.r        rank corr +1.000 with engine zzxu.p; rank corr last +1.000 || rank corr +1.000 with engine zzbd.pEmaS; rank corr last +1.000 || rank corr +1.000 with engine zzxu.p; rank corr last +1.000
+   zzvm.c.re     rank corr +1.000 with engine zzqj.r; rank corr last +1.000 || rank corr +1.000 with engine zzqj.r; rank corr lo +1.000 || rank corr +1.000 with engine zzqj.r; rank corr hi +1.000
+   zzxu.dir      equals engine zzvx.rEmaO on 0.82 || equals engine zzvx.rEmaO on 0.66 || equals engine zzvx.rEmaO on 0.35
+   zzxu.lower    rank corr +0.999 with engine zzxu.low; rank corr lo +0.999 || (same) || rank corr +0.999 with engine zzxu.low; rank corr lo +0.999
+   zzxu.upper    rank corr +0.999 with engine zzxu.high; rank corr hi +0.999 || rank corr +1.000 with engine zzxu.high; rank corr hi +1.000 || rank corr +0.999 with engine zzxu.high; rank corr hi +0.999
+[12:53:47] r199 done
+
+-- per key, 1120 blocks:
+######## 20261120 (previous file 20261119); 300 stocks; keys under ('zzcb', 'zzeb.r', 'zztx', 'zzhj', 'zzvm.c.re', 'zzui', 'zzbd.drSum', 'zzgh2.nb', 'zzgh.nb', 'zzxu.upper', 'zzxu.lower', 'zzxu.dir'): 16
+
+== zzbd.drSumS: plain value; on 300 stocks
+   value q1/10/50/90/99 9.0881 / 10.082 / 14.242 / 20.768 / 28.958; negative 0.000, zero 0.000, distinct 300; value / last price q 0.05805 / 0.21005 / 0.66487 / 1.8314 / 3.8002
+   vs day statistics (rank corr): pc +0.988; hi +0.988; lo +0.987; last +0.987; trade_size -0.917
+   vs engine keys (rank corr): zzeg.c.high +0.988; zzxu.high +0.988; zzvx.high +0.988; zzpk.high +0.988; zzmh.hm +0.988
+   vs the previous day's value: rank corr +0.997
+
+== zzbd.drSumT: plain value; on 300 stocks
+   value q1/10/50/90/99 17.822 / 23.315 / 34.119 / 50.059 / 76.799; negative 0.000, zero 0.000, distinct 300; value / last price q 0.12164 / 0.46154 / 1.4742 / 5.5084 / 15.715
+   vs day statistics (rank corr): amount +0.875; n_order +0.845; n_all +0.812; n_snap_vol +0.791; n_snap+trade +0.668
+   vs engine keys (rank corr): zzvm.c.tpv +0.874; zzqj.tpv +0.874; zzvx.trDEmaO +0.680; zzvx.trDEmaD +0.680; zzvx.trEmaO +0.679
+   vs the previous day's value: rank corr +0.938
+
+== zzcb.r: average (sum / wgt / t); on 300 stocks
+   wgt q1/10/50/90/99 1.3691 / 1.454 / 2.501 / 2.8082 / 2.8089; distinct values 278; half-life if fed every 3 s 4.073 s, every 1 s 1.358 s; sum q 0.75282 / 1.9367 / 11.233 / 111.12 / 698.92
+   wgt vs event counts (rank corr): n_cancel -0.718 (wgt / count q10/50/90 2.5648e-05 / 5.9376e-05 / 0.0001325); n_snap +0.623 (wgt / count q10/50/90 0.00030138 / 0.00050432 / 0.0005639); n_all -0.187 (wgt / count q10/50/90 4.5888e-06 / 1.2598e-05 / 3.1876e-05); n_snap_vol -0.157 (wgt / count q10/50/90 0.00032221 / 0.00056519 / ...
+   t q1/50/99 14491 / 14532 / 14549; at the latest stamp (14549.663) 0.003; whole seconds 0.000
+   value q1/10/50/90/99 0.50365 / 1.2937 / 4.8003 / 46.444 / 281.97; negative 0.000, zero 0.000, distinct 300; value / last price q 0.002075 / 0.014889 / 0.20041 / 8.0759 / 110.53
+   vs day statistics (rank corr): pc -0.860; hi -0.859; lo -0.857; last -0.855; trade_size +0.805
+   vs engine keys (rank corr): zzba.r -0.887; zzxu.a -0.887; zzvx.trDEmaO -0.882; zzvx.trDEmaD -0.882; zzvx.trEmaO -0.881
+   vs the previous day's value: rank corr +0.952; sum today vs sum yesterday +0.960; wgt today / wgt yesterday q10/50/90 0.9043 / 1.0322 / 1.0996
+
+== zzeb.r: average (sum / wgt / t); on 300 stocks
+   wgt q1/10/50/90/99 10.961 / 11.768 / 21.352 / 24.155 / 24.16; distinct values 296; half-life if fed every 3 s 43.35 s, every 1 s 14.45 s; sum q 1.7407 / 1.8294 / 2.6717 / 2.9359 / 2.9461
+   wgt vs event counts (rank corr): n_cancel -0.719 (wgt / count q10/50/90 0.00021029 / 0.00051112 / 0.0010528); n_snap +0.668 (wgt / count q10/50/90 0.0024554 / 0.0043314 / 0.0048501); n_all -0.142 (wgt / count q10/50/90 3.8736e-05 / 0.00010771 / 0.00027359); n_snap_vol -0.103 (wgt / count q10/50/90 0.0026717 / 0.004878 / 0.005...
+   t q1/50/99 14491 / 14532 / 14549; at the latest stamp (14549.663) 0.003; whole seconds 0.000
+   value q1/10/50/90/99 0.12154 / 0.12206 / 0.12536 / 0.15535 / 0.15889; negative 0.000, zero 0.000, distinct 300; value / last price q 0.00027291 / 0.0014572 / 0.0060626 / 0.024399 / 0.054458
+   vs day statistics (rank corr): n_snap -0.720; n_cancel +0.708; ret -0.327; trade_size -0.290; volume -0.233
+   vs engine keys (rank corr): zzbd.rEmaS -0.579; zzbd.rEmaT -0.543; zzmh.r +0.429; zzvx.rEmaO -0.344; zzvx.rEmaD -0.344
+   vs the previous day's value: rank corr +0.692; sum today vs sum yesterday +0.633; wgt today / wgt yesterday q10/50/90 0.87418 / 1.0357 / 1.1116
+
+== zzgh.nb: plain value; on 300 stocks
+   value q1/10/50/90/99 -0.1462 / -0.069523 / 0.045919 / 0.20171 / 0.33064; negative 0.307, zero 0.000, distinct 300; value / last price q -0.016201 / -0.0033766 / 0.0015703 / 0.021676 / 0.069498
+   vs day statistics (rank corr): buy_share +0.999; ret +0.652; trade_size +0.198; volume +0.180; pc -0.157
+   vs engine keys (rank corr): zzmh.r -0.445; zzvx.rEmaO +0.289; zzvx.rEmaD +0.289; zzba.r -0.188; zzxu.a -0.183
+   vs the previous day's value: rank corr +0.262
+
+== zzgh2.nb: plain value; on 300 stocks
+   value q1/10/50/90/99 -0.14307 / -0.069401 / 0.04581 / 0.20261 / 0.32944; negative 0.307, zero 0.000, distinct 300; value / last price q -0.016289 / -0.0034284 / 0.0015544 / 0.02101 / 0.069245
+   vs day statistics (rank corr): buy_share +0.999; ret +0.653; trade_size +0.196; volume +0.182; pc -0.153
+   vs engine keys (rank corr): zzgh.nb +0.999; zzmh.r -0.447; zzvx.rEmaO +0.290; zzvx.rEmaD +0.290; zzba.r -0.186
+   vs the previous day's value: rank corr +0.262
+
+== zzhj.p: average (sum / wgt / t); on 300 stocks
+   wgt q1/10/50/90/99 14.93 / 14.932 / 14.933 / 14.934 / 14.935; distinct values 195; half-life if fed every 3 s 30 s, every 1 s 10 s; sum q 1.1637e+07 / 2.4841e+07 / 6.2902e+07 / 2.9954e+08 / 8.6655e+08
+   wgt vs event counts (rank corr): n_snap -0.282 (wgt / count q10/50/90 0.0029979 / 0.0030336 / 0.0031086); n_snap+trade -0.179 (wgt / count q10/50/90 8.8483e-05 / 0.00022853 / 0.00046427); n_trade -0.178 (wgt / count q10/50/90 9.1174e-05 / 0.00024706 / 0.00054703); n_order -0.164 (wgt / count q10/50/90 6.4484e-05 / 0.00016583 ...
+   t q1/50/99 14190 / 14191 / 14193; at the latest stamp (14192.991) 0.003; whole seconds 0.003
+   value q1/10/50/90/99 7.7913e+05 / 1.6634e+06 / 4.2121e+06 / 2.0059e+07 / 5.803e+07; negative 0.000, zero 0.000, distinct 300; value / last price q 10221 / 51298 / 2.2107e+05 / 1.29e+06 / 3.799e+06
+   vs day statistics (rank corr): amount +0.932; n_all +0.837; n_order +0.836; n_snap_vol +0.827; n_snap+trade +0.819
+   vs engine keys (rank corr): zzvm.c.tpv +0.932; zzqj.tpv +0.932; zzvm.c.v +0.440; zzqj.v +0.440; zzvx.trDEmaO +0.353
+   vs the previous day's value: rank corr +0.944; sum today vs sum yesterday +0.944; wgt today / wgt yesterday q10/50/90 0.99992 / 1 / 1.0001
+
+== zzhj.r.wgt: plain value; on 300 stocks
+   value q1/10/50/90/99 0 / 0 / 0 / 0 / 0; negative 0.000, zero 1.000, distinct 1; value / last price q 0 / 0 / 0 / 0 / 0
+   vs day statistics (rank corr):
+   vs engine keys (rank corr):
+   engine keys EQUAL on a share of stocks: zzbd.rEmaT 0.480
+   vs the previous day's value: rank corr +nan
+
+== zztx.r: average (sum / wgt / t); on 300 stocks
+   wgt q1/10/50/90/99 205.15 / 441.2 / 880.91 / 2293.6 / 5372.6; distinct values 300; half-life if fed every 3 s 1831 s, every 1 s 610.3 s; sum q -1491 / -176.27 / -14.468 / 5.1701 / 90.288
+   wgt vs event counts (rank corr): n_snap+trade +0.886 (wgt / count q10/50/90 0.0092228 / 0.013885 / 0.019012); n_trade +0.886 (wgt / count q10/50/90 0.010058 / 0.015138 / 0.021752); n_snap_vol +0.868 (wgt / count q10/50/90 0.11715 / 0.20197 / 0.49387); n_all +0.848 (wgt / count q10/50/90 0.0036515 / 0.0055114 / 0.0082067)
+   t q1/50/99 14401 / 14403 / 14411; at the latest stamp (14410.909) 0.003; whole seconds 0.000
+   value q1/10/50/90/99 -0.74454 / -0.1258 / -0.016188 / 0.0055022 / 0.080624; negative 0.857, zero 0.000, distinct 300; value / last price q -0.0056583 / -0.0035318 / -0.0013402 / 0.0001278 / 0.00099364
+   vs day statistics (rank corr): amount -0.403; n_order -0.312; last -0.296; n_snap_vol -0.296; n_all -0.294
+   vs engine keys (rank corr): zzvm.c.tpv -0.403; zzqj.tpv -0.403; zzxu.last -0.296; zzxo.last -0.296; cdc.lp -0.296
+   vs the previous day's value: rank corr +0.313; sum today vs sum yesterday +0.404; wgt today / wgt yesterday q10/50/90 0.7723 / 1.1543 / 1.6472
+
+== zzui.er: plain value; on 300 stocks
+   value q1/10/50/90/99 0 / 0 / 0.12633 / 0.42857 / 1; negative 0.000, zero 0.157, distinct 137; value / last price q 0 / 0 / 0.0043457 / 0.028889 / 0.13011
+   vs day statistics (rank corr): hi +0.240; pc +0.239; lo +0.238; last +0.237; trade_size -0.198
+   vs engine keys (rank corr): zzvx.trEmaO +0.256; zzvx.trDEmaO +0.256; zzvx.trDEmaD +0.256; zzvx.trEmaD +0.256; zzxu.a +0.252
+   vs the previous day's value: rank corr +0.090
+
+== zzui.k: plain value; on 300 stocks
+   value q1/10/50/90/99 2.4664 / 5.1487 / 21.42 / 101.94 / 525.48; negative 0.000, zero 0.000, distinct 300; value / last price q 0.98307 / 0.99341 / 0.99967 / 1.0052 / 1.0074
+   vs day statistics (rank corr): last +1.000; lo +1.000; hi +1.000; pc +1.000; trade_size -0.931
+   vs engine keys (rank corr): zzxu.p +1.000; zzup.pf +1.000; zzpk.p +1.000; zzbd.pEmaS +1.000; zzab2.r +1.000
+   vs the previous day's value: rank corr +1.000
+
+== zzui.r: average (sum / wgt / t); on 300 stocks
+   wgt q1/10/50/90/99 1.9042 / 1.9069 / 2.0219 / 2.0835 / 2.0835; distinct values 201; half-life if fed every 3 s 3.047 s, every 1 s 1.016 s; sum q 4.7029 / 10.417 / 43.37 / 192.51 / 1003.7
+   wgt vs event counts (rank corr): n_cancel -0.182 (wgt / count q10/50/90 3.3403e-05 / 7.95e-05 / 0.00017013); n_snap +0.144 (wgt / count q10/50/90 0.00038335 / 0.00041492 / 0.00042134); n_snap+trade +0.052 (wgt / count q10/50/90 1.1975e-05 / 3.0972e-05 / 6.2205e-05); n_trade +0.052 (wgt / count q10/50/90 1.2345e-05 / 3.3457e-0...
+   t q1/50/99 14210 / 14212 / 14213; at the latest stamp (14214.174) 0.003; whole seconds 0.000
+   value q1/10/50/90/99 2.4663 / 5.1457 / 21.42 / 101.95 / 525.99; negative 0.000, zero 0.000, distinct 300; value / last price q 0.98303 / 0.99332 / 0.99964 / 1.0053 / 1.0075
+   vs day statistics (rank corr): last +1.000; lo +1.000; hi +1.000; pc +1.000; trade_size -0.931
+   vs engine keys (rank corr): zzxu.p +1.000; zzup.pf +1.000; zzpk.p +1.000; zzab2.r +1.000; zzba.p +1.000
+   vs the previous day's value: rank corr +1.000; sum today vs sum yesterday +0.999; wgt today / wgt yesterday q10/50/90 0.94315 / 0.99999 / 1.0603
+
+== zzvm.c.re: average (sum / wgt / t); on 300 stocks
+   wgt q1/10/50/90/99 616.64 / 1402 / 3280.8 / 8234.3 / 16762; distinct values 300; half-life if fed every 3 s 6821 s, every 1 s 2274 s; sum q 4362.3 / 13023 / 71704 / 4.6333e+05 / 2.3293e+06
+   wgt vs event counts (rank corr): n_trade +0.891 (wgt / count q10/50/90 0.036604 / 0.052049 / 0.075578); n_snap+trade +0.891 (wgt / count q10/50/90 0.03342 / 0.047962 / 0.071221); n_all +0.860 (wgt / count q10/50/90 0.01307 / 0.020062 / 0.029974); n_snap_vol +0.850 (wgt / count q10/50/90 0.37071 / 0.76876 / 1.7635)
+   t q1/50/99 14401 / 14403 / 14411; at the latest stamp (14410.909) 0.003; whole seconds 0.000
+   value q1/10/50/90/99 2.4589 / 5.1229 / 21.616 / 101.87 / 536.31; negative 0.000, zero 0.000, distinct 300; value / last price q 0.96791 / 0.98172 / 0.99454 / 1.0136 / 1.0295
+   vs day statistics (rank corr): hi +1.000; lo +1.000; last +1.000; pc +1.000; trade_size -0.932
+   vs engine keys (rank corr): zzqj.r +1.000; zzup.ps +1.000; zzxu.high +1.000; zzvx.high +1.000; zzpk.high +1.000
+   vs the previous day's value: rank corr +1.000; sum today vs sum yesterday +0.956; wgt today / wgt yesterday q10/50/90 0.64989 / 1.1315 / 1.6295
+
+== zzxu.dir: plain value; on 300 stocks
+   value q1/10/50/90/99 -1 / -1 / 1 / 1 / 1; negative 0.250, zero 0.000, distinct 2; value / last price q -0.20037 / -0.041832 / 0.031481 / 0.18116 / 0.33835
+   vs day statistics (rank corr): n_snap +0.515; ret +0.338; n_cancel -0.304; buy_share +0.240; trade_size +0.220
+   vs engine keys (rank corr): zzbd.rEmaS +0.354; zzvx.rEmaO +0.323; zzvx.rEmaD +0.323; zzmh.r -0.321; zzbd.rEmaT +0.315
+   engine keys EQUAL on a share of stocks: zzvx.rEmaO 0.347; zzvx.rEmaD 0.347
+   vs the previous day's value: rank corr +0.598
+
+== zzxu.lower: plain value; on 300 stocks
+   value q1/10/50/90/99 2.4025 / 5.0784 / 20.781 / 93.761 / 488.45; negative 0.000, zero 0.000, distinct 300; value / last price q 0.8223 / 0.88657 / 0.96145 / 0.98711 / 0.99555
+   vs day statistics (rank corr): lo +0.999; last +0.999; hi +0.998; pc +0.998; trade_size -0.931
+   vs engine keys (rank corr): zzxu.low +0.999; zzvx.low +0.999; zzpk.low +0.999; zzba.p +0.999; zzxu.p +0.999
+   vs the previous day's value: rank corr +0.998
+
+== zzxu.upper: plain value; on 300 stocks
+   value q1/10/50/90/99 2.6464 / 5.494 / 23.9 / 115.09 / 629.92; negative 0.000, zero 0.000, distinct 300; value / last price q 1.0181 / 1.0419 / 1.0751 / 1.1537 / 1.2374
+   vs day statistics (rank corr): hi +0.999; pc +0.999; lo +0.999; last +0.999; trade_size -0.931
+   vs engine keys (rank corr): zzxu.high +0.999; zzvx.high +0.999; zzpk.high +0.999; zzmh.hm +0.999; zzeg.c.span +0.999
+   vs the previous day's value: rank corr +0.999
