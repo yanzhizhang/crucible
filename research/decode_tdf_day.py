@@ -63,6 +63,8 @@ import pyarrow.parquet as pq
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 LEVELS = 10
+# 224's shm -> TDF files hold the level sizes divided by 10000 (0.83 = 8300 shares, R192); --level-vol-scale sets this for the workers
+LEVEL_VOL_SCALE = float(os.environ.get("TDF_LEVEL_VOL_SCALE", "1"))
 SSE, SZSE = 3553, 3554
 BUY, SELL = 1063, 1550
 STOCKS = re.compile(r"^(6[08]\d{4}\.SH|(00|30)\d{4}\.SZ)$")  # A-share stocks; 000xxx.SH are indices
@@ -268,7 +270,8 @@ def convert_quotes(df: pl.DataFrame, code: int, market: int, day: int) -> pl.Dat
             continue
         if isinstance(typ, pa.FixedSizeListType):
             inner = pl.Float64 if pa.types.is_floating(typ.value_type) else pl.Int64
-            parts = [(_flt(m[f"{name}{i}"], df) if inner is pl.Float64 else _int(m[f"{name}{i}"], df)).cast(inner)
+            scaled = inner is pl.Int64 and name in ("bid_vol", "ask_vol") and LEVEL_VOL_SCALE != 1.0
+            parts = [((_flt(m[f"{name}{i}"], df) * LEVEL_VOL_SCALE).round() if scaled else _flt(m[f"{name}{i}"], df) if inner is pl.Float64 else _int(m[f"{name}{i}"], df)).cast(inner)
                      if f"{name}{i}" in m else pl.lit(0, inner) for i in range(1, LEVELS + 1)]
             cols.append(pl.concat_list(parts).list.to_array(LEVELS).alias(name))
         elif name in m:
@@ -544,9 +547,14 @@ def main() -> None:
     ap.add_argument("--chunk", type=int, default=250, help="symbols per Parquet part")
     ap.add_argument("--overwrite", action=argparse.BooleanOptionalAction, default=True,
                     help="rewrite existing parts (default); --no-overwrite keeps them")
+    ap.add_argument("--level-vol-scale", type=float, default=None, help="multiply the snapshot level sizes by this and round (224's shm TDF: 10000)")
     ap.add_argument("--probe", action="store_true", help="print headers, mapping and three converted rows; write nothing")
     ap.add_argument("--quality-only", action="store_true", help="recompute the coverage table from existing parts")
     args = ap.parse_args()
+    if args.level_vol_scale is not None:
+        global LEVEL_VOL_SCALE
+        LEVEL_VOL_SCALE = args.level_vol_scale
+        os.environ["TDF_LEVEL_VOL_SCALE"] = str(args.level_vol_scale)
     kinds = tuple(k.strip() for k in args.kinds.split(",") if k.strip())
     dates = [d.strip() for d in args.date.split(",") if d.strip()]
     if args.quality_only:

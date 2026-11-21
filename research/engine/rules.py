@@ -143,15 +143,8 @@ def on_snap(st: Stock, t: float, s: float, lsod: float, price: float, b1: float,
         st.op = op
     if pc > 0:
         st.pc = pc
-    if 34200 <= s < 53820 and price > 0 and not (st.hm >= price):
+    if s >= 34200 and price > 0 and not (st.hm >= price):  # no end: the SH closing snapshot (stamped after 15:00:00) counts (R193)
         st.hm = price
-    if s >= 34200 and price > 0:
-        if not (st.hm_o >= price):
-            st.hm_o = price
-        if not (st.hm_ot >= price):
-            st.hm_ot = price
-    if 34200 <= s <= 54000 and price > 0 and not (st.hm_c >= price):
-        st.hm_c = price
     if 34200 <= s < 53820 and price > 0 and not (st.lm <= price):
         st.lm = price
     if price > 0:
@@ -205,8 +198,6 @@ def on_trade(st: Stock, t: float, s: float, price: float, vol: float, side: floa
         if st.open != st.open:
             st.open = price
         st.last = price
-        if s >= 34200 and not (st.hm_ot >= price):
-            st.hm_ot = price
         if 34200 <= s < 53820:
             st.c_high = price if not (st.c_high >= price) else st.c_high
             st.c_low = price if not (st.c_low <= price) else st.c_low

@@ -45,9 +45,11 @@ def main() -> None:
 
     cls, ex, files_seen = Counter(), {}, Counter()
     per_block = Counter()
+    own, own_ex = Counter(), {}
     n_so = 0
     for f in log_files(a.logs, a.date):
         block: list[str] = []
+        last_block: dict[str, tuple[list[str], dict]] = {}  # stock -> its latest finished snapshot block
         st = {"sid": None, "ev": 0, "dec": 0, "null": [], "so": 0, "other": Counter()}
         with open(f, encoding="utf-8", errors="replace") as fh:
             for line in (part for raw in fh for part in GLUE.split(raw) if part.strip()):
@@ -58,12 +60,14 @@ def main() -> None:
                     continue
                 where, rest = s.group(1), s.group(2)
                 fname = where.rsplit(":", 1)[0].rsplit("/", 1)[-1]
-                kv = dict(NUM.findall(rest))
+                kv = {k.replace("this->", "").replace("book->", "book_").rstrip("_"): v for k, v in NUM.findall(rest)}
                 if fname == "catchRun.cpp" and "srcEpoch" in kv:
                     if st["so"]:
                         per_block[st["so"]] += 1
+                    if st["sid"] is not None and block:
+                        last_block[str(int(float(st["sid"])))] = (block, st)
                     block = [line]
-                    st = {"sid": kv.get("sid"), "ev": 0, "dec": 0, "null": [], "so": 0, "other": Counter()}
+                    st = {"sid": kv.get("sid"), "ev": 0, "dec": 0, "null": [], "so": 0, "other": Counter(), "epoch": float(kv.get("srcEpoch", "nan"))}
                     continue
                 block.append(line)
                 if fname == "alg.cpp" and "vpen" in kv and "executp" not in kv:
@@ -87,6 +91,20 @@ def main() -> None:
                            f"nullptr values {','.join(st['null'][-2:]) or 'none'}", f"SO no. {min(st['so'], 3)} of the block", "same stock" if same else "OTHER stock than the block's snapshot",
                            f"lines in block {'<=6' if len(block) <= 6 else '<=20' if len(block) <= 20 else '>20'}")
                     cls[key] += 1
+                    if not same:  # the order's own stock: what did its latest block decide, and how long ago
+                        ob = last_block.get(so_sid.lstrip("0") or "0") or last_block.get(str(int(float(so_sid))) if so_sid.replace(".", "").isdigit() else "")
+                        if ob is None:
+                            k2 = ("no earlier block of the order's stock",)
+                        else:
+                            try:
+                                age = float(fld[1]) - ob[1]["epoch"]
+                            except (ValueError, IndexError):
+                                age = float("nan")
+                            k2 = (f"own block: decision lines {min(ob[1]['dec'], 2)}", f"nullptr {','.join(ob[1]['null'][-2:]) or 'none'}", f"SO lines in it {min(ob[1]['so'], 2)}",
+                                  "age " + ("<0.5 s" if age < 0.5 else "<1.5 s" if age < 1.5 else "<3.5 s" if age < 3.5 else "<10 s" if age < 10 else ">=10 s or unknown"))
+                        own[k2] += 1
+                        if ob is not None and len(own_ex.setdefault(k2, [])) < a.show:
+                            own_ex[k2].append([mask(b) for b in ob[0][-8:]] + ["      ... then, inside another stock's block:", mask(line)])
                     if len(ex.setdefault(key, [])) < a.show:
                         ex[key].append([mask(b) for b in block[-12:]])
                 else:
@@ -95,6 +113,13 @@ def main() -> None:
     for key, k in cls.most_common(12):
         print(f"-- {k:>5}  " + " | ".join(key))
         for i, lines in enumerate(ex[key]):
+            print(f"   example {i + 1}:")
+            for b in lines:
+                print("      " + b)
+    print(f"== SO lines printed inside ANOTHER stock's block ({sum(own.values()):,}): the latest block of the order's own stock (age = SO field 2 - that block's srcEpoch)")
+    for key, k in own.most_common(10):
+        print(f"-- {k:>5}  " + " | ".join(key))
+        for i, lines in enumerate(own_ex.get(key, [])):
             print(f"   example {i + 1}:")
             for b in lines:
                 print("      " + b)
