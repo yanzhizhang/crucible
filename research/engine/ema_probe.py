@@ -34,7 +34,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "pm_factors"))
 
 LN2 = math.log(2.0)
 HALVES = (1, 1.5, 2, 3, 4, 5, 6, 8, 10, 15, 20, 30, 40, 45, 60, 90, 120, 180, 240, 300, 450, 600, 900, 1200, 1800, 2700, 3600, 5400, 7200)
-VHALVES = {"zzhj.p": (20, 30, 40), "zzui.r": (2, 3, 4), "zzcb.r": (20, 30, 40), "zzeb.r": (60, 90, 120), "zzvm.c.re": (240, 300, 450)}  # value candidates only near R200's weights
+VHALVES = {"zzhj.p": (30,), "zzui.r": (3,), "zzcb.r": (30,), "zzeb.r": (90,), "zzvm.c.re": (300,)}  # value candidates only near R200's weights
+VCLOCK = "snap"  # --value-clock: the clock the snapshot-key inputs are averaged on
 KEYS = ("zzhj.p", "zzui.r", "zzvm.c.re", "zzcb.r", "zzeb.r", "zztx.r")
 
 
@@ -55,7 +56,10 @@ def main() -> None:
     ap.add_argument("--jz", type=Path, required=True)
     ap.add_argument("--catalog", type=Path, required=True)
     ap.add_argument("--keys", default=",".join(KEYS))
+    ap.add_argument("--value-clock", default="snap", help="snap | 'snap, exchange clock'")
     a = ap.parse_args()
+    global VCLOCK
+    VCLOCK = a.value_clock
     import dcp_ema as E
     import duckdb
     from stream import universe_from_state
@@ -83,7 +87,7 @@ def main() -> None:
         newx = np.concatenate([[True], np.diff(sf) > 0])  # the exchange stamp moved on
         newv = np.concatenate([[True], np.diff(cvv) != 0])  # the volume moved on
         ss0 = gs["s"].to_numpy().astype(float)
-        clocks = {"snap": tf, "snap, new exchange stamp": tf[newx], "snap, volume changed": tf[newv], "snap from 09:30": tf[sf >= 34200],
+        clocks = {"snap": tf, "snap, exchange clock": sx, "trade, exchange clock": gs["t_exch"].to_numpy().astype(float), "snap, new exchange stamp": tf[newx], "snap, volume changed": tf[newv], "snap from 09:30": tf[sf >= 34200],
                   "trade": ts, "trade from 09:30": ts[ss0 >= 34200], "trade 09:30-14:57": ts[(ss0 >= 34200) & (ss0 < 53820)],
                   "both": np.sort(np.concatenate([tf, ts]), kind="stable")}
         px = gf["price"].to_numpy().astype(float)
@@ -93,7 +97,7 @@ def main() -> None:
         ca = gf["ca"].to_numpy().astype(float)
         da = np.diff(ca, prepend=0.0)
         roll = {}
-        for n in (30, 60, 180, 300):
+        for n in (3, 6, 9, 12, 15, 18, 20, 21, 24, 27, 30, 45, 60, 180, 300):
             j = np.searchsorted(sf, sf - n, side="right") - 1
             roll[n] = ca - np.where(j >= 0, ca[np.maximum(j, 0)], 0.0)
         tp = gs["price"].to_numpy().astype(float)
@@ -103,16 +107,27 @@ def main() -> None:
         with np.errstate(divide="ignore", invalid="ignore"):
             vwap = np.where(cv > 0, cam / cv, np.nan)
         dv = np.diff(cvv, prepend=0.0)
+        slots = {}  # amount in the current / the last complete slot of the exchange clock from 09:30 (zzfb's 20 s, zzgh's 15 s grids)
+        for w in (15, 20, 30, 60):
+            k_ = np.floor((sf - 34200) / w)
+            start = 34200 + k_ * w
+            j0 = np.searchsorted(sf, start, side="left") - 1
+            ca_start = np.where(j0 >= 0, ca[np.maximum(j0, 0)], 0.0)
+            jp = np.searchsorted(sf, start - w, side="left") - 1
+            ca_prev = np.where(jp >= 0, ca[np.maximum(jp, 0)], 0.0)
+            slots[f"amount in the current {w} s slot"] = ca - ca_start
+            slots[f"amount in the last complete {w} s slot"] = ca_start - ca_prev
         dt = np.diff(sf, prepend=np.nan)
         bv, av = gf["bv1"].to_numpy().astype(float), gf["av1"].to_numpy().astype(float)
         with np.errstate(divide="ignore", invalid="ignore"):
             snapc = {"snapshot price": px, "mid": mid, "1 / price": 1.0 / px, "amount since previous snapshot": da, "volume since previous snapshot": dv,
                      "cumulative amount": ca, "cumulative volume": cvv, "amount per minute (da / dt x 60)": da / dt * 60, "snapshot VWAP (da / dv)": np.where(dv > 0, da / dv, np.nan),
-                     **{f"amount over last {n} s": v for n, v in roll.items()}, "bid1 size": bv, "ask1 size": av, "bid1 + ask1 size": bv + av,
-                     "top imbalance": (bv - av) / (bv + av), "spread in ticks": np.round((a1 - b1) / 0.01, 6), "spread / mid": (a1 - b1) / mid,
+                     **{f"amount over last {n} s": v for n, v in roll.items()}, **slots, "bid1 size": bv, "ask1 size": av, "bid1 + ask1 size": bv + av,
+                     "top imbalance": (bv - av) / (bv + av), "spread in ticks": np.round((a1 - b1) / 0.01, 6), "spread / mid": (a1 - b1) / mid, "tick / price": 0.01 / px, "1 / price^2": 1.0 / px ** 2,
+                     "volume since previous / price": dv / px, "bid1 + ask1 size / price": (bv + av) / px, "amount since previous / price^2": da / px ** 2,
                      "volume unchanged (0/1)": (dv == 0).astype(float), "price unchanged (0/1)": np.concatenate([[0.0], (np.diff(px) == 0).astype(float)]),
                      "mid unchanged (0/1)": np.concatenate([[0.0], (np.diff(mid) == 0).astype(float)])}
-        inputs = {"zzhj.p": ("snap", snapc), "zzui.r": ("snap", snapc), "zzcb.r": ("snap", snapc), "zzeb.r": ("snap", snapc),
+        inputs = {"zzhj.p": (VCLOCK, snapc), "zzui.r": (VCLOCK, snapc), "zzcb.r": (VCLOCK, snapc), "zzeb.r": (VCLOCK, snapc),
                   "zzvm.c.re": ("trade", {"trade price": tp, "running VWAP from 09:30": vwap})}
         kv = pm.get(sid, {})
         for k in keys:
