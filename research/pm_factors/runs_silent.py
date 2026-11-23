@@ -148,6 +148,7 @@ def main() -> None:
                                       "snapshot run (previous alpha, state before the order; pending = logged)", "snapshot run (previous alpha, state before the order; pending = 0)")}
     flag, which = Counter(), Counter()
     mism: list[str] = []
+    qo = Counter()
     why_no = Counter()
     for i, s in enumerate(sorted(range(len(sos)), key=lambda k: sos[k]["e"])):
         o = sos[s]
@@ -192,7 +193,10 @@ def main() -> None:
                 ep = blk["executp"] if own and blk.get("dec") else gtp(mid, fa, blk["vpen"], blk["vr"], blk["poscst"], cur_, asq_, hs)
             else:  # the snapshot-driven run just before the logged one: the previous alpha (0 when older than adur), the state before this order
                 fa = fa_prev if fa_prev is not None and prev_age < ADUR else 0.0
-                cur_, asq_, wq_ = cur - sq, asq + (o["qty"] if sign < 0 else 0.0), wq0 + o["qty"] / 0.85
+                if own:  # the block was logged after this order: take the order back out of its state
+                    cur_, asq_, wq_ = cur - sq, asq + (o["qty"] if sign < 0 else 0.0), wq0 + o["qty"] / 0.85
+                else:  # an older block never held this order (R198)
+                    cur_, asq_, wq_ = cur, asq, wq0
                 base = (blk.get("pp") or 0.0) if own else pend  # the pending leg the snapshot run saw: the logged pp_ less this order, as logged, or none
                 pp_ = base - sq if hsk.endswith("pending = logged - order)") else base if hsk.endswith("pending = logged)") else 0.0
                 ep = gtp(mid, fa, blk["vpen"], blk["vr"], blk["poscst"], cur_, asq_, hs)
@@ -221,7 +225,12 @@ def main() -> None:
         which[("alpha run exact" if outcome[ka][4] else "snapshot run exact" if good else "neither", "flagged" if blk.get("order") else "not flagged")] += 1
         if not side:
             why_no[f"{'own' if own else 'silent'}: {why}"] += 1
-        if not good and len(mism) < a.show:
+        qty_only = bool(side) and abs(px - o["px"]) < 1e-6 and not good
+        if qty_only:
+            qo[(("last 60 s" if (e + 28800) % 86400 >= 53880 else "after 14:30" if (e + 28800) % 86400 >= 52200 else "earlier"), why,
+                "SO > replay" if o["qty"] > q else "SO < replay", "SO == level-1 size" if abs(o["qty"] - (b["av1"] if sign > 0 else b["bv1"])) < 1e-6 else
+                "SO == |cur|" if abs(o["qty"] - abs(cur)) < 1e-6 else "SO == asq" if abs(o["qty"] - asq) < 1e-6 else "other")] += 1
+        if not good and (qty_only or not own) and len(mism) < a.show:
             sb = outcome[ka]
             mism.append(f"   {sid:06d} SO {o['side']} {o['qty']:.0f} @ {o['px']} | replay {side or 'none'} {q:.0f} @ {px} ({why}) | block age {age:.3f} s flagged {blk.get('order')} fa {blk['fa']:.5g} -> ep {sb[6]:.1f} ({sb[3]})"
                         f" | previous signal fa {fa_prev if fa_prev is None else round(fa_prev, 7)} ({prev_age:.2f} s old) -> ep {ep:.1f}, state before: cur {cur - sq:.0f} | next signal after {sig_dt * 1e3:.1f} ms | hs {blk['hs']:.5g} lthr {blk.get('lthr') or 0:.4g}"
@@ -236,7 +245,10 @@ def main() -> None:
             n = c[(k, "n")]
             print(f"   {k:<30} {n:>6,} | " + " | ".join(f"{c[(k, m)] / n:.4f}" for m in ("order", "side", "px", "qty", "all3")))
     print(f"-- no replay / no order, by reason (alpha run if exact, else snapshot run): {dict(why_no.most_common(12))}")
-    print(f"   first {len(mism)} mismatches of the combined replay:")
+    print(f"-- right side and price, other quantity ({sum(qo.values())}): (when, what set the replay's quantity, direction, what the SO quantity equals) -> count")
+    for k, v in qo.most_common(12):
+        print(f"   {v:>4}  " + " | ".join(k))
+    print(f"   first {len(mism)} mismatches of the combined replay (quantity-only and no-block rows):")
     print("\n".join(mism))
     print("[done]")
 
