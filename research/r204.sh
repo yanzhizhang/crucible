@@ -25,7 +25,7 @@ for D in ${DAYS:-20261118 20261119 20261120}; do
 import polars as pl
 a = pl.read_csv("data/reports/r194/verify_$D.csv").select("key", pl.col("all").alias("r194"))
 b = pl.read_csv("$O/verify_$D.csv").select("key", pl.col("all").alias("r204"))
-j = a.join(b, on="key", how="full", coalesce=True).filter((pl.col("r194") - pl.col("r204")).abs() > 1e-9 | pl.col("r194").is_null() | pl.col("r204").is_null())
+j = a.join(b, on="key", how="full", coalesce=True).filter(((pl.col("r194") - pl.col("r204")).abs() > 1e-9) | pl.col("r194").is_null() | pl.col("r204").is_null())
 print("   keys whose share moved against R194 (new keys show r194 null):", j.sort("key").rows())
 PY
   fi
