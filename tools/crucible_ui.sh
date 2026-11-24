@@ -14,6 +14,11 @@ PY=/work/crucible/venv/bin/python
 UNITS=(crucible-overview crucible-duckdb-ui)
 UDIR="$HOME/.config/systemd/user"
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+# WSL-only (the repo on /mnt/c, systemd user services); on 97 there is no user bus: rebuild the catalog with research/catalog.py
+if [ ! -d "$REPO" ] || ! systemctl --user show-environment >/dev/null 2>&1; then
+  echo "crucible_ui.sh runs in this machine's WSL only (needs $REPO and a systemd user bus). Elsewhere, e.g. 97: python research/catalog.py"
+  exit 2
+fi
 
 write_units() {
   mkdir -p "$UDIR"

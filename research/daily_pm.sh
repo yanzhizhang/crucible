@@ -14,18 +14,12 @@ O=data/reports/daily; mkdir -p $O
 which python >/dev/null || { echo "no python: activate the crucible conda env"; exit 1; }
 say() { echo "[$(date +%T)] $*"; }
 
-say "1 logs: 224 /tmp/zyq/sht-logs -> $DATA/chrono_logs"
-rsync -a $H:/tmp/zyq/sht-logs/ $DATA/chrono_logs/ > $O/${D}_rsync.txt 2>&1 || say "  rsync logs FAILED: $(tail -1 $O/${D}_rsync.txt)"
-ls $DATA/chrono_logs | grep -c "^${D:0:4}-${D:4:2}-${D:6:2}_" | xargs echo "  log files for $D:"
-
-say "2 position log + base positions: 224 /tmp/o/executor/$D"
-mkdir -p $DATA/chrono_poslog/$D
-rsync -a $H:/tmp/o/executor/$D/position_log/ $DATA/chrono_poslog/$D/position_log/ >> $O/${D}_rsync.txt 2>&1 || say "  no position log for $D"
-rsync -a "$H:/tmp/o/executor/$D/base_position_*.csv" $DATA/chrono_poslog/$D/ >> $O/${D}_rsync.txt 2>&1 || say "  no base positions for $D"
-find $DATA/chrono_poslog/$D -type f | wc -l | xargs echo "  files:"
+say "1-2 pull (daily_pull.sh): chrono logs -> $DATA/pm_224/$D/chrono_logs, position log, base positions"
+bash research/daily_pull.sh $D | sed 's/^/  /'
+L=$DATA/pm_224/$D/chrono_logs; ls $L/*_${D}_*.log >/dev/null 2>&1 || L=$DATA/chrono_logs  # days before the layout change: the old tee'd logs
 
 say "3 pm_signals"
-python -u research/pm_factors/pm_signals.py --logs $DATA/chrono_logs --dates $D --out $DATA/pm_signals > $O/${D}_signals.txt 2>&1 \
+python -u research/pm_factors/pm_signals.py --logs $L --dates $D --out $DATA/pm_signals > $O/${D}_signals.txt 2>&1 \
   || say "  pm_signals FAILED: $(tail -1 $O/${D}_signals.txt)"
 grep -E "signals,|factor lines|order match|factor program|->" $O/${D}_signals.txt | sed 's/^/  /'
 
@@ -45,9 +39,9 @@ python -u research/pm_factors/pm_poslog.py --dates $D > $O/${D}_poslog.txt 2>&1 
 grep -E "^==|per stock" $O/${D}_decisions.txt | cut -c1-200 | sed 's/^/  /'
 grep -E "^==|decisions with|pos ==|executp ==|prediction vs" $O/${D}_poslog.txt | cut -c1-230 | sed 's/^/  /'
 say "6 orders: does runS send now (base position pushed from 1110)"
-for f in $DATA/chrono_logs/${D:0:4}-${D:4:2}-${D:6:2}_*; do
+for f in $L/*_${D}_*.log $L/${D:0:4}-${D:4:2}-${D:6:2}_*; do
   [ -f "$f" ] || continue
   echo "  $(basename $f): nullptr $(grep -c 'order is nullptr' $f), ORD $(grep -c 'trk ORD' $f), SEND $(grep -c 'trk SEND' $f), REJ $(grep -c 'trk REJ' $f), TRD $(grep -c 'trk TRD' $f)"
 done
-cat $DATA/chrono_logs/${D:0:4}-${D:4:2}-${D:6:2}_* 2>/dev/null | grep 'trk REJ' | grep -o 'reason=[^ ]*' | sort | uniq -c | sort -rn | head -5 | sed 's/^/  REJ /'
+cat $L/*_${D}_*.log $L/${D:0:4}-${D:4:2}-${D:6:2}_* 2>/dev/null | grep 'trk REJ' | grep -o 'reason=[^ ]*' | sort | uniq -c | sort -rn | head -5 | sed 's/^/  REJ /'
 say "done $D"
