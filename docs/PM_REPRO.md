@@ -96,6 +96,8 @@ whose inputs exist, then bring back one tarball of reports and logs (no PM data 
 ```
 git clone -b feat/pm-repro https://github.com/yanzhizhang/crucible.git && cd crucible
 conda env create -f environment.yml && conda activate crucible
+pip install --no-build-isolation --no-deps --no-index -e .
+pip install --no-build-isolation --no-deps --no-index ./kernels
 python research/intranet_run.py --preflight-only
 python research/intranet_run.py --feitu-root '<dump dir with {date}>'   # omit if raw is decoded
 # bring back: data/intranet_run/<timestamp>.tar.gz
