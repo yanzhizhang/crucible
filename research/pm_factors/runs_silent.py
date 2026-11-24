@@ -150,6 +150,7 @@ def main() -> None:
     mism: list[str] = []
     qo = Counter()
     why_no = Counter()
+    sil, sil_hh, cross = Counter(), Counter(), Counter()  # R206: no-block rows under 12 input choices; own rows whose replay crosses zero
     for i, s in enumerate(sorted(range(len(sos)), key=lambda k: sos[k]["e"])):
         o = sos[s]
         sid, e = o["sid"], o["e"]
@@ -184,6 +185,7 @@ def main() -> None:
         if own:
             flag[("flagged" if blk.get("order") else "not flagged" if blk.get("dec") else "no decision line", "signal after" if fa_sig is not None else "no signal after")] += 1
         outcome = {}
+        state = {}
         sq = sign * o["qty"]
         wq0 = blk.get("wq") if blk.get("wq") == blk.get("wq") and blk.get("wq") is not None else 1e12
         for hsk in res:
@@ -203,6 +205,7 @@ def main() -> None:
             r = {"sid": sid, "fa": fa, "pp": pp_, "hs": hs, "lthr": blk.get("lthr") or 0.0, "ev_cpos": cur_, "executp": ep,
                  "winsdQty": wq_, "asq": asq_, "a1": b["a1"], "av1": b["av1"], "b1": b["b1"], "bv1": b["bv1"]}
             side, px, q, why = cord(r)
+            state[hsk] = cur_
             good = bool(side) and (o["side"] is None or side == o["side"]) and abs(px - o["px"]) < 1e-6 and abs(q - o["qty"]) < 1e-6
             outcome[hsk] = (side, px, q, why, good, fa, ep)
         ka = "alpha run (block as logged)"
@@ -222,6 +225,30 @@ def main() -> None:
                 c[(key, "qty")] += bool(side) and abs(q - o["qty"]) < 1e-6
                 c[(key, "all3")] += good
         side, px, q, why, good, fa, ep = outcome["alpha run if exact, else snapshot run"]
+        sod = (e + 28800) % 86400
+        if not own:  # R206: which alpha / spread / threshold reproduces an order whose snapshot has no logged block
+            sil_hh[f"{int(sod // 3600):02d}h"] += 1
+            hs_new = (b["a1"] - b["b1"]) / 2 / mid
+            for fn, fv in (("old block's alpha", blk["fa"]), ("signal before", fa_prev), ("signal after", fa_sig)):
+                for hn, hv in (("old spread", blk["hs"]), ("new spread", hs_new)):
+                    for tn, tv in (("threshold", blk.get("lthr") or 0.0), ("no threshold", -1.0)):
+                        sil[(fn, hn, tn, "n")] += 1
+                        if fv is None:
+                            continue
+                        r2 = {"sid": sid, "fa": fv, "pp": pend, "hs": hv, "lthr": tv, "ev_cpos": cur, "executp": gtp(mid, fv, blk["vpen"], blk["vr"], blk["poscst"], cur, asq, hv),
+                              "winsdQty": wq0, "asq": asq, "a1": b["a1"], "av1": b["av1"], "b1": b["b1"], "bv1": b["bv1"]}
+                        s2, p2, q2, _ = cord(r2)
+                        sil[(fn, hn, tn, "order")] += bool(s2)
+                        sil[(fn, hn, tn, "sidepx")] += bool(s2) and abs(p2 - o["px"]) < 1e-6
+                        sil[(fn, hn, tn, "all3")] += bool(s2) and abs(p2 - o["px"]) < 1e-6 and abs(q2 - o["qty"]) < 1e-6
+        elif side and abs(px - o["px"]) < 1e-6:  # R206: own rows where the replay's order would take the position through zero
+            c0 = state["alpha run (block as logged)" if outcome[ka][4] else next(k for k in res if k.endswith("pending = logged)"))]
+            sgn = 1.0 if side == "buy" else -1.0
+            if c0 * sgn < 0 and q > abs(c0) + 1e-6:
+                tb = f"{int(sod // 3600):02d}:{int(sod % 3600 // 600) * 10:02d}"
+                cross[(tb, "n")] += 1
+                cross[(tb, "SO == replay")] += abs(q - o["qty"]) < 1e-6
+                cross[(tb, "SO == |cur|")] += abs(o["qty"] - abs(c0)) < 1e-6
         which[("alpha run exact" if outcome[ka][4] else "snapshot run exact" if good else "neither", "flagged" if blk.get("order") else "not flagged")] += 1
         if not side:
             why_no[f"{'own' if own else 'silent'}: {why}"] += 1
@@ -248,6 +275,14 @@ def main() -> None:
     print(f"-- right side and price, other quantity ({sum(qo.values())}): (when, what set the replay's quantity, direction, what the SO quantity equals) -> count")
     for k, v in qo.most_common(12):
         print(f"   {v:>4}  " + " | ".join(k))
+    print(f"-- R206 orders with no logged block at their snapshot ({sum(sil_hh.values())}), by hour: {dict(sorted(sil_hh.items()))}")
+    print("   replay on the old block's position with: alpha | spread | threshold -> has an order | side and price | all three")
+    for key in sorted({k[:3] for k in sil}, key=lambda k: -sil[(*k, "all3")]):
+        n = max(sil[(*key, "n")], 1)
+        print(f"   {' | '.join(key):<52} " + " | ".join(f"{sil[(*key, m)] / n:.4f}" for m in ("order", "sidepx", "all3")))
+    print("-- R206 own-block orders whose replay goes through zero (replay quantity > |position|, opposite sign), per 10 minutes: n | SO == replay | SO == |position|")
+    for tb in sorted({k[0] for k in cross}):
+        print(f"   {tb}  {cross[(tb, 'n')]:>5} | {cross[(tb, 'SO == replay')]:>5} | {cross[(tb, 'SO == |cur|')]:>5}")
     print(f"   first {len(mism)} mismatches of the combined replay (quantity-only and no-block rows):")
     print("\n".join(mism))
     print("[done]")
