@@ -199,26 +199,28 @@ def compare(out: Path, ref: Path, date: str, kinds: tuple[str, ...]) -> None:
         if not list(b.glob("part-*.parquet")):
             print(f"== {kind}: no {b}")
             continue
-        A = pl.scan_parquet(str(a / "part-*.parquet"))
-        B = pl.scan_parquet(str(b / "part-*.parquet"))
-        if kind == "quotation":  # vendor feeds repeat or skip snapshots: compare the last row per (symbol, time)
-            A, B = (x.unique(keys[kind], keep="last") for x in (A, B))
-        j = A.join(B, on=keys[kind], how="full", suffix="_r", coalesce=True)
         cols = [c for c in pl.scan_parquet(str(a / "part-*.parquet")).collect_schema().names()
                 if c not in keys[kind] and c not in ("shm_key", "nano_ts", "server_ts", "spider_ts")]
-        agg = [pl.len().alias("rows"), pl.col(f"{cols[0]}").is_null().sum().alias("only_ref"),
-               pl.col(f"{cols[0]}_r").is_null().sum().alias("only_ta")]
-        both = pl.col(cols[0]).is_not_null() & pl.col(f"{cols[0]}_r").is_not_null()
-        agg += [(both & (pl.col(c) != pl.col(f"{c}_r"))).sum().alias(c) for c in cols]  # level arrays compare whole rows
-        r = j.select(agg).collect()
-        d = r.row(0, named=True)
-        print(f"== {kind} {date}: joined rows {d['rows']:,}, only in reference {d['only_ref']:,}, only in tickaudit {d['only_ta']:,}")
-        print("   fields that differ on matched rows:", {k: x for k, x in d.items() if k not in ("rows", "only_ref", "only_ta") and x})
-        if "price" in cols:
-            e = j.filter(both & (pl.col("price") != pl.col("price_r"))).select(
-                (pl.col("price") - pl.col("price_r")).abs().max().alias("max_abs"),
-                ((pl.col("price") - pl.col("price_r")).abs() < 1e-9).mean().alias("frac_last_bit")).collect()
-            print("   price differences:", e.row(0, named=True))
+        for market in (SSE, SZSE):  # one exchange at a time, streaming, so a day's full join never sits in memory at once
+            A = pl.scan_parquet(str(a / "part-*.parquet")).filter(pl.col("market_id") == market)
+            B = pl.scan_parquet(str(b / "part-*.parquet")).filter(pl.col("market_id") == market).select(keys[kind] + cols)
+            if kind == "quotation":  # vendor feeds repeat or skip snapshots: compare the last row per (symbol, time)
+                A, B = (x.unique(keys[kind], keep="last") for x in (A, B))
+            j = A.select(keys[kind] + cols).join(B, on=keys[kind], how="full", suffix="_r", coalesce=True)
+            both = pl.col(cols[0]).is_not_null() & pl.col(f"{cols[0]}_r").is_not_null()
+            agg = [pl.len().alias("rows"), pl.col(cols[0]).is_null().sum().alias("only_ref"),
+                   pl.col(f"{cols[0]}_r").is_null().sum().alias("only_ta")]
+            agg += [(both & (pl.col(c) != pl.col(f"{c}_r"))).sum().alias(c) for c in cols]  # level arrays compare whole rows
+            if "price" in cols:
+                dp = pl.when(both & (pl.col("price") != pl.col("price_r"))).then((pl.col("price") - pl.col("price_r")).abs())
+                agg += [dp.max().alias("_px_max_abs"), (dp < 1e-9).sum().alias("_px_last_bit")]
+            d = j.select(agg).collect(engine="streaming").row(0, named=True)
+            tag = "SH" if market == SSE else "SZ"
+            print(f"== {kind} {tag} {date}: joined rows {d['rows']:,}, only in reference {d['only_ref']:,}, only in tickaudit {d['only_ta']:,}")
+            print("   fields that differ on matched rows:",
+                  {k: x for k, x in d.items() if k not in ("rows", "only_ref", "only_ta") and not k.startswith("_") and x})
+            if "price" in cols and d.get("price"):
+                print(f"   price differences: max_abs {d['_px_max_abs']}, last-bit only (<1e-9) {d['_px_last_bit']:,} of {d['price']:,}")
 
 
 def main() -> None:
@@ -228,7 +230,7 @@ def main() -> None:
     ap.add_argument("--lake", type=Path, default=LAKE)
     ap.add_argument("--out", type=Path, help="default $DATA/ta_<source>_raw")
     ap.add_argument("--kinds", default="order,transaction,quotation,index")
-    ap.add_argument("--workers", type=int, default=8)
+    ap.add_argument("--workers", type=int, default=2, help="tables converted at once; each holds a whole table in memory")
     ap.add_argument("--compare", help="a raw tree under $DATA (e.g. dysl2_raw) to check field by field afterwards")
     ap.add_argument("--compare-only", action="store_true")
     a = ap.parse_args()
