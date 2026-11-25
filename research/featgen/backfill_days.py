@@ -60,7 +60,7 @@ def main() -> None:
     """CLI entry point."""
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--dates", required=True)
-    ap.add_argument("--state-dir", default="/data/prod/h/HS300/p1_intrading_dcp,/work/crucible_data/seed_probe/HS300",
+    ap.add_argument("--state-dir", default="/work/crucible_data/seed_probe/HS300",
                     help="comma list of dirs of PM's day-end state files (.jz); a day takes the first dir that has its file")
     ap.add_argument("--dysl2-from", default="20261104", help="first day read from DataYes (dysl2); earlier days from feitu")
     ap.add_argument("--prefer-feitu", action="store_true",

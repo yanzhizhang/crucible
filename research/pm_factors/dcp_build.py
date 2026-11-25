@@ -45,7 +45,7 @@ import polars as pl
 warnings.filterwarnings("ignore", message="Sortedness of columns")
 _SRC = os.environ.get("CRUCIBLE_SOURCE", "feitu")  # market-data source, as in research/catalog.py
 CATALOG = Path("/work/crucible_data") / ("catalog.duckdb" if _SRC == "feitu" else f"catalog_{_SRC}.duckdb")
-DCP = Path("/data/prod/h/HS300/p1_intrading_dcp")
+DCP = Path("/work/crucible_data/seed_probe/HS300")  # PM .jz copies on 97 (/data/prod is gone)
 SOD = "((time / 1e9 + 28800) % 86400)"
 LSOD = "((spider_ts / 1e9 + 28800) % 86400)"
 CLOCK_TOL = 0.01  # seconds; PM's receive clock differs from ours by a few ms

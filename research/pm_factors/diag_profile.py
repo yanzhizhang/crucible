@@ -28,7 +28,7 @@ from pathlib import Path
 import numpy as np
 import polars as pl
 
-DCP = Path("/data/prod/h/HS300/p1_intrading_dcp")
+DCP = Path("/work/crucible_data/seed_probe/HS300")  # PM .jz copies on 97 (/data/prod is gone)
 HIST = re.compile(r"^(.+)\.c\.(-?\d+)$")
 NMIN = 237
 

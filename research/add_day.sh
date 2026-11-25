@@ -8,6 +8,7 @@
 #   4 R17 / R27 both (the baseline) / R24 / R24 gated scored on D
 #   5 our engine's day-end state against PM's D.jz (dcp_build), per exchange
 #   bash research/add_day.sh 20261111 2>&1 | tee data/reports/add_20261111.txt
+#   FROM=4 bash research/add_day.sh 20261117 2>&1 | tee data/reports/add_20261117_s4.txt   # steps 4-5 only
 set -u
 D=${1:?trading day YYYYMMDD}
 cd /work/crucible
@@ -25,8 +26,12 @@ ic() { grep -E "IC: start" "$1" | tail -1 | sed -E 's/.*IC: start ([0-9.]+) -> e
 M="--models /work/crucible_data/prod_models/tk5m --marks rand:240 --target $TGT --target-stale 4 --drop-gap 1 --max-cdf 1 --max-score 99 --state-fallback --hstats $HV"
 SCORE="--no-drop-harmful --max-features 0 --implied 0"
 
+FROM=${FROM:-0}  # FROM=4: steps 0-3 already done for D (pm_signals, 2.23 files, full_book, engine marks), rerun 4-5 only
+[ $FROM -ge 1 ] && SKIP23=1
+if [ $FROM -le 0 ]; then
 say "0 daily_pm $D"
 bash research/daily_pm.sh $D
+fi
 
 say "1 2.23: hstats $D, stsfile, PM state files"
 mkdir -p $DATA/hstats_extra/HS300 $DATA/pm_stsfile $SEED
@@ -51,6 +56,7 @@ mkdir -p $TGT
 [ -e $DATA/pm_signals/date=$D.parquet ] && ln -sf $DATA/pm_signals/date=$D.parquet $TGT/ || { say "no pm_signals for $D: stop"; exit 1; }
 python -c "import polars as pl; t=pl.read_parquet('$TGT/date=$D.parquet'); print('  target rows', t.height, 'stocks', t['sid'].n_unique() if 'sid' in t.columns else '?')"
 
+if [ $FROM -le 3 ]; then
 say "3 full_book + engine state for $D"
 Q=$(CRUCIBLE_SOURCE=dysl2 python -c "import sys; sys.path.insert(0,'research/pm_factors'); import duckdb, dcp_build as B; c=duckdb.connect(str(B.CATALOG), read_only=True); print(c.sql('SELECT count(*) FROM raw_quotation WHERE date = $D').fetchone()[0])" 2>/dev/null)
 echo "  catalog_dysl2 quotes on $D: ${Q:-?}"
@@ -60,13 +66,14 @@ CRUCIBLE_SOURCE=dysl2 python -u research/pm_factors/full_book.py --dates $D --ma
 ls -la $FBD/date=$D.parquet 2>&1 | sed 's/^/  /'
 python -u research/engine/run_cpp.py --date $D --universe pm:$SEED/$P.jz --prev $SEED/$P.jz --catalog $DATA/catalog_dysl2.duckdb \
   --marks rand:240 --threads 32 > $R/add_${D}_engine.txt 2>&1 || say "  engine FAILED: $(tail -3 $R/add_${D}_engine.txt)"
-ls -la data/engine/marks_$D.parquet 2>&1 | sed 's/^/  /'
+fi
+ls -la data/engine/marks_$D.parquet $FBD/date=$D.parquet 2>&1 | sed 's/^/  /'
 
 say "4 R17 / R24 / R24 gated on $D"
 for tag in r17 r27both r24 r24g; do
   case $tag in r17) A=$R/stage6_r17/ic_assign.json ;; r27both) A=$R/r27_both.json ;; r24) A=$R/stage6_r24/ic_assign.json ;; r24g) A=$R/stage6_r24_gate/ic_assign_gated.json ;; esac
   [ -e $A ] || { echo "  $tag: no $A"; continue; }
-  CRUCIBLE_SOURCE=dysl2 python -u research/pm_factors/ic_score.py --dates $D --assign $A $SCORE --full-book $FBD $M \
+  CRUCIBLE_SOURCE=dysl2 python -u research/pm_factors/ic_score.py --dates $D --dcp-dir $SEED --assign $A $SCORE --full-book $FBD $M \
     --out $R/stage6_add_${D}_$tag > $R/add_${D}_$tag.txt 2>&1
   say "  $tag ($(python -c "import json; print(len(json.load(open('$A'))))") columns): $D $(ic $R/add_${D}_$tag.txt)"
 done
