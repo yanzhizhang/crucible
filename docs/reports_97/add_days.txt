@@ -37,3 +37,7 @@ QD alpha (user yes 2026-11-25): e10 = 9e52c45; 224 qd alpha 1119/1120/1123 22 MB
   e11 = 17d5b28: all-Float64 schema (sid,date,src_epoch,rec_epoch,alpha); src_epoch ~ md_ts and rec_epoch ~ md_recv_ts exact;
   1119 1,364,969 / 1120 1,384,934 / 1123 1,395,485 signals matched 1.0000; alpha corr 1.000000, exactly equal 1.0000, max |diff| 0.
 21:30 cron: 1125 chrono log 11 MB (1124: 1392 MB), no 1125 .jz yet -> add_day 1125 held.
+
+dcp nonzero rows only (all other families 0): clock.fast~*.t / zzgh.nb
+1117 0.0009/0.0065  1118 -0.0081/0.0081  1119 -0.0049/0.0077  1120 -0.0050/0.0104  1123 -0.0026/0.0053  1124 -0.0015/0.0058
+QD unmatched 1119: 20 rows, sod 34200/34201 (09:30 open) plus 302132 at 41400 and 46800 (session boundaries).
