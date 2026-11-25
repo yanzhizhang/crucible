@@ -28,3 +28,12 @@ day       r17     r27both  r24     r24g
 20261119  0.5547  0.5684   0.5485  0.5540
 20261120  0.5519  0.5725   0.5571  0.5669
 20:42 full add_day 1123 then 1124 started.
+
+full add_day 1123/1124 (20:42-21:02:51), scores:
+20261123  0.5098  0.5345   0.4930  0.5231
+20261124  0.5650  0.5970   0.5479  0.5520
+step 5 dcp (1117/1118): clock.fast ~ *.t 0.0009 / -0.0081, zzgh.nb 0.0065 / 0.0081, all other families 0.0000.
+QD alpha (user yes 2026-11-25): e10 = 9e52c45; 224 qd alpha 1119/1120/1123 22 MB each, 1124 not there (yet).
+  e11 = 17d5b28: all-Float64 schema (sid,date,src_epoch,rec_epoch,alpha); src_epoch ~ md_ts and rec_epoch ~ md_recv_ts exact;
+  1119 1,364,969 / 1120 1,384,934 / 1123 1,395,485 signals matched 1.0000; alpha corr 1.000000, exactly equal 1.0000, max |diff| 0.
+21:30 cron: 1125 chrono log 11 MB (1124: 1392 MB), no 1125 .jz yet -> add_day 1125 held.
