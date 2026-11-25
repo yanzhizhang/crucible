@@ -28,14 +28,26 @@ def alpha_file(d: str, root: Path) -> Path | None:
     return None
 
 
-def guess(df: pl.DataFrame) -> tuple[str | None, list[str], list[str]]:
-    """(symbol column, epoch-ns time columns, float value columns)."""
+def epoch_scale(s: pl.Series) -> int | None:
+    """Factor that turns this numeric column into epoch ns (s / ms / us / ns by magnitude), None if it is not an epoch."""
+    m = s.drop_nulls().median() if s.dtype.is_numeric() and s.len() else None
+    for k in (10**9, 10**6, 10**3, 1):
+        if m is not None and NS_LO < float(m) * k < NS_HI:
+            return k
+    return None
+
+
+def guess(df: pl.DataFrame) -> tuple[str | None, dict[str, int], list[str]]:
+    """(symbol column, epoch time columns -> factor to ns, float value columns); QD's file is all Float64, sid and epochs included."""
     sym = next((c for c in df.columns if c.lower() in ("sid", "symbol", "code", "wind_code", "windcode", "ticker", "securityid", "symbol_id")), None)
-    times = [c for c in df.columns if df[c].dtype in (pl.Int64, pl.UInt64) and df.height
-             and NS_LO < int(df[c].drop_nulls().median() or 0) < NS_HI]
-    times += [c for c in df.columns if df[c].dtype == pl.Datetime("ns") or str(df[c].dtype).startswith("Datetime")]
-    vals = [c for c in df.columns if df[c].dtype in (pl.Float64, pl.Float32) and c != sym]
+    times = {c: k for c in df.columns if c != sym and (k := epoch_scale(df[c])) is not None}
+    vals = [c for c in df.columns if df[c].dtype in (pl.Float64, pl.Float32) and c not in times and c not in (sym, "date")]
     return sym, times, vals
+
+
+def ns(c: str, k: int) -> pl.Expr:
+    """Column c (factor k to ns) as Int64 epoch ns."""
+    return (pl.col(c).cast(pl.Float64) * k).round(0).cast(pl.Int64)
 
 
 def sid_of(df: pl.DataFrame, sym: str) -> pl.Expr:
@@ -73,16 +85,17 @@ def main() -> None:
         s = s.filter(pl.col("src") == "sig") if "src" in s.columns else s
         best = None
         for tq in times:
-            qt = q.with_columns(pl.col(tq).cast(pl.Int64).alias("_t"))
+            qt = q.with_columns(ns(tq, times[tq]).alias("_t"))
             for ts in [c for c in ("md_ts", "md_recv_ts") if c in s.columns]:
                 k = lambda c: ((pl.col(c) + 5_000) // 10_000).alias("_k")  # noqa: E731 -- 10 us buckets
                 j = s.with_columns(k(ts)).join(qt.with_columns(k("_t")), on=["sid", "_k"], how="inner")
+                print(f"   try {tq} ~ {ts}: {j.height:,} exact matches")
                 if best is None or j.height > best[0]:
                     best = (j.height, tq, ts, j)
         if best is None or best[0] == 0:
             print("   no exact (sid, time) match on any time column pair; nearest-before join within 3 s on the first pair")
-            tq, ts = times[0], "md_recv_ts" if "md_recv_ts" in s.columns else "md_ts"
-            j = s.sort(ts).join_asof(q.with_columns(pl.col(tq).cast(pl.Int64).alias(ts)).sort(ts), on=ts, by="sid",
+            tq, ts = next(iter(times)), "md_recv_ts" if "md_recv_ts" in s.columns else "md_ts"
+            j = s.sort(ts).join_asof(q.with_columns(ns(tq, times[tq]).alias(ts)).sort(ts), on=ts, by="sid",
                                      strategy="backward", tolerance=3 * 10**9).drop_nulls(vals[0])
         else:
             _, tq, ts, j = best
