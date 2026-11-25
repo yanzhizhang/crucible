@@ -18,3 +18,13 @@ e08 = c2559d0 (5 files) GATE OK. FROM=4 add_day 1117-1120: "IC: start" 0 per day
   No module named 'h5py' (h5netcdf backend) reading /work/crucible_data/pm_stsfile/stats/sod/<D-1>.xr; then step 5 and done.
   r17/r27both/r24/r24g ~9 s each now. SKIP23 set.
 DataYes on 97: /mnt/TickDataRepo/DataYesSharesL2 has 20261123, 20261124, 20261125.
+
+e09 = 469d939 GATE OK; conda install h5py (internal mirror) -> 3.16.0; sod/20261116.xr opens (S 1803, D '20261113', I '15:00:00', V msr/mb/vr).
+/data/sht-stg-lib: No such file or directory; find / -maxdepth 4 found none.
+FROM=4 rerun 19:58-20:22, scores from tag lines:
+day       r17     r27both  r24     r24g
+20261117  0.5284  0.5463   0.5199  0.5294
+20261118  0.5263  0.5450   0.5181  0.5261
+20261119  0.5547  0.5684   0.5485  0.5540
+20261120  0.5519  0.5725   0.5571  0.5669
+20:42 full add_day 1123 then 1124 started.
