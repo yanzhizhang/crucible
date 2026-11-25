@@ -2,7 +2,7 @@
 # Cron scan of 224 and 2.23 on 97: read-only rsync pulls into /work/crucible_data, one summary line per source and day.
 # Bare env (no conda, no python); ssh BatchMode; flock so two runs never overlap; no catalog rebuild, no engine run.
 # Log: /work/crucible_data/cron/pull_<YYYYMMDD>.log. Never pulls *.json5 or holding / pnl / other portfolio day files.
-#   bash research/cron_pull.sh 224                 # 224: chrono logs, position log, base positions (today + previous weekday)
+#   bash research/cron_pull.sh 224                 # 224: chrono logs, position log, base positions, QD alpha.parquet (today + previous weekday)
 #   bash research/cron_pull.sh 23                  # 2.23: hstats, PM .jz, stsfile, models
 #   bash research/cron_pull.sh all 20261120        # both, one given day
 # crontab (97, the user whose ssh keys reach 224 and 2.23):
@@ -47,6 +47,7 @@ if [ "$WHAT" = 224 ] || [ "$WHAT" = all ]; then
     pull "224 $D chrono_logs" "$S224" $E/chrono_logs/ $DATA/pm_224/$D/chrono_logs/ --include='*.log' --exclude='*'
     pull "224 $D position_log" "$S224" $E/portfolio/ledger/ $DATA/chrono_poslog/$D/position_log/ --include='position_log*.csv' --exclude='*'
     pull "224 $D base_position" "$S224" $E/ $DATA/chrono_poslog/$D/ --include='base_position_*.csv' --exclude='*'
+    pull "224 $D qd alpha" "$S224" $H224:/tmp/o/sig/$D/ $DATA/qd_alpha/$D/ --include='alpha.parquet' --exclude='*'
     [ "$D" -le 20261118 ] && pull "224 $D old sht-logs" "$S224" $H224:/tmp/zyq/sht-logs/ $DATA/chrono_logs/ --include="${D:0:4}-${D:4:2}-${D:6:2}_*" --exclude='*'
   done
 fi
