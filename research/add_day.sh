@@ -22,7 +22,7 @@ P23=${P23:-60777}
 SSH="ssh -p $P23 -o BatchMode=yes"
 say() { echo "[$(date +%T)] $*"; }
 ic() { grep -E "IC: start" "$1" | tail -1 | sed -E 's/.*IC: start ([0-9.]+) -> end ([0-9.]+).*/\1/'; }
-M="--models /data/prod/models/tk5m --marks rand:240 --target $TGT --target-stale 4 --drop-gap 1 --max-cdf 1 --max-score 99 --state-fallback --hstats $HV"
+M="--models /work/crucible_data/prod_models/tk5m --marks rand:240 --target $TGT --target-stale 4 --drop-gap 1 --max-cdf 1 --max-score 99 --state-fallback --hstats $HV"
 SCORE="--no-drop-harmful --max-features 0 --implied 0"
 
 say "0 daily_pm $D"

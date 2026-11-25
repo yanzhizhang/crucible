@@ -148,7 +148,7 @@ def main() -> None:
     ap.add_argument("--models", type=Path, default=Path("/work/crucible_data/models_gen/B"))
     ap.add_argument("--fits", default="livev1_fit1")
     ap.add_argument("--subs", default="s1,s2,s3,s4")
-    ap.add_argument("--feature-csv", type=Path, default=Path("/data/prod/models/lgb_fn_v1_209_cte.csv"))
+    ap.add_argument("--feature-csv", type=Path, default=Path("/work/crucible_data/prod_models/lgb_fn_v1_209_cte.csv"))
     ap.add_argument("--ced-dc", default="/work/crucible_data/cache/ic_build/*/date={date}.*/dc.parquet")
     ap.add_argument("--max-bases", type=int, default=400)
     ap.add_argument("--rows", type=int, default=200000, help="row sample (the node shares are row-count based, a sample is enough)")

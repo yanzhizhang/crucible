@@ -49,7 +49,7 @@ def main() -> None:
     ap.add_argument("--models", type=Path, default=Path("/work/crucible_data/models_gen/B"))
     ap.add_argument("--date", default="20261113")
     ap.add_argument("--fit", default="livev1_fit1")
-    ap.add_argument("--feature-csv", type=Path, default=Path("/data/prod/models/lgb_fn_v1_209_cte.csv"))
+    ap.add_argument("--feature-csv", type=Path, default=Path("/work/crucible_data/prod_models/lgb_fn_v1_209_cte.csv"))
     ap.add_argument("--formulas", type=Path, default=BASELINE)
     ap.add_argument("--reports", default="data/reports/r13[0-9]*.txt")
     ap.add_argument("--dt", type=float, default=3.0)

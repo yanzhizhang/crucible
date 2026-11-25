@@ -10,7 +10,7 @@ Per model root (generation dirs and the production tk5m), per month, per fit / s
 Then, per root, the four PM-state columns' training [min:max] by month (shows when the window moves).
 Read-only.
 
-    python research/featgen/model_meta.py --roots /work/crucible_data/models_gen/A,/work/crucible_data/models_gen/B,/work/crucible_data/models_gen/C,/data/prod/models/tk5m
+    python research/featgen/model_meta.py --roots /work/crucible_data/models_gen/A,/work/crucible_data/models_gen/B,/work/crucible_data/models_gen/C,/work/crucible_data/prod_models/tk5m
 """
 
 from __future__ import annotations
@@ -67,7 +67,7 @@ def main() -> None:
     """CLI entry point."""
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--roots", required=True)
-    ap.add_argument("--feature-csv", type=Path, default=Path("/data/prod/models/lgb_fn_v1_209_cte.csv"))
+    ap.add_argument("--feature-csv", type=Path, default=Path("/work/crucible_data/prod_models/lgb_fn_v1_209_cte.csv"))
     ap.add_argument("--months", type=int, default=0, help="per root only the last N months (0 = all)")
     a = ap.parse_args()
     names = P.feature_names(a.feature_csv)

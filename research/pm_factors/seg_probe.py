@@ -8,7 +8,7 @@ r"""How does PM switch between its sub-models s1..s4 during the day (hard switch
   minute-to-minute jump of the std; a hard switch shows as a step at fixed minutes, blending as a smooth curve.
 
     python research/pm_factors/seg_probe.py --meta data/reports/pm_lgb_meta.csv --month 202604 \
-        --alpha /work/crucible_data/pm_livev1/rec10_p/20260430/alpha.parquet --names /data/prod/models/lgb_fn_v1_209_cte.csv
+        --alpha /work/crucible_data/pm_livev1/rec10_p/20260430/alpha.parquet --names /work/crucible_data/prod_models/lgb_fn_v1_209_cte.csv
 """
 
 from __future__ import annotations
@@ -25,7 +25,7 @@ def main() -> None:
     ap.add_argument("--meta", type=Path, default=Path("data/reports/pm_lgb_meta.csv"))
     ap.add_argument("--month", default="202604", help="model month folder to compare s1..s4 in")
     ap.add_argument("--fit", default="livev1_fit1")
-    ap.add_argument("--names", type=Path, default=Path("/data/prod/models/lgb_fn_v1_209_cte.csv"))
+    ap.add_argument("--names", type=Path, default=Path("/work/crucible_data/prod_models/lgb_fn_v1_209_cte.csv"))
     ap.add_argument("--alpha", type=Path)
     ap.add_argument("--top", type=int, default=30)
     a = ap.parse_args()

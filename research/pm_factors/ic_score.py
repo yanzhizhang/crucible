@@ -874,8 +874,8 @@ def main() -> None:
     ap.add_argument("--dcp-dir", type=Path, default=B.DCP)
     ap.add_argument("--state-fallback", action="store_true",
                     help="a day with no state file of its own takes the stock list and stop time from the latest earlier one")
-    ap.add_argument("--models", type=Path, default=Path("/data/prod/models/tk5m"))
-    ap.add_argument("--feature-csv", type=Path, default=Path("/data/prod/models/lgb_fn_v1_209_cte.csv"))
+    ap.add_argument("--models", type=Path, default=Path("/work/crucible_data/prod_models/tk5m"))
+    ap.add_argument("--feature-csv", type=Path, default=Path("/work/crucible_data/prod_models/lgb_fn_v1_209_cte.csv"))
     ap.add_argument("--fingerprint", type=Path, default=Path("data/reports/stage5/fingerprint.parquet"))
     ap.add_argument("--fits", default="livev1_fit1")
     ap.add_argument("--seed-dir", type=Path, help="dir of PM .jz files: yesterday's carried state as gen.sd_* candidates (zzeg channel ...)")

@@ -112,7 +112,7 @@ def main() -> None:
     ap.add_argument("--models", type=Path, default=Path("/work/crucible_data/models_gen/B"))
     ap.add_argument("--fits", default="livev1_fit1")
     ap.add_argument("--subs", default="s1,s2,s3,s4")
-    ap.add_argument("--feature-csv", type=Path, default=Path("/data/prod/models/lgb_fn_v1_209_cte.csv"))
+    ap.add_argument("--feature-csv", type=Path, default=Path("/work/crucible_data/prod_models/lgb_fn_v1_209_cte.csv"))
     ap.add_argument("--transforms", default="id,-id,1/b,dm,-dm,srank,log")
     ap.add_argument("--scales", default="1,1e4,1e-4,100,0.01")
     ap.add_argument("--top", type=int, default=6)

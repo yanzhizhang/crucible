@@ -304,7 +304,7 @@ def main() -> None:
     ap.add_argument("--gen", default="B", help="generation for ladders / neighbours")
     ap.add_argument("--date", default="20261113")
     ap.add_argument("--fit", default="livev1_fit1")
-    ap.add_argument("--feature-csv", type=Path, default=Path("/data/prod/models/lgb_fn_v1_209_cte.csv"))
+    ap.add_argument("--feature-csv", type=Path, default=Path("/work/crucible_data/prod_models/lgb_fn_v1_209_cte.csv"))
     ap.add_argument("--formulas", type=Path, default=BASELINE)
     ap.add_argument("--watch", default="zzop2.b,zzag2.e,zzag2.a,zzro2.a,zzrg,zzwa.g,zzqf.q.c3,zzqf7.q.c2,zzwa.i")
     ap.add_argument("--min-pairs", type=int, default=5)

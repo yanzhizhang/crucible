@@ -43,7 +43,7 @@ def main() -> None:
     ap.add_argument("--hstats", type=Path, default=Path("/work/crucible_data/hstats_view/HS300"))
     ap.add_argument("--models", type=Path, default=Path("/work/crucible_data/models_gen/B"))
     ap.add_argument("--date", required=True)
-    ap.add_argument("--feature-csv", type=Path, default=Path("/data/prod/models/lgb_fn_v1_209_cte.csv"))
+    ap.add_argument("--feature-csv", type=Path, default=Path("/work/crucible_data/prod_models/lgb_fn_v1_209_cte.csv"))
     ap.add_argument("--formulas", type=Path, default=HERE / "engine" / "baseline_r41c.txt")
     ap.add_argument("--out", type=Path, default=Path("data/reports/audit"))
     a = ap.parse_args()

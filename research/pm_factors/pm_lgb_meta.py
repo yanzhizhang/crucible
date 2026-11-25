@@ -5,7 +5,7 @@ Rows: month, fit, model (s1..s4), col (0..208), lo, hi, splits (0 when the colum
 feature_infos (a column with no usable values) gives NaN. Printed: the row count and, per model, how many columns have a
 range, the 5 most-split columns, and how far the ranges of fit1 / fit2 / fit3 differ.
 
-    python research/pm_factors/pm_lgb_meta.py --models /data/prod/models/tk5m --out data/reports/pm_lgb_meta.csv
+    python research/pm_factors/pm_lgb_meta.py --models /work/crucible_data/prod_models/tk5m --out data/reports/pm_lgb_meta.csv
 """
 
 from __future__ import annotations
@@ -44,7 +44,7 @@ def read(f: Path) -> tuple[list[tuple[float, float]], dict[int, int]]:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--models", type=Path, default=Path("/data/prod/models/tk5m"))
+    ap.add_argument("--models", type=Path, default=Path("/work/crucible_data/prod_models/tk5m"))
     ap.add_argument("--out", type=Path, default=Path("data/reports/pm_lgb_meta.csv"))
     a = ap.parse_args()
     rows = []

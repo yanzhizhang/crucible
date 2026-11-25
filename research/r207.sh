@@ -15,7 +15,7 @@ G=$DATA/models_gen/B
 O=data/reports/r207; mkdir -p $O
 # the model's column list: /data/prod/models on the old 97; after the rebuild it may sit elsewhere (FCSV=... overrides)
 FCSV=${FCSV:-}
-for c in /data/prod/models/lgb_fn_v1_209_cte.csv /data/prod/models/tk5m/lgb_fn_v1_209_cte.csv $DATA/models_gen/B/lgb_fn_v1_209_cte.csv; do
+for c in $DATA/prod_models/lgb_fn_v1_209_cte.csv /data/prod/models/lgb_fn_v1_209_cte.csv /data/prod/models/tk5m/lgb_fn_v1_209_cte.csv $DATA/models_gen/B/lgb_fn_v1_209_cte.csv; do
   [ -z "$FCSV" ] && [ -e "$c" ] && FCSV=$c
 done
 [ -n "$FCSV" ] || FCSV=$(find /data/prod $DATA -maxdepth 5 -name lgb_fn_v1_209_cte.csv 2>/dev/null | head -1)

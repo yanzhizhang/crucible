@@ -44,11 +44,11 @@ def gains(path: Path, n: int) -> tuple[np.ndarray, np.ndarray]:
 def main() -> None:
     """CLI entry point."""
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--models", type=Path, default=Path("/data/prod/models/tk5m"))
+    ap.add_argument("--models", type=Path, default=Path("/work/crucible_data/prod_models/tk5m"))
     ap.add_argument("--date", required=True, help="picks the model month as ic_score does")
     ap.add_argument("--fits", default="livev1_fit1")
     ap.add_argument("--subs", default="s1")
-    ap.add_argument("--feature-csv", type=Path, default=Path("/data/prod/models/lgb_fn_v1_209_cte.csv"))
+    ap.add_argument("--feature-csv", type=Path, default=Path("/work/crucible_data/prod_models/lgb_fn_v1_209_cte.csv"))
     ap.add_argument("--formulas", type=Path, default=BASELINE)
     ap.add_argument("--top", type=int, default=40)
     a = ap.parse_args()

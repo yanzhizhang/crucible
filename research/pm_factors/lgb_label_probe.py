@@ -10,7 +10,7 @@ segments?) and per generation (month groups by identical file content).
 ``--alpha``: PM's recorded predictions for one day -- overall quantiles, the cross-sectional std per half hour, so the
 model scale can be compared with what PM actually emitted (unit check).
 
-    python research/pm_factors/lgb_label_probe.py --models /data/prod/models/tk5m \
+    python research/pm_factors/lgb_label_probe.py --models /work/crucible_data/prod_models/tk5m \
         --alpha /work/crucible_data/pm_livev1/rec10_p/20260430/alpha.parquet --out data/reports/lgb_label
 """
 
@@ -60,7 +60,7 @@ def parse(path: Path) -> dict:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--models", type=Path, default=Path("/data/prod/models/tk5m"))
+    ap.add_argument("--models", type=Path, default=Path("/work/crucible_data/prod_models/tk5m"))
     ap.add_argument("--alpha", type=Path)
     ap.add_argument("--out", type=Path, default=Path("data/reports/lgb_label"))
     a = ap.parse_args()

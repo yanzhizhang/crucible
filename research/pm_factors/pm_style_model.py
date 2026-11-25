@@ -376,7 +376,7 @@ def main() -> None:
     b.add_argument("--overwrite", action=argparse.BooleanOptionalAction, default=True, help="rebuild existing day panels (default)")
     f = sub.add_parser("fit", help="walk-forward LightGBM with PM's parameters")
     f.add_argument("--out", type=Path, default=Path("data/reports/stage9"))
-    f.add_argument("--models", type=Path, default=Path("/data/prod/models/tk5m"))
+    f.add_argument("--models", type=Path, default=Path("/work/crucible_data/prod_models/tk5m"))
     f.add_argument("--uni", default="all", help="all, or 0 / 1 / 2 = CSI 300 / 500 / 1000 only")
     f.add_argument("--min-train", type=int, default=15, help="days used only for training before the first scored day")
     f.add_argument("--refit", type=int, default=5, help="days scored per model (expanding window)")

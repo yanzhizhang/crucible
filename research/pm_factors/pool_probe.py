@@ -6,7 +6,7 @@ r"""Are PM's sub-models s1..s4 trained on different stock pools (HS300 / ZZ500 /
   ranges of one contain the other's. One pool cut into parts gives mostly equal or mutually overlapping ranges; a wider
   pool contains a narrower one's ranges on most columns.
 
-    python research/pm_factors/pool_probe.py --models /data/prod/models/tk5m --meta data/reports/pm_lgb_meta.csv
+    python research/pm_factors/pool_probe.py --models /work/crucible_data/prod_models/tk5m --meta data/reports/pm_lgb_meta.csv
 """
 
 from __future__ import annotations
@@ -56,7 +56,7 @@ def read(f: Path) -> dict:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--models", type=Path, default=Path("/data/prod/models/tk5m"))
+    ap.add_argument("--models", type=Path, default=Path("/work/crucible_data/prod_models/tk5m"))
     ap.add_argument("--meta", type=Path, default=Path("data/reports/pm_lgb_meta.csv"))
     ap.add_argument("--months", default="", help="comma list of model month folders; default all")
     a = ap.parse_args()

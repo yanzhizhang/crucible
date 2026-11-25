@@ -6,7 +6,7 @@ when a root has several): the mean per-mark rank correlation with PM's predictio
 correlation, and our score's scale against PM's (std ratio). Read-only on inputs; work files under --work are removed.
 
     python research/featgen/which_model.py --days 20261112,20261113 --x-dir "data/reports/stage6_r99_{mmdd}" \
-        --roots /work/crucible_data/models_gen/A,/work/crucible_data/models_gen/B,/work/crucible_data/models_gen/C,/data/prod/models/tk5m
+        --roots /work/crucible_data/models_gen/A,/work/crucible_data/models_gen/B,/work/crucible_data/models_gen/C,/work/crucible_data/prod_models/tk5m
 """
 
 from __future__ import annotations
@@ -33,7 +33,7 @@ def main() -> None:
     ap.add_argument("--x-dir", required=True)
     ap.add_argument("--roots", required=True)
     ap.add_argument("--subs", default="s1,s2,s3,s4")
-    ap.add_argument("--feature-csv", type=Path, default=Path("/data/prod/models/lgb_fn_v1_209_cte.csv"))
+    ap.add_argument("--feature-csv", type=Path, default=Path("/work/crucible_data/prod_models/lgb_fn_v1_209_cte.csv"))
     ap.add_argument("--work", type=Path, default=Path("data/which_model_work"))
     ap.add_argument("--threads", type=int, default=64)
     a = ap.parse_args()

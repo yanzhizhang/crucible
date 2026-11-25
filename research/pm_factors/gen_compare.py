@@ -7,7 +7,7 @@ range or thresholds moved a lot is likely a different quantity (or a different s
 matched on November days need not hold on an April day. Written to ``--out`` (one row per month x column), printed: per
 month the columns that moved, and the reference's names next to them.
 
-    python research/pm_factors/gen_compare.py --models /data/prod/models/tk5m --fit livev1_fit1 --out data/reports/gen_compare.csv
+    python research/pm_factors/gen_compare.py --models /work/crucible_data/prod_models/tk5m --fit livev1_fit1 --out data/reports/gen_compare.csv
 """
 
 from __future__ import annotations
@@ -67,7 +67,7 @@ def month_table(folder: Path, fit: str) -> pl.DataFrame | None:
 def main() -> None:
     """CLI entry point."""
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--models", type=Path, default=Path("/data/prod/models/tk5m"))
+    ap.add_argument("--models", type=Path, default=Path("/work/crucible_data/prod_models/tk5m"))
     ap.add_argument("--fit", default="livev1_fit1")
     ap.add_argument("--ref", default="", help="reference month folder (default: the latest)")
     ap.add_argument("--out", type=Path, default=Path("data/reports/gen_compare.csv"))

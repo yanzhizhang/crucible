@@ -79,7 +79,7 @@ def main() -> None:
     ap.add_argument("--x-dir", required=True, help="dir with x.parquet (filled scoring matrix), {mmdd} / {date} allowed")
     ap.add_argument("--models", type=Path, default=Path("/work/crucible_data/models_gen/B"))
     ap.add_argument("--fit", default="livev1_fit1")
-    ap.add_argument("--feature-csv", type=Path, default=Path("/data/prod/models/lgb_fn_v1_209_cte.csv"))
+    ap.add_argument("--feature-csv", type=Path, default=Path("/work/crucible_data/prod_models/lgb_fn_v1_209_cte.csv"))
     ap.add_argument("--formulas", type=Path, default=BASELINE)
     ap.add_argument("--rows", type=int, default=150000)
     ap.add_argument("--min-rows", type=int, default=300)

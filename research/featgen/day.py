@@ -61,7 +61,7 @@ def main() -> None:
     ap.add_argument("--side", type=Path, required=True)
     ap.add_argument("--cal", type=Path, required=True)
     ap.add_argument("--models", type=Path, help="model root (month folders); without it the run stops after the vectors")
-    ap.add_argument("--feature-csv", type=Path, default=Path("/data/prod/models/lgb_fn_v1_209_cte.csv"))
+    ap.add_argument("--feature-csv", type=Path, default=Path("/work/crucible_data/prod_models/lgb_fn_v1_209_cte.csv"))
     ap.add_argument("--pq", type=Path, help="lgbpred_pq (CMake build with Arrow): the model step reads and writes parquet itself")
     ap.add_argument("--float32", action="store_true", help="round the bases to float32 as ic_score's cache does")
     ap.add_argument("--out", type=Path, default=Path("data/day"))

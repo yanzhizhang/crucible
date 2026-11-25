@@ -32,7 +32,7 @@ def main() -> None:
     ap.add_argument("--x", type=Path, required=True)
     ap.add_argument("--models", type=Path, default=Path("/work/crucible_data/models_gen/B"))
     ap.add_argument("--date", required=True)
-    ap.add_argument("--feature-csv", type=Path, default=Path("/data/prod/models/lgb_fn_v1_209_cte.csv"))
+    ap.add_argument("--feature-csv", type=Path, default=Path("/work/crucible_data/prod_models/lgb_fn_v1_209_cte.csv"))
     a = ap.parse_args()
     txt = a.feature_csv.read_text(errors="replace").splitlines()
     print(f"{a.feature_csv}: {len(txt)} lines; first 5: {txt[:5]}; last 2: {txt[-2:]}")
