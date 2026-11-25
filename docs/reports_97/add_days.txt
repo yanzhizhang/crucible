@@ -1,0 +1,20 @@
+add_days + step-4 fix on 97, 2026-11-25 (transcribed from screen)
+
+add_days (09:22:30 ADD_DAYS_DONE): IC table "-" for every day 1117-1125 and every tag (r17 r27both r24 r24g).
+  1117-1120: steps 1-5 ran; r17/r27both/r24/r24g printed ~1 s apart.
+  1125: no /mnt/TickDataRepo/DataYesSharesL2/20261125(.zip) yet; PM state D-1 = 20261123, no 20261125.jz; no pm_signals: stop.
+  tail add_20261117_r17.txt: training-CDF points for 193 features / CED candidates from /work/crucible_data/store/ced / skip 20261117: no state file
+  json present: r27_both.json 3836 (Nov 12), stage6_r17/ic_assign.json 3821 (Nov 9), stage6_r24/ic_assign.json 4136 (Nov 11), stage6_r24_gate/ic_assign_gated.json 3357 (Nov 11)
+
+cron (ce00b91, root crontab): GATE OK; test `all 20261124` 19:42:50-19:42:56
+  224 chrono_logs files 1 MB 1392 new 0 | 224 position_log not there (yet) | 224 base_position files 13 MB 27 new 0
+  2.23 hstats files 952 MB 908 new 17 | 2.23 PM .jz files 83 MB 784 new 1 | 2.23 stsfile files 139 MB 27 new 5 | 2.23 models files 37 MB 452 new 0
+  CRON INSTALLED: 40 16 * * 1-5 ... 224 ; 30 21 * * 1-5 ... all   (no qd alpha line: awaiting user yes)
+
+loadCPFile: /work (excl. crucible_data, tickaudit_lake, shm_archive, *.json5): no text hits, no BIN hits.
+            /data/sht-stg-lib: text/bin/sym all empty (errors suppressed; dir existence not checked).
+
+e08 = c2559d0 (5 files) GATE OK. FROM=4 add_day 1117-1120: "IC: start" 0 per day, ImportError 2 per day:
+  No module named 'h5py' (h5netcdf backend) reading /work/crucible_data/pm_stsfile/stats/sod/<D-1>.xr; then step 5 and done.
+  r17/r27both/r24/r24g ~9 s each now. SKIP23 set.
+DataYes on 97: /mnt/TickDataRepo/DataYesSharesL2 has 20261123, 20261124, 20261125.
