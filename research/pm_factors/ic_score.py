@@ -136,13 +136,27 @@ class TreeModel:
         return out
 
 
+def model_month(root: Path, date: str, fits: list[str]) -> str:
+    """The latest month folder not after the day that holds model files of the fits; empty folders are skipped."""
+    months = sorted(p.name for p in root.iterdir() if re.fullmatch(r"\d{6}", p.name) and p.name <= date[:6])
+    for m in reversed(months):
+        if any(next((root / m / "lgb" / ft).glob("model_s*.txt"), None) for ft in fits):
+            return m
+    raise SystemExit(f"no <month>/lgb/{{{','.join(fits)}}}/model_s*.txt with month <= {date[:6]} under {root} (months there: {months[-6:]})")
+
+
 def load_models(root: Path, date: str, fits: list[str], subs: list[str]) -> list:
     """PM's models for the latest month folder not after the day."""
     months = sorted(p.name for p in root.iterdir() if re.fullmatch(r"\d{6}", p.name) and p.name <= date[:6])
-    if not months:
-        raise SystemExit(f"no model month <= {date[:6]} under {root}")
-    files = [root / months[-1] / "lgb" / f / f"model_{s}.txt" for f in fits for s in subs]
-    files = [f for f in files if f.exists()]
+    files = []
+    for m in reversed(months):  # the latest month that actually holds the requested files; an empty folder is skipped
+        files = [f for f in (root / m / "lgb" / ft / f"model_{s}.txt" for ft in fits for s in subs) if f.exists()]
+        if files:
+            print(f"models {root}/{m}: {len(files)} files")
+            break
+    if not files:
+        raise SystemExit(f"no <month>/lgb/{{{','.join(fits)}}}/model_{{{','.join(subs)}}}.txt with month <= {date[:6]} under {root}"
+                         f" (months there: {months[-6:]})")
     try:
         from tree_kernel import FlatModel  # compiled walker; also sums just the trees on one feature
 
@@ -188,7 +202,7 @@ def load_seg_models(root: Path, date: str, fits: list[str], spec: str) -> list:
     """--sub-by-time "s1:600,s2:1800,s3:12600,s4:14220": per fit one SegModel, segment k = (end of k-1, end of k] seconds."""
     from tree_kernel import FlatModel  # the segment dispatch needs the row-indexed walker
 
-    months = sorted(p.name for p in root.iterdir() if re.fullmatch(r"\d{6}", p.name) and p.name <= date[:6])
+    months = [model_month(root, date, fits)]
     out, lo = [], -np.inf
     parts = [(x.split(":")[0], float(x.split(":")[1])) for x in spec.split(",") if x]
     for f in fits:
@@ -588,8 +602,8 @@ def pm_family(feat: str) -> str:
 
 def model_files(root: Path, date: str, fits: list[str]) -> list[Path]:
     """Every sub-model file of the fits in the month folder load_models picks for the day."""
-    months = sorted(p.name for p in root.iterdir() if re.fullmatch(r"\d{6}", p.name) and p.name <= date[:6])
-    return sorted(f for fit in fits for f in (root / months[-1] / "lgb" / fit).glob("model_s*.txt")) if months else []
+    m = model_month(root, date, fits)
+    return sorted(f for fit in fits for f in (root / m / "lgb" / fit).glob("model_s*.txt"))
 
 
 def generation_cdf(files: list[Path], names: list[str]) -> dict[str, tuple[np.ndarray, np.ndarray]]:

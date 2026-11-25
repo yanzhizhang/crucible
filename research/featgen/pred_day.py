@@ -66,9 +66,13 @@ def feature_names(csv: Path) -> list[str]:
 
 def model_files(root: Path, date: str, fits: list[str], subs: list[str]) -> list[Path]:
     months = sorted(p.name for p in root.iterdir() if re.fullmatch(r"\d{6}", p.name) and p.name <= date[:6])
-    if not months:
-        raise SystemExit(f"no model month <= {date[:6]} under {root}")
-    return [f for f in (root / months[-1] / "lgb" / ft / f"model_{s}.txt" for ft in fits for s in subs) if f.exists()]
+    for m in reversed(months):  # the latest month that actually holds the requested files; an empty folder is skipped
+        files = [f for f in (root / m / "lgb" / ft / f"model_{s}.txt" for ft in fits for s in subs) if f.exists()]
+        if files:
+            print(f"models {root}/{m}: {len(files)} files ({','.join(fits)} x {','.join(subs)})")
+            return files
+    raise SystemExit(f"no <month>/lgb/{{{','.join(fits)}}}/model_{{{','.join(subs)}}}.txt with month <= {date[:6]} under {root}"
+                     f" (months there: {months[-6:]})")
 
 
 def synth_model(dst: Path, rng: np.random.Generator, n_trees: int, n_cols: int) -> None:

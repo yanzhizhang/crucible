@@ -11,7 +11,7 @@ set -u
 cd /work/crucible
 DATA=/work/crucible_data
 SP=$DATA/seed_probe/HS300
-G=$DATA/models_gen/B
+G=${MODELS:-$DATA/prod_models/tk5m}  # PM's live models; models_gen/B holds only 202501 since the rebuild
 O=data/reports/r207; mkdir -p $O
 # the model's column list: /data/prod/models on the old 97; after the rebuild it may sit elsewhere (FCSV=... overrides)
 FCSV=${FCSV:-}
