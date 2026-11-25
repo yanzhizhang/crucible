@@ -13,6 +13,7 @@ dependencies:
   - duckdb>=1.1,<2
   - exchange-calendars>=4.6
   - h5netcdf>=1.4
+  - h5py>=3.10
   - holoviews>=1.20
   - hvplot>=0.11
   - lightgbm>=4.5

@@ -91,6 +91,7 @@ pm = [
     # research/compare_pm.py. Nothing else may import xarray (ruff banned-api).
     "xarray>=2024.10",
     "h5netcdf>=1.4",
+    "h5py>=3.10",  # h5netcdf's backend; not pulled in on 97
 ]
 
 [tool.uv.sources]
