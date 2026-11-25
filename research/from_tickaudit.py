@@ -1,4 +1,6 @@
-"""Convert one source-day of tickaudit's lake (``/work/tickaudit_lake/tick``) into crucible's feitu raw Parquet layout.
+"""SUPERSEDED for the engine by engine/lake.py (reads the merged layer natively); kept for --compare against our decodes.
+
+Convert one source-day of tickaudit's lake (``/work/tickaudit_lake/tick``) into crucible's feitu raw Parquet layout.
 
 tickaudit decodes every vendor feed into the exchanges' own records (fixed-point int64, exchange field names); this is the
 thin adapter that turns those into exactly the columns, dtypes and column order ``decode_tdf_day.py`` writes, so

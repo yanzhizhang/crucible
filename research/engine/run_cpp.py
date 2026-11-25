@@ -27,6 +27,7 @@ import polars as pl
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import lake as L  # --lake: tickaudit's merged ticks
 from export import load_events, write_band, write_chan, write_events, write_prev, write_rules
 from rules import EMAS
 from run import CATALOG, DEFAULT_STOP, load_prev
@@ -121,10 +122,13 @@ def main() -> None:
     ap.add_argument("--chan-hist", default="auto", help="where the previous days' highs / lows come from (zzeg.c): auto = the catalog's source first, "
                     "or a comma list of raw dirs under /work/crucible_data; 'none' = no channel")
     ap.add_argument("--marks", help="'five' (09:35 ... 14:55), 'rand:N[:seed]' or trading-clock seconds a,b,...: also the state at each mark")
+    ap.add_argument("--lake", type=Path, help="read tickaudit's lake (e.g. /work/tickaudit_lake) instead of --catalog: merged ticks + one source's snapshots")
+    ap.add_argument("--snap-source", default="datayes", help="--lake: the tick/ source the snapshots come from (not merged yet)")
+    ap.add_argument("--local-source", default="datayes", help="--lake: whose receive stamp orders the events (local_<src>), or 'first'")
     a = ap.parse_args()
     t0 = time.perf_counter()
     exe = ensure_binary()
-    con = duckdb.connect(str(a.catalog), read_only=True)
+    con = None if a.lake else duckdb.connect(str(a.catalog), read_only=True)
     kind, _, src = a.universe.partition(":")
     stop = a.stop
     if kind == "pm":
@@ -132,6 +136,8 @@ def main() -> None:
         stop = stop or pm_stop
     elif kind == "thr":
         sids = sorted(int(x) for x in pl.read_parquet(src)["sid"].to_list())
+    elif a.lake:
+        sids = L.universe(int(a.date), a.snap_source, a.lake)
     else:
         sids = [int(r[0]) for r in con.sql(f"SELECT DISTINCT symbol_id FROM raw_quotation WHERE date = {int(a.date)} ORDER BY 1").fetchall()]
     stop = stop or DEFAULT_STOP
@@ -141,12 +147,18 @@ def main() -> None:
     prev_state = load_prev(a.prev)
     n_prev = write_prev(prev_state, names, work / "prev.bin", a.seed_all)
     n_band = write_band(prev_state, work / "band.bin")
-    ev = load_events(con, int(a.date), sids, stop)
-    con.close()
+    if a.lake:
+        print(f"{a.date}: lake {a.lake}, snapshots from {a.snap_source}; {L.missed(int(a.date), a.local_source, a.lake)}", flush=True)
+        ev = L.load_events(int(a.date), sids, stop, a.snap_source, a.local_source, a.lake)
+    else:
+        ev = load_events(con, int(a.date), sids, stop)
+        con.close()
     write_events(ev, work / "events.bin")
     n_chan = 0
     if a.chan_hist != "none":
-        n_chan = write_chan(prev_channel(str(a.date), sids, a.chan_hist, a.catalog), work / "chan.bin")
+        chan = L.prev_channel(str(a.date), sids, a.lake) if a.lake and a.chan_hist == "auto" else \
+            prev_channel(str(a.date), sids, a.chan_hist, a.catalog)
+        n_chan = write_chan(chan, work / "chan.bin")
     t1 = time.perf_counter()
     print(f"{a.date}: {len(ev)} events, {len(sids)} stocks wanted, {len(names)} rules, {n_prev} carry seeds, {n_chan} channel rows exported ({t1 - t0:.0f}s)", flush=True)
     cmd = [str(exe), str(work / "events.bin"), str(work / "rules.tsv"), str(work / "state.json"), "--prev", str(work / "prev.bin"),
