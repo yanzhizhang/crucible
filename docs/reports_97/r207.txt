@@ -1,0 +1,86 @@
+R207 on 97, 2026-11-25 08:38:23 - 08:38:39 (rerun; transcribed from screen, folded at 185 cols)
+Before the run:
+  97: find / -xdev -name 'lgb_fn_v1_209*' -> nothing; ls /data/prod/models -> No such file or directory (97 has no /data/prod)
+  2.23 (read-only, user-approved re-pull): /data/share/data/prod/models = lgb_fn_v1_209_cte.csv + tk5m/ (453 MB); models.zip 60789791 B Sep 11
+    2.23 layout: /data = TickRepository XTPSharesL2.Realtime.TDF share solar
+                 /data/share = CED CFD chrono data datayes_2_tdf feitu_v3_tdf o s
+                 /data/share/data = prod prod.tar.gz xtp_mp
+                 /data/share/data/prod = 1min_src CEDxr4d h hstats index models models.zip mp test
+  rsync -> 97 /work/crucible_data/prod_models/ ; tk5m = 17 entries (202509 202510 202511 202512 202601 202601.updated 202602 202603 ...)
+  97 /work/crucible_data/models_gen = A B C ; models_gen/B = 202501
+
+feature csv: /work/crucible_data/prod_models/lgb_fn_v1_209_cte.csv (210 lines)
+model columns of the two families: zzmh,zzvm,zzvm2
+built-in rule table: 24 rules, equal to the Python families' table
+engine: 20 stocks, 80000 events, 24 rules, 4 threads, 0.01s
+20 stocks, 58360 day-end values + 38540 mark values compared, 0 mismatches
+[08:38:23] == 20261118
+20261118: 72,000 rows, 846 candidates, px found 1.000 -> data/side_r207/state_20261118.parquet
+zzmh = column 8 of 209; model files []
+zzvm = column 15 of 209; model files []
+zzvm2 = column 81 of 209; model files []
+   candidates of the two families (39): finite share | q0.1 q1 q50 q99 q99.9
+   zzmh.r/px                     1.000 | 0 6.41168e-10 2.27497e-05 0.000786395 0.00146112
+   (px-zzmh.r)/zzmh.r            0.998 | 683.077 1269.73 43778 4.50452e+08 2.55e+44
+   (px-zzmh.r)/px                1.000 | 0.998539 0.999214 0.999977 1 1
+   zzvm.c.re/px                  1.000 | 0.930125 0.972469 1.0015 1.02355 1.03967
+   (px-zzvm.c.re)/zzvm.c.re      1.000 | -0.0381566 -0.0230072 -0.00149547 0.0283108 0.0751241
+   (px-zzvm.c.re)/px             1.000 | -0.0396703 -0.023549 -0.00149771 0.0275313 0.0698749
+   zzvm.c.v/px                   1.000 | 507.302 3472.14 674863 5.59076e+07 1.15487e+08
+   (px-zzvm.c.v)/zzvm.c.v        1.000 | -1 -1 -0.999999 -0.999712 -0.998029
+   (px-zzvm.c.v)/px              1.000 | -1.15487e+08 -5.59076e+07 -674862 -3471.14 -506.302
+   zzvm.c.tpv/px                 1.000 | 128106 520429 1.58429e+07 2.22182e+08 4.22546e+08
+   (px-zzvm.c.tpv)/zzvm.c.tpv    1.000 | -1 -1 -1 -0.999998 -0.999992
+   (px-zzvm.c.tpv)/px            1.000 | -4.22546e+08 -2.22182e+08 -1.58429e+07 -520428 -128105
+   zzmh.hm/px                    1.000 | 1 1 1.0117 1.0726 1.10274
+   (px-zzmh.hm)/zzmh.hm          1.000 | -0.0931686 -0.0676841 -0.0115663 0 0
+   (px-zzmh.hm)/px               1.000 | -0.102741 -0.0725979 -0.0117016 0 0
+   zzmh.r/zzmh.hm                1.000 | 0 6.41168e-10 2.24176e-05 0.000747445 0.00134042
+   (zzmh.r-zzmh.hm)/zzmh.hm      1.000 | -1 -1 -0.999978 -0.999253 -0.99866
+   (px-zzmh.r)/zzmh.hm           1.000 | 0.905644 0.931544 0.988361 1 1
+   zzmh.hm/zzmh.r                0.998 | 744.247 1337.11 44411 4.50532e+08 2.55e+44
+   (zzmh.hm-zzmh.r)/zzmh.r       0.998 | 743.247 1336.11 44410 4.50532e+08 2.55e+44
+   (px-zzmh.hm)/zzmh.r           0.998 | -138062 -21969 -479.143 0 0
+   zzvm.c.re/zzvm.c.v            1.000 | 8.62474e-09 1.79248e-08 1.48174e-06 0.000288612 0.00199184
+   (zzvm.c.re-zzvm.c.v)/zzvm.c.v 1.000 | -1 -1 -0.999999 -0.999711 -0.998008
+   (px-zzvm.c.re)/zzvm.c.v       1.000 | -7.27625e-06 -8.52178e-07 -4.93329e-10 1.04621e-06 6.18822e-06
+   zzvm.c.re/zzvm.c.tpv          1.000 | 2.35458e-09 4.49618e-09 6.32548e-08 1.92407e-06 7.84989e-06
+   (zzvm.c.re-zzvm.c.tpv)/zzvm.c.tpv 1.000 | -1 -1 -1 -0.999998 -0.999992
+   (px-zzvm.c.re)/zzvm.c.tpv     1.000 | -5.38629e-08 -9.28094e-09 -4.99804e-11 4.57172e-09 1.71464e-08
+   zzvm.c.v/zzvm.c.re            1.000 | 502.049 3464.86 674882 5.57885e+07 1.15946e+08
+   (zzvm.c.v-zzvm.c.re)/zzvm.c.re 1.000 | 501.049 3463.86 674881 5.57885e+07 1.15946e+08
+   (px-zzvm.c.v)/zzvm.c.re       1.000 | -1.15946e+08 -5.57885e+07 -674881 -3463.86 -501.05
+   zzvm.c.v/zzvm.c.tpv           1.000 | 0.000689982 0.00195629 0.0445669 0.396418 0.859226
+   (zzvm.c.v-zzvm.c.tpv)/zzvm.c.tpv 1.000 | -0.99931 -0.998044 -0.955433 -0.603582 -0.140774
+   (px-zzvm.c.v)/zzvm.c.tpv      1.000 | -0.859226 -0.396418 -0.0445667 -0.00195611 -0.000688808
+   zzvm.c.tpv/zzvm.c.re          1.000 | 127390 519732 1.58091e+07 2.22411e+08 4.24704e+08
+   (zzvm.c.tpv-zzvm.c.re)/zzvm.c.re 1.000 | 127389 519731 1.58091e+07 2.22411e+08 4.24704e+08
+   (px-zzvm.c.tpv)/zzvm.c.re     1.000 | -4.24704e+08 -2.22411e+08 -1.58091e+07 -519731 -127389
+   zzvm.c.tpv/zzvm.c.v           1.000 | 1.16384 2.52286 22.4382 511.21 1449.31
+   (zzvm.c.tpv-zzvm.c.v)/zzvm.c.v 1.000 | 0.163838 1.52286 21.4382 510.21 1448.31
+   (px-zzvm.c.tpv)/zzvm.c.v      1.000 | -1449.31 -511.21 -22.4382 -2.52286 -1.16384
+   scoring matrix: data/reports/stage6_r99_1118
+lgbpred: usage: lgbpred [--parquet --features <names.csv>] <x> <out> <model.txt> [...] [--threads N]
+Traceback (most recent call last):
+  File "/work/crucible/research/featgen/single_fill.py", line 106, in <module>
+    main()
+  File "/work/crucible/research/featgen/single_fill.py", line 78, in main
+    subprocess.run([str(exe), str(a.work / "x.bin"), str(a.work / "p.bin"), *map(str, files), "--threads", str(a.threads)], check=True, stdout=subprocess.DEVNULL)
+  ...
+subprocess.CalledProcessError: Command '['/work/crucible/research/featgen/cpp/build/lgbpred', 'data/single_fill_r207/x.bin', 'data/single_fill_r207/p.bin', '--threads', '64']' returned non-zero exit s
+[08:38:28] == 20261119
+20261119: 72,000 rows, 846 candidates, px found 1.000 -> data/side_r207/state_20261119.parquet
+zzmh / zzvm / zzvm2 = columns 8 / 15 / 81 of 209; model files [] (each)
+   (39-candidate table, same shape; e.g. zzmh.r/px 1.000 | 5.87171e-15 1.15071e-08 1.8889e-05 0.000572773 0.000887645;
+    zzvm.c.re/px 1.000 | 0.960419 0.97785 1.00072 1.02282 1.04314; zzmh.hm/px 1.000 | 1 1 1.01024 1.07948 1.13077)
+   scoring matrix: data/reports/stage6_r99_1119
+  same lgbpred usage error / CalledProcessError (no model file passed)
+[08:38:33] == 20261120
+20261120: 72,000 rows, 846 candidates, px found 1.000 -> data/side_r207/state_20261120.parquet
+zzmh / zzvm / zzvm2 = columns 8 / 15 / 81 of 209; model files [] (each)
+   (39-candidate table; e.g. zzmh.r/px 1.000 | 9.65359e-18 2.22557e-09 2.92769e-05 0.000541842 0.00122778;
+    zzvm.c.re/px 1.000 | 0.970322 0.980582 1.00147 1.02248 1.03244; zzmh.hm/px 1.000 | 1 1 1.01281 1.05263 1.09917)
+   scoring matrix: data/reports/stage6_r99_1120
+  same lgbpred usage error / CalledProcessError
+[08:38:39] r207 done
+Full output on 97: data/reports/r207.txt (folded copy data/reports/r207_f.txt, 174 lines). All tables on 97 verbatim.
