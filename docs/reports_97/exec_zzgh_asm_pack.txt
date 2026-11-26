@@ -1,0 +1,55 @@
+# 97 /work/exec_x_gh_pack.txt: N3cte8TermZZGHE, 13 virtual slots, packed form (asm_min.py md5 d324e332 -> awk pack: addresses/padding dropped,
+# mov/lea/push/pop/jmp dropped unless a constant load, ';' joins instructions). 80 rows, 11531 bytes. Transcribed off screen; the 19-digit int64
+# copy of each constant is dropped (doubles kept); unrolled loop-tail rows are marked [..] where condensed. Names kept as printed (CreatePolicy@@Base+...).
+// class N3cte8TermZZGHE: 13 virtual slots
+-- slot 0 @ 6b880: = N3cte5ITermE:slot 0
+-- slot 1 @ 6b8b0: = 6hAlpha:slot 1
+-- slot 2 @ 8c440: = 6hAlpha:slot 1
+-- slot 3 @ e3b40
+pxor xmm3,xmm3 ; pxor xmm0,xmm0 ; sub rsp,0x18 ; cvttsd2si rsi,xmm1 ; cvtsi2sd xmm3,rsi ; imul rdx ; sar rax,0x3f ; subsd xmm2,xmm3 ; sar rdx,0xd ; sub rdx,rax ; imul rdx,rdx,0x15180
+sub rcx,rdx ; cvtsi2sd xmm0,rcx ; addsd xmm0,xmm2 ; comisd xmm?,QWORD PTR [rip+0x96ded] ;[34199.99999] ; jb e3be8
+movsd xmm2,QWORD PTR [rip+0x96deb] ;[41550] ; comisd xmm2,xmm0 ; jb e3be8 ; call 132aa0 <CreatePolicy@@Base+0x78f60>
+pxor xmm1,xmm1 ; comisd xmm1,xmm0 ; jae e3c08 ; cmp al,0xff ; je e3d30 ; cmp al,0x1 ; je e3c18
+add rsp,0x18 ; ret ; comisd xmm0,QWORD PTR [rip+0x96db8] ;[46799.99999] ; jb e3bde ; movsd xmm2,QWORD PTR [rip+0x96db6] ;[54150?  row cut off at the screen edge]
+comisd xmm2,xmm0 ; jb e3bde ; cmp BYTE PTR [rbp+0x1c0],0x0 ; jne e3bce ; call 133790 <CreatePolicy@@Base+0x79c50>
+shr rdx,0x20 ; test dl,dl ; je e3bde ; mulsd xmm0,QWORD PTR [rsp+0x8] ; addsd xmm1,xmm0 ; cmp eax,ecx ; je e3e90
+[~12 rows: unrolled loop tails -- cmp/jle/jbe/sub r8d,2/shr ecx,1/shl rcx,4/add rdx,0x10, setbe/setae r11b,bl, and ecx,0xfffffffe, call 133790 again, mulsd xmm0,[rsp+0x8] ; addsd xmm1,xmm0, ending jne e3bde]
+-- slot 4 @ 8c440: = 6hAlpha:slot 1
+-- slot 5 @ 8c440: = 6hAlpha:slot 1
+-- slot 6 @ 8c440: = 6hAlpha:slot 1
+-- slot 7 @ e5200
+sub rsp,0x30 ; call 132aa0 ; pxor xmm3,xmm3 ; comisd xmm3,xmm0 ; jae e54c0 ; pxor xmm1,xmm1 ; cvtsi2sd xmm1,r12d
+divsd xmm2,xmm1 ; roundsd xmm2,xmm2,0x9 ; cvttsd2si ebp,xmm2 ; call 1bcc0 <fmod@plt> ; pxor xmm1,xmm1 ; shr eax,0x1f ; add eax,r12d ; sar eax,1 ; cvtsi2sd xmm1,eax ; xor eax,eax
+comisd xmm1,xmm0 ; seta al ; sub ebp,eax ; test ebp,ebp ; jle e54ad ; xor edx,edx ; call 133ca0 <CreatePolicy@@Base+0x7a160> ; cmp rdx,rdi
+je 35d2e <std::once_flag::_Prepare_execution::_Prepare_exe~> (quill Backend::start lambda; logger init code)
+[~10 rows: sum of a vector of doubles (addsd, shr rcx,1 / shl rcx,4 pairs, cvtsi2sd xmm1,rdx ; divsd xmm0,xmm1 = mean), operator delete calls, quill once_flag; two copies]
+sub rsi,rdi ; call 1b180 <operator delete(void*, unsigned long)@plt> ; pxor xmm5,xmm5 ; ucomisd xmm4,xmm5 ; setnp al ; cmovne eax,edx ; test al,al ; jne e54ad
+ucomisd xmm0,xmm5 ; setnp dl ; cmove eax,edx ; test al,al ; jne e54ad ; subsd xmm1,xmm0 ; addsd xmm0,xmm4 ; divsd xmm1,xmm0 ; subsd xmm0,QWORD PTR [rbx+0xf8]
+comisd xmm0,QWORD PTR [rip+0x9690c] ;[0.6] ; ja e5539 ; comisd xmm0,QWORD PTR [rip+0x95f76] ;[0.2]
+ja e5557 ; comisd xmm0,QWORD PTR [rip+0x968f8] ;[-0.2] ; ja e555e ; comisd xmm0,QWORD PTR [rip+0x968f?  row cut off]
+ja e553b ; pxor xmm0,xmm0 ; pxor xmm1,xmm1 ; addsd xmm0,QWORD PTR [rdx+rcx*8] ; cvtsi2sd xmm1,ebp ; mulsd xmm1,QWORD PTR [rip+0x968cc] ;[25]
+addsd xmm0,xmm1 ; add rsp,0x30 ; ret ; pxor xmm0,xmm0 ; add rsp,0x30 ; ret ; and edx,0x1 ; pxor xmm1,xmm1 ; shr rax,1 ; or rax,rdx ; cvtsi2sd xmm1,rax ; addsd xmm1,xmm1
+and edx,0x1 ; pxor xmm1,xmm1 ; shr rax,1 ; or rax,rdx ; cvtsi2sd xmm0,eax ; mulsd xmm0,QWORD PTR [rip+0x96816] ;[5]
+-- slot 8 @ adc90: = 6hAlpha:slot 1
+-- slot 9 @ adca0: = 6hAlpha:slot 1
+-- slot 10 @ adcb0: = 6hAlpha:slot 1
+-- slot 11 @ adcc0: = N3cte5ITermE:slot 11
+-- slot 12 @ e5570
+pxor xmm7,xmm7 ; sub rsp,0x38 ; ucomisd xmm7,QWORD PTR [rdi+0x1c8] ; jp e55a0 ; jne e55a0 ; add rsp,0x38 ; ret
+pmaxsd xmm0,xmm1 ; test eax,eax ; jle e58d9 ; xor r11d,r11d ; movsd xmm3,QWORD PTR [rip+0x96767] ;[0.6]
+xor eax,eax ; movsd xmm4,QWORD PTR [rip+0x95dd1] ;[0.2] ; movsd xmm7,QWORD PTR [rip+0x96759] ;[-0.2]
+movsd xmm6,QWORD PTR [rip+0x96759] ;[-0.6] ; movsd xmm5,QWORD PTR [rip+0x95431] ;[1] ; pxor xmm1,xmm1
+ucomisd xmm0,xmm1 ; setnp dl ; cmovne edx,r11d ; test dl,dl ; je e5651 ; ucomisd xmm2,xmm1 ; mov rcx,QWORD PTR [rip+0x9594f] ;[2]
+setnp dl ; cmovne edx,r11d ; test dl,dl ; je e5695 ; addsd xmm0,xmm2 ; subsd xmm1,xmm2 ; comisd xmm1,xmm3 ; ja e5980
+comisd xmm1,xmm4 ; ja e5998 ; comisd xmm1,xmm7 ; ja e59b2 ; pxor xmm2,xmm2 ; cmpnltsd xmm1,xmm0 ; blendvpd xmm1,xmm2,xmm0
+[~25 rows: slot-code loop -- cmp edx,eax ; jge / cmp ecx,eax ; jge / sub r8d,edx ; setae r15b / shr edi,1 ; shl rdi,4 / cmp rax,QWORD PTR [rsp] / call 1341f0 / call 133ca0 / once_flag (quill) / mean loop (sum / n = divsd) / operator delete / ucomisd-setnp chains / cmp eax,ebp ; jg e58f0 / shl rsi,0x5 ; add rsi,QWORD PTR [rbx+0x1d8] ; call b6330 / call <quill::v12::detail::get_thread_name> / add rsp,0x38 ; ret ; and edx,1 ; cvtsi2sd xmm1,rax ; addsd xmm1,xmm1 ; divsd ; mov rdi,QWORD PTR [rip+0x963f1] ;[4] ; mov rdi,QWORD PTR [rip+0x955d7] ;[3] / ;[2] ]
+-- callee @ 132aa0: = N3cte7TermCFHE:callee
+-- callee @ 133790: = N3cte8TermZZBSE:callee
+-- callee @ 133ca0: = N3cte8TermZZBSE:callee
+-- callee @ b6330: = N3cte8TermZZABE:callee
+-- callee @ 1341f0
+cmp rdi,rdx ; je 416e1 <std::once_flag::_Prepare_execution::_Prepare_exe~> (quill)
+sub rcx,rdi ; shr rsi,0x3 ; add rsi,0x1 ; cmp rcx,0x8 ; je 1342a0 ; pxor xmm0,xmm0 ; shr rcx,1 ; shl rcx,0x4 ; add rcx,rdi ; add rax,0x10
+addsd xmm0,xmm1 ; addsd xmm0,xmm1 ; cmp rcx,rax ; jne 134230 ; and rcx,0xfffffffffffffffe ; cmp rsi,rcx ; je 13425e
+addsd xmm0,QWORD PTR [rax] ; sub rdx,rdi ; sar rdx,0x3 ; js 134278 ; pxor xmm1,xmm1 ; cvtsi2sd xmm1,rdx ; divsd xmm0,xmm1 ; ret ; and edx,0x1
+pxor xmm1,xmm1 ; shr rax,1 ; or rax,rdx ; cvtsi2sd xmm1,rax ; addsd xmm1,xmm1 ; divsd xmm0,xmm1 ; ret ; pxor xmm0,xmm0
