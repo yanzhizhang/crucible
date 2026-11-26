@@ -1,0 +1,191 @@
+batch 1: ZZZL slot 7 @ 0x132b00..0x13348f (/work/b_zl7.txt, 179 lines), raw rows, transcribed from screen in chunks of 32 rows.
+
+=== rows 1-32
+// ---- slot 7 @ 0x132b00 .. 0x13348f | 132b00: push r15 | 132b02: movapd xmm0,xmm1
+132b06: push r14 | 132b08: push r13 | 132b0a: mov r13,rdi
+132b0d: push r12 | 132b0f: push rbp | 132b10: push rbx
+132b11: sub rsp,0x48 | 132b15: call 132aa0 <CreatePolicy@@Base+0x78f60> | 132b1a: pxor xmm1,xmm1
+132b1e: comisd xmm1,xmm0 | 132b22: jae 133258 <CreatePolicy@@Base+0x79718> | 132b28: mov edx,DWORD PTR [r13+0x130]
+132b2f: test edx,edx | 132b31: je 4158a <std::once_flag::_Prepare_execution::_Prepare_execution<std::call_once<quill::v12::Backend::start(quill::v12::BackendOptions const&)::{lambda()#1}>(std::once_fl...
+132b3b: movapd xmm2,xmm0 | 132b3f: mov ecx,DWORD PTR [r13+0x134] | 132b46: cvtsi2sd xmm3,edx
+132b4a: divsd xmm2,xmm3 | 132b4e: roundsd xmm2,xmm2,0x9 | 132b54: cvttsd2si edx,xmm2
+132b58: test edx,edx | 132b5a: js 133242 <CreatePolicy@@Base+0x79702> | 132b60: cmp ecx,edx
+132b62: jle 133242 <CreatePolicy@@Base+0x79702> | 132b68: divsd xmm0,QWORD PTR [rip+0x48410] ;[60 | 4633641066610819072] | 132b70: roundsd xmm0,xmm0,0x9
+132b76: cvttsd2si r15d,xmm0 | 132b7b: mov rcx,QWORD PTR [r13+0x158] | 132b82: movsd xmm4,QWORD PTR [r13+0x128]
+132b8b: movsxd rdx,edx | 132b8e: movsd xmm6,QWORD PTR [r13+0x210] | 132b97: movsd xmm0,QWORD PTR [rcx+rdx*8]
+132b9c: mov rcx,QWORD PTR [r13+0x198] | 132ba3: movsd QWORD PTR [rsp+0x10],xmm4 | 132ba9: add r15d,0xf
+132bad: ucomisd xmm4,xmm1 | 132bb1: movsd xmm3,QWORD PTR [rcx+rdx*8] | 132bb6: mov ecx,0x0
+132bbb: movsd QWORD PTR [rsp+0x8],xmm6 | 132bc1: setnp bl | 132bc4: cmovne ebx,ecx
+132bc7: ucomisd xmm0,xmm1 | 132bcb: setnp dl | 132bce: cmovne edx,ecx
+132bd1: test dl,dl | 132bd3: jne 133288 <CreatePolicy@@Base+0x79748> | 132bd9: test bl,bl
+132bdb: jne 133288 <CreatePolicy@@Base+0x79748> | 132be1: movapd xmm2,xmm4 | 132be5: movsd QWORD PTR [rsp+0x18],xmm3
+132beb: divsd xmm2,xmm0 | 132bef: movapd xmm0,xmm2 | 132bf3: call 1b240 <log@plt>
+132bf8: movsd xmm3,QWORD PTR [rsp+0x18] | 132bfe: pxor xmm1,xmm1 | 132c02: movapd xmm2,xmm0
+132c06: movsd xmm5,QWORD PTR [rsp+0x8] | 132c0c: mov ecx,0x0 | 132c11: ucomisd xmm5,xmm1
+132c15: setnp bpl | 132c19: cmovne ebp,ecx | 132c1c: ucomisd xmm3,xmm1
+132c20: setnp dl | 132c23: cmovne edx,ecx | 132c26: test dl,dl
+132c28: jne 1332b8 <CreatePolicy@@Base+0x79778> | 132c2e: test bpl,bpl | 132c31: jne 1332b8 <CreatePolicy@@Base+0x79778>
+132c37: movapd xmm0,xmm5 | 132c3b: movsd QWORD PTR [rsp+0x18],xmm2 | 132c41: divsd xmm0,xmm3
+132c45: call 1b240 <log@plt> | 132c4a: movsd xmm2,QWORD PTR [rsp+0x18] | 132c50: pxor xmm1,xmm1
+132c54: movapd xmm3,xmm0 | 132c58: ucomisd xmm0,xmm2 | 132c5c: jp 1332b8 <CreatePolicy@@Base+0x79778>
+132c62: mulsd xmm3,QWORD PTR [r13+0x278] | 132c6b: subsd xmm2,xmm3 | 132c6f: mov rax,QWORD PTR [r13+0xf8]
+132c76: mov r12,QWORD PTR [r13+0x40] | 132c7a: mov ecx,0x0 | 132c7f: mov r14,QWORD PTR [r13+0x1e0]
+132c86: movsd QWORD PTR [r12],xmm2 | 132c8c: movsd xmm0,QWORD PTR [rax] | 132c90: mov QWORD PTR [rsp+0x18],rax
+132c95: movsd xmm3,QWORD PTR [r14] | 132c9a: ucomisd xmm0,xmm1 | 132c9e: setnp dl
+132ca1: cmovne edx,ecx | 132ca4: test dl,dl | 132ca6: jne 1332a8 <CreatePolicy@@Base+0x79768>
+
+=== rows 33-64
+132cac: test bl,bl | 132cae: jne 1332a8 <CreatePolicy@@Base+0x79768> | 132cb4: movsd xmm2,QWORD PTR [rsp+0x10]
+132cba: movsd QWORD PTR [rsp+0x20],xmm3 | 132cc0: divsd xmm2,xmm0 | 132cc4: movapd xmm0,xmm2
+132cc8: call 1b240 <log@plt> | 132ccd: movsd xmm3,QWORD PTR [rsp+0x20] | 132cd3: pxor xmm1,xmm1
+132cd7: movapd xmm2,xmm0 | 132cdb: ucomisd xmm3,xmm1 | 132cdf: mov ecx,0x0
+132ce4: setnp dl | 132ce7: cmovne edx,ecx | 132cea: test dl,dl
+132cec: jne 133298 <CreatePolicy@@Base+0x79758> | 132cf2: test bpl,bpl | 132cf5: jne 133298 <CreatePolicy@@Base+0x79758>
+132cfb: movsd xmm0,QWORD PTR [rsp+0x8] | 132d01: movsd QWORD PTR [rsp+0x20],xmm2 | 132d07: divsd xmm0,xmm3
+132d0b: call 1b240 <log@plt> | 132d10: movsd xmm2,QWORD PTR [rsp+0x20] | 132d16: pxor xmm1,xmm1
+132d1a: movapd xmm3,xmm0 | 132d1e: ucomisd xmm0,xmm2 | 132d22: jp 133298 <CreatePolicy@@Base+0x79758>
+132d28: mulsd xmm3,QWORD PTR [r13+0x278] | 132d31: subsd xmm2,xmm3 | 132d35: mov rcx,QWORD PTR [r13+0x1f8]
+132d3c: movsd QWORD PTR [r12+0x8],xmm2 | 132d43: mov rdx,QWORD PTR [rcx] | 132d46: cmp QWORD PTR [rcx+0x8],rdx
+132d4a: je 133450 <CreatePolicy@@Base+0x79910> | 132d50: movsxd rsi,r15d | 132d53: movsd xmm3,QWORD PTR [rdx+rsi*8]
+132d58: mov edx,0x0 | 132d5d: ucomisd xmm3,xmm1 | 132d61: setnp sil
+132d65: cmovne esi,edx | 132d68: or esi,ebp | 132d6a: mov rdx,QWORD PTR [r13+0x1b0]
+132d71: mov rdi,QWORD PTR [rdx] | 132d74: cmp QWORD PTR [rdx+0x8],rdi | 132d78: je 133430 <CreatePolicy@@Base+0x798f0>
+132d7e: movsxd r8,r15d | 132d81: movsd xmm0,QWORD PTR [rdi+r8*8] | 132d87: mov r8d,0x0
+132d8d: ucomisd xmm0,xmm1 | 132d91: setnp dil | 132d95: cmovne edi,r8d
+132d99: or edi,ebx | 132d9b: movsd xmm2,QWORD PTR [rip+0x47c7d] ;[nan | 9221120237041090560] | 132da3: test dil,dil
+132da6: jne 132ded <CreatePolicy@@Base+0x792ad> | 132da8: movsd xmm2,QWORD PTR [rsp+0x10] | 132dae: mov QWORD PTR [rsp+0x30],rcx
+132db3: mov QWORD PTR [rsp+0x28],rdx | 132db8: divsd xmm2,xmm0 | 132dbc: mov BYTE PTR [rsp+0x20],sil
+132dc1: movsd QWORD PTR [rsp+0x38],xmm3 | 132dc7: movapd xmm0,xmm2 | 132dcb: call 1b240 <log@plt>
+132dd0: movsd xmm3,QWORD PTR [rsp+0x38] | 132dd6: mov rcx,QWORD PTR [rsp+0x30] | 132ddb: pxor xmm1,xmm1
+132ddf: mov rdx,QWORD PTR [rsp+0x28] | 132de4: movzx esi,BYTE PTR [rsp+0x20] | 132de9: movapd xmm2,xmm0
+132ded: test sil,sil | 132df0: je 1333e0 <CreatePolicy@@Base+0x798a0> | 132df6: movapd xmm2,xmm1
+132dfa: mov rsi,QWORD PTR [rcx+0x18] | 132dfe: movsd QWORD PTR [r12+0x10],xmm2 | 132e05: cmp QWORD PTR [rcx+0x20],rsi
+132e09: je 133480 <CreatePolicy@@Base+0x79940> | 132e0f: movsxd rdi,r15d | 132e12: movsd xmm3,QWORD PTR [rsi+rdi*8]
+132e17: mov edi,0x0 | 132e1c: ucomisd xmm3,xmm1 | 132e20: setnp sil
+132e24: cmovne esi,edi | 132e27: or esi,ebp | 132e29: mov rdi,QWORD PTR [rdx+0x18]
+132e2d: cmp QWORD PTR [rdx+0x20],rdi | 132e31: je 133470 <CreatePolicy@@Base+0x79930> | 132e37: movsxd r8,r15d
+132e3a: movsd xmm0,QWORD PTR [rdi+r8*8] | 132e40: mov r8d,0x0 | 132e46: ucomisd xmm0,xmm1
+132e4a: setnp dil | 132e4e: cmovne edi,r8d | 132e52: or edi,ebx
+132e54: movsd xmm2,QWORD PTR [rip+0x47bc4] ;[nan | 9221120237041090560] | 132e5c: test dil,dil | 132e5f: jne 132ea6 <CreatePolicy@@Base+0x79366>
+
+=== rows 65-96
+132e61: movsd xmm2,QWORD PTR [rsp+0x10] | 132e67: mov BYTE PTR [rsp+0x38],sil | 132e6c: mov QWORD PTR [rsp+0x30],rcx
+132e71: divsd xmm2,xmm0 | 132e75: mov QWORD PTR [rsp+0x28],rdx | 132e7a: movsd QWORD PTR [rsp+0x20],xmm3
+132e80: movapd xmm0,xmm2 | 132e84: call 1b240 <log@plt> | 132e89: movzx esi,BYTE PTR [rsp+0x38]
+132e8e: mov rcx,QWORD PTR [rsp+0x30] | 132e93: pxor xmm1,xmm1 | 132e97: mov rdx,QWORD PTR [rsp+0x28]
+132e9c: movsd xmm3,QWORD PTR [rsp+0x20] | 132ea2: movapd xmm2,xmm0 | 132ea6: test sil,sil
+132ea9: je 133388 <CreatePolicy@@Base+0x79848> | 132eaf: movapd xmm2,xmm1 | 132eb3: mov rsi,QWORD PTR [rcx+0x30]
+132eb7: movsd QWORD PTR [r12+0x18],xmm2 | 132ebe: cmp QWORD PTR [rcx+0x38],rsi | 132ec2: je 133460 <CreatePolicy@@Base+0x79920>
+132ec8: movsxd rcx,r15d | 132ecb: movsd xmm3,QWORD PTR [rsi+rcx*8] | 132ed0: mov esi,0x0
+132ed5: ucomisd xmm3,xmm1 | 132ed9: setnp cl | 132edc: cmovne ecx,esi
+132edf: or ecx,ebp | 132ee1: mov rsi,QWORD PTR [rdx+0x30] | 132ee5: cmp QWORD PTR [rdx+0x38],rsi
+132ee9: je 133440 <CreatePolicy@@Base+0x79900> | 132eef: movsxd r15,r15d | 132ef2: movsd xmm0,QWORD PTR [rsi+r15*8]
+132ef8: mov esi,0x0 | 132efd: ucomisd xmm0,xmm1 | 132f01: setnp dl
+132f04: cmovne edx,esi | 132f07: or edx,ebx | 132f09: movsd xmm2,QWORD PTR [rip+0x47b0f] ;[nan | 9221120237041090560]
+132f11: test dl,dl | 132f13: jne 132f45 <CreatePolicy@@Base+0x79405> | 132f15: movsd xmm2,QWORD PTR [rsp+0x10]
+132f1b: mov BYTE PTR [rsp+0x28],cl | 132f1f: movsd QWORD PTR [rsp+0x20],xmm3 | 132f25: divsd xmm2,xmm0
+132f29: movapd xmm0,xmm2 | 132f2d: call 1b240 <log@plt> | 132f32: movzx ecx,BYTE PTR [rsp+0x28]
+132f37: movsd xmm3,QWORD PTR [rsp+0x20] | 132f3d: pxor xmm1,xmm1 | 132f41: movapd xmm2,xmm0
+132f45: test cl,cl | 132f47: je 133348 <CreatePolicy@@Base+0x79808> | 132f4d: movapd xmm2,xmm1
+132f51: mov rax,QWORD PTR [r13+0x110] | 132f58: movsd QWORD PTR [r12+0x20],xmm2 | 132f5f: mov ecx,0x0
+132f64: mov r15,QWORD PTR [r13+0x1c8] | 132f6b: movsd xmm0,QWORD PTR [rax+0x8] | 132f70: movsd xmm3,QWORD PTR [r15+0x8]
+132f76: mov QWORD PTR [rsp+0x20],rax | 132f7b: ucomisd xmm0,xmm1 | 132f7f: setnp dl
+132f82: cmovne edx,ecx | 132f85: test dl,dl | 132f87: jne 133338 <CreatePolicy@@Base+0x797f8>
+132f8d: test bl,bl | 132f8f: jne 133338 <CreatePolicy@@Base+0x797f8> | 132f95: movsd xmm2,QWORD PTR [rsp+0x10]
+132f9b: movsd QWORD PTR [rsp+0x28],xmm3 | 132fa1: divsd xmm2,xmm0 | 132fa5: movapd xmm0,xmm2
+132fa9: call 1b240 <log@plt> | 132fae: movsd xmm3,QWORD PTR [rsp+0x28] | 132fb4: pxor xmm1,xmm1
+132fb8: movapd xmm2,xmm0 | 132fbc: ucomisd xmm3,xmm1 | 132fc0: mov ecx,0x0
+132fc5: setnp dl | 132fc8: cmovne edx,ecx | 132fcb: test dl,dl
+132fcd: jne 133328 <CreatePolicy@@Base+0x797e8> | 132fd3: test bpl,bpl | 132fd6: jne 133328 <CreatePolicy@@Base+0x797e8>
+132fdc: movsd xmm0,QWORD PTR [rsp+0x8] | 132fe2: movsd QWORD PTR [rsp+0x28],xmm2 | 132fe8: divsd xmm0,xmm3
+132fec: call 1b240 <log@plt> | 132ff1: movsd xmm2,QWORD PTR [rsp+0x28] | 132ff7: pxor xmm1,xmm1
+132ffb: movapd xmm3,xmm0 | 132fff: ucomisd xmm0,xmm2 | 133003: jp 133328 <CreatePolicy@@Base+0x797e8>
+133009: mulsd xmm3,QWORD PTR [r13+0x278] | 133012: subsd xmm2,xmm3 | 133016: mov rax,QWORD PTR [rsp+0x18]
+
+=== rows 97-128 (printed as: rows 97-128 of b_zl7.txt)
+13301b: movsd QWORD PTR [r12+0x28],xmm2 | 133022: mov ecx,0x0 | 133027: movsd xmm3,QWORD PTR [r14+0x8]
+13302d: movsd xmm0,QWORD PTR [rax+0x8] | 133032: ucomisd xmm0,xmm1 | 133036: setnp dl
+133039: cmovne edx,ecx | 13303c: test dl,dl | 13303e: jne 133318 <CreatePolicy@@Base+0x797d8>
+133044: test bl,bl | 133046: jne 133318 <CreatePolicy@@Base+0x797d8> | 13304c: movsd xmm2,QWORD PTR [rsp+0x10]
+133052: movsd QWORD PTR [rsp+0x28],xmm3 | 133058: divsd xmm2,xmm0 | 13305c: movapd xmm0,xmm2
+133060: call 1b240 <log@plt> | 133065: movsd xmm3,QWORD PTR [rsp+0x28] | 13306b: pxor xmm1,xmm1
+13306f: movapd xmm2,xmm0 | 133073: ucomisd xmm3,xmm1 | 133077: mov ecx,0x0
+13307c: setnp dl | 13307f: cmovne edx,ecx | 133082: test dl,dl
+133084: jne 133308 <CreatePolicy@@Base+0x797c8> | 13308a: test bpl,bpl | 13308d: jne 133308 <CreatePolicy@@Base+0x797c8>
+133093: movsd xmm0,QWORD PTR [rsp+0x8] | 133099: movsd QWORD PTR [rsp+0x28],xmm2 | 13309f: divsd xmm0,xmm3
+1330a3: call 1b240 <log@plt> | 1330a8: movsd xmm2,QWORD PTR [rsp+0x28] | 1330ae: pxor xmm1,xmm1
+1330b2: movapd xmm3,xmm0 | 1330b6: ucomisd xmm0,xmm2 | 1330ba: jp 133308 <CreatePolicy@@Base+0x797c8>
+1330c0: mulsd xmm3,QWORD PTR [r13+0x278] | 1330c9: subsd xmm2,xmm3 | 1330cd: mov rax,QWORD PTR [rsp+0x20]
+1330d2: movsd QWORD PTR [r12+0x30],xmm2 | 1330d9: mov ecx,0x0 | 1330de: movsd xmm3,QWORD PTR [r15+0x10]
+1330e4: movsd xmm0,QWORD PTR [rax+0x10] | 1330e9: ucomisd xmm0,xmm1 | 1330ed: setnp dl
+1330f0: cmovne edx,ecx | 1330f3: test dl,dl | 1330f5: jne 1332f8 <CreatePolicy@@Base+0x797b8>
+1330fb: test bl,bl | 1330fd: jne 1332f8 <CreatePolicy@@Base+0x797b8> | 133103: movsd xmm2,QWORD PTR [rsp+0x10]
+133109: movsd QWORD PTR [rsp+0x20],xmm3 | 13310f: divsd xmm2,xmm0 | 133113: movapd xmm0,xmm2
+133117: call 1b240 <log@plt> | 13311c: movsd xmm3,QWORD PTR [rsp+0x20] | 133122: pxor xmm1,xmm1
+133126: movapd xmm2,xmm0 | 13312a: ucomisd xmm3,xmm1 | 13312e: mov ecx,0x0
+133133: setnp dl | 133136: cmovne edx,ecx | 133139: test dl,dl
+13313b: jne 1332e8 <CreatePolicy@@Base+0x797a8> | 133141: test bpl,bpl | 133144: jne 1332e8 <CreatePolicy@@Base+0x797a8>
+13314a: movsd xmm0,QWORD PTR [rsp+0x8] | 133150: movsd QWORD PTR [rsp+0x20],xmm2 | 133156: divsd xmm0,xmm3
+13315a: call 1b240 <log@plt> | 13315f: movsd xmm2,QWORD PTR [rsp+0x20] | 133165: pxor xmm1,xmm1
+133169: movapd xmm3,xmm0 | 13316d: ucomisd xmm0,xmm2 | 133171: jp 1332e8 <CreatePolicy@@Base+0x797a8>
+133177: mulsd xmm3,QWORD PTR [r13+0x278] | 133180: subsd xmm2,xmm3 | 133184: mov rax,QWORD PTR [rsp+0x18]
+133189: movsd QWORD PTR [r12+0x38],xmm2 | 133190: mov ecx,0x0 | 133195: movsd xmm3,QWORD PTR [r14+0x10]
+13319b: movsd xmm0,QWORD PTR [rax+0x10] | 1331a0: ucomisd xmm0,xmm1 | 1331a4: setnp dl
+1331a7: cmovne edx,ecx | 1331aa: test dl,dl | 1331ac: jne 1332d8 <CreatePolicy@@Base+0x79798>
+1331b2: test bl,bl | 1331b4: jne 1332d8 <CreatePolicy@@Base+0x79798> | 1331ba: movsd xmm2,QWORD PTR [rsp+0x10]
+1331c0: movsd QWORD PTR [rsp+0x18],xmm3 | 1331c6: divsd xmm2,xmm0 | 1331ca: movapd xmm0,xmm2
+1331ce: call 1b240 <log@plt> | 1331d3: movsd xmm3,QWORD PTR [rsp+0x18] | 1331d9: pxor xmm1,xmm1
+
+=== rows 129-160
+1331dd: movapd xmm2,xmm0 | 1331e1: ucomisd xmm3,xmm1 | 1331e5: mov ecx,0x0
+1331ea: setnp dl | 1331ed: cmovne edx,ecx | 1331f0: test dl,dl
+1331f2: jne 1332c8 <CreatePolicy@@Base+0x79788> | 1331f8: test bpl,bpl | 1331fb: jne 1332c8 <CreatePolicy@@Base+0x79788>
+133201: movsd xmm0,QWORD PTR [rsp+0x8] | 133207: movsd QWORD PTR [rsp+0x10],xmm2 | 13320d: divsd xmm0,xmm3
+133211: call 1b240 <log@plt> | 133216: movsd xmm2,QWORD PTR [rsp+0x10] | 13321c: pxor xmm1,xmm1
+133220: ucomisd xmm0,xmm2 | 133224: jp 1332c8 <CreatePolicy@@Base+0x79788> | 13322a: movsd xmm1,QWORD PTR [r13+0x278]
+133233: mulsd xmm1,xmm0 | 133237: subsd xmm2,xmm1 | 13323b: movsd QWORD PTR [r12+0x40],xmm2
+133242: add rsp,0x48 | 133246: pop rbx | 133247: pop rbp
+133248: pop r12 | 13324a: pop r13 | 13324c: pop r14
+13324e: pop r15 | 133250: ret | 133251: nop DWORD PTR [rax+0x0]
+133258: mov rdi,QWORD PTR [r13+0x40] | 13325c: mov rdx,QWORD PTR [r13+0x48] | 133260: sub rdx,rdi
+133263: mov rax,rdx | 133266: shr rax,0x3 | 13326a: je 133242 <CreatePolicy@@Base+0x79702>
+13326c: add rsp,0x48 | 133270: xor esi,esi | 133272: pop rbx
+133273: pop rbp | 133274: pop r12 | 133276: pop r13
+133278: pop r14 | 13327a: pop r15 | 13327c: jmp 1b430 <memset@plt>
+133281: nop DWORD PTR [rax+0x0] | 133288: movsd xmm2,QWORD PTR [rip+0x47790] ;[nan | 9221120237041090560] | 133290: jmp 132c06 <CreatePolicy@@Base+0x790...
+133295: nop DWORD PTR [rax] | 133298: movapd xmm2,xmm1 | 13329c: jmp 132d35 <CreatePolicy@@Base+0x791f5>
+1332a1: nop DWORD PTR [rax+0x0] | 1332a8: movsd xmm2,QWORD PTR [rip+0x47770] ;[nan | 9221120237041090560] | 1332b0: jmp 132cdb <CreatePolicy@@Base+0x791...
+1332b5: nop DWORD PTR [rax] | 1332b8: movapd xmm2,xmm1 | 1332bc: jmp 132c6f <CreatePolicy@@Base+0x7912f>
+1332c1: nop DWORD PTR [rax+0x0] | 1332c8: movapd xmm2,xmm1 | 1332cc: jmp 13323b <CreatePolicy@@Base+0x796fb>
+1332d1: nop DWORD PTR [rax+0x0] | 1332d8: movsd xmm2,QWORD PTR [rip+0x47740] ;[nan | 9221120237041090560] | 1332e0: jmp 1331e1 <CreatePolicy@@Base+0x796...
+1332e5: nop DWORD PTR [rax] | 1332e8: movapd xmm2,xmm1 | 1332ec: jmp 133184 <CreatePolicy@@Base+0x79644>
+1332f1: nop DWORD PTR [rax+0x0] | 1332f8: movsd xmm2,QWORD PTR [rip+0x47720] ;[nan | 9221120237041090560] | 133300: jmp 13312a <CreatePolicy@@Base+0x795...
+133305: nop DWORD PTR [rax] | 133308: movapd xmm2,xmm1 | 13330c: jmp 1330cd <CreatePolicy@@Base+0x7958d>
+133311: nop DWORD PTR [rax+0x0] | 133318: movsd xmm2,QWORD PTR [rip+0x47700] ;[nan | 9221120237041090560] | 133320: jmp 133073 <CreatePolicy@@Base+0x795...
+133325: nop DWORD PTR [rax] | 133328: movapd xmm2,xmm1 | 13332c: jmp 133016 <CreatePolicy@@Base+0x794d6>
+133331: nop DWORD PTR [rax+0x0] | 133338: movsd xmm2,QWORD PTR [rip+0x476e0] ;[nan | 9221120237041090560] | 133340: jmp 132fbc <CreatePolicy@@Base+0x794...
+133345: nop DWORD PTR [rax] | 133348: movsd xmm0,QWORD PTR [rsp+0x8] | 13334e: movsd QWORD PTR [rsp+0x20],xmm2
+133354: divsd xmm0,xmm3 | 133358: call 1b240 <log@plt> | 13335d: movsd xmm2,QWORD PTR [rsp+0x20]
+133363: pxor xmm1,xmm1 | 133367: ucomisd xmm0,xmm2 | 13336b: jp 132f4d <CreatePolicy@@Base+0x7940d>
+133371: mulsd xmm0,QWORD PTR [r13+0x278] | 13337a: subsd xmm2,xmm0 | 13337e: jmp 132f51 <CreatePolicy@@Base+0x79411>
+133383: nop DWORD PTR [rax+rax*1+0x0] | 133388: movsd xmm0,QWORD PTR [rsp+0x8] | 13338e: mov QWORD PTR [rsp+0x28],rcx
+
+=== rows 161-179
+133393: mov QWORD PTR [rsp+0x20],rdx | 133398: divsd xmm0,xmm3 | 13339c: movsd QWORD PTR [rsp+0x30],xmm2
+1333a2: call 1b240 <log@plt> | 1333a7: movsd xmm2,QWORD PTR [rsp+0x30] | 1333ad: mov rdx,QWORD PTR [rsp+0x20]
+1333b2: pxor xmm1,xmm1 | 1333b6: mov rcx,QWORD PTR [rsp+0x28] | 1333bb: ucomisd xmm0,xmm2
+1333bf: jp 132eaf <CreatePolicy@@Base+0x7936f> | 1333c5: mulsd xmm0,QWORD PTR [r13+0x278] | 1333ce: subsd xmm2,xmm0
+1333d2: jmp 132eb3 <CreatePolicy@@Base+0x79373> | 1333d7: nop WORD PTR [rax+rax*1+0x0] | 1333e0: movsd xmm0,QWORD PTR [rsp+0x8]
+1333e6: mov QWORD PTR [rsp+0x28],rcx | 1333eb: mov QWORD PTR [rsp+0x20],rdx | 1333f0: divsd xmm0,xmm3
+1333f4: movsd QWORD PTR [rsp+0x30],xmm2 | 1333fa: call 1b240 <log@plt> | 1333ff: movsd xmm2,QWORD PTR [rsp+0x30]
+133405: mov rdx,QWORD PTR [rsp+0x20] | 13340a: pxor xmm1,xmm1 | 13340e: mov rcx,QWORD PTR [rsp+0x28]
+133413: ucomisd xmm0,xmm2 | 133417: jp 132df6 <CreatePolicy@@Base+0x792b6> | 13341d: mulsd xmm0,QWORD PTR [r13+0x278]
+133426: subsd xmm2,xmm0 | 13342a: jmp 132dfa <CreatePolicy@@Base+0x792ba> | 13342f: nop
+133430: movsd xmm0,QWORD PTR [rip+0x475e8] ;[nan | 9221120237041090560] | 133438: mov edi,ebx | 13343a: jmp 132d9b <CreatePolicy@@Base+0x7925b>
+13343f: nop | 133440: movsd xmm0,QWORD PTR [rip+0x475d8] ;[nan | 9221120237041090560] | 133448: mov edx,ebx
+13344a: jmp 132f09 <CreatePolicy@@Base+0x793c9> | 13344f: nop | 133450: movsd xmm3,QWORD PTR [rip+0x475c8] ;[nan | 9221120237041090560]
+133458: mov esi,ebp | 13345a: jmp 132d6a <CreatePolicy@@Base+0x7922a> | 13345f: nop
+133460: movsd xmm3,QWORD PTR [rip+0x475b8] ;[nan | 9221120237041090560] | 133468: mov ecx,ebp | 13346a: jmp 132ee1 <CreatePolicy@@Base+0x793a1>
+13346f: nop | 133470: movsd xmm0,QWORD PTR [rip+0x475a8] ;[nan | 9221120237041090560] | 133478: mov edi,ebx
+13347a: jmp 132e54 <CreatePolicy@@Base+0x79314> | 13347f: nop | 133480: movsd xmm3,QWORD PTR [rip+0x47598] ;[nan | 9221120237041090560]
+133488: mov esi,ebp | 13348a: jmp 132e29 <CreatePolicy@@Base+0x792e9>
