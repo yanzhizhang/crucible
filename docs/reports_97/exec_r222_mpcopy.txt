@@ -1,0 +1,10 @@
+# 97 r222 (ema_rules.py v5, md5 5209e81f, 224 lines; 38 s, 12 lines; SH rows only) and the approved mp copy, ~23:55. Transcribed off screen.
+== 20261120: 300 stocks; exact share of sum / wgt / t (1e-9 rel), median PM mean / ours   (SH rows)
+zzcb.r t_local, size ask1, price last, S from t > 0 | SH:  base 0.96487 (0.92941 .. 0.98395) wgt 1 [t 0.048]
+   side 0 -> buy 0.96487 (0.92941 .. 0.98395) | side 0 -> later order 0.994391 (0.96034 .. 1.0008) | side 0 -> sell 1.00559 (0.97573 .. 1.0233) | side 0 -> tick rule 0.96999 (0.93664 .. 1.0021)   (all wgt 1, t 0.048)
+zztx.r t_local, half 100 | SH: base 0.97321 (0.8751 .. 1.0136) wgt 1.0001 [t 0.000]
+   side 0 -> buy 0.924492 (0.6229 .. 1.0439) | side 0 -> later order 1 (0.99985 .. 1.0001) | side 0 -> sell 1.02935 (0.91833 .. 1.2445) | side 0 -> tick rule 0.936399 (0.65028 .. 1.0641)   (all wgt 1.0001, t 0.000)
+[done]   ("later order" rows appear: the catalog has bsq / ssq.)
+== mp copy (user approved all five days, 224 -> 97 /work/crucible_data/pm_mp/, rsync -a, --exclude '*.json5', nice, background)
+rsync stats: Number of files 73 (reg 67, dir 6); regular files transferred 51; total file size 7,654,731,183 bytes; transferred 5,774,955,484 bytes; received 5,776,369,033 bytes at 48,337,825 bytes/s; speedup 1.33. du: 7301 MB. Finished, no rsync error line seen.
+per day (files, MB): 20260430 24 files 3795 | 20261111 8 files 856 | 20261112 11 files 938 | 20261118 12 files 873 | 20261119 12 files 841
