@@ -1,0 +1,31 @@
+r230 on 97: decoded candidates scored through PM's models (ic_score on 20261119 + 20261120). Files installed on 97 (not in git): research/pm_factors/decoded.py md5 5e743d88d2589a287bcc3995d61c3de9 (71 lines), research/pm_factors/ic_score.py md5 ff02e3c6a8c7a034656f20b2d5bf3471 (2067 lines; base on 97 was bca6763de666abcee5481521f99da6a8, 2059 lines, patched by a patch script reproducing the six edits), research/r230.sh md5 8662c070782f2d37689dcb6c7b2ea7c9 (33 lines). Run: bash research/r230.sh > data/reports/r230_run.txt (background), about 1 h 5 min wall (load average peaked near 164). Outputs data/reports/r230/{summary.txt (23 rows), <name>.txt, out_<name>}. Transcribed from screen.
+
+first lines: 23 assignments; base has 103 columns; already in base: []
+decoded start-up constants:
+ 20261119: decoded start-up constants for 5223 stocks from ['ZZSQ 20261118', 'ZZDS 20261118', '20261119_stats.nc']
+ 20261120: decoded start-up constants for 5223 stocks from ['ZZSQ 20261119', 'ZZDS 20261119', '20261120_stats.nc']
+
+summary (sorted by IC: start, descending; all err=0):
+el_b_vr 0.5707 err=0
+el_b_msr 0.5704 err=0
+el_b_ms 0.5704 err=0
+base 0.5704 err=0
+state3 0.5657 err=0
+el_a_SRet 0.5452 err=0
+el_a_Ret 0.5380 err=0
+el_b_l 0.5372 err=0
+el_b_o 0.5371 err=0
+el_b_c 0.5369 err=0
+el_b_h 0.5364 err=0
+el_a_HBeta 0.5352 err=0
+el_a_PBeta 0.5282 err=0
+el_b_mb 0.5276 err=0
+el_a_TRisk 0.5254 err=0
+el_a_SRisk 0.5254 err=0
+el_a_Close 0.5254 err=0
+el_a_Capt 0.5254 err=0
+el_a_EstU 0.5241 err=0
+el_a_Yield 0.5212 err=0
+op_i_b 0.5155 err=0
+op_i_ab 0.5150 err=0
+op_i_a 0.5109 err=0
