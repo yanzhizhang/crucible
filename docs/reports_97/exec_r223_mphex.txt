@@ -1,0 +1,56 @@
+# 97 r223 (gh_nb_fit.py v4, md5 5173eb76, 177 lines; 88 s, 72 lines; side-rule blocks = /work/r223_side.txt, 39 lines) and the mp header dump (/work/mp_hex.txt, /work/mp_ls.txt) on /work/crucible_data/pm_mp/20261119 (user-approved copy). 20261120 for r223. Transcribed off screen; hex digits read from a small font.
+== r223 side rules on 'local, slots [0, n-1), t > 0' -- exact 1e-9 / 1e-6, median |diff| per market
+[zzgh.nb, 948 slots]
+SH 0.117 0.128 med 1.40e-04 n 188 feed side | SZ 0.223 0.250 med 2.65e-05 n 112 feed side | all 0.157 0.173 med 7.25e-05 n 300 feed side
+SH 0.117 0.128 1.40e-04 | SZ 0.223 0.250 2.65e-05 | all 0.157 0.173 7.25e-05   feed side, unknown -> later order   (identical to feed side)
+SH 0.117 0.128 1.40e-04 | SZ 0.223 0.250 2.65e-05 | all 0.157 0.173 7.25e-05   feed side, unknown -> tick
+SH 0.000 0.000 2.85e-02 | SZ 0.000 0.000 4.24e-02 | all 0.000 0.000 3.31e-02   mid rule
+SH 0.000 0.000 2.78e-02 | SZ 0.000 0.000 4.51e-02 | all 0.000 0.000 3.40e-02   quote rule
+SH 0.000 0.000 3.90e-02 | SZ 0.000 0.000 7.10e-02 | all 0.000 0.000 4.75e-02   tick rule
+[zzgh2.nb, 1422 slots]
+SH 0.037 0.043 med 3.59e-04 n 188 | SZ 0.089 0.125 1.23e-04 n 112 | all 0.057 0.073 3.00e-04 n 300   feed side
+SH 0.037 0.043 3.59e-04 | SZ 0.089 0.125 1.23e-04 | all 0.057 0.073 3.00e-04   feed side, unknown -> later order   (identical to feed side)
+SH 0.037 0.043 3.59e-04 | SZ 0.089 0.125 1.23e-04 | all 0.057 0.073 3.00e-04   feed side, unknown -> tick
+SH 0.000 0.000 2.81e-02 | SZ 0.000 0.000 4.21e-02 | all 0.000 0.000 3.24e-02   mid rule
+SH 0.000 0.000 2.73e-02 | SZ 0.000 0.000 4.50e-02 | all 0.000 0.000 3.31e-02   quote rule
+SH 0.000 0.000 3.92e-02 | SZ 0.000 0.000 7.01e-02 | all 0.000 0.000 4.71e-02   tick rule
+== /work/mp_ls.txt (cd pm_mp/20261119; ls -l, size / date / time / name; the same 12 files and sizes as the 224 listing)
+== SH_HS300_trade.mp: file -b: "Zstandard compressed data (v0.8+), Dictionary ID: None"; xxd -l 192:
+00000000: 28b5 2ffd 0058 1422 026a 2722 8732 1060
+00000010: 7b00 1814 65dc d071 08fb c808 18ad 2755
+00000020: cc99 73e5 900c 417a 7c64 e3f2 e53b 5449
+00000030: 23f3 d138 c98f cd23 6140 3458 92f7 ff07
+00000040: 7308 5a08 6508 f991 f8b7 d343 fdce 8d50
+00000050: 0d14 e5e0 9f48 fcdb 892e 86c4 bf2d 2344
+00000060: 280f 762c feed 1f5f bc96 7bf8 61f1 6f77
+00000070: 9d06 897f 7bd3 1288 44a3 04a3 c59f b20f
+00000080: 459f bf08 e2df 3ee3 01a1 85b0 878c c48f
+00000090: 876c d9b7 c3c2 a713 aef1 c08c 42ce 815b
+000000a0: 0873 ceab 5983 725e c640 fcdb 26fc 02f1
+000000b0: 6f7f 82f9 3bc7 d979 5290 46e1 46fc dbb7
+== SH_HS300_snap.mp: "Zstandard compressed data (v0.8+), Dictionary ID: None"
+00000000: 28b5 2ffd 0058 ac5e 001a 5588 143c 20a6
+00000010: ee41 8e64 8673 070c 0c0a ba31 28d4 9028
+00000020: 7bc5 26bb c9ee 2799 9003 a57b 2cf3 21e1
+00000030: 07a2 eb17 f86e 470a ea7d 0818 8908 b2db
+00000040: a2b6 05bb 4960 aa15 2e52 4301 3c01 3601
+00000050: ee21 2e14 38f3 4397 2b6f d83b c21d 2ed1
+00000060: 8c44 22a8 3090 4467 d4a4 f908 accc 030e
+00000070: d40f 3396 0fc1 3327 1dc9 0c1d 6006 635c
+00000080: 3612 682f 2a18 97ac 0694 b682 2864 51a9
+00000090: 64a3 833a 64ae a838 e223 93e1 2029 ead5
+000000a0: fc9f ad54 9f0f 022a d6b3 69ca 2457 3dfd
+000000b0: 715c 80eb dce5 6f6a 140b b648 5ba6 69b1
+== SZ_HS300_trade.mp: "Zstandard compressed data (v0.8+), Dictionary ID: None"
+00000000: 28b5 2ffd 0058 449a 046e 5f04 5c10 3810
+00000010: 0070 1b00 fccf 58fe 7384 a248 e4d9 2973
+00000020: e402 c817 576b 9dff 24e0 5545 226d dbb6
+00000030: 6ddb f6f5 aafc 8fc0 e798 ffa5 b734 89b8
+00000040: 96ee 5463 b4f7 3d0a 10f4 0f90 1064 1d62
+00000050: 1b65 e004 a3c4 fafb 3392 9962 1b13 9c12
+00000060: c262 0c84 cb82 15c2 8157 aefe f4f7 5f02
+00000070: c4aa d1f7 a8bf 8fd3 f21e 6b34 1721 2e02
+00000080: acd1 641b ebef e7ec 180e 8da6 ca70 9f29
+00000090: 1038 2c66 7d99 c4fa fb59 07e1 14ce f5b5
+000000a0: 40a3 5968 8dfe 5ef6 91a6 8306 8f30 4c0a
+000000b0: 7c33 ce48 3291 c44a f4c4 3252 7f3f 4309
