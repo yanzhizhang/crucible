@@ -1,0 +1,10 @@
+224 -> 97 copy of prodfiles (user approved in the Mac session: "Yes, copy all three"). Read-only pull, key-based, host masked.
+Command: rsync -a --timeout=600 --exclude="*.json5" --stats over ssh (BatchMode), from /tmp/data/prodfiles/{index,CEDxr4d,1min_src}/ on 224 to /work/crucible_data/prodfiles_224/{index,CEDxr4d,1min_src}/ on 97. Log /work/crucible_data/prodfiles_224_rsync.log.
+Result: == done index rc=0 | == done CEDxr4d rc=23 | == done 1min_src rc=0 | ALLDONE
+ rc=23 reason (the only error line): rsync: [sender] send_files failed to open "/tmp/data/prodfiles/CEDxr4d/index/.20261124.nc.0aTLcL": Permission denied (13)   [a hidden rsync-style temp file on 224]
+du -sh: CEDxr4d 272M | 1min_src 1016M | index 3.7M
+ls CEDxr4d/daily/p1 | tail -3: 20261125_SOD.nc, 20261126_EOD.nc, 20261126_SOD.nc   (244 entries)
+ls 1min_src/p1 | tail -3: 20261124.nc, 20261125.nc, 20261126.nc   (58 entries)
+ls CEDxr4d/sod/barra | tail -4: 20261126_exp.nc, 20261126_fret.nc, 20261126_rate.nc, 20261126_stats.nc
+ls CEDxr4d: barra daily index sod
+ls 1min_src (head -12, first lines): 20260401.nc 20260402.nc 20260403.nc 20260407.nc 20260408.nc 20260409.nc 20260410.nc 20260413.nc 20260414.nc 20260415.nc (these appear directly under 1min_src in the listing after 'barra daily index sod')
