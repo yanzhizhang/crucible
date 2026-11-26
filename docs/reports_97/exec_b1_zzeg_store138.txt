@@ -1,0 +1,7 @@
+batch 1: stores to [rbx+0x138] in N3cte8TermZZEGE.s (grep -n -B4 '+0x138\],'; 1 match, 5 lines; /work/b_eg138.txt on 97). Transcribed from screen.
+
+174-   dbf58:   addsd  xmm1,xmm3
+175-   dbf5c:   mulsd  xmm1,QWORD PTR [rip+0x9a51c]   # 176480 <typeinfo name for parquet::WriterProperties::Builder@@Base+0x160>  ; [0.5 | 460267881917264
+176-   dbf64:   lea    rdi,[rbx+0x148]
+177-   dbf6b:   movapd xmm0,xmm2
+178-   dbf6f:   movsd  QWORD PTR [rbx+0x138],xmm1
