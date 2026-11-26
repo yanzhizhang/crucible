@@ -1,0 +1,33 @@
+batch 1: ZZOP slot 3 rows 33-64 of 64 (/work/b_op3.txt), raw, transcribed from screen. (Rows 1-32 in exec_b1_zzop_slot3_p1.txt.)
+
+fe3d7: je fe30d | fe3dd: mov rdx,QWORD PTR [rcx+0xf0] | fe3e4: mov rdx,QWORD PTR [rdx+0x38]
+fe3e8: test rdx,rdx | fe3eb: je fe480 | fe3f1: movsd xmm1,QWORD PTR [rbp+0x20]
+fe3f6: subsd xmm1,QWORD PTR [rdx+0x18] | fe3fb: movsd QWORD PTR [rsp],xmm0 | fe400: lea rdi,[rbx+0x168]
+fe407: movsd QWORD PTR [rsp+0x8],xmm1 | fe40d: call 1329d0 <CreatePolicy@@Base+0x78e90> | fe412: pxor xmm2,xmm2
+fe416: movsd xmm0,QWORD PTR [rsp] | fe41b: movsd xmm4,QWORD PTR [rbx+0x178] | fe423: movsd xmm1,QWORD PTR [rsp+0x8]
+fe429: ucomisd xmm4,xmm2 | fe42d: jp fe468 | fe42f: movapd xmm3,xmm1
+fe433: jne fe468 | fe435: movsd QWORD PTR [rbx+0x1a0],xmm3 | fe43d: jmp fe2d3
+fe442: nop | fe448: movsd xmm5,QWORD PTR [rbx+0x150] | fe450: movapd xmm3,xmm1
+fe454: divsd xmm5,xmm4 | fe458: subsd xmm3,xmm5 | fe45c: jmp fe3c1
+fe461: nop | fe468: movsd xmm5,QWORD PTR [rbx+0x180] | fe470: movapd xmm3,xmm1
+fe474: divsd xmm5,xmm4 | fe478: subsd xmm3,xmm5 | fe47c: jmp fe435
+fe480: mov r8,QWORD PTR [rcx+0x50] | fe484: movsxd rsi,eax | fe487: xor edx,edx
+fe489: mov rax,rsi | fe48c: div r8 | fe48f: mov rax,QWORD PTR [rcx+0x48]
+fe493: mov rax,QWORD PTR [rax+rdx*8] | fe497: mov r9,rdx | fe49a: test rax,rax
+fe49d: je fe30d | fe4a3: mov rcx,QWORD PTR [rax] | fe4a6: mov rdi,QWORD PTR [rcx+0x8]
+fe4aa: cmp rdi,rsi | fe4ad: je fe548 | fe4b3: mov rcx,QWORD PTR [rcx]
+fe4b6: test rcx,rcx | fe4b9: je fe30d | fe4bf: mov rdi,QWORD PTR [rcx+0x8]
+fe4c3: xor edx,edx | fe4c5: mov rax,rdi | fe4c8: div r8
+fe4cb: cmp r9,rdx | fe4ce: je fe4aa | fe4d0: jmp fe30d
+fe4d5: nop | fe4d8: mov r8,QWORD PTR [rcx+0x18] | fe4dc: movsxd rsi,eax
+fe4df: xor edx,edx | fe4e1: mov rax,rsi | fe4e4: div r8
+fe4e7: mov rax,QWORD PTR [rcx+0x10] | fe4eb: mov rax,QWORD PTR [rax+rdx*8] | fe4ef: mov r9,rdx
+fe4f2: test rax,rax | fe4f5: je fe30d | fe4fb: mov rcx,QWORD PTR [rax]
+fe4fe: mov rdi,QWORD PTR [rcx+0x8] | fe502: cmp rsi,rdi | fe505: je fe530
+fe507: mov rcx,QWORD PTR [rcx] | fe50a: test rcx,rcx | fe50d: je fe30d
+fe513: mov rdi,QWORD PTR [rcx+0x8] | fe517: xor edx,edx | fe519: mov rax,rdi
+fe51c: div r8 | fe51f: cmp r9,rdx | fe522: je fe502
+fe524: jmp fe30d | fe529: nop | fe530: mov rdx,QWORD PTR [rcx+0x10]
+fe534: test rdx,rdx | fe537: jne fe375 | fe53d: jmp fe30d
+fe542: nop | fe548: mov rdx,QWORD PTR [rcx+0x10] | fe54c: test rdx,rdx
+fe54f: jne fe3f1 | fe555: jmp fe30d
