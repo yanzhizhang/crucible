@@ -1,0 +1,43 @@
+ZZZL ctor (find_ctor.py 0x132b00 7 --max-lines 0, md5 5e5352ed...; objdump range from its output). Read-only; temp /work/c.s, outputs /work/b_zzzl_ctor1.txt (25 lines) and /work/b_zzzl_ctor2.txt (32 lines). Transcribed from screen.
+
+== /work/b_zzzl_ctor1.txt
+store site 138935:  lea rax,[rip+0x7c3ac]  # 1b4ce8 <_ZNKSt7__cxx1112regex_traitsIcE16lookup_classnameIPKcEENS1_10_RegexMa  in function 0x1388e0..0x13b02e
+S 1388ef:  lea rbp,[rip+0x41a9a]   # 17a390 > >@@Base+0x110>   ; [1.264120379e-306 | 30513648546180194] str "blen"
+S 138b1c:  lea rsi,[rip+0x47568]   # 18008b, std::allocator, (__gnu_cxx::_Lock_policy)2>@@Base+0x8b>  ; [1.397980307e-76 | 3472328090962452846] str "name"
+S 138b8e:  lea rsi,[rip+0x42876]   # 17b40b > >@@Base+0x118b>  ; [1.774545838e+248 | 8320788733215732336] str "prevDays"
+S 138bd5:  lea rsi,[rip+0x431c4]   # 17bda0 > >@@Base+0x1b20>  ; [1.193502153e+190 | 7450482106048868198] str "forH"
+S 138c2b:  lea rbp,[rip+0x427e5]   # 17b417 > >@@Base+0x1197>  ; [3.482076716e+26 | 5004062674899598715] str "{}.{}"
+S 139166:  lea rsi,[rip+0x4122b]   # 17a398 > >@@Base+0x118>   ; [1.729377935e+212 | 7782343591047558500] str "dumpCp"
+S 1391c6:  lea rsi,[rip+0x411d2]   # 17a39f > >@@Base+0x11f>   ; [1.370154301e+241 | 8214689155073011564] str "loadCp"
+S 139557:  lea rdi,[rip+0x3b58f]   # 174aed  ; [6.077470744e+247 | 8314034549149486431] str "_Map_base::at"
+S 139702:  lea rdi,[rip+0x3b3e4]   # 174aed  ... str "_Map_base::at"
+S 1397f1:  lea rcx,[rip+0x3a9a8]   # 1741a0, false, false, false>@@Base+0x60>  ; [3.937041142e-62 | 3688503277381496880] str "000102030405060708091011121314151617..."
+S 139864:  lea rcx,[rip+0x3a935]   (same "0001020304050607...")
+S 139af6:  lea rdi,[rip+0x3aff0]   str "_Map_base::at"
+S 139bd8:  lea rcx,[rip+0x3a5c1]   "0001020304050..." | S 139c4e: lea rcx,[rip+0x3a54b] "0001020304050..."
+S 139e4a:  lea rdi,[rip+0x3ac9c]   "_Map_base::at" | S 13a093: lea rdi,[rip+0x3aa53] "_Map_base::at"
+S 13a17b:  lea rcx,[rip+0x3a01e]   "0001020304050..." | S 13a1ee: lea rcx,[rip+0x39fab] "0001020304050..."
+S 13a49e:  lea rdi,[rip+0x3a648]   "_Map_base::at"
+S 13a58d:  lea rcx,[rip+0x39c0c]   "0001020304050..." | S 13a5ff: lea rcx,[rip+0x39b9a] "0001020304050..."
+S 13a7fa:  lea rdi,[rip+0x3a2ec]   "_Map_base::at" | S 13ae34: lea rdi,[rip+0x39cb2] "_Map_base::at" | S 13ae40: lea rdi,[rip+0x39ca6] "_Map_base::at"
+RANGE 0x1388e0 0x13b02e
+
+== /work/b_zzzl_ctor2.txt
+RANGE 0x1388e0 0x13b02e
+2145
+ 56 1b180 | 19 161de0 | 17 160f10 | 12 71c70 | 10 8cb60 | 10 16dc70 | 9 c50a0 | 9 1b8b0 | 5 rbp | 5 c73f0 | 4 61d50 | 4 1b840 | 4 15a990 | 3 7e920 | 3 1651e0
+619-  1394d8:  call 71c70
+620-  1394dd:  lea  rsi,[rsp+0xe8]
+621-  1394e5:  lea  rdi,[rax+0x1f8]
+622-  1394ec:  call c73f0
+623-  1394f1:  movsd xmm0,QWORD PTR [rax]
+624-  1394f5:  mov  rax,QWORD PTR [rsp]
+625:  1394f9:  movsd QWORD PTR [rax+0x278],xmm0
+--
+659-  139580:  movsd QWORD PTR [rax-0x8],xmm0
+660-  139585:  cmp  rdi,rax
+661-  139588:  jne  139570
+662-  13958a:  jmp  1394a6
+663-  13958f:  mov  rax,QWORD PTR [rcx+0x10]
+664-  139593:  mov  r14,QWORD PTR [rsp]
+665:  139597:  mov  QWORD PTR [r14+0x218],rax
