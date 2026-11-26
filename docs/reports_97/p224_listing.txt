@@ -1,0 +1,20 @@
+# 224 /tmp/data/prodfiles, read-only listing (user-approved 2026-11-26 ~23:30; ssh from 97, key-based; /work/p224_cmd.sh -> /work/p224_list.txt, 122 lines; nothing copied or opened). Transcribed off screen.
+== du -sh *
+1016M 1min_src | 272M CEDxr4d | 813M h | 924M hstats | 3.7M index | 452M models | 58M models.zip | 7.2G mp | 0 test
+== find . -maxdepth 3 -type d (80 lines)
+. ; ./1min_src ; ./1min_src/p1 p10 p2 p3 p4 p5 p6 p7 p8 p9 ; ./CEDxr4d ; ./CEDxr4d/barra ; ./CEDxr4d/daily ; ./CEDxr4d/daily/p1 p10 p2 p3 p4 p5 p6 p7 p8 p9 ; ./CEDxr4d/index ; ./CEDxr4d/index/daily_eod ; ./CEDxr4d/sod ; ./CEDxr4d/sod/barra ; ./CEDxr4d/sod/daily
+./h ; ./h/HS300 ; ./h/HS300/livev1 ; ./h/HS300/p1_intrading_dcp ; ./h/HS300/sod ; ./hstats ; ./hstats/HS300 ; ./hstats/HS300/ZZAC ZZAL ZZCR ZZDS ZZGW ZZHL ZZMS ZZQI ZZQO ZZSQ ZZTS ZZUG ZZUG2 ZZVC ZZWA ZZXC ; ./hstats/sod ; ./hstats/sod/HS300
+./index ; ./index/1min_src ; ./index/1min_src/p1 p10 p2 p3 p4 p5 p6 p7 p8 p9 ; ./models ; ./models/tk5m ; ./models/tk5m/202509 ; ./models/tk5m/202601.updated ; ./models/tk5m/202609 ; ./mp ; ./mp/20260430 ; ./mp/20261111 ; ./mp/20261112 ; ./mp/20261118 ; ./mp/20261119 ; ./test
+(one or two rows at zoom boundaries may be missing: ./hstats/HS300/ZZMS and ZZUG2 were read at row edges)
+== ls -l h/HS300/sod/p1_intrading_dcp | tail -5 (owner column dropped: size date time name)
+34 2026-11-24 08:45 20261120.jz
+34 2026-11-25 19:55 20261123.jz
+34 2026-11-26 08:45 20261124.jz
+34 2026-11-26 08:45 20261125.jz
+34 2026-11-26 08:45 20261126.jz
+== hstats/sod/HS300/<family>/: last entry, count
+ZZAC 20261126 58 days | ZZAL 20261126 58 days | ZZCR 20261126 58 days | ZZDS 20261126 58 days | ZZGW 20261126 58 days | ZZHL 20261126 58 days | ZZMS 20261126 58 days | ZZQI 20261126 58 days | ZZQO 20261126 58 days | ZZSQ 20261126 58 days | ZZTS 20261126 58 days | ZZUG 20261126 58 days | ZZVC 20261126 58 days | ZZWA 20261126 58 days | ZZXC 20261126 58 days
+== ls CEDxr4d/sod/barra | tail -4
+20261126_exp.nc 20261126_fret.nc 20261126_rate.nc 20261126_stats.nc
+== ls CEDxr4d/daily | tail -4
+p6 p7 p8 p9
