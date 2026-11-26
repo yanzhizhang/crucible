@@ -1,0 +1,43 @@
+batch 1: ZZZL slot 5 @ 0x133e80..0x134081 (/work/b_zl5.txt, 43 lines), raw rows, transcribed from screen. A few rows were cut at the right screen edge (marked ...).
+
+// ---- slot 5 @ 0x133e80 .. 0x134081 | 133e80: push rbp | 133e81: pxor xmm3,xmm3
+133e85: pxor xmm0,xmm0 | 133e89: mov rbp,rdi | 133e8c: movabs rdx,0x1845c8a0ce512957
+133e96: push rbx | 133e97: mov rbx,rsi | 133e9a: sub rsp,0x18
+133e9e: movsd xmm1,QWORD PTR [rsi+0x18] | 133ea3: cvttsd2si rsi,xmm1 | 133ea8: movapd xmm2,xmm1
+133eac: cvtsi2sd xmm3,rsi | 133eb1: lea rcx,[rsi+0x7080] | 133eb8: mov rax,rcx
+133ebb: imul rdx | 133ebe: mov rax,rcx | 133ec1: sar rax,0x3f
+133ec5: subsd xmm2,xmm3 | 133ec9: sar rdx,0xd | 133ecd: sub rdx,rax
+133ed0: imul rdx,rdx,0x15180 | 133ed7: sub rcx,rdx | 133eda: cvtsi2sd xmm0,rcx
+133edf: addsd xmm0,xmm2 | 133ee3: comisd xmm0,QWORD PTR [rip+0x46aad] ;[34199.99999 | 4674933225790572362] | 133eeb: jb 133fc0 <CreatePolicy@@Base+0x7a4...
+133ef1: movsd xmm2,QWORD PTR [rip+0x46aa7] ;[41550 | 4675943402099965952] | 133ef9: comisd xmm2,xmm0 | 133efd: jb 133fc0 <CreatePolicy@@Base+0x7a480>
+133f03: movapd xmm0,xmm1 | 133f07: call 132aa0 <CreatePolicy@@Base+0x78f60> | 133f0c: pxor xmm2,xmm2
+133f10: comisd xmm2,xmm0 | 133f14: jb 133f23 <CreatePolicy@@Base+0x7a3e3> | 133f16: cmp BYTE PTR [rbp+0x225],0x0
+133f1d: je 133fb8 <CreatePolicy@@Base+0x7a478> | 133f23: mov rax,QWORD PTR [rbx+0x48] | 133f27: movsd xmm5,QWORD PTR [rbx+0x58]
+133f2c: movsd xmm1,QWORD PTR [rbx+0x60] | 133f31: test rax,rax | 133f34: je 134050 <CreatePolicy@@Base+0x7a510>
+133f3a: mov edx,DWORD PTR [rax] | 133f3c: test edx,edx | 133f3e: jle 134000 <CreatePolicy@@Base+0x7a4c0>
+133f44: mov rdx,QWORD PTR [rax+0x8] | 133f48: movsd xmm6,QWORD PTR [rip+0x45168] ;[1e-10 | 4457293557087583675] | 133f50: mov rax,QWORD PTR [rax+0x20]
+133f54: movsd xmm4,QWORD PTR [rdx] | 133f58: movsd xmm3,QWORD PTR [rax] | 133f5c: comisd xmm6,xmm4
+133f60: jbe 133fe8 <CreatePolicy@@Base+0x7a4a8> | 133f66: comisd xmm3,xmm2 | 133f6a: jbe 133fe8 <CreatePolicy@@Base+0x7a4a8>
+133f6c: ucomisd xmm3,xmm3 | 133f70: jp 134000 <CreatePolicy@@Base+0x7a4c0> | 133f76: ucomisd xmm3,xmm2
+133f7a: mov edx,0x1 | 133f7f: setp al | 133f82: cmovne eax,edx
+133f85: test al,al | 133f87: je 134000 <CreatePolicy@@Base+0x7a4c0> | 133f89: movapd xmm5,xmm3
+133f8d: comisd xmm1,xmm2 | 133f91: ja 133f9d <CreatePolicy@@Base+0x7a45d> | 133f93: comisd xmm5,xmm2
+133f97: jbe 133fb8 <CreatePolicy@@Base+0x7a478> | 133f99: movapd xmm1,xmm5 | 133f9d: ucomisd xmm1,xmm1
+133fa1: jp 133fb8 <CreatePolicy@@Base+0x7a478> | 133fa3: cmp BYTE PTR [rbp+0x224],0x0 | 133faa: jne 134030 <CreatePolicy@@Base+0x7a4f0>
+133fb0: movsd QWORD PTR [rbp+0x128],xmm1 | 133fb8: add rsp,0x18 | 133fbc: pop rbx
+133fbd: pop rbp | 133fbe: ret | 133fbf: nop
+133fc0: comisd xmm0,QWORD PTR [rip+0x469e0] ;[46799.99999 | 4676664956604319562] | 133fc8: jb 133fb8 <CreatePolicy@@Base+0x7a478> | 133fca: movsd xmm2,QWORD PTR [rip+0x469de] ;[54150 | 46776751329...
+133fd2: comisd xmm2,xmm0 | 133fd6: jae 133f03 <CreatePolicy@@Base+0x7a3c3> | 133fdc: add rsp,0x18
+133fe0: pop rbx | 133fe1: pop rbp | 133fe2: ret
+133fe3: nop DWORD PTR [rax+rax*1+0x0] | 133fe8: comisd xmm6,xmm3 | 133fec: ja 13405a <CreatePolicy@@Base+0x7a51a>
+133fee: comisd xmm4,xmm3 | 133ff2: jb 134000 <CreatePolicy@@Base+0x7a4c0> | 133ff4: comisd xmm4,xmm2
+133ff8: jbe 134000 <CreatePolicy@@Base+0x7a4c0> | 133ffa: comisd xmm3,xmm2 | 133ffe: ja 134070 <CreatePolicy@@Base+0x7a530>
+134000: ucomisd xmm1,xmm2 | 134004: mov edx,0x1 | 134009: setp al
+13400c: cmovne eax,edx | 13400f: test al,al | 134011: je 133f8d <CreatePolicy@@Base+0x7a44d>
+134017: ucomisd xmm1,xmm1 | 13401b: jp 133f8d <CreatePolicy@@Base+0x7a44d> | 134021: comisd xmm1,xmm2 | 134025: jbe 133fb8 <CreatePolicy@@Base+0x7a478> | 134027: jmp 133fa3 | 13402c: nop DWORD PTR [rax+0x0]
+134030: lea rdi,[rbp+0x130] | 134037: movsd QWORD PTR [rsp+0x8],xmm1 | 13403d: call 133d50 <CreatePolicy@@Base+0x7a210>
+134042: movsd xmm1,QWORD PTR [rsp+0x8] | 134048: jmp 133fb0 <CreatePolicy@@Base+0x7a470> | 13404d: nop DWORD PTR [rax]
+134050: movapd xmm3,xmm2 | 134054: movapd xmm4,xmm2 | 134058: jmp 133fee <CreatePolicy@@Base+0x7a4ae>
+13405a: comisd xmm4,xmm2 | 13405e: jbe 133fee <CreatePolicy@@Base+0x7a4ae> | 134060: movapd xmm3,xmm4
+134064: jmp 133f6c <CreatePolicy@@Base+0x7a42c> | 134069: nop DWORD PTR [rax+0x0] | 134070: addsd xmm3,xmm4
+134074: mulsd xmm3,QWORD PTR [rip+0x42404] ;[0.5 | 4602678819172646912] | 13407c: jmp 133f6c <CreatePolicy@@Base+0x7a42c>
