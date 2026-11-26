@@ -1,0 +1,13 @@
+r227b find_ctor.py patched (md5 5e5352eda7a6de43bef9385c6bcaeabd, 104 lines, GATE OK). 1 s, 262 lines, 4 S lines. Selected lines (store sites + S lines) = /work/r227b_sel.txt (10 lines) on 97; full file data/reports/r227b_ctor.txt. Transcribed from screen.
+
+=== 0xda930 7
+   store site dff13:  lea rax,[rip+0xd2f46]  # 1b2e60 <_ZNKSt7__cxx1112regex_traitsIcE16lookup_classnameIPKcEENS1_10_RegexMas  in function 0xdfee0..0xe08c0
+=== 0xf75e0 7
+   store site f8cc3:  lea rax,[rip+0xbaa3e]  # 1b3708 <_ZNKSt7__cxx1112regex_traitsIcE16lookup_classnameIPKcEENS1_10_RegexMas  in function 0xf8ca0..0xf956b
+   S f9119:  lea rcx,[rip+0x81286]  # 17a3a6 > >@@Base+0x126>  ; [5.791573727e-85 | 3346737973041770098] str "r.wgt"
+   S f918a:  lea rcx,[rip+0x8121b]  # 17a3ac > >@@Base+0x12c>  ; [5.791539632e-85 | 3346737943211617906] str "r.sum"
+   S f91fb:  lea rcx,[rip+0x811b0]  # 17a3b2 > >@@Base+0x132>  ; [2.65134827e+180 | 7306090179137384050] str "r.t"
+   S f926c:  lea rcx,[rip+0x83180]  # 17c3f3 > >@@Base+0x2173> ; [7.943316128e+218 | 7881862793417223528] str "hm"
+=== 0xfd7f0 7
+   store site 1017db:  lea rax,[rip+0xb24c6]  # 1b3ca8 <_ZNKSt7__cxx1112regex_traitsIcE16lookup_classnameIPKcEENS1_10_RegexMa  in function 0x1017a0..0x10259c
+(no S lines for ZZEL or ZZOP: no 'str' and no 'imm' annotations)
