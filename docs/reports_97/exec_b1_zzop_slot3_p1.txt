@@ -1,0 +1,34 @@
+batch 1: ZZOP slot 3 rows 1-32 of 64 (/work/b_op3.txt), raw, transcribed from screen.
+
+// ---- slot 3 @ 0xfe220 .. 0xfe55a | fe220: push rbp | fe221: mov rbp,rsi
+fe224: pxor xmm3,xmm3 | fe228: pxor xmm0,xmm0 | fe22c: movabs rdx,0x1845c8a0ce512957
+fe236: push rbx | fe237: mov rbx,rdi | fe23a: sub rsp,0x18
+fe23e: movsd xmm1,QWORD PTR [rsi+0x18] | fe243: cvttsd2si rsi,xmm1 | fe248: movapd xmm2,xmm1
+fe24c: cvtsi2sd xmm3,rsi | fe251: lea rcx,[rsi+0x7080] | fe258: mov rax,rcx
+fe25b: imul rdx | fe25e: mov rax,rcx | fe261: sar rax,0x3f
+fe265: subsd xmm2,xmm3 | fe269: sar rdx,0xd | fe26d: sub rdx,rax
+fe270: imul rdx,rdx,0x15180 | fe277: sub rcx,rdx | fe27a: cvtsi2sd xmm0,rcx
+fe27f: addsd xmm0,xmm2 | fe283: comisd xmm0,QWORD PTR [rip+0x7c70d] ;[34199.99999 | 4674933225790572362] | fe28b: jb fe318 <CreatePolicy@@Base+0x447d8>
+fe291: movsd xmm2,QWORD PTR [rip+0x7c707] ;[41550 | 4675943402099965952] | fe299: comisd xmm2,xmm0 | fe29d: jb fe318 <CreatePolicy@@Base+0x447d8>
+fe29f: movapd xmm0,xmm1 | fe2a3: call 132aa0 <CreatePolicy@@Base+0x78f60> | fe2a8: mov rax,QWORD PTR [rbx+0xf8]
+fe2af: mov rax,QWORD PTR [rax+0x48] | fe2b3: mov rcx,QWORD PTR [rax+0x30] | fe2b7: movzx eax,BYTE PTR [rbp+0x50]
+fe2bb: cmp al,0x1 | fe2bd: je fe358 <CreatePolicy@@Base+0x44818> | fe2c3: pxor xmm2,xmm2
+fe2c7: movapd xmm1,xmm2 | fe2cb: cmp al,0xff | fe2cd: je fe3d0 <CreatePolicy@@Base+0x44890>
+fe2d3: lea rdi,[rbx+0x108] | fe2da: movsd QWORD PTR [rsp+0x8],xmm2 | fe2e0: movsd QWORD PTR [rsp],xmm1
+fe2e5: call 1329d0 <CreatePolicy@@Base+0x78e90> | fe2ea: movsd xmm2,QWORD PTR [rsp+0x8] | fe2f0: movsd xmm1,QWORD PTR [rsp]
+fe2f5: movsd xmm0,QWORD PTR [rbx+0x118] | fe2fd: ucomisd xmm0,xmm2 | fe301: jp fe338 <CreatePolicy@@Base+0x447f8>
+fe303: jne fe338 <CreatePolicy@@Base+0x447f8> | fe305: movsd QWORD PTR [rbx+0x1a8],xmm1 | fe30d: add rsp,0x18
+fe311: pop rbx | fe312: pop rbp | fe313: ret
+fe314: nop DWORD PTR [rax+0x0] | fe318: comisd xmm0,QWORD PTR [rip+0x7c688] ;[46799.99999 | 4676664956604319562] | fe320: jb fe30d <CreatePolicy@@Base+0x447cd>
+fe322: movsd xmm2,QWORD PTR [rip+0x7c686] ;[54150 | 4677675132913713152] | fe32a: comisd xmm2,xmm0 | fe32e: jb fe30d <CreatePolicy@@Base+0x447cd>
+fe330: jmp fe29f <CreatePolicy@@Base+0x4475f> | fe335: nop DWORD PTR [rax] | fe338: movsd xmm2,QWORD PTR [rbx+0x120]
+fe340: divsd xmm2,xmm0 | fe344: subsd xmm1,xmm2 | fe348: movsd QWORD PTR [rbx+0x1a8],xmm1
+fe350: jmp fe30d <CreatePolicy@@Base+0x447cd> | fe352: nop WORD PTR [rax+rax*1+0x0] | fe358: mov rax,QWORD PTR [rbp+0x28]
+fe35c: test rax,rax | fe35f: je fe30d <CreatePolicy@@Base+0x447cd> | fe361: mov rdx,QWORD PTR [rcx+0xf0]
+fe368: mov rdx,QWORD PTR [rdx+0x40] | fe36c: test rdx,rdx | fe36f: je fe4d8 <CreatePolicy@@Base+0x44998>
+fe375: movsd xmm1,QWORD PTR [rbp+0x20] | fe37a: subsd xmm1,QWORD PTR [rdx+0x18] | fe37f: movsd QWORD PTR [rsp],xmm0
+fe384: lea rdi,[rbx+0x138] | fe38b: movsd QWORD PTR [rsp+0x8],xmm1 | fe391: call 1329d0 <CreatePolicy@@Base+0x78e90>
+fe396: pxor xmm2,xmm2 | fe39a: movsd xmm0,QWORD PTR [rsp] | fe39f: movsd xmm4,QWORD PTR [rbx+0x148]
+fe3a7: movsd xmm1,QWORD PTR [rsp+0x8] | fe3ad: ucomisd xmm4,xmm2 | fe3b1: jp fe448 <CreatePolicy@@Base+0x44908>
+fe3b7: movapd xmm3,xmm1 | fe3bb: jne fe448 <CreatePolicy@@Base+0x44908> | fe3c1: movsd QWORD PTR [rbx+0x198],xmm3
+fe3c9: jmp fe2d3 <CreatePolicy@@Base+0x44793> | fe3d0: mov rax,QWORD PTR [rbp+0x30] | fe3d4: test rax,rax
