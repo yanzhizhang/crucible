@@ -1,0 +1,138 @@
+# 97 /work/exec_x_pk_7.txt (294 rows) = packed disassembly (asm_min.py d324e332 -> pack: addresses/padding gone, mov/lea/push/pop/jmp dropped unless a constant load) of
+# TermZZJB, ZZHJ, ZZUI, ZZCB, ZZEB, ZZTX, ZZMH. Transcribed off screen. Own-code slots only (back-references to hAlpha:slot 1 / ITerm are listed, not shown).
+# Constant notes keep the double only. A few dense rows are condensed [..]; mnemonic misreads are possible. The int64 copies are dropped. Row tops of ZZCB/ZZEB scrolled off (all back-refs).
+# ZZGH was sent separately (docs/reports_97/exec_zzgh_asm_pack.txt).
+
+== ZZJB: 13 slots (0,1,2,3,4,6,8,9,10,11 = refs); real: slot 5 @ f5770, slot 7 @ f5a60, slot 12 @ f61a0; callees 132aa0 (=TermCFH), 133d50 (=ZZBO), b6330 (=ZZAB)
+-- slot 5 @ f5770   (trade update; same time gate as ZZGH)
+pxor xmm3,xmm3 ; pxor xmm0,xmm0 ; sub rsp,0x18 ; cvttsd2si rsi,xmm1 ; cvtsi2sd xmm3,rsi ; imul rdx ; sar rax,0x3f ; subsd xmm2,xmm3 ; sar rdx,0xd ; sub rdx,rax ; imul rdx,rdx,0x15180
+sub rcx,rdx ; cvtsi2sd xmm0,rcx ; addsd xmm0,xmm2 ; comisd xmm0,[rip+0x851b5] ;[34199.99999] ; jb f5848
+movsd xmm2,[rip+0x851b3] ;[41550] ; comisd xmm2,xmm0 ; jb f5848 ; call 132aa0
+pxor xmm2,xmm2 ; comisd xmm2,xmm0 ; jae f5868 ; ucomisd xmm2,[rbx+0x100] ; jp f582c ; jne f582c
+cmp BYTE PTR [rbx+0x189],0x0 ; jne f5878 ; add rsp,0x18 ; ret ; comisd xmm0,[rip+0x85158] ;[46799.99999]
+jb f5835 ; movsd xmm2,[rip+0x85156] ;[54150] ; comisd xmm2,xmm0 ; jb f5835
+cmp BYTE PTR [rbx+0x188],0x0 ; jne f5806 ; call 133d50 ; cmp r11d,ecx ; jle f5835
+cmp r11d,edx ; jl f5835 ; movsd xmm3,[rip+0x8712c] ;[1] ; pxor xmm2,xmm2 ; movsd xmm4,[rip+0x870c9] ;[?]
+movsd xmm5,[rip+0x870c9] ;[-0.01] ; movsd xmm6,[rip+0x818d9] ;[0.01] ; movsd xmm7,[rip+0x870c1] ;[0.03]
+divsd xmm1,[rbx+0x100] ; subsd xmm1,xmm3 ; comisd xmm1,xmm4 ; ja f5a18 ; comisd xmm1,xmm5 ; ja f5a48 ; cmpltsd xmm0,xmm1 ; blendvpd xmm1,xmm3,xmm0
+[~6 rows: loop tails cmp/jge/setae/shr/shl/add rdx,0x10 ; then:]  mov rax,[rip+0x86fd9] ;[3] ; mov rax,[rip+0x86fa9] ;[2]
+-- slot 7 @ f5a60   (value / dump)
+movsd xmm1,[rip+0x8109a] ;[86400] ; call 1bcc0 <fmod@plt> ; movsd xmm3,[rip+0x84f08] ;[12600]
+subsd xmm2,[rip+0x84ef4] ;[5400] ; comisd xmm3,xmm0 ; ja f5ab4 ; comisd xmm0,[rip+0x84ef6] ;[18000]
+mov rax,[rip+0x84edf] ;[5400] ; ja f5ab0 ; subsd xmm1,xmm3 ; subsd xmm2,xmm1 ; pxor xmm0,xmm0
+comisd xmm0,xmm2 ; jae f5bc0 ; comisd xmm1,xmm0 ; jbe f5ba0 ; comisd xmm3,xmm0 ; jbe f5ba0
+divsd xmm1,xmm3 ; subsd xmm1,[rip+0x86efe] ;[1] ; comisd xmm1,[rip+0x86ea6] ;[-0.03]
+ja f5bf7 ; comisd xmm1,[rip+0x86ea0] ;[-0.01] ; ja f5bd0 ; comisd xmm1,[rip+0x86e8c] ;[0.03] ; ja f5bf0 ; test eax,eax
+je 384b4 <quill once_flag> ; pxor xmm3,xmm3 ; cvtsi2sd xmm3,eax ; divsd xmm2,xmm3 ; roundsd xmm2,xmm2,0x9 ; cvttsd2si eax,xmm2 ; test eax,eax ; js f5b92 ; cmp edx,eax
+jle f5b92 ; pxor xmm2,xmm2 ; cvtsi2sd xmm2,eax ; mulsd xmm2,[rip+0x861fa] ;[25] ; mulsd xmm0,[rip+0x86e9e] ;[5 ?]
+addsd xmm0,[rdx+rcx*8] ; addsd xmm0,xmm2 ; unpcklpd xmm0,xmm1 ; ret ; xor eax,eax ; pxor xmm0,xmm0 ; sub edx,eax ; cvtsi2sd xmm0,edx ; pxor xmm0,xmm0 ; ret
+-- slot 12 @ f61a0
+pxor xmm0,xmm0 ; sub rsp,0x10 ; ucomisd xmm0,[rdi+0x190] ; jp f61c8 ; jne f61c8 ; add rsp,0x10 ; ret
+test eax,eax ; jle f61bb ; xor ebx,ebx ; shl rsi,0x5 ; add rsi,[rbp+0x1a0] ; add rbx,1 ; call b6330 <quill get_thread_name>
+cmp DWORD PTR [rbp+0x14c],ebx ; jg f61e0 ; add rsp,0x10 ; ret
+
+== ZZHJ: 13 slots (refs: 0,1,2,3,4,6,8,9,10,11); real: slot 5 @ e71e0, slot 7 @ e5150, slot 12 @ e59d0; callees 1329d0 (=Ema slot 0), 132aa0 (=TermCFH), 133d50 (=ZZBO), b6330 (=ZZAB)
+-- slot 5 @ e71e0
+pxor xmm3,xmm3 ; ... same prefix as ZZJB (cvttsd2si / imul 0x15180 / time of day)
+comisd xmm0,[rip+0x93749] ;[34199.99999] ; jb e72d0 ; movsd xmm2,[rip+0x93747] ;[41550] ; comisd xmm2,xmm0 ; jb e72d0 ; call 132aa0
+pxor xmm2,xmm2 ; comisd xmm2,xmm0 ; jb e727b ; cmp BYTE PTR [rbx+0x188],0x0 ; jne e72bd ; test eax,eax ; je 35ef2 <quill once_flag>
+pxor xmm3,xmm3 ; cvtsi2sd xmm3,eax ; divsd xmm1,xmm3 ; roundsd xmm1,xmm1,0x9 ; cvttsd2si r12d,xmm1 ; test r12d,r12d ; js e72bd ; cmp r12d,eax
+jge e72bd ; cmp DWORD PTR [rbx+0x108],r12d ; jl e7300 ; add rsp,0x18 ; ret ; comisd xmm0,[rip+0x936d0] ;[46799.99999] ; jb e72bd ; movsd xmm2,[rip+0x936c6] ;[54150]
+comisd xmm2,xmm0 ; jae e725f ; add rsp,0x18 ; ret ; test rax,rax ; je e7488 ; test edx,edx ; jle e7370 ; movsd xmm5,[rip+0x91d90] ;[1e-10]
+comisd xmm5,xmm4 ; jbe e7450 ; comisd xmm1,xmm2 ; jbe e7450 ; ucomisd xmm1,xmm2 ; jp e7370 ; ucomisd xmm3,xmm3 ; setp al ...
+ucomisd xmm3,xmm3 ; cmovnp r13,rax ; subsd xmm1,[rbx+0xf8] ; call 1329d0 ; cmp BYTE PTR [rbx+0x189],0x0 ; pxor xmm2,xmm2 ; je e7408
+pxor xmm0,xmm0 ; cvtsi2sd xmm0,r12d ; call 133d50 ; add rsp,0x18 ; ret ; comisd xmm3,xmm2 ; jbe e73f2 ; divsd xmm0,xmm3
+call 1b240 <log@plt> ; mulsd xmm1,xmm0 ; addsd xmm0,xmm1 ; comisd xmm5,xmm1 ; ja e7492 ; comisd xmm4,xmm1 ; jbe e7370 ... addsd xmm1,xmm4 ; mulsd xmm0,[rip+0x8f000] ;[0.5]
+-- slot 7 @ e5150
+movsd xmm1,[rip+0x919ab] ;[86400] ; call 1bcc0 <fmod@plt> ; movsd xmm3,[rip+0x9581b] ;[12600] ; subsd xmm2,[rip+0x95807] ;[5400] ; comisd xmm3,xmm0 ; ja e51a1
+comisd xmm0,[rip+0x95809] ;[18000] ; mov rax,[rip+0x957f2] ;[5400] ; ja e519d ; subsd xmm1,xmm3 ; subsd xmm2,xmm1 ; pxor xmm0,xmm0
+comisd xmm0,xmm2 ; jae e51f0 ; ucomisd xmm2,xmm0 ; jp e5300 ; jne e5280 ; ret ; divsd xmm1,xmm2 ; ucomisd xmm1,xmm0 ; jp e51d4 ; je e51bb ; divsd xmm0,xmm1 ; ret ; ret
+-- slot 12 @ e59d0
+pxor xmm0,xmm0 ; sub rsp,0x10 ; ucomisd xmm0,[rdi+0x190] ; jp e59f8 ; jne e59f8 ; add rsp,0x10 ; ret
+test eax,eax ; jle e5a50 ; xor ebp,ebp ; shl rsi,5 ; add rsi,[rbx+0x1a0] ; add rbp,1 ; call b6330 <quill get_thread_name> (x4, unrolled) ; add rsp,0x10 ; ret
+
+== ZZUI: 13 slots (refs: 0,1,2,3,4,6,8,9,10,11); real: slot 5 @ 118f30, slot 7 @ 117a70, slot 12 @ 118150; callees 1329d0 (=Ema slot 0), 132aa0, 1336f0 (=ZZFB), 133ca0 (=ZZBS), 133d50 (=ZZBO), 167db0 (own)
+-- slot 5 @ 118f30
+sub rsp,0x40 ; call 1336f0 ; test al,al ; jne 118f60 ; add rsp,0x40 ; ret ; call 132aa0
+pxor xmm5,xmm5 ; comisd xmm5,xmm0 ; jb 118f83 ; cmp BYTE PTR [rbp+0x1e8],0x0 ; je 118f51 ; test rax,rax ; je 119248
+test edx,edx ; jle 119208 ; movsd xmm3,[rip+0x60103] ;[1e-10] ; comisd xmm3,xmm1 ; jbe 1191e8
+pxor xmm5,xmm5 ; comisd xmm0,xmm5 ; jbe 1191a8 ; ucomisd xmm0,xmm0 ; jp 119208 ; pxor xmm3,xmm3 ; ucomisd xmm0,xmm3
+setp al ; cmovne eax,edx ; test al,al ; je 119208 ; pxor xmm6,xmm6 ; comisd xmm3,xmm6 ; ja 119020 ; comisd xmm2,xmm6
+jbe 118f51 ; ucomisd xmm3,xmm3 ; jp 118f51 ; call 133d50 ; cmp edi,ecx ; jle 1192f0 ; cmp BYTE PTR [rbp+0x138],0x0 ; jne 118f51 ; sub esi,ecx
+[~4 rows: loop tails / unrolled] ; call 167db0 <own> ; pxor xmm3,xmm3 ; comisd xmm1,xmm3 ; ja 119280 ; divsd xmm0,xmm1 ; mulsd xmm0,[rbp+0x128]
+addsd xmm0,xmm1 ; ucomisd xmm1,xmm3 ; mulsd xmm0,xmm0 ; addsd xmm2,xmm2 ; mulsd xmm2,xmm2 ; addsd xmm0,xmm2 ; call 1329d0
+pxor xmm6,xmm6 ; ucomisd xmm0,xmm6 ; jp 119190 ; je 1191aa ; divsd xmm1,xmm0 ; mulsd xmm1,xmm2 ; subsd xmm7,xmm1 ; pxor xmm7,xmm7
+comisd xmm2,xmm7 ; jbe 1192b0 ; movsd xmm1,[rip+0x64bd3] ;[0.45] ; call 1b500 <pow@plt>
+comisd xmm3,xmm0 ; ja 119252 ; ... movq xmm7,[rip+0x9f199] ;[-0] ; movsd xmm1,[rip+0x64adc] ;[0.45] ; xorpd xmm0,xmm2 ; call 1b500 <pow@plt>
+movq xmm2,[rip+0x6175b] ;[-0] ; xorpd xmm0,xmm2 ; sub edx,edi ; call 133ca0 ; call 167db0 ; test rdi,rdi ; je 11910b ; sub rsi,rdi ; call 1b180 <operator delete@plt>
+-- slot 7 @ 117a70   (dump)
+movsd xmm1,[rip+0x5f08b] ;[86400] ; call 1bcc0 <fmod@plt> ; movsd xmm3,[rip+0x62efb] ;[12600] ; subsd xmm2,[rip+0x62ee7] ;[5400] ; comisd xmm3,xmm0 ; ja 117ac1
+comisd xmm0,[rip+0x62ee9] ;[18000] ; mov rax,[rip+0x62ed2] ;[5400] ; ja 117abd ; subsd xmm1,xmm3 ; subsd xmm2,xmm1 ; pxor xmm0,xmm0 ; comisd xmm0,xmm2 ; jae 117ad7 ; ret
+-- slot 12 @ 118150
+pxor xmm0,xmm0 ; sub rsp,0x10 ; ucomisd xmm0,[rdi+0x1f0] ; jp 118178 ; jne 118178 ; add rsp,0x10 ; ret
+test/loop: shl rsi,5 ; add rsi,[rbx+0x200] ; call b6330 <quill get_thread_name> (x6, unrolled) ; cmp eax,r12d ; jg 1182d0 ; add rsp,0x10 ; ret
+-- callee 167db0 (own; the symbol label shown is a wrong stripped-name guess)
+sub rdx,rsi ; sar rdx,3 ; cmp edi,edx ; jne 4cc74 <quill once_flag> ; movq xmm3,[rip+0xcc35] ;[nan mask] ; pxor xmm1,xmm1 ; cmp edx,1 ; jle 167e67 ; cmp edx,2 ; je 167e70
+shl rdx,4 ; add rax,0x10 ; subpd xmm2,xmm6 ; andpd xmm2,xmm4 ; addsd xmm1,xmm2 ; unpckhpd xmm2,xmm2 ; addsd xmm1,xmm2 ; cmp rax,rdx ; jne 167e10
+movq xmm3,[rip+0xcbc0] ;[nan mask] ; and eax,0xfffffffe ; cmp esi,eax ; jle 167e67 ; add eax,1 ; subsd xmm2,[rcx+rax*8-0x8] ; andpd xmm2,xmm3 ; addsd xmm1,xmm2 ; subsd xmm0,xmm5 ; andpd xmm0,xmm3 ; addsd xmm1,xmm0 ; ret
+
+== ZZCB: 13 slots (refs: 9, i.e. 0,1,2,4,6,8,9,10,11); real: slot 3 @ d2760, slot 5 @ d3a00, slot 7 @ d22d0, slot 12 @ d3b90; callee b6330 (=ZZAB)
+-- slot 3 @ d2760
+pxor xmm3,xmm3 ; pxor xmm0,xmm0 ; sub rsp,0x8 ; cvttsd2si rsi,xmm2 ; ... imul rdx,rdx,0x15180   (time of day)
+sub rcx,rdx ; cvtsi2sd xmm0,rcx ; addsd xmm0,xmm1 ; comisd xmm0,[rip+0xa81cd] ;[34199.99999] ; jb d2840
+movsd xmm2,[rip+0xa81cb] ;[41550] ; comisd xmm1,xmm0 ; jb d2840 ; movsd xmm1,[rip+0xa4325] ;[86400] ; call 1bcc0 <fmod@plt> ; movsd xmm3,[rip+0xa8194] ;[12600]
+subsd xmm2,[rip+0xa8180] ;[5400] ; comisd xmm3,xmm0 ; ja d2828 ; comisd xmm0,[rip+0xa8182] ;[18000] ; mov rax,[rip+0xa816b] ;[5400] ; ja d2824 ; subsd xmm1,xmm3 ; subsd xmm2,xmm1 ; pxor xmm0,xmm0 ; comisd xmm0,xmm2 ; jae d2838
+cmp BYTE PTR [rbx+0x50],0xff ; je d2860 ; add rsp,8 ; ret ; comisd xmm0,[rip+0xa8160] ;[46799.99999] ; jb d2838 ; movsd xmm2,[rip+0xa815e] ;[54150] ; comisd xmm1,xmm0 ; jae d27db
+add rsp,8 ; ret ; mulsd xmm0,[rbx+0x38] ; addsd xmm0,[rbp+0x108] ; add rsp,8 ; ret
+-- slot 5 @ d3a00   (same gate; trade amount, then a divide)
+imul rdx,rdx,0x15180 ... comisd xmm0,[rip+0xa6f27] ;[34199.99999] ; jb d3b38 ; ... ;[41550] ; ... ;[86400] ; fmod ;[12600] ;[5400] ;[18000] ;[5400] ;[46799.99999] ;[54150]
+addsd xmm1,[rbx+0xf8] ; ucomisd xmm3,xmm0 ; jp d3b58 ; jne d3b58 ; add rsp,8 ; ret ; mulsd xmm0,[rbx+0x100] ; add rsp,8 ; divsd xmm1,xmm3
+-- slot 7 @ d22d0
+pxor xmm2,xmm2 ; ucomisd xmm1,xmm2 ; jp d22f8 ; pxor xmm0,xmm0 ; jne d22f8 ; ret ; divsd xmm0,xmm1 ; ret
+-- slot 12 @ d3b90
+pxor xmm0,xmm0 ; sub rsp,0x18 ; ucomisd xmm0,[rdi+0x148] ; jp d3bb0 ; jne d3bb0 ; add rsp,0x18 ; ret
+call b6330 <quill get_thread_name> x3 ; add rsi,0x40 ; call b6330 ; add rsp,0x18 ; ret
+
+== ZZEB: 13 slots (refs 10); real: slot 5 @ db710, slot 7 @ dbcd0, slot 12 @ dc200; callees 1329d0 (=Ema slot 0), 132aa0 (=TermCFH), b6330 (=ZZAB)
+-- slot 5 @ db710   (top rows lost to scroll; time gate as above)
+... ;[34199.99999] ; ... ;[41550] ; call 132aa0 ; ... cmp BYTE PTR [rbx+0x160],0x0 ; ... call 1329d0 ; movsd xmm6,[rip+0x9d8d4]@@Base+0xf98 ;[1e-10]
+... ;[20] ; comisd xmm5,xmm0 ; jae db970 ; movq xmm7,[rip+0x9f199] ;[-0] ; mulsd xmm4,xmm2 ; divsd xmm1,xmm4 ; call 1bb80 <log2@plt> ; xorpd xmm1,xmm1 ; ... ;[46799.99999] ; ...
+je db829 ; subsd xmm0,xmm5 ; movq xmm6,[rip+0x9f0b8] ;[-0 | nan?] ; call 1b1b0 <exp@plt> ; comisd xmm5,xmm2 ; jbe db91a ; addsd xmm0,xmm5 ; mulsd xmm0,[rip+0x9aa94] ;[0.5]
+-- slot 7 @ dbcd0   (dump)
+sub rsp,0x10 ; movsd xmm1,[rip+0x9ae24] ;[86400] ; call 1bcc0 <fmod@plt> ; movsd xmm3,[rip+0x9ec97] ;[12600] ; subsd xmm2,[rip+0x9ec83] ;[5400] ; comisd xmm3,xmm0 ; ja dbd25
+comisd xmm0,[rip+0x9ec85] ;[18000] ; mov rax,[rip+0x9ec6e] ;[5400] ; ja dbd21 ; subsd xmm1,xmm3 ; subsd xmm2,xmm1 ; pxor xmm3,xmm3
+comisd xmm3,xmm1 ; jae dbd88 ; cvtsi2sd xmm0,eax ; mulsd xmm0,xmm2 ; ucomisd xmm0,xmm3 ; ... movsd xmm0,[rip+0x9f23b] ;[20] ; ... ja dbde8 ; comisd xmm0,xmm2 ; ja dbe0e
+sqrtsd xmm0,xmm0 ; add rsp,0x10 ; ret ; subsd xmm1,xmm0 ; xorpd xmm1,[rip+0x9ec70] ;[-0] ; mulsd xmm1,[rip+0x9f1d2] ;[0.6931472]
+call 1b1b0 <exp@plt> ; pxor xmm3,xmm3 ; andpd xmm0,[rip+0x9c10] ;[nan mask] ; ucomisd xmm3,xmm0 ; jp dbe07 ; sqrtsd xmm0,xmm0 ; xorpd xmm0,[rip+0x9ec2e] ;[-0] ; call 1b6d0 <sqrt@plt> x2
+-- slot 12 @ dc200
+pxor xmm0,xmm0 ; sub rsp,0x18 ; ucomisd xmm0,[rdi+0x168] ; jp dc220 ; jne dc220 ; add rsp,0x18 ; ret
+call b6330 <quill get_thread_name> x3 ; add rsi,0xa0 ; call b6330 ; add rsp,0x18 ; ret
+
+== ZZTX: 13 slots (refs 10); real: slot 3 @ 117ca0, slot 7 @ 117610, slot 12 @ 1180a0; callee b6330
+-- slot 3 @ 117ca0
+imul rdx,rdx,0x15180 (time of day) ; comisd xmm0,[rip+0x62c87] ;[34199.99999] ; jb 117db0 ; movsd xmm1,[rip+0x5edd] ;[41550?: 41550 | 46799...] ; comisd xmm1,xmm0 ; jb 117db0
+movsd xmm1,[rip+0x5edd]... ;[86400] ; call 1bcc0 <fmod@plt> ; movsd xmm3,[rip+0x62c4c] ;[12600] ; subsd xmm2,[rip+0x62c38] ;[5400]
+comisd xmm3,xmm0 ; ja 117d70 ; comisd xmm0,[rip+0x62c3a] ;[18000] ; mov rax,[rip+0x62c23] ;[5400] ; ja 117d6c ; subsd xmm1,xmm3 ; subsd xmm2,xmm1 ; pxor xmm0,xmm0 ; comisd xmm0,xmm2 ; jae 117da6
+cmp al,0xff ; je 117e40 ; cmp al,0x1 ; je 117e10 ; comisd xmm3,xmm0 ; jbe 117da6 ; comisd xmm4,xmm0 ; ja 117dd8 ; add rsp,8 ; ret ; comisd xmm0,[rip+0x62bf0] ;[46799.99999]
+jb 117da6 ; movsd xmm2,[rip+0x62bee] ;[54150] ; comisd xmm1,xmm0 ; jae 117d23 ; add rsp,8 ; ret ; divsd xmm0,xmm4 ; divsd xmm3,xmm4 ; subsd xmm1,xmm0 ; addsd xmm1,xmm3 ; mulsd xmm1,[rbx+0x38] ; addsd xmm1,[rbp+0xf8] ; unpcklpd xmm1,xmm3 ; mulsd xmm1,xmm4 ; addpd xmm0,xmm5
+-- slot 7 @ 117610
+pxor xmm2,xmm2 ; ucomisd xmm1,xmm2 ; jp 117638 ; pxor xmm0,xmm0 ; jne 117638 ; ret ; divsd xmm0,xmm1 ; ret
+-- slot 12 @ 1180a0
+pxor xmm0,xmm0 ; sub rsp,0x18 ; ucomisd xmm0,[rdi+0x150] ; jp 1180c0 ; jne 1180c0 ; add rsp,0x18 ; ret
+call b6330 <quill get_thread_name> x3 ; add rsi,0x40 ; call b6330 ; add rsp,0x18 ; ret
+
+== ZZMH: 13 slots (refs 10); real: slot 5 @ f6c00, slot 7 @ f75e0, slot 12 @ f6230; callee b6330
+-- slot 5 @ f6c00
+imul rdx,rdx,0x15180 ; comisd xmm0,[rip+0x83d2d] ;[34199.99999] ; jb f6d28 ; movsd xmm1,[rip+0x83d27] ;[41550] ; comisd xmm1,xmm0 ; jb f6d28 ; movsd xmm1,[rip+0x7fe7d] ;[86400]
+call 1bcc0 <fmod@plt> ; movsd xmm3,[rip+0x83cc8] ;[12600] ; subsd xmm2,[rip+0x83cd8] ;[5400] ; comisd xmm3,xmm0 ; ja f6cd0 ; comisd xmm0,[rip+0x83cca] ;[18000] ; mov rax,[rip+0x83cc3] ;[5400]
+ja f6ccc ; subsd xmm1,xmm3 ; subsd xmm2,xmm1 ; pxor xmm0,xmm0 ; comisd xmm0,xmm2 ; jae f6d50 ; comisd xmm1,xmm0 ; jbe f6cf9 ; subsd xmm1,xmm3 ; mulsd xmm1,[rbx+0x108] ; add rsi,8 ; divsd xmm1,xmm3
+mulsd xmm1,xmm1 ; mulsd xmm0,xmm1 ; comisd xmm0,[rip+0x83c78] ;[?] ; ja f6c44 ; movsd xmm1,[rip+0x83c76] ;[4?] ; ja f6c44 ; mulsd xmm1,xmm1 ; mulsd xmm0,[rbx+0x128]
+comisd xmm3,[rip+0x83c76] ;[54150] ; comisd xmm1,xmm0 ; jae f6cc3 ; add rsp,8 ; ret ; cmp BYTE PTR [rbx+0x148],0x0 ; jne f6cda
+-- slot 7 @ f75e0   (dump)
+movsd xmm1,[rip+0x7f51b] ;[86400] ; call 1bcc0 <fmod@plt> ; movsd xmm3,[rip+0x8338b] ;[12600] ; subsd xmm2,[rip+0x83377] ;[5400] ; comisd xmm3,xmm0 ; ja f7631
+comisd xmm0,[rip+0x83379] ;[18000] ; mov rax,[rip+0x83362] ;[5400] ; ja f762d ; subsd xmm1,xmm3 ; subsd xmm2,xmm1 ; pxor xmm0,xmm0 ; comisd xmm1,xmm2 ; jae f7690 ; ucomisd xmm0,xmm0 ; jp f765f ; jne f765f ; divsd xmm0,[rbx+0x100]
+ucomisd xmm1,xmm1 ; jp f765f ; jne f765f ; ja f76a0 ; ucomisd xmm1,xmm0 ; ja f76cb ; sqrtsd xmm0,xmm0 ; ret ; divsd xmm0,xmm2 ; ret ; andpd xmm0,[rip+0x7d358] ;[nan mask] ; ucomisd xmm1,xmm0
+ja f76cb ; sqrtsd xmm0,xmm0 ; xorpd xmm0,[rip+0x83376] ;[-0] ; call 1b6d0 <sqrt@plt> x2
+-- slot 12 @ f6230
+pxor xmm0,xmm0 ; sub rsp,0x18 ; ucomisd xmm0,[rdi+0x150] ; jp f6250 ; jne f6250 ; add rsp,0x18 ; ret
+call b6330 <quill get_thread_name> x3 ; add rsi,0x60 ; call b6330 ; add rsp,0x18 ; ret
