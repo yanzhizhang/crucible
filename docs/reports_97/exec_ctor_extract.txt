@@ -1,0 +1,98 @@
+ZZEL ctor 0xdfee0..0xe08c0 and ZZOP ctor 0x1017a0..0x10259c: call counts + stores to +0xf8/+0x100 (ZZEL) and +0x1b8/+0x1c0/+0x1c8 (ZZOP) with 6 rows before. Crucible's command; temp file /work/c.s (not /tmp), output /work/b_ctor_x.txt (96 lines). Transcribed from screen.
+
+=== 0xdfee0
+533
+  29 1b180
+   8 1b6c0
+   8 161de0
+   2 cd040
+   2 c50a0
+   2 63c80
+   2 1b5c0
+   2 1b3d0
+   2 16f4b0
+   2 16dc70
+   2 15b400
+   2 1362c0
+   2 136230
+   1 r15
+   1 c4a70
+   1 1464b0
+   1 1462a0
+   1 1354c0
+22-   dff13:   lea    rax,[rip+0xd2f46]    # 1b2e60
+23-   dff1a:   pxor   xmm0,xmm0
+24-   dff1e:   mov    r14,QWORD PTR [rsp+0x40]
+25-   dff23:   mov    QWORD PTR [rbp+0x0],rax
+26-   dff27:   lea    rax,[rbp+0x110]
+27-   dff2e:   lea    rsi,[rip+0x938bc]    # 1737f1
+28:   dff35:   movups XMMWORD PTR [rbp+0xf8],xmm0
+--
+267-  e03db:   mov    rdi,r13
+268-  e03de:   call   136230
+269-  e03e3:   mov    esi,eax
+270-  e03e5:   mov    rdi,r13
+271-  e03e8:   call   1362c0
+272-  e03ed:   mov    rdi,QWORD PTR [rsp+0xe0]
+273:  e03f5:   movsd  QWORD PTR [rbp+0xf8],xmm0
+--
+378-  e0604:   mov    rdi,r15
+379-  e0607:   call   136230
+380-  e060c:   mov    esi,eax
+381-  e060e:   mov    rdi,r15
+382-  e0611:   call   1362c0
+383-  e0616:   mov    rdi,QWORD PTR [rsp+0xe0]
+384:  e061e:   movsd  QWORD PTR [rbp+0x100],xmm0
+=== 0x1017a0
+738
+  39 1b180
+  19 161de0
+  10 c50a0
+  10 16dc70
+   4 1b6c0
+   3 146240
+   3 1367b0
+   3 1329d0
+   1 rbx
+   1 rax
+   1 cd040
+   1 c4a70
+   1 89f40
+   1 63c80
+   1 1b5c0
+   1 1b3d0
+   1 16f4b0
+   1 15b400
+   1 1464b0
+   1 1462a0
+59-   10189e:  mov    QWORD PTR [r15+0x1a8],0x0
+60-   1018a9:  mov    rax,QWORD PTR [rax+0x18]
+61-   1018ad:  movups XMMWORD PTR [r15+0x198],xmm0
+62-   1018b5:  mov    QWORD PTR [r15+0x1c8],0x0
+63-   1018c0:  mov    QWORD PTR [rsp+0x10],rax
+64-   1018c5:  lea    rax,[rsp+0x90]
+65:   1018cd:  movups XMMWORD PTR [r15+0x1b8],xmm0
+--
+536-  102213:  jbe    10223a
+537-  102215:  lea    rdi,[r15+0x108]
+538-  10221c:  pxor   xmm0,xmm0
+539-  102220:  movsd  QWORD PTR [rsp+0x8],xmm1
+540-  102226:  call   1329d0
+541-  10222b:  movsd  xmm1,QWORD PTR [rsp+0x8]
+542:  102231:  movsd  QWORD PTR [r15+0x1b8],xmm1
+--
+563-  10229d:  jbe    1022c4
+564-  10229f:  lea    rdi,[r15+0x138]
+565-  1022a6:  pxor   xmm0,xmm0
+566-  1022aa:  movsd  QWORD PTR [rsp+0x8],xmm1
+567-  1022b0:  call   1329d0
+568-  1022b5:  movsd  xmm1,QWORD PTR [rsp+0x8]
+569:  1022bb:  movsd  QWORD PTR [r15+0x1c0],xmm1
+--
+590-  102324:  jbe    10234b
+591-  102326:  lea    rdi,[r15+0x168]
+592-  10232d:  pxor   xmm0,xmm0
+593-  102331:  movsd  QWORD PTR [rsp+0x8],xmm1
+594-  102337:  call   1329d0
+595-  10233c:  movsd  xmm1,QWORD PTR [rsp+0x8]
+596:  102342:  movsd  QWORD PTR [r15+0x1c8],xmm1
