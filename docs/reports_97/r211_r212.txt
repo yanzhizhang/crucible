@@ -1,0 +1,56 @@
+# 97 r211 (ema_probe patched, md5 97c14f3b, 85 s, 25 lines) and r212 (gh_nb_fit.py md5 7593e706, 26 s, 34 lines), 20261120 dysl2; both files local on 97, not in git
+== 20261120: 300 stocks, stop 54149.668 local (trading clock 14549.668)
+
+-- zztx.r weight: share of stocks with PM's wgt exactly (1e-7), median ours / PM -- best 6 of 1496 (clock, stop, half-life s)
+   0.000  median 0.999653  trade  day stop    half 100
+   0.000  median 0.999653  trade from 09:30 day stop    half 100
+   0.000  median 1.002726  trade  PM's own t  half 60
+   0.000  median 1.002726  trade from 09:30 PM's own t  half 60
+   0.000  median 1.011700  trade, exchange clock PM's own t  half 100
+   0.000  median 1.011700  trade, exchange clock day stop    half 100
+   value sum / wgt: share exact (1e-6); PM / ours median and q10 / q90 -- best 6 by exact share, then the 8 with the tightest PM / ours (a constant factor)
+   0.000  ratio -0.00134203 (-0.00359989 .. 0.000127224)  trade price @ trade    PM's own t  half 100
+   0.000  ratio -0.00134171 (-0.00355146 .. 0.000127466)  trade price @ trade    day stop    half 100
+   0.000  ratio -1.57378e-05 (-0.000390449 .. 1.10766e-05)  trade volume @ trade  PM's own t  half 100
+   0.000  ratio -1.24749e-05 (-0.000239359 .. 8.91279e-06)  trade volume @ trade  day stop    half 100
+   0.000  ratio -1.07591e-06 (-5.26273e-06 .. 3.00846e-07)  trade amount @ trade  PM's own t  half 100
+   0.000  ratio -9.34771e-07 (-3.81796e-06 .. 2.16547e-07)  trade amount @ trade  day stop    half 100
+   tight  (same 6 in the same order, exact 0.000), then:
+   tight  ratio -0.0605947 (-0.399859 .. 0.274675)  exact 0.000  side @ trade   PM's own t  half 100
+   tight  ratio -0.115646 (-0.6798 .. 0.764899)  exact 0.000  side @ trade   day stop    half 100
+[done]
+
+== 20261120: 300 stocks, 300 with trades
+
+-- zzgh.nb (948 slots): share exact 1e-9 / 1e-6, median |diff|, corr, mean (ours - PM) -- best 14
+   0.157 0.173  med 7.25e-05  corr 0.99983  bias +0.00040  local: total imbalance, last slot dropped
+   0.110 0.130  med 7.98e-05  corr 0.99983  bias +0.00039  exch: total imbalance, last slot dropped
+   0.000 0.003  med 6.49e-04  corr 0.99975  bias +0.00023  exch: total amount imbalance
+   0.000 0.000  med 6.49e-04  corr 0.99975  bias +0.00023  local: total amount imbalance
+   0.000 0.000  med 1.11e-03  corr 0.99971  bias -0.00056  local: total volume imbalance
+   0.000 0.000  med 1.11e-03  corr 0.99971  bias -0.00056  exch: total volume imbalance
+   0.000 0.000  med 1.97e-03  corr 0.99912  bias +0.00026  local: total imbalance, first slot dropped
+   0.000 0.000  med 3.09e-03  corr 0.99856  bias +0.00027  exch: total imbalance, first slot dropped
+   0.000 0.000  med 4.81e-02  corr 0.61921  bias +0.00793  exch: slot-EMA of slot imbalance (empty = 0), half 7200 s
+   0.000 0.000  med 4.81e-02  corr 0.61949  bias +0.00780  local: slot-EMA of slot imbalance (empty = 0), half 7200 s
+   0.000 0.000  med 4.88e-02  corr 0.61933  bias -0.02149  local: mean slot imbalance (empty = 0)
+   0.000 0.000  med 4.88e-02  corr 0.61677  bias -0.02115  local: mean slot imbalance (traded slots)
+   0.000 0.000  med 4.88e-02  corr 0.61703  bias -0.02103  exch: mean slot imbalance (traded slots)
+   0.000 0.000  med 4.88e-02  corr 0.61946  bias -0.02136  exch: mean slot imbalance (empty = 0)
+
+-- zzgh2.nb (1422 slots): share exact 1e-9 / 1e-6, median |diff|, corr, mean (ours - PM) -- best 14
+   0.057 0.073  med 3.00e-04  corr 0.99947  bias +0.00105  local: total imbalance, last slot dropped
+   0.047 0.073  med 3.15e-04  corr 0.99947  bias +0.00105  exch: total imbalance, last slot dropped
+   0.000 0.003  med 1.09e-03  corr 0.99937  bias +0.00016  local: total volume imbalance
+   0.000 0.000  med 6.59e-04  corr 0.99941  bias +0.00095  exch: total amount imbalance
+   0.000 0.000  med 6.60e-04  corr 0.99941  bias +0.00095  local: total amount imbalance
+   0.000 0.000  med 1.09e-03  corr 0.99937  bias +0.00016  exch: total volume imbalance
+   0.000 0.000  med 2.02e-03  corr 0.99894  bias +0.00118  local: total imbalance, first slot dropped
+   0.000 0.000  med 3.44e-03  corr 0.99831  bias +0.00115  exch: total imbalance, first slot dropped
+   0.000 0.000  med 5.02e-02  corr 0.56848  bias -0.01355  local: mean slot imbalance (empty = 0)
+   0.000 0.000  med 5.08e-02  corr 0.56811  bias -0.01354  exch: mean slot imbalance (empty = 0)
+   0.000 0.000  med 5.11e-02  corr 0.56305  bias -0.01257  local: mean slot imbalance (traded slots)
+   0.000 0.000  med 5.16e-02  corr 0.56296  bias -0.01258  exch: mean slot imbalance (traded slots)
+   0.000 0.000  med 5.21e-02  corr 0.57256  bias +0.01514  local: slot-EMA of slot imbalance (empty = 0), half 7200 s
+   0.000 0.000  med 5.24e-02  corr 0.57221  bias +0.01518  exch: slot-EMA of slot imbalance (empty = 0), half 7200 s
+[done]
