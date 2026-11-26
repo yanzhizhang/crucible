@@ -1,0 +1,34 @@
+r229 nc_peek.py (md5 1fbadbfc6758aa57f979e1577a06e2dd, 55 lines, GATE OK). Output data/reports/r229_nc_peek.txt (51 lines) on 97. Transcribed from screen.
+
+ls $P/1min_src | head -3: 20260401.nc 20260402.nc 20260403.nc
+ls -d $P/1min_src/p* | head -3: .../1min_src/p1, .../1min_src/p10, .../1min_src/p2
+ls $P/index $P/CEDxr4d/index | head -8: (first entries) 20260401.nc 20260402.nc 20260403.nc 20260407.nc 20260408.nc 20260409.nc 20260410.nc under CEDxr4d/index:  (the plain "index" folder listing printed before: first entries shown as above)
+
+== .../CEDxr4d/daily/p1/20261119_SOD.nc (481,231 B)
+  dims {'S': 5580, 'D': 1, 'I': 1, 'V': 7}
+  var x ('S','D','I','V') (5580, 1, 1, 7) float64
+  var S ('S',) (5580,) object | var D (1,) object | var I (1,) object | var V (7,) object
+   S: n 5580 first ['1', '2', '6', '7', '8', '9', '10', '11', '12', '14', '17', '19'] ... last ['920982.BJ', '920985.BJ', '920992.BJ']
+   D: n 1 first ['20261118'] last ['20261118']
+   I: n 1 first ['09:00:00'] last ['09:00:00']
+   V: n 7 first ['is_traded', 'maxp_allowed', 'minp_allowed', 'freeshare', 'circshare', 'totshare', 'ret_adj'] last ['circshare', 'totshare', 'ret_adj']
+   x[S=1] shape (1, 1, 7): [1.0, 13.48, 11.03, 8601044267.0, 19405684991.0, 19405918198.0, 1.0]
+== .../CEDxr4d/sod/barra/20261120_stats.nc (661,270 B)
+  dims {'S': 5223, 'D': 1, 'I': 1, 'V': 10}
+  var x ('S','D','I','V') (5223, 1, 1, 10) float64
+  var S ('S',) (5223,) object | var D (1,) | var I (1,) | var V ('V',) (10,) object
+   S: n 5223 first ['1', '2', '6', '7', '8', '9', '10', '11', '12', '14', '17', '19'] ... last ['688837', '688981', '689009']
+   D: n 1 first ['20261119'] last ['20261119']
+   I: n 1 first ['15:00:00'] last ['15:00:00']
+   V: n 10 first ['SRet', 'Yield', 'TRisk', 'SRisk', 'HBeta', 'PBeta', 'Close', 'Capt', 'Ret', 'EstU'] last ['Capt', 'Ret', 'EstU']
+   x[S=1] shape (1, 1, 10): [-1.151, 5.231959, 22.425739, 11.068903, -0.055395, 0.011938, 12.04, 233647255100.0, -1.3115, 19405918198.0]
+== .../1min_src/p1/20261119.nc (13,871,445 B)
+  dims {'S': 1800, 'D': 1, 'I': 257, 'V': 10}
+  var x ('S','D','I','V') (1800, 1, 257, 10) float64
+  var S (1800,) object | var D (1,) object | var I (257,) object | var V (10,) object
+   S: n 1800 first ['1', '100', '12', '1203', '1221', '1227', '1233', '1236', '1267', '1280', '1286', '1287'] ... last ['997', '998', '999']
+   D: n 1 first ['20261118'] last ['20261118']
+   I: n 257 first ['09:15:00', '09:16:00', '09:17:00', '09:18:00', '09:19:00', '09:20:00', '09:21:00', '09:22:00', '09:23:00', '09:24:00', '09:25:00', '09:26:00'] ... last ['14:58:00', '14:59:00', '15:00:00']
+   V: n 10 first ['volumeTotal', 'dollarVolumeTotal', 'tradesTotal', 'lastTradePrice', 'askPrice', 'askSize', 'bidPrice', 'bidSize', 'close', 'midPriceLastValid'] last ['bidSize', 'close', 'midPriceLastValid']
+   x[S=1] shape (1, 257, 10): [nan, nan, nan, 0.0, 12.24, 17300.0, 12.24, 17300.0, nan, 12.24, nan, nan, nan, 0.0, 12.24, 88200.0] ...
+[done]
