@@ -1,0 +1,42 @@
+# 97 r216 gh_nb_fit.py v3 (md5 d2d3ea4c, 174 lines), 87 s, 66 lines (data/reports/r216_gh_nb_side.txt); side-rule blocks only (/work/r216_side.txt, 33 lines). 20261120.
+side rules on 'local, slots [0, n-1), t > 0' -- exact 1e-9 / 1e-6, median |diff| per market      [first block = zzgh.nb, 948 slots]
+SH  0.117 0.128  med 1.40e-04  n 188  feed side
+SZ  0.223 0.250  med 2.65e-05  n 112  feed side
+all 0.157 0.173  med 7.25e-05  n 300  feed side
+SH  0.117 0.128  med 1.40e-04  n 188  feed side, unknown -> tick
+SZ  0.223 0.250  med 2.65e-05  n 112  feed side, unknown -> tick
+all 0.157 0.173  med 7.25e-05  n 300  feed side, unknown -> tick
+SH  0.000 0.000  med 2.85e-02  n 188  mid rule (> mid buy, < mid sell, else tick)
+SZ  0.000 0.000  med 4.24e-02  n 112  mid rule
+all 0.000 0.000  med 3.31e-02  n 300  mid rule
+SH  0.000 0.000  med 2.78e-02  n 188  quote rule (>= ask1 buy, <= bid1 sell, else 0)
+SZ  0.000 0.000  med 4.51e-02  n 112  quote rule
+all 0.000 0.000  med 3.40e-02  n 300  quote rule
+SH  0.000 0.000  med 3.90e-02  n 188  tick rule
+SZ  0.000 0.000  med 7.10e-02  n 112  tick rule
+all 0.000 0.000  med 4.75e-02  n 300  tick rule
+--
+side rules on 'local, slots [0, n-1), t > 0' ...   [second block = zzgh2.nb, 1422 slots]
+SH  0.037 0.043  med 3.59e-04  n 188  feed side
+SZ  0.089 0.125  med 1.23e-04  n 112  feed side
+all 0.057 0.073  med 3.00e-04  n 300  feed side
+SH  0.037 0.043  med 3.59e-04  n 188  feed side, unknown -> tick
+SZ  0.089 0.125  med 1.23e-04  n 112  feed side, unknown -> tick
+all 0.057 0.073  med 3.00e-04  n 300  feed side, unknown -> tick
+SH  0.000 0.000  med 2.81e-02  n 188  mid rule
+SZ  0.000 0.000  med 4.21e-02  n 112  mid rule
+all 0.000 0.000  med 3.24e-02  n 300  mid rule
+SH  0.000 0.000  med 2.73e-02  n 188  quote rule
+SZ  0.000 0.000  med 4.50e-02  n 112  quote rule
+all 0.000 0.000  med 3.31e-02  n 300  quote rule
+SH  0.000 0.000  med 3.92e-02  n 188  tick rule
+SZ  0.000 0.000  med 7.01e-02  n 112  tick rule
+all 0.000 0.000  med 4.71e-02  n 300  tick rule
+
+# ZZGH slot 3 @ e3b40 .. e3e9b, raw objdump rows (/work/exec_x_asm/N3cte8TermZZGHE.s) from the start up to cmp al,0xff -- 37 rows:
+e3b40 push rbp ; e3b41 pxor xmm3,xmm3 ; e3b45 pxor xmm0,xmm0 ; e3b49 mov rbp,rdi ; e3b4c movabs rdx,0x1845c8a0ce512957 ; e3b56 push rbx ; e3b57 mov rbx,rsi ; e3b5a sub rsp,0x18
+e3b5e movsd xmm1,QWORD PTR [rsi+0x18] ; e3b63 cvttsd2si rsi,xmm1 ; e3b68 movapd xmm2,xmm1 ; e3b6c cvtsi2sd xmm3,rsi ; e3b71 lea rcx,[rsi+0x7080] ; e3b78 mov rax,rcx
+e3b7b imul rdx ; e3b7e mov rax,rcx ; e3b81 sar rax,0x3f ; e3b85 subsd xmm2,xmm3 ; e3b89 sar rdx,0xd ; e3b8d sub rdx,rax ; e3b90 imul rdx,rdx,0x15180 ; e3b97 sub rcx,rdx
+e3b9a cvtsi2sd xmm0,rcx ; e3b9f addsd xmm0,xmm2 ; e3ba3 comisd xmm0,[rip+0x96ded] ;[34199.99999] ; e3bab jb e3be8 ; e3bad movsd xmm2,[rip+0x96deb] ;[41550] ; e3bb5 comisd xmm2,xmm0 ; e3bb9 jb e3be8
+e3bbb movapd xmm0,xmm1 ; e3bbf call 132aa0 ; e3bc4 pxor xmm1,xmm1 ; e3bc8 comisd xmm1,xmm0 ; e3bcc jae e3c08 ; e3bce movzx eax,BYTE PTR [rbx+0x50] ; e3bd2 cmp al,0xff
+(row count: header + 36 instructions; [rsi+0x18] is a double read from the record in the 2nd argument, which is the time (+0x7080 = 28800, the UTC shift, then mod 86400); [rbx+0x50] is the side byte of that same record.)
