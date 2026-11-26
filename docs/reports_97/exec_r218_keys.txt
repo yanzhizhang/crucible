@@ -1,0 +1,23 @@
+# 97 r218 ema_rules.py (md5 609a07d5, 144 lines; 20 s, 18 lines) and the jz key listing one-liner; 20261120. Transcribed off screen.
+== 20261120: 300 stocks; exact share of sum / wgt / t (1e-9 rel), median PM mean / ours
+   zzcb.r   sum 0.000 wgt 0.000 t 0.000  ratio 0.975102  n 300  t_exch, level-1 ask
+   zzcb.r   sum 0.000 wgt 0.000 t 0.000  ratio 0.926129  n 300  t_exch, level-1 bid
+   zzcb.r   sum 0.000 wgt 0.000 t 0.030  ratio 0.975023  n 300  t_local, level-1 ask
+   zzcb.r   sum 0.000 wgt 0.000 t 0.030  ratio 0.926084  n 300  t_local, level-1 bid
+   zzeb.r   sum 0.000 wgt 0.000 t 0.000  ratio -30.9397  n 300  t_exch, p = mid / mean, half 100
+   zzeb.r   sum 0.000 wgt 0.000 t 0.000  ratio 1        n 300  t_exch, p = mid / sum, half 100
+   zzeb.r   sum 0.000 wgt 0.000 t 0.030  ratio -30.9404  n 300  t_local, p = mid / mean, half 100
+   zzeb.r   sum 0.000 wgt 0.000 t 0.030  ratio 0.999998 n 300  t_local, p = mid / sum, half 100
+   zzhj.p   sum 0.000 wgt 0.000 t 0.000  ratio 1.49941  n 300  t_exch, step 30, prev 0
+   zzhj.p   sum 0.000 wgt 0.000 t 0.000  ratio 1.49941  n 300  t_exch, step 30, prev = first cum
+   zzhj.p   sum 0.000 wgt 0.000 t 0.000  ratio 1.49905  n 300  t_local, step 30, prev 0
+   zzhj.p   sum 0.000 wgt 0.000 t 0.000  ratio 1.49905  n 300  t_local, step 30, prev = first cum
+   zztx.r   sum 0.000 wgt 0.000 t 0.000  ratio 0.994774 n 300  t_exch, half 100
+   zztx.r   sum 0.000 wgt 0.000 t 0.000  ratio 0.96844  n 300  t_exch, half 60      (digits cut at the screen edge: 0.9684x)
+   zztx.r   sum 0.000 wgt 0.000 t 0.000  ratio 0.998194 n 300  t_local, half 100
+   zztx.r   sum 0.000 wgt 0.000 t 0.000  ratio 0.968973 n 300  t_local, half 60
+[done]
+== jz keys of one stock (first sid), counts by pattern:
+[('zzcb.r.sum', 1), ('zzcb.r.t', 1), ('zzcb.r.wgt', 1), ('zzeb.p.sum', 1), ('zzeb.p.t', 1), ('zzeb.p.wgt', 1), ('zzeb.r.sum', 1), ('zzeb.r.t', 1), ('zzeb.r.wgt', 1), ('zzhj.c.N', 474), ('zzhj.p.sum', 1), ('zzhj.p.t', 1), ('zzhj.p.wgt', 1), ('zzhj.r.wgt', 1), ('zzmh.hm', 1), ('zzmh.r.sum', 1), ('zzmh.r.t', 1), ('zzmh.r.wgt', 1), ('zztx.r.sum', 1), ('zztx.r.t', 1), ('zztx.r.wgt', 1), ('zzui.er', 1), ('zzui.k', 1), ('zzui.r.N', 10), ('zzui.r.sum', 1), ('zzui.r.t', 1), ('zzui.r.wgt', 1)]
+{'zzmh.hm': 12.25, 'zzmh.r.sum': 2.43723008860368e-05, 'zzmh.r.t': 14532.161000013351, 'zzmh.r.wgt': 1.015866456072378, 'zzui.er': 0.0, 'zzui.k': 12.206372257090297, 'zzui.r.sum': 24.642896817541782, 'zzui.r.t': 14211.22000002861, 'zzui.r.wgt': 2.0188906845060477}
+(digits of the long decimals read from a small font; the first-sid choice is sorted(d)[0].)
