@@ -1,0 +1,29 @@
+r225c on PM's feed, ema_rules.py v7 (md5 9f64411b77928272a4671d2ffd54928a, 229 lines, GATE OK), tq < 14220.0 in zzhj and zzui. ema 24 s, 26 lines.
+File on 97: data/reports/r225c_ema.txt. Transcribed from screen; the 3 'snapshots + trades' / 'snapshots only' zzhj rows were cut at the right edge of the screen.
+
+== 20261119: 300 stocks; exact share of sum / wgt / t (1e-9 rel), median PM mean / ours
+zzhj.p  wgt 0.000 t 0.190  ratio 1 (1 .. 1)  wgt PM / ours 1  t_local, step 30, half 300, prev 0
+zzhj.p  wgt 0.000 t 0.303  ratio 1 (1 .. 1)  wgt PM / ours 1  t_local, step 30, half 300, prev 0 | SH
+zzhj.p  wgt 0.000 t 0.000  ratio 1 (1 .. 1)  wgt PM / ours 1  t_local, step 30, half 300, prev 0 | SZ
+zzhj.p  wgt 0.000 t 0.000  ratio 1.45208 (1.215 .. 1.6821)  wgt PM / ours 1.0431  t_local, step 30, half 300, snapshots + trade...
+zzhj.p  wgt 0.000 t 0.000  ratio 1.47833 (1.2669 .. 1.7229)  wgt PM / ours 1.0272  t_local, step 30, half 300, snapshots + trad...
+zzhj.p  wgt 0.000 t 0.000  ratio 1.41392 (1.1571 .. 1.6058)  wgt PM / ours 1.1649  t_local, step 30, half 300, snapshots + trad...
+zzhj.p  wgt 0.000 t 0.000  ratio 1.46852 (1.2166 .. 1.694)  wgt PM / ours 1.0426  t_local, step 30, half 300, snapshots only, ...
+zzhj.p  wgt 0.000 t 0.000  ratio 1.48502 (1.2763 .. 1.7236)  wgt PM / ours 1.0265  t_local, step 30, half 300, snapshots only, ...
+zzhj.p  wgt 0.000 t 0.000  ratio 1.44656 (1.1629 .. 1.6313)  wgt PM / ours 1.164  t_local, step 30, half 300, snapshots only, ...
+zzhj.p  wgt 0.000 t 0.000  ratio 0.666769 (0.65732 .. 0.68277)  wgt PM / ours 1.4746  t_local, step 45, half 300, prev 0
+zzhj.p  wgt 0.000 t 0.000  ratio 0.662719 (0.65661 .. 0.67894)  wgt PM / ours 1.4746  t_local, step 45, half 300, prev 0 | SH
+zzhj.p  wgt 0.000 t 0.000  ratio 0.672449 (0.66501 .. 0.68847)  wgt PM / ours 1.4745  t_local, step 45, half 300, prev 0 | SZ
+zzui.k  value exact 0.000 t 0.000  ratio 1 (0.99917 .. 1.0009)  window 10, fast 2, slow 20
+zzui.k  value exact 0.000 t 0.000  ratio 1.00006 (0.99922 .. 1.001)  window 10, fast 2, slow 30
+zzui.k  value exact 0.000 t 0.000  ratio 1.00008 (0.99924 .. 1.001)  window 9, fast 2, slow 30
+zzui.r  wgt 0.000 t 0.190  ratio 0.999988 (0.99913 .. 1.0009)  wgt PM / ours 0.99998  window 10, fast 2, slow 20
+zzui.r  wgt 0.000 t 0.303  ratio 1.00011 (0.99916 .. 1.001)  wgt PM / ours 0.99998  window 10, fast 2, slow 20 | SH
+zzui.r  wgt 0.000 t 0.000  ratio 0.999854 (0.99914 .. 1.0005)  wgt PM / ours 0.99999  window 10, fast 2, slow 20 | SZ
+zzui.r  wgt 0.000 t 0.190  ratio 1.00009 (0.99919 .. 1.001)  wgt PM / ours 0.99998  window 10, fast 2, slow 30
+zzui.r  wgt 0.000 t 0.303  ratio 1.0002 (0.99923 .. 1.001)  wgt PM / ours 0.99998  window 10, fast 2, slow 30 | SH
+zzui.r  wgt 0.000 t 0.000  ratio 0.999898 (0.99919 .. 1.0007)  wgt PM / ours 0.99999  window 10, fast 2, slow 30 | SZ
+zzui.r  wgt 0.000 t 0.190  ratio 1.00005 (0.99921 .. 1.001)  wgt PM / ours 0.99998  window 9, fast 2, slow 30
+zzui.r  wgt 0.000 t 0.303  ratio 1.00016 (0.99923 .. 1.0011)  wgt PM / ours 0.99998  window 9, fast 2, slow 30 | SH
+zzui.r  wgt 0.000 t 0.000  ratio 0.999919 (0.99919 .. 1.0006)  wgt PM / ours 0.99999  window 9, fast 2, slow 30 | SZ
+[done]
