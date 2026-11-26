@@ -1,0 +1,23 @@
+r227 find_ctor.py (md5 8c8193a238ce74513755c48ccdf18a29, 94 lines, GATE OK) on libCtePolicyBTE.so, three classes. 2 s, 262 lines, 4 S lines.
+File on 97: data/reports/r227_ctor.txt. Transcribed from screen (grep of structure lines).
+
+1:=== 0xda930 7
+2:slot 0xda930 is referenced by 1 relocation(s); candidate vptrs ['0x1b2e60']
+3:   store site dff13:  lea   rax,[rip+0xd2f46]  # 1b2e60 <_ZNKSt7__cxx1112regex_traitsIcE16lookup_classnameIPKcEENS1_10_RegexMas  in function 0xdfee0..0xe08c0   [sic: site address and function range as printed on screen]
+5:== function 0xdfee0..0xe08c0: 530 instructions, 0 string loads
+86:[done]
+87:=== 0xf75e0 7
+88:slot 0xf75e0 is referenced by 1 relocation(s); candidate vptrs ['0x1b3708']
+89:   store site f8cc3:  lea  rax,[rip+0xbaa3e]  # 1b3708 <_ZNKSt7__cxx1112regex_traitsIcE16lookup_classnameIPKcEENS1_10_RegexMas  in function 0xf8ca0..0xf956b
+91:== function 0xf8ca0..0xf956b: 488 instructions, 4 string loads
+92:   S f9119: lea  rcx,[rip+0x81286]  # 17a3a6 <typeinfo name for std::thread::_State_impl<std::thread::_Invoker<std::tuple<void (*)()> > >@@Base+0x126>   ; [5.79157372
+93:   S f918a: lea  rcx,[rip+0x8121b]  # 17a3ac <typeinfo name for std::thread::_State_impl<...>@@Base+0x12c>   ; [5.79153963
+94:   S f91fb: lea  rcx,[rip+0x811b0]  # 17a3b2 <typeinfo name for std::thread::_State_impl<...>@@Base+0x132>   ; [2.65134827
+95:   S f926c: lea  rcx,[rip+0x83180]  # 17c3f3 <typeinfo name for std::thread::_State_impl<...>@@Base+0x2173>  ; [7.9433161
+176:[done]
+177:=== 0xfd7f0 7
+178:slot 0xfd7f0 is referenced by 1 relocation(s); candidate vptrs ['0x1b3ca8']
+179:   store site 1017db:  lea  rax,[rip+0xb24c6]  # 1b3ca8 <_ZNKSt7__cxx1112regex_traitsIcE16lookup_classnameIPKcEENS1_10_RegexMa  in function 0x1017a0..0x10259c
+181:== function 0x1017a0..0x10259c: 735 instructions, 0 string loads
+262:[done]
+(S-line text is cut at the script's own 170-char limit before the 'str "..."' part; only the double value [d is visible. A second grep that keeps the text after '; [' shows only: 92 f9119 ; [5.79157372 / 93 f918a ; [5.79153963 / 94 f91fb ; [2.65134827 / 95 f926c ; [7.9433161)
