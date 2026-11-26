@@ -1,0 +1,13 @@
+# 97 r226: research/featgen/gain_share.py --date 20261119 --fits livev1_fit1,livev1_fit2,livev1_fit3 --subs s1,s2,s3,s4 --top 40 (46 lines). Transcribed off screen.
+models /work/crucible_data/prod_models/tk5m/202611: 12 files (livev1_fit1,livev1_fit2,livev1_fit3 x s1,s2,s3,s4)
+gain share: settled 0.6431, not settled 0.3569; split share: settled 0.6388
+columns never split on: settled 0, not settled 0
+not-settled columns by gain (rank among all 209, gain share, cumulative share of the whole model, splits):
+ 3 zzeg 0.0190 cum 0.0190 splits 17,073 | 6 zzop.i 0.0179 cum 0.0369 splits 22,906 | 7 zzgh.b 0.0172 cum 0.0541 splits 30,560 | 8 zzel.a 0.0158 cum 0.0699 splits 19,251 | 10 zzzl2.c 0.0150 cum 0.0849 splits 19,727 | 12 zzel.b 0.0138 cum 0.0986 splits 19,269
+ 21 zzmh 0.0120 cum 0.1106 splits 12,221 | 26 zzba 0.0114 cum 0.1220 splits 17,072 | 27 zzjx3.b 0.0113 cum 0.1334 splits 16,915 | 29 zzsf.c 0.0111 cum 0.1445 splits 18,094 | 31 zzsf.d 0.0108 cum 0.1553 splits 16,672 | 32 zzhj 0.0108 cum 0.1661 splits 13,992
+ 34 zzab2 0.0103 cum 0.1764 splits 12,078 | 35 zzpe.e 0.0100 cum 0.1863 splits 12,937 | 36 zzvm 0.0087 cum 0.1950 splits 12,752 | 37 zzzl2.g 0.0087 cum 0.2037 splits 12,501 | 40 zzxo 0.0079 cum 0.2115 splits 12,163 | 45 zzcb 0.0076 cum 0.2192 splits 12,401
+ 48 zzal.a 0.0068 cum 0.2260 splits 8,980 | 51 zzbt.b 0.0065 cum 0.2325 splits 6,696 | 52 zzpp.b 0.0063 cum 0.2388 splits 9,657 | 53 zzsa.b 0.0062 cum 0.2451 splits 9,008 | 54 zzwa.c 0.0062 cum 0.2513 splits 11,091 | 57 zzag.a 0.0061 cum 0.2574 splits 9,227
+ 58 zzag2.f 0.0058 cum 0.2632 splits 8,903 | 63 zzri2.a 0.0053 cum 0.2685 splits 8,081 | 66 zzwa.a 0.0053 cum 0.2738 splits 10,044 | 73 zzsa2.a 0.0049 cum 0.2787 splits 10,385 | 74 zzjx2.a 0.0049 cum 0.2836 splits 7,019 | 76 zzzl.f 0.0048 cum 0.2883 splits 4,180
+ 78 zzqf.q.a 0.0047 cum 0.2930 splits 9,921 | 79 zzbo.a 0.0045 cum 0.2976 splits 7,520 | 80 zzpp.a 0.0045 cum 0.3021 splits 7,902 | 82 zzaa.b 0.0044 cum 0.3065 splits 7,653 | 84 zzuc.c 0.0044 cum 0.3109 splits 6,990 | 85 zzwa.b 0.0043 cum 0.3152 splits 9,436
+ 90 zzts 0.0040 cum 0.3192 splits 5,660 | 97 zzuc.f 0.0034 cum 0.3225 splits 5,964 | 102 zzsa.a 0.0032 cum 0.3258 splits 6,649 | 107 zzhi2.c 0.0029 cum 0.3287 splits 2,987
+top 15 columns overall: zzro2.a 0.027, zzro2.c 0.020, zzeg* 0.019, zzfb2.a 0.019, zzgh2.b 0.018, zzop.i* 0.018, zzgh.b* 0.017, zzel.a* 0.016, zzpe.c 0.015, zzzl...  (cut at the screen edge; * = not settled)
