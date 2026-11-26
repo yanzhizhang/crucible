@@ -1,0 +1,466 @@
+# 97 /work/exec.tar.gz read-only inventory (crucible exec_inventory.sh, md5 b76071e1), 2026-11-26 ~19:45
+# transcribed off screen; 3rd-party symbol dumps condensed where marked; one RPATH user masked <u3>
+
+== archive
+-rw-r--r-- 1 root root 57784657 Nov 26 19:35 /work/exec.tar.gz
+25ed80142e2d50a4090f69d3df872856  /work/exec.tar.gz
+gzip compressed data, from Unix, original size modulo 2^32 214609920
+entries 60, files 49, links 8
+absolute or .. paths: 0
+unpacked bytes 214.6 MB
+
+== unpack to /work/exec_x
+ok
+
+== top of the tree
+.
+./exec
+./exec/config
+./exec/lib
+
+== file types
+     34 ELF 64-bit LSB shared object
+      6 current ar archive
+      3 XML 1.0 document
+      2 JSON data
+      1 ELF 64-bit LSB executable
+      1 CSV text
+      1 Bourne-Again shell script
+      1 ASCII text
+
+== extensions
+     12 so
+     10 0
+      6 a
+      5 1
+      4 xml
+      2 json
+      2 200
+      1 sh
+      1 csv
+      1 8
+      1 6
+      1 2
+      1 19
+      1 18
+      1 (none)
+
+== largest 40 files
+      52.3 MB  ./exec/lib/libarrow.a
+      34.0 MB  ./exec/lib/libarrow.so.800.0.0
+      26.3 MB  ./exec/lib/libarrow_bundled_dependencies.a
+      20.6 MB  ./exec/lib/libstdc++.so.6
+       9.6 MB  ./exec/lib/libmysqlclient.so.18
+       9.6 MB  ./exec/lib/libmysqlclient.so
+       8.4 MB  ./exec/lib/libparquet.a
+       6.6 MB  ./exec/lib/libqtapibteimpl.so
+       5.2 MB  ./exec/lib/lib_lightgbm.so
+       4.5 MB  ./exec/lib/libparquet.so.800.0.0
+       4.2 MB  ./exec/lib/libhdf5.so.200.1.0
+       4.2 MB  ./exec/lib/libhdf5.so.200
+       4.2 MB  ./exec/lib/libhdf5.so
+       3.9 MB  ./exec/lib/libarrow_dataset.a
+       2.6 MB  ./exec/policyserver_bin
+       2.5 MB  ./exec/lib/libqtapi.so
+       2.2 MB  ./exec/lib/libarrow_dataset.so.800.0.0
+       1.8 MB  ./exec/libCtePolicyBTE.so
+       1.7 MB  ./exec/lib/libfatwriter.a
+       1.5 MB  ./exec/lib/libnetcdf.so.19.0.1
+       1.5 MB  ./exec/lib/libnetcdf.so.19
+       1.5 MB  ./exec/lib/libnetcdf.so
+       0.9 MB  ./exec/lib/libcommon.a
+       0.5 MB  ./exec/lib/libdf.so.0.0.0
+       0.5 MB  ./exec/lib/libdf.so.0
+       0.4 MB  ./exec/lib/libubsan.so.1.0.0
+       0.4 MB  ./exec/lib/libubsan.so.1
+       0.4 MB  ./exec/lib/libubsan.so
+       0.3 MB  ./exec/lib/libnetcdf_c++4.so.1.1.0
+       0.3 MB  ./exec/lib/libnetcdf_c++4.so.1
+       0.3 MB  ./exec/lib/libnetcdf_c++4.so
+       0.3 MB  ./exec/lib/libjsoncpp.so.1.9.8
+       0.3 MB  ./exec/lib/libregression.so
+       0.2 MB  ./exec/lib/libmfhdf.so.0.0.0
+       0.2 MB  ./exec/lib/libmfhdf.so.0
+       0.1 MB  ./exec/lib/libhdf5_hl.so.200.0.1
+       0.1 MB  ./exec/lib/libhdf5_hl.so.200
+       0.1 MB  ./exec/lib/libhdf5_hl.so
+       0.0 MB  ./exec/lib/libsz.so.2.0.1
+       0.0 MB  ./exec/lib/libsz.so.2
+
+== ELF objects: needed libs, defined dynamic symbols, names that look like factor / model / alpha
+-- exec/policyserver_bin (2587568 B, ELF 64-bit LSB executable, x86-64)
+   (NEEDED) [libqtapi.so]
+   (NEEDED) [libpthread.so.0]
+   (NEEDED) [libdl.so.2]
+   (NEEDED) [libstdc++.so.6]
+   (NEEDED) [libgcc_s.so.1]
+   (NEEDED) [libc.so.6]
+   (RPATH) [$ORIGIN:.:./lib:$ORIGIN/lib:/usr/local/lib64:/usr/local/lib]
+   defined dynsyms 36
+-- exec/lib/libhdf5.so.200.1.0 (4191240 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libsz.so.2]
+   (NEEDED) [libz.so.1]
+   (NEEDED) [libm.so.6]
+   (NEEDED) [libc.so.6]
+   (SONAME) [libhdf5.so.200]
+   defined dynsyms 3595
+    T H5FD_get_feature_flags
+    T H5FD_set_feature_flags
+    T H5F_has_feature
+    T H5F_shared_has_feature
+-- exec/lib/libhdf5.so.200 (4191240 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libsz.so.2]
+   (NEEDED) [libz.so.1]
+   (NEEDED) [libm.so.6]
+   (NEEDED) [libc.so.6]
+   (SONAME) [libhdf5.so.200]
+   defined dynsyms 3595
+    T H5FD_get_feature_flags
+    T H5FD_set_feature_flags
+    T H5F_has_feature
+    T H5F_shared_has_feature
+-- exec/lib/libdf.so.0 (534816 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libjpeg.so.62]
+   (NEEDED) [libz.so.1]
+   (NEEDED) [libtirpc.so.3]
+   (NEEDED) [libc.so.6]
+   (SONAME) [libdf.so.0]
+   defined dynsyms 781
+-- exec/lib/lib_lightgbm.so (5239880 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libstdc++.so.6]
+   (NEEDED) [libm.so.6]
+   (NEEDED) [libgomp.so.1]
+   (NEEDED) [libgcc_s.so.1]
+   (NEEDED) [libc.so.6]
+   (NEEDED) [ld-linux-x86-64.so.2]
+   (SONAME) [lib_lightgbm.so]
+   defined dynsyms 3833
+    B LightGBM::LGBM_config_::current_device
+    B LightGBM::LGBM_config_::current_learner
+    D LightGBM::kModelVersion
+    T LGBM_BoosterAddValidData
+    T LGBM_BoosterCalcNumPredict
+    T LGBM_BoosterCreate
+    T LGBM_BoosterCreateFromModelfile
+    T LGBM_BoosterDumpModel
+    T LGBM_BoosterFeatureImportance
+    T LGBM_BoosterFree
+    T LGBM_BoosterFreePredictSparse
+    T LGBM_BoosterGetCurrentIteration
+    T LGBM_BoosterGetEval
+    T LGBM_BoosterGetEvalCounts
+    T LGBM_BoosterGetEvalNames
+    T LGBM_BoosterGetFeatureNames
+    T LGBM_BoosterGetLeafValue
+    T LGBM_BoosterGetLinear
+    T LGBM_BoosterGetLowerBoundValue
+    T LGBM_BoosterGetNumClasses
+    T LGBM_BoosterGetNumFeature
+    T LGBM_BoosterGetNumPredict
+    T LGBM_BoosterGetPredict
+    T LGBM_BoosterGetUpperBoundValue
+    T LGBM_BoosterLoadModelFromString
+-- exec/lib/libregression.so (258504 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [lib_lightgbm.so]
+   (NEEDED) [libstdc++.so.6]
+   (NEEDED) [libm.so.6]
+   (NEEDED) [libgcc_s.so.1]
+   (NEEDED) [libc.so.6]
+   (NEEDED) [ld-linux-x86-64.so.2]
+   (SONAME) [libregression.so]
+   (RPATH) [/work/sht-signals/cpp/lib:]
+   defined dynsyms 69
+-- exec/lib/libhdf5_hl.so.200 (140960 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libhdf5.so.200]
+   (NEEDED) [libc.so.6]
+   (SONAME) [libhdf5_hl.so.200]
+   defined dynsyms 164
+-- exec/lib/libqtapi.so (2519592 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libdl.so.2]
+   (NEEDED) [libstdc++.so.6]
+   (NEEDED) [libm.so.6]
+   (NEEDED) [libgcc_s.so.1]
+   (NEEDED) [libc.so.6]
+   (SONAME) [libqtapi.so]
+   (RPATH) [$ORIGIN:.:./lib:$ORIGIN/lib:/usr/local/lib64:/usr/local/lib]
+   defined dynsyms 611
+    T TiXmlBase::IsAlpha(unsigned char, TiXmlEncoding)
+    T TiXmlBase::IsAlphaNum(unsigned char, TiXmlEncoding)
+-- exec/lib/libnetcdf.so (1537424 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libmfhdf.so.0]
+   (NEEDED) [libdf.so.0]
+   (NEEDED) [libjpeg.so.62]
+   (NEEDED) [libhdf5_hl.so.200]
+   (NEEDED) [libhdf5.so.200]
+   (NEEDED) [libm.so.6]
+   (NEEDED) [libz.so.1]
+   (NEEDED) [libcurl.so.4]
+   (NEEDED) [libtirpc.so.3]
+   (NEEDED) [libc.so.6]
+   (SONAME) [libnetcdf.so.19]
+   defined dynsyms 2049
+    T NC_getmodelist
+    T NC_infermodel
+    T modeldecode
+    T nczmap_features
+-- exec/lib/libubsan.so (403224 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libstdc++.so.6]
+   (NEEDED) [libm.so.6]
+   (NEEDED) [libc.so.6]
+   (NEEDED) [libgcc_s.so.1]
+   (SONAME) [libubsan.so.1]
+   defined dynsyms 135
+-- exec/lib/libhdf5_hl.so (140960 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libhdf5.so.200]
+   (NEEDED) [libc.so.6]
+   (SONAME) [libhdf5_hl.so.200]
+   defined dynsyms 164
+-- exec/lib/libqtapibteimpl.so (6595344 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libqtapi.so]
+   (NEEDED) [libdl.so.2]
+   (NEEDED) [libstdc++.so.6]
+   (NEEDED) [libm.so.6]
+   (NEEDED) [libgcc_s.so.1]
+   (NEEDED) [libc.so.6]
+   (SONAME) [libqtapibteimpl.so]
+   (RPATH) [$ORIGIN:.:./lib:$ORIGIN/lib:$ORIGIN/lib/bte:/usr/local/lib64:/usr/local/lib]
+   defined dynsyms 950
+    T TiXmlBase::IsAlpha(unsigned char, TiXmlEncoding)
+    T TiXmlBase::IsAlphaNum(unsigned char, TiXmlEncoding)
+-- exec/lib/libubsan.so.1 (403224 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libstdc++.so.6]
+   (NEEDED) [libm.so.6]
+   (NEEDED) [libc.so.6]
+   (NEEDED) [libgcc_s.so.1]
+   (SONAME) [libubsan.so.1]
+   defined dynsyms 135
+-- exec/lib/libnetcdf.so.19.0.1 (1537424 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libmfhdf.so.0]
+   (NEEDED) [libdf.so.0]
+   (NEEDED) [libjpeg.so.62]
+   (NEEDED) [libhdf5_hl.so.200]
+   (NEEDED) [libhdf5.so.200]
+   (NEEDED) [libm.so.6]
+   (NEEDED) [libz.so.1]
+   (NEEDED) [libcurl.so.4]
+   (NEEDED) [libtirpc.so.3]
+   (NEEDED) [libc.so.6]
+   (SONAME) [libnetcdf.so.19]
+   defined dynsyms 2049
+    T NC_getmodelist
+    T NC_infermodel
+    T modeldecode
+    T nczmap_features
+-- exec/lib/libnetcdf_c++4.so.1.1.0 (338400 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libstdc++.so.6]
+   (NEEDED) [libm.so.6]
+   (NEEDED) [libc.so.6]
+   (NEEDED) [libgcc_s.so.1]
+   (SONAME) [libnetcdf_c++4.so.1]
+   defined dynsyms 808
+-- exec/lib/libmysqlclient.so.18 (9578168 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libpthread.so.0]
+   (NEEDED) [libdl.so.2]
+   (NEEDED) [libstdc++.so.6]
+   (NEEDED) [libm.so.6]
+   (NEEDED) [libgcc_s.so.1]
+   (NEEDED) [libc.so.6]
+   (SONAME) [libmysqlclient.so.18]
+   defined dynsyms 1477
+    B _my_signals@@libmysqlclient_18
+-- exec/lib/libsz.so.2.0.1 (36912 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libc.so.6]
+   (SONAME) [libsz.so.2]
+   defined dynsyms 11
+-- exec/lib/libubsan.so.1.0.0 (403224 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libstdc++.so.6]
+   (NEEDED) [libm.so.6]
+   (NEEDED) [libc.so.6]
+   (NEEDED) [libgcc_s.so.1]
+   (SONAME) [libubsan.so.1]
+   defined dynsyms 135
+-- exec/lib/libhdf5.so (4191240 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libsz.so.2]
+   (NEEDED) [libz.so.1]
+   (NEEDED) [libm.so.6]
+   (NEEDED) [libc.so.6]
+   (SONAME) [libhdf5.so.200]
+   defined dynsyms 3595
+    T H5FD_get_feature_flags
+    T H5FD_set_feature_flags
+    T H5F_has_feature
+    T H5F_shared_has_feature
+-- exec/lib/libjsoncpp.so.1.9.8 (307400 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libstdc++.so.6]
+   (NEEDED) [libm.so.6]
+   (NEEDED) [libgcc_s.so.1]
+   (NEEDED) [libc.so.6]
+   (NEEDED) [ld-linux-x86-64.so.2]
+   (SONAME) [libjsoncpp.so.27]
+   defined dynsyms 510
+    T Json::Features::Features()
+    T Json::Features::all()
+    T Json::Features::strictMode()
+    T Json::OurFeatures::all()
+    T Json::OurReader::OurReader(Json::OurFeatures const&)
+    T Json::Reader::Reader(Json::Features const&)
+    T Json::StreamWriter::Factory::~Factory()
+    T Json::parseFromStream(Json::CharReader::Factory const&, std::istream&, Json::Value*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*)
+    T Json::writeString[abi:cxx11](Json::StreamWriter::Factory const&, Json::Value const&)
+    V typeinfo for Json::CharReader::Factory
+    V typeinfo for Json::StreamWriter::Factory
+    V typeinfo name for Json::CharReader::Factory
+    V typeinfo name for Json::StreamWriter::Factory
+    V vtable for Json::StreamWriter::Factory
+-- exec/lib/libnetcdf.so.19 (1537424 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libmfhdf.so.0]
+   (NEEDED) [libdf.so.0]
+   (NEEDED) [libjpeg.so.62]
+   (NEEDED) [libhdf5_hl.so.200]
+   (NEEDED) [libhdf5.so.200]
+   (NEEDED) [libm.so.6]
+   (NEEDED) [libz.so.1]
+   (NEEDED) [libcurl.so.4]
+   (NEEDED) [libtirpc.so.3]
+   (NEEDED) [libc.so.6]
+   (SONAME) [libnetcdf.so.19]
+   defined dynsyms 2049
+    T NC_getmodelist
+    T NC_infermodel
+    T modeldecode
+    T nczmap_features
+-- exec/lib/libmfhdf.so.0.0.0 (170600 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libjpeg.so.62]
+   (NEEDED) [libz.so.1]
+   (NEEDED) [libtirpc.so.3]
+   (NEEDED) [libc.so.6]
+   (SONAME) [libmfhdf.so.0]
+   defined dynsyms 208
+-- exec/lib/libmfhdf.so.0 (170600 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libjpeg.so.62]
+   (NEEDED) [libz.so.1]
+   (NEEDED) [libtirpc.so.3]
+   (NEEDED) [libc.so.6]
+   (SONAME) [libmfhdf.so.0]
+   defined dynsyms 208
+-- exec/lib/libarrow.so.800.0.0 (33961776 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libz.so.1]
+   (NEEDED) [libzstd.so.1]
+   (NEEDED) [libstdc++.so.6]
+   (NEEDED) [libm.so.6]
+   (NEEDED) [libgcc_s.so.1]
+   (NEEDED) [libc.so.6]
+   (NEEDED) [ld-linux-x86-64.so.2]
+   (SONAME) [libarrow.so.800]
+   defined dynsyms 16046
+    T arrow::RegisterCancellingSignalHandler / ResetSignalStopSource / SetSignalStopSource / StopSource::RequestStopFromSignal
+    T arrow::SparseCOOIndex / SparseCSFIndex / SparseTensor / Tensor ... (ctors, Equals, ToTensor, dim_name, size, is_*_major, type_id)
+    [Mac transcriber: ~22 arrow signal/tensor symbol lines condensed to the two above; long wrapped C++ signatures]
+-- exec/lib/libnetcdf_c++4.so.1 (338400 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libstdc++.so.6]
+   (NEEDED) [libm.so.6]
+   (NEEDED) [libc.so.6]
+   (NEEDED) [libgcc_s.so.1]
+   (SONAME) [libnetcdf_c++4.so.1]
+   defined dynsyms 808
+-- exec/lib/libparquet.so.800.0.0 (4461384 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libarrow.so.800]
+   (NEEDED) [libstdc++.so.6]
+   (NEEDED) [libm.so.6]
+   (NEEDED) [libgcc_s.so.1]
+   (NEEDED) [libc.so.6]
+   (SONAME) [libparquet.so.800]
+   defined dynsyms 4771
+    V typeinfo / typeinfo name / vtable for apache::thrift::protocol::TCompactProtocolFactoryT<TMemoryBuffer> and TProtocolFactory  [6 lines, condensed]
+-- exec/lib/libstdc++.so.6 (20564960 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libm.so.6]
+   (NEEDED) [libc.so.6]
+   (NEEDED) [ld-linux-x86-64.so.2]
+   (NEEDED) [libgcc_s.so.1]
+   (SONAME) [libstdc++.so.6]
+   defined dynsyms 6082
+    R std::ctype_base::alpha@@GLIBCXX_3.4
+    R std::ios_base::boolalpha@@GLIBCXX_3.4
+    R std::numeric_limits<...>::has_signaling_NaN@@GLIBCXX_3.4*  [~23 lines, condensed]
+-- exec/lib/libsz.so (36912 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libc.so.6]
+   (SONAME) [libsz.so.2]
+   defined dynsyms 11
+-- exec/lib/libmysqlclient.so (9578168 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libpthread.so.0]
+   (NEEDED) [libdl.so.2]
+   (NEEDED) [libstdc++.so.6]
+   (NEEDED) [libm.so.6]
+   (NEEDED) [libgcc_s.so.1]
+   (NEEDED) [libc.so.6]
+   (SONAME) [libmysqlclient.so.18]
+   defined dynsyms 1477
+    B _my_signals@@libmysqlclient_18
+-- exec/lib/libarrow_dataset.so.800.0.0 (2158696 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libparquet.so.800]
+   (NEEDED) [libarrow.so.800]
+   (NEEDED) [libstdc++.so.6]
+   (NEEDED) [libm.so.6]
+   (NEEDED) [libgcc_s.so.1]
+   (NEEDED) [libc.so.6]
+   (NEEDED) [ld-linux-x86-64.so.2]
+   (SONAME) [libarrow_dataset.so.800]
+   defined dynsyms 2620
+    T arrow::dataset::{DatasetFactory, DirectoryPartitioning, FileSystemDatasetFactory, FilenamePartitioning, HivePartitioning,
+      ParquetDatasetFactory, PartitioningFactoryOptions, PartitioningOrFactory, UnionDatasetFactory}::...  [~21 symbols, long wrapped signatures, condensed]
+-- exec/lib/libnetcdf_c++4.so (338400 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libstdc++.so.6]
+   (NEEDED) [libm.so.6]
+   (NEEDED) [libc.so.6]
+   (NEEDED) [libgcc_s.so.1]
+   (SONAME) [libnetcdf_c++4.so.1]
+   defined dynsyms 808
+-- exec/lib/libdf.so.0.0.0 (534816 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libjpeg.so.62]
+   (NEEDED) [libz.so.1]
+   (NEEDED) [libtirpc.so.3]
+   (NEEDED) [libc.so.6]
+   (SONAME) [libdf.so.0]
+   defined dynsyms 781
+-- exec/lib/libsz.so.2 (36912 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libc.so.6]
+   (SONAME) [libsz.so.2]
+   defined dynsyms 11
+-- exec/lib/libhdf5_hl.so.200.0.1 (140960 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libhdf5.so.200]
+   (NEEDED) [libc.so.6]
+   (SONAME) [libhdf5_hl.so.200]
+   defined dynsyms 164
+-- exec/libCtePolicyBTE.so (1800304 B, ELF 64-bit LSB shared object, x86-64)
+   (NEEDED) [libregression.so]
+   (NEEDED) [libarrow.so.800]
+   (NEEDED) [lib_lightgbm.so]
+   (NEEDED) [libmysqlclient.so.18]
+   (NEEDED) [libnetcdf.so.19]
+   (NEEDED) [libnetcdf_c++4.so.1]
+   (NEEDED) [libparquet.so.800]
+   (NEEDED) [libstdc++.so.6]
+   (NEEDED) [libm.so.6]
+   (NEEDED) [libgcc_s.so.1]
+   (NEEDED) [libc.so.6]
+   (NEEDED) [ld-linux-x86-64.so.2]
+   (SONAME) [libCtePolicyBTE.so]
+   (RPATH) [/mnt/ssd_00_01/Workspace/<u3>/sht-factors/th:/mnt/ssd_00_01/Workspace/<u3>/sht-factors/third_party/arrow/lib:/mnt/ssd_00_01/Workspace/<u3>/sht-factors/third_party/lib]
+   defined dynsyms 140
+    B guard variable for quill::v12::detail::SignalHandlerContext::instance()::instance
+    B quill::v12::detail::SignalHandlerContext::instance()::instance
+    R typeinfo name for std::thread::_State_impl<std::thread::_Invoker<std::tuple<void (hAlpha::*)(), hAlpha*> > >
+    R typeinfo name for std::thread::_State_impl<std::thread::_Invoker<std::tuple<void (hAlpha::*)(int), hAlpha*, int> > >
+
+== scripts and configs, names only, json5 never opened
+180 ./exec/boot_bte.sh
+18917 ./exec/cfg.json
+381 ./exec/config/BTE_MD.xml
+238 ./exec/mysql.xml
+497 ./exec/policyserver.xml
+152 ./exec/signal.json
+7171 ./exec/tradinghour.xml
+
+== model-looking files
+
+== done: report /work/exec_x_report.txt, listing /work/exec_x_list.txt
