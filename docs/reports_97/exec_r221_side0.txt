@@ -1,0 +1,11 @@
+# 97 r221 (ema_rules.py v4, md5 d3e59bd9, 215 lines; 27 s, 22 lines; --match 'side0|zztx.r t_local, half 100|zzcb.r t_local, size ask1, price last, S from t > 0'), 20261120. Transcribed off screen.
+== 20261120: 300 stocks; exact share of sum / wgt / t (1e-9 rel), median PM mean / ours
+   side0    wgt 0.000 t 0.000  ratio 455.5 (220.4 .. 1126.9)  SH      [count of side-0 trades per stock, percentiles q50 (q10 .. q90)]
+   side0    wgt 0.000 t 0.000  ratio 0 (0 .. 0)  SZ
+   zzcb.r  t_local, size ask1, price last, S from t > 0:               all 0.976154 (0.93959 .. 0.99825) wgt PM/ours 1 [t 0.030] | SH 0.96487 (0.92941 .. 0.98395) wgt 1 [t 0.048] | SZ 0.996455 (0.98379 .. 0.99949) wgt 0.99999 [t 0.000]
+   zzcb.r  ... side 0 -> buy:  all 0.976154 (0.93959 .. 0.99825) wgt 1 [t 0.030] | SH 0.96487 (0.92941 .. 0.98395) wgt 1 [t 0.048] | SZ 0.996455 (0.98379 .. 0.99949) wgt 0.99999 [t 0.000]
+   zzcb.r  ... side 0 -> sell: all 0.998294 (0.97664 .. 1.016) wgt 1 [t 0.030] | SH 1.00559 (0.97573 .. 1.0233) wgt 1 [t 0.048] | SZ 0.996455 (0.98379 .. 0.99949) wgt 0.99999 [t 0.000]
+   zztx.r  t_local, half 100:                                         all 0.998194 (0.91332 .. 1.0022) wgt 1.0003 | SH 0.97321 (0.8751 .. 1.0136) wgt 1.0001 | SZ 0.999995 (0.99989 .. 1.0003) wgt 1.001
+   zztx.r  ... side 0 -> buy:  all 0.98912 (0.75832 .. 1.0015) wgt 1.0003 | SH 0.924492 (0.6229 .. 1.0439) wgt 1.0001 | SZ 0.999995 (0.99989 .. 1.0003) wgt 1.001
+   zztx.r  ... side 0 -> sell: all 1.00092 (0.97269 .. 1.1271) wgt 1.0003 | SH 1.02935 (0.91833 .. 1.2445) wgt 1.0001 | SZ 0.999995 (0.99989 .. 1.0003) wgt 1.001
+[done]
