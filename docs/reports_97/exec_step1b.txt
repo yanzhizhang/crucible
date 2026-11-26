@@ -1,0 +1,55 @@
+# 97 exec step 1b, 2026-11-26 ~20:02: auth masked in /work/exec_x_s1, cfg.json leaves 400-599, futuresinfo.csv head
+auth="..." masked in every file under /work/exec_x_s1 (source /work/exec_x/exec/policyserver.xml untouched); files still unmasked: 0
+
+-- cfg.json tail (/work/exec_x_s1/cfg_tail.py over the source cfg.json; mask adds auth|key; H = /tmp/data/prodfiles/hstats/sod/HS300)
+leaves 599, printing from index 399   (46 lines = header + term[79..123]; no keys after the term list)
+term[79]: name="zzqf9" type="ZZQF" sthspan=240 sOrder=1 jumpval=20 ptdata="H/ZZDS/YYYYMMDD/samplerS.nc"
+term[80]: name="zzqf10" type="ZZQF" sthspan=120 sOrder=0 jumpval=10 ptdata="H/ZZDS/YYYYMMDD/samplerS.nc"
+term[81]: name="zzqj" type="ZZQJ" hl=30 loadCp=true
+term[82]: name="zzqo" type="ZZQO" ptdata="H/ZZQO/YYYYMMDD/samplerS.nc" dump=false
+term[83]: name="zzrb" type="ZZRB" hl=5 mlc=4
+term[84]: name="zzrg" type="ZZRG" hl=60
+term[85]: name="zzri" type="ZZRI" dir="s"
+term[86]: name="zzri2" type="ZZRI" dir="ns"
+term[87]: name="zzro" type="ZZRO" hl=60 lvlId=-1
+term[88]: name="zzro2" type="ZZRO" hl=60 lvlId=1
+term[89]: name="zzsa" type="ZZSA" hl=60 blen=30 loadCp=false
+term[90]: name="zzsa2" type="ZZSA" hl=300 blen=30 loadCp=false
+term[91]: name="zzsa3" type="ZZSA" hl=1800 blen=60 loadCp=false
+term[92]: name="zzsf" type="ZZSF" hl=300
+term[93]: name="zzso" type="ZZSO" lsq=90 lvlId=5 hl=5 ptdata="H/ZZDS/YYYYMMDD/sampler.nc"
+term[94]: name="zzts" type="ZZTS" ptdata="H/ZZTS/YYYYMMDD/samplerS.nc" dump=false
+term[95]: name="zztx" type="ZZTX" hl=100 loadCp=true
+term[96]: name="zzuc" type="ZZUC" hl=30 blen=60 ptdata="H/ZZUG/YYYYMMDD/samplerS.nc"
+term[97]: name="zzui" type="ZZUI" hl=10 loadCp=true
+term[98]: name="zzup" type="ZZUP" hls=600 hlf=300 loadCp=true
+term[99]: name="zzvm" type="ZZVM" hl=300 loadCp=true
+term[100]: name="zzvm2" type="ZZVM" hl=30
+term[101]: name="zzvx" type="ZZVX" hl=30 loadCp=true
+term[102]: name="zzwa" type="ZZWA" ptdata0="H/ZZWA/YYYYMMDD/samplerS.nc" dump=false ptdata="/tmp/data/prodfiles/CEDxr4d/daily/YYYYMMDD_SOD.nc" ptdata2="H/ZZMS/YYYYMMDD/samplerS.nc"
+term[103]: name="zzwf" type="ZZWF" hl=5 mlc=1 lq=90
+term[104]: name="zzwj" type="ZZWJ"
+term[105]: name="zzxc" type="ZZXC" ptdata="H/ZZXC/YYYYMMDD/samplerS.nc" dump=false
+term[106]: name="zzxo" type="ZZXO" blen=10 loadCp=true
+term[107]: name="zzxt" type="ZZXT" hl=60 lvlId=-1 ptdata="H/ZZUG/YYYYMMDD/samplerSS.nc"
+term[108]: name="zzxt2" type="ZZXT" hl=300 lvlId=-1 ptdata="H/ZZUG/YYYYMMDD/samplerSS.nc"
+term[109]: name="zzxt3" type="ZZXT" hl=60 lvlId=0 ptdata="H/ZZUG/YYYYMMDD/samplerSS.nc"
+term[110]: name="zzxt4" type="ZZXT" hl=300 lvlId=0 ptdata="H/ZZUG/YYYYMMDD/samplerSS.nc"
+term[111]: name="zzxt5" type="ZZXT" hl=60 lvlId=20 ptdata="H/ZZUG/YYYYMMDD/samplerSS.nc"
+term[112]: name="zzxt6" type="ZZXT" hl=300 lvlId=20 ptdata="H/ZZUG/YYYYMMDD/samplerSS.nc"
+term[113]: name="zzxu" type="ZZXU" hl=300 tm=3 loadCp=true
+term[114]: name="zzyg" type="ZZYG" btsList=[2] [5, 15] hls=[2] [10, 10]
+term[115]: name="zzyg2" type="ZZYG" btsList=[1] [5] hls=[1] [15]
+term[116]: name="zzyj" type="ZZYJ" hl=300 lvlId=5 ptdata="H/ZZUG/YYYYMMDD/samplerSS.nc"
+term[117]: name="zzyj2" type="ZZYJ" hl=300 lvlId=10 ptdata="H/ZZUG/YYYYMMDD/samplerSS.nc"
+term[118]: name="zzyj3" type="ZZYJ" hl=0 lvlId=-1 ptdata="H/ZZUG/YYYYMMDD/samplerSS.nc"
+term[119]: name="zzyj4" type="ZZYJ" hl=0 lvlId=5 ptdata="H/ZZUG/YYYYMMDD/samplerSS.nc"
+term[120]: name="zzyj5" type="ZZYJ" hl=0 lvlId=10 ptdata="H/ZZUG/YYYYMMDD/samplerSS.nc"
+term[121]: name="zzzl" type="ZZZL" prevDays=3 blen=20 forH=true
+term[122]: name="zzzl2" type="ZZZL" prevDays=3 blen=30
+term[123]: name="zzzs" type="ZZZS" hl=60 loadCp=false
+
+-- csv: /work/exec_x/exec/config/futuresinfo.csv (88 lines; the only csv)
+ID,ProductClass,Exchange,Multiply,TickSize
+IC,49,CFFEX,200,0.2
+IF,49,CFFEX,300,0.2
