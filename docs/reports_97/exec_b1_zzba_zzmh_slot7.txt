@@ -1,0 +1,36 @@
+batch 1: /work/b_ba7.txt (12 lines) then /work/b_mh7.txt (21 lines), raw rows, transcribed from screen.
+
+=== b_ba7.txt
+// ---- slot 7 @ 0xc9db0 .. 0xc9e2b | c9db0: movsd xmm1,QWORD PTR [rdi+0x120] | c9db8: pxor xmm0,xmm0
+c9dbc: movsd xmm3,QWORD PTR [rdi+0x150] | c9dc4: ucomisd xmm1,xmm0 | c9dc8: jp c9e00 <CreatePolicy@@Base+0x102c0>
+c9dca: jne c9e00 <CreatePolicy@@Base+0x102c0> | c9dcc: ucomisd xmm3,xmm0 | c9dd0: jp c9dd8 <CreatePolicy@@Base+0x10298>
+c9dd2: movapd xmm1,xmm0 | c9dd6: je c9df2 <CreatePolicy@@Base+0x102b2> | c9dd8: movapd xmm2,xmm0
+c9ddc: comisd xmm2,xmm0 | c9de0: movsd xmm1,QWORD PTR [rdi+0x158] | c9de8: divsd xmm1,xmm3
+c9dec: jbe c9e1e <CreatePolicy@@Base+0x102de> | c9dee: divsd xmm1,xmm2 | c9df2: mov rax,QWORD PTR [rdi+0x40]
+c9df6: movsd QWORD PTR [rax],xmm1 | c9dfa: ret | c9dfb: nop DWORD PTR [rax+rax*1+0x0]
+c9e00: ucomisd xmm3,xmm0 | c9e04: movsd xmm2,QWORD PTR [rdi+0x128] | c9e0c: divsd xmm2,xmm1
+c9e10: jp c9ddc <CreatePolicy@@Base+0x1029c> | c9e12: movapd xmm1,xmm0 | c9e16: jne c9ddc <CreatePolicy@@Base+0x1029c>
+c9e18: comisd xmm2,xmm0 | c9e1c: ja c9dee <CreatePolicy@@Base+0x102ae> | c9e1e: mov rax,QWORD PTR [rdi+0x40]
+c9e22: movapd xmm1,xmm0 | c9e26: movsd QWORD PTR [rax],xmm1 | c9e2a: ret
+
+=== b_mh7.txt
+// ---- slot 7 @ 0xf75e0 .. 0xf76d2 | f75e0: push rbx | f75e1: movapd xmm0,xmm1
+f75e5: movsd xmm1,QWORD PTR [rip+0x7f51b] ;[86400 | 4680673776000565248] | f75ed: mov rbx,rdi | f75f0: call 1bcc0 <fmod@plt>
+f75f5: movsd xmm3,QWORD PTR [rip+0x8338b] ;[12600 | 4668152537583452160] | f75fd: movapd xmm2,xmm0 | f7601: subsd xmm2,QWORD PTR [rip+0x83377] ;[5400 | 4662659377491083264]
+f7609: comisd xmm3,xmm0 | f760d: ja f7631 <CreatePolicy@@Base+0x3daf1> | f760f: comisd xmm0,QWORD PTR [rip+0x83379] ;[18000 | 4670677016280825856]
+f7617: mov rax,QWORD PTR [rip+0x83362] ;[5400 | 4662659377491083264] | f761e: movq xmm1,rax | f7623: ja f762d <CreatePolicy@@Base+0x3daed>
+f7625: movapd xmm1,xmm0 | f7629: subsd xmm1,xmm3 | f762d: subsd xmm2,xmm1
+f7631: pxor xmm1,xmm1 | f7635: comisd xmm1,xmm2 | f7639: jae f7690 <CreatePolicy@@Base+0x3db50>
+f763b: movsd xmm2,QWORD PTR [rbx+0x120] | f7643: ucomisd xmm2,xmm1 | f7647: jp f7680 <CreatePolicy@@Base+0x3db40>
+f7649: movapd xmm0,xmm1 | f764d: jne f7680 <CreatePolicy@@Base+0x3db40> | f764f: divsd xmm0,QWORD PTR [rbx+0x100]
+f7657: ucomisd xmm0,xmm1 | f765b: jp f765f <CreatePolicy@@Base+0x3db1f> | f765d: je f766f <CreatePolicy@@Base+0x3db2f>
+f765f: comisd xmm1,xmm0 | f7663: ja f76a0 <CreatePolicy@@Base+0x3db60> | f7665: ucomisd xmm1,xmm0
+f7669: ja f76cb <CreatePolicy@@Base+0x3db8b> | f766b: sqrtsd xmm0,xmm0 | f766f: mov rax,QWORD PTR [rbx+0x40]
+f7673: movsd QWORD PTR [rax],xmm0 | f7677: pop rbx | f7678: ret
+f7679: nop DWORD PTR [rax+0x0] | f7680: movsd xmm0,QWORD PTR [rbx+0x128] | f7688: divsd xmm0,xmm2
+f768c: jmp f764f <CreatePolicy@@Base+0x3db0f> | f7690: mov rax,QWORD PTR [rbx+0x40] | f7694: mov QWORD PTR [rax],0x0
+f769b: pop rbx | f769c: ret | f769d: nop DWORD PTR [rax]
+f76a0: andpd xmm0,XMMWORD PTR [rip+0x7d358] ;[nan | 9223372036854775807] | f76a8: ucomisd xmm1,xmm0 | f76ac: ja f76c4 <CreatePolicy@@Base+0x3db84>
+f76ae: sqrtsd xmm0,xmm0 | f76b2: xorpd xmm0,XMMWORD PTR [rip+0x83376] ;[-0 | -9223372036854775808] | f76ba: mov rax,QWORD PTR [rbx+0x40]
+f76be: movsd QWORD PTR [rax],xmm0 | f76c2: jmp f7677 <CreatePolicy@@Base+0x3db37> | f76c4: call 1b6d0 <sqrt@plt>
+f76c9: jmp f76b2 <CreatePolicy@@Base+0x3db72> | f76cb: call 1b6d0 <sqrt@plt> | f76d0: jmp f766f <CreatePolicy@@Base+0x3db2f>
