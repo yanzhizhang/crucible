@@ -1,0 +1,34 @@
+# 224 read-only listing #2 (user "list only" yes), ~23:40: /work/p224b_cmd.sh -> /work/p224b_list.txt (34 lines). Owner column dropped. Nothing opened or copied.
+== dcp links (size date time name -> target)
+34 2026-11-24 08:45 20261120.jz -> ../../p1_intrading_dcp/20261119.jz
+34 2026-11-25 19:55 20261123.jz -> ../../p1_intrading_dcp/20261120.jz
+34 2026-11-26 08:45 20261124.jz -> ../../p1_intrading_dcp/20261123.jz
+34 2026-11-26 08:45 20261125.jz -> ../../p1_intrading_dcp/20261124.jz
+34 2026-11-26 08:45 20261126.jz -> ../../p1_intrading_dcp/20261125.jz
+== mp/20261119 (size date time name)
+128617 2026-11-19 19:12 SH_HS300_index.mp
+270654825 2026-11-20 17:07 SH_HS300_order.mp
+54873369 2026-11-19 19:10 SH_HS300_snap.mp
+148702404 2026-11-19 19:12 SH_HS300_trade.mp
+128644 2026-11-19 19:12 SH_ZZ1000_index.mp
+127914 2026-11-19 19:12 SH_ZZ500_index.mp
+106914 2026-11-19 19:14 SZ_HS300_index.mp
+205861180 2026-11-19 19:13 SZ_HS300_order.mp
+37107423 2026-11-19 19:12 SZ_HS300_snap.mp
+163037422 2026-11-19 19:14 SZ_HS300_trade.mp
+107898 2026-11-19 19:14 SZ_ZZ1000_index.mp
+107261 2026-11-19 19:14 SZ_ZZ500_index.mp
+(sum of the 12 sizes = 880,943,871 bytes, about 0.88 GB)
+== mp/20261118
+132204 2026-11-18 19:10 SH_HS300_index.mp
+281155909 2026-11-18 19:09 SH_HS300_order.mp
+55085684 2026-11-18 19:09 SH_HS300_snap.mp
+150316626 2026-11-18 19:10 SH_HS300_trade.mp
+130732 2026-11-19 13:04 SH_ZZ1000_index.mp
+130840 2026-11-19 13:04 SH_ZZ500_index.mp
+107043 2026-11-18 19:11 SZ_HS300_index.mp
+217247789 2026-11-18 19:11 SZ_HS300_order.mp
+37496915 2026-11-18 19:10 SZ_HS300_snap.mp
+172758016 2026-11-18 19:11 SZ_HS300_trade.mp
+108243 2026-11-19 13:04 SZ_ZZ1000_index.mp
+107919 2026-11-19 13:04 SZ_ZZ500_index.mp
