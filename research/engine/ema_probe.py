@@ -5,6 +5,9 @@ the input, so matching it pins the clock (which events update the average) and t
 For every target key and every (clock, half-life, stop) the day-end weight is rebuilt per stock as the sum of
 exp(-(T - t_i) ln2 / half) over the updates t_i up to the stop (T = the last of them) and compared with PM's .wgt:
   clocks: snap (every snapshot received), trade (every trade), both (snapshots and trades), each on the local trading clock;
+          grid n s (an update every n s of the trading clock with the last snapshot's value; ", new snapshot" = only steps
+          a snapshot arrived in) -- the runtime's cfg.json gives hl per term, and hl / step fixes the weight, so a weight fit
+          at half h on the 3 s snapshot clock is also hl = h x n / 3 on an n s grid;
   stops : PM's own .t of the stock (where the average stopped, whatever the rule), and the day's stop;
 then, where the weight matches, input candidates are scored on the value sum / wgt (exact share at 1e-6, median PM / ours):
   snapshot-clock keys (zzhj.p, zzui.r, zzcb.r, zzeb.r): price, mid, 1 / price, amount / volume since the previous snapshot,
@@ -33,9 +36,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "pm_factors"))
 
 LN2 = math.log(2.0)
-HALVES = (1, 1.5, 2, 3, 4, 5, 6, 8, 10, 15, 20, 30, 40, 45, 60, 90, 120, 180, 240, 300, 450, 600, 900, 1200, 1800, 2700, 3600, 5400, 7200)
-VHALVES = {"zzhj.p": (30,), "zzui.r": (3,), "zzcb.r": (30,), "zzeb.r": (90,), "zzvm.c.re": (300,)}  # value candidates only near R200's weights
-VCLOCK = "snap"  # --value-clock: the clock the snapshot-key inputs are averaged on
+HALVES = (1, 1.5, 2, 3, 4, 5, 6, 8, 10, 15, 20, 25, 30, 40, 45, 50, 60, 90, 100, 120, 150, 180, 200, 240, 300, 450, 600, 900, 1200, 1800,
+          2700, 3600, 5400, 7200)
+# value candidates: R200's weight fits plus the runtime cfg.json's hl of each term (zzhj 300, zzui 10, zzcb 30, zzeb 100, zztx 100, zzvm 300)
+VHALVES = {"zzhj.p": (30, 300), "zzui.r": (3, 10), "zzcb.r": (30,), "zzeb.r": (90, 100), "zztx.r": (100,), "zzvm.c.re": (300,)}
+GRIDS = (5, 10, 15, 20, 30, 60)  # fixed-step clocks on the trading clock: an average updated every n s with the last snapshot's value
+VCLOCKS = ("snap", "grid 10 s", "grid 30 s")  # --value-clocks: the clocks the snapshot-key inputs are averaged on
 KEYS = ("zzhj.p", "zzui.r", "zzvm.c.re", "zzcb.r", "zzeb.r", "zztx.r")
 
 
@@ -56,10 +62,9 @@ def main() -> None:
     ap.add_argument("--jz", type=Path, required=True)
     ap.add_argument("--catalog", type=Path, required=True)
     ap.add_argument("--keys", default=",".join(KEYS))
-    ap.add_argument("--value-clock", default="snap", help="snap | 'snap, exchange clock'")
+    ap.add_argument("--value-clocks", default=";".join(VCLOCKS), help="';'-separated clock names, e.g. 'snap;grid 10 s;snap, exchange clock'")
     a = ap.parse_args()
-    global VCLOCK
-    VCLOCK = a.value_clock
+    vclocks = [c.strip() for c in a.value_clocks.split(";") if c.strip()]
     import dcp_ema as E
     import duckdb
     from stream import universe_from_state
@@ -90,6 +95,14 @@ def main() -> None:
         clocks = {"snap": tf, "snap, exchange clock": sx, "trade, exchange clock": gs["t_exch"].to_numpy().astype(float), "snap, new exchange stamp": tf[newx], "snap, volume changed": tf[newv], "snap from 09:30": tf[sf >= 34200],
                   "trade": ts, "trade from 09:30": ts[ss0 >= 34200], "trade 09:30-14:57": ts[(ss0 >= 34200) & (ss0 < 53820)],
                   "both": np.sort(np.concatenate([tf, ts]), kind="stable")}
+        at = {}  # grid clock -> index of the last snapshot at or before each grid time (to sample snapshot inputs on it)
+        for n in GRIDS:
+            g = np.arange(n, stop_tc + n, n, dtype=float)
+            g = g[g >= tf[0]] if tf.size else g[:0]
+            j = np.searchsorted(tf, g, side="right") - 1
+            clocks[f"grid {n} s"], at[f"grid {n} s"] = g, j
+            fresh = np.concatenate([[True], np.diff(j) > 0])  # a snapshot arrived inside the step
+            clocks[f"grid {n} s, new snapshot"], at[f"grid {n} s, new snapshot"] = g[fresh], j[fresh]
         px = gf["price"].to_numpy().astype(float)
         px = np.where(px > 0, px, np.nan)
         b1, a1 = gf["b1"].to_numpy().astype(float), gf["a1"].to_numpy().astype(float)
@@ -127,8 +140,8 @@ def main() -> None:
                      "volume since previous / price": dv / px, "bid1 + ask1 size / price": (bv + av) / px, "amount since previous / price^2": da / px ** 2,
                      "volume unchanged (0/1)": (dv == 0).astype(float), "price unchanged (0/1)": np.concatenate([[0.0], (np.diff(px) == 0).astype(float)]),
                      "mid unchanged (0/1)": np.concatenate([[0.0], (np.diff(mid) == 0).astype(float)])}
-        inputs = {"zzhj.p": (VCLOCK, snapc), "zzui.r": (VCLOCK, snapc), "zzcb.r": (VCLOCK, snapc), "zzeb.r": (VCLOCK, snapc),
-                  "zzvm.c.re": ("trade", {"trade price": tp, "running VWAP from 09:30": vwap})}
+        inputs = {k: [(c, snapc) for c in vclocks] for k in ("zzhj.p", "zzui.r", "zzcb.r", "zzeb.r", "zztx.r")}
+        inputs["zzvm.c.re"] = [("trade", {"trade price": tp, "running VWAP from 09:30": vwap})]
         kv = pm.get(sid, {})
         for k in keys:
             w_pm, t_pm, s_pm = kv.get(f"{k}.wgt"), kv.get(f"{k}.t"), kv.get(f"{k}.sum")
@@ -144,14 +157,15 @@ def main() -> None:
                         r[1] += abs(w - w_pm) <= 1e-7 * abs(w_pm)
                         r[2].append(w / w_pm)
             if k in inputs and isinstance(s_pm, (int, float)):
-                cn, cand = inputs[k]
+              for cn, cand in inputs[k]:
                 t = clocks[cn]
                 for nm, x in cand.items():
+                    xs = x[at[cn]] if cn in at else x  # a grid clock samples the last snapshot's value
                     for sn, st in stops.items():
                         for h in (VHALVES.get(k) or HALVES):
-                            s, w, _ = end_state(t, x, h, st)
+                            s, w, _ = end_state(t, xs, h, st)
                             v, vp = s / w if w else math.nan, s_pm / w_pm
-                            r = vres[k].setdefault((nm, sn, h), [0, 0, []])
+                            r = vres[k].setdefault((f"{nm} @ {cn}", sn, h), [0, 0, []])
                             r[0] += 1
                             r[1] += abs(v - vp) <= 1e-6 * max(1.0, abs(vp))
                             r[2].append(vp / v if v else math.nan)
