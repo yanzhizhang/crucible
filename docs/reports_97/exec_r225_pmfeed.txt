@@ -1,0 +1,33 @@
+# 97 r225 on PM's own feed (mp_load cache 20261119; mp_load.py patched md5 d0806ee6, 87 lines; ema_rules.py v6 b17826cc; gh_nb_fit.py v5 a935d401), vs PM's 20261119.jz. ema 25 s / 25 lines; gh 48 s / 72 lines. Transcribed off screen.
+== ema_rules, 20261119: 300 stocks; exact share of sum / wgt / t (1e-9 rel), median PM mean / ours  (wgt = PM wgt / ours wgt; every row sum 0.000)
+side0: SH ratio 0 (0 .. 0) | SZ ratio 0 (0 .. 0)
+zzcb.r t_local, size ask1, S from t > 0: price ask1 1.06982 (0.79751 .. 1.4275) wgt 0.99998 [t 0.017] | price last 1.07039 (0.79802 .. 1.428) wgt 0.99998 [t 0.017]
+zzeb.r t_local, p = mid / sum, half 100: all 0.999993 (0.99999 .. 1) wgt 1 [t 0.017] | SH 0.999991 (0.99999 .. 1) wgt 1 [t 0.027] | SZ 1 (1 .. 1) wgt 0.99999 [t 0.000]
+zzhj.p t_local, step 30, half 300, prev 0 (t 0.000): all 1.4971 (1.2779 .. 1.7196) wgt 1.0426 | SH 1.52363 (1.3241 .. 1.7607) wgt 1.0265 | SZ 1.46557 (1.241 .. 1.6429) wgt 1.164
+zztx.r t_local, half 100 (t 0.000): all -0.999977 (-1.0001 .. -0.99984) wgt 1.0017      [sign negative]
+zzui.k (value exact 0.000): window 10, fast 2, slow 20 1.00098 (0.99811 .. 1.0047) | window 10, fast 2, slow 30 1.00098 (0.99815 .. 1.0047) | window 9, fast 2, slow 30 1.00099 (0.99811 .. 1.0046)
+zzui.r (t 0.000): window 10, fast 2, slow 20: all 1.00098 (0.99823 .. 1.005) wgt 1.8227 | SH 1.00052 (0.99717 .. 1.0044) wgt 1.7689 | SZ 1.00185 (0.99961 .. 1.0053) wgt 1.991
+   window 10, fast 2, slow 30: all 1.00098 (0.99824 .. 1.0049) wgt 1.8227 | SH 1.00053 (0.99716 .. 1.0044) wgt 1.7689 | SZ 1.00185 (0.99961 .. 1.0054) wgt 1.991
+   window 9, fast 2, slow 30: all 1.00099 (0.99823 .. 1.0046) wgt 1.8227 | SH 1.00053 (0.99717 .. 1.0044) wgt 1.7689 | SZ 1.00177 (0.99962 .. 1.0053) wgt 1.991
+[done]
+== gh_nb_fit on PM's feed: 20261119: 300 stocks, 300 with trades
+-- zzgh.nb (948 slots): share exact 1e-9 / 1e-6, median |diff|, corr, mean (ours - PM) -- best 14 (all exact 0.000 except the first row 0.003 at 1e-6)
+   0.000 0.003 med 1.66e-01 corr -0.99967 bias -0.10688 exch: total imbalance, trades before end -19 s
+   0.000 0.000 med 1.21e-01 corr -0.62291 bias -0.05304 local: mean slot imbalance (empty = 0)
+   0.000 0.000 med 1.21e-01 corr -0.62244 bias -0.05317 local: mean slot imbalance (traded slots)
+   0.000 0.000 med 1.22e-01 corr -0.62347 bias -0.05299 exch: mean slot imbalance (empty = 0)
+   0.000 0.000 med 1.22e-01 corr -0.62297 bias -0.05312 exch: mean slot imbalance (traded slots)
+   (further rows: slot-EMA half 7200 / 3600, share buy-led minus sell-led, total imbalance trades before end -51 / -50 s: corr -0.99948 .. -0.99950, bias -0.10543 .. -0.10544, med 1.65e-01)
+   side rules on 'local, slots [0, n-1), t > 0': SH 0.000 0.000 med 1.77e-01 n 188 feed side | SZ 0.000 0.000 1.57e-01 n 112 | all 0.000 0.000 1.66e-01 n 300 | feed side, unknown -> later order and -> tick: identical | mid rule SH 2.48e-02 SZ 4.34e-02 all 3.20e-02 | quote rule SH 2.79e-02 SZ 4.29e-02 all 3.23e-02 | tick rule SH 4.05e-02 SZ 5.65e-02 all 4.60e-02 (all exact 0.000)
+-- zzgh2.nb (1422 slots): best rows: exch mean slot imbalance (empty = 0) med 1.22e-01 corr -0.58489 bias -0.05786 | exch mean slot imbalance (traded slots) 1.24e-01 corr -0.58406 bias -0.05836 | local mean slot imbalance (empty = 0) 1.25e-01 corr -0.58555 bias -0.05800 | local mean slot imbalance (traded slots) 1.26e-01 corr -0.58473 bias -0.05850 | exch slot-EMA (empty = 0) half 7200 1.30e-01 corr -0.57838 bias -0.08219 (all exact 0.000)
+   further: total imbalance trades before end -51 s corr -0.99876 bias -0.10440 med 1.65e-01; total volume imbalance corr -0.99905 bias -0.10448 med 1.65e-01
+   side rules: SH 0.000 0.000 med 1.77e-01 n 188 feed side | SZ 1.56e-01 n 112 | all 1.66e-01 n 300 | later order / tick: identical | mid rule SH 2.35e-02 SZ 4.26e-02 all 3.11e-02 | quote rule SH 2.68e-02 SZ 4.20e-02 all 3.14e-02 | tick rule SH 4.03e-02 SZ 5.59e-02 all 4.54e-02
+[done]
+== batch 1 slots (real, non-back-reference; number = .min instruction lines)
+ZZEG: slot 3 @ dbfe0 (79), slot 5 @ dbe20 (91), slot 7 @ dc150 (39), slot 12 @ dc340 (64)
+ZZOP: slot 3 @ fe220 (179), slot 7 @ fd7f0 (83)
+ZZEL: slot 7 @ da930 (7), slot 8 @ dde20 (69)
+ZZZL: slot 5 @ 133e80 (119), slot 6 @ 134090 (69), slot 7 @ 132b00 (510), slot 12 @ 132780 (37)
+ZZMH: slot 5 @ f6c00 (75), slot 7 @ f75e0 (57), slot 12 @ f6230 (48)
+ZZBA: slot 3 @ ca9c0 (94), slot 5 @ ca7d0 (102), slot 7 @ c9db0 (31), slot 12 @ cba80 (64)
+(No non-back-reference callee headers printed for these six classes.)
