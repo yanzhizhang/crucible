@@ -1,0 +1,42 @@
+r225b on PM's own feed after side flip (mp_load.py md5 219a7c76703a1d764fbc5ed0ef4e8b62, GATE OK). ema 25 s / 17 lines, gh 47 s / 72 lines.
+Transcribed from screen; files on 97: data/reports/r225b_pm_feed_ema.txt, r225b_pm_feed_gh.txt
+
+== ema (20261119: 300 stocks; exact share of sum / wgt / t (1e-9 rel), median PM mean / ours)
+zzcb.r  wgt 0.000 t 0.017  ratio 0.989089 (0.94162 .. 0.99956)  wgt PM / ours 0.99998  t_local, size ask1, price last, S from t > 0
+zzeb.r  wgt 0.000 t 0.000  ratio 0.999995 (0.99972 .. 1.0001)  wgt PM / ours 1  t_exch, p = mid / sum, half 100
+zzeb.r  wgt 0.000 t 0.000  ratio 0.999995 (0.99999 .. 1)  wgt PM / ours 1  t_exch, p = mid / sum, half 100 | SH
+zzeb.r  wgt 0.000 t 0.000  ratio 0.999851 (0.99962 .. 1.0002)  wgt PM / ours 1.0009  t_exch, p = mid / sum, half 100 | SZ
+zzeb.r  wgt 0.000 t 0.017  ratio 0.999993 (0.99999 .. 1)  wgt PM / ours 1  t_local, p = mid / sum, half 100
+zzeb.r  wgt 0.000 t 0.027  ratio 0.999991 (0.99999 .. 1)  wgt PM / ours 1  t_local, p = mid / sum, half 100 | SH
+zzeb.r  wgt 0.000 t 0.000  ratio 1 (1 .. 1)  wgt PM / ours 0.99999  t_local, p = mid / sum, half 100 | SZ
+zzhj.p  wgt 0.000 t 0.000  ratio 1.4971 (1.2779 .. 1.7196)  wgt PM / ours 1.0426  t_local, step 30, half 300, prev 0
+zzhj.p  wgt 0.000 t 0.000  ratio 1.52363 (1.3241 .. 1.7607)  wgt PM / ours 1.0265  t_local, step 30, half 300, prev 0 | SH
+zzhj.p  wgt 0.000 t 0.000  ratio 1.46557 (1.241 .. 1.6429)  wgt PM / ours 1.164  t_local, step 30, half 300, prev 0 | SZ
+zztx.r  wgt 0.000 t 0.000  ratio 1.00019 (0.99875 .. 1.0013)  wgt PM / ours 0.98987  t_exch, half 100
+zztx.r  wgt 0.000 t 0.000  ratio 0.999977 (0.99984 .. 1.0001)  wgt PM / ours 1.0017  t_local, half 100
+zzui.r  wgt 0.000 t 0.000  ratio 1.00098 (0.99824 .. 1.0049)  wgt PM / ours 1.8227  window 10, fast 2, slow 30
+zzui.r  wgt 0.000 t 0.000  ratio 1.00053 (0.99716 .. 1.0044)  wgt PM / ours 1.7689  window 10, fast 2, slow 30 | SH
+zzui.r  wgt 0.000 t 0.000  ratio 1.00185 (0.99961 .. 1.0054)  wgt PM / ours 1.991  window 10, fast 2, slow 30 | SZ
+[done]
+
+== gh_nb_fit (20261119: 300 stocks, 300 with trades)
+-- zzgh.nb (948 slots): share exact 1e-9 / 1e-6, median |diff|, corr, mean (ours - PM) -- best 14
+  top 3 (lines 4-6, bottom of the zoom, left columns cut off by the screen):
+    0.133 0.150  med 1.20e-04  corr 0.99970  bias +0.00049  local: total imbalance, last slot dropped
+    0.133 0.150  med 1.20e-04  corr 0.99970  bias +0.00049  local: total imbalance, trades before end -15 s
+    0.133 0.150  med 1.20e-04  corr 0.99970  bias +0.00049  local: total imbalance, trades before the last snapshot (its slot start)
+  feed side rows:
+    SH  0.096 0.117  med 1.71e-04  n 188  feed side
+    SZ  0.196 0.205  med 4.84e-05  n 112  feed side
+    all 0.133 0.150  med 1.20e-04  n 300  feed side
+    (same three values for "feed side, unknown -> later order" and "feed side, unknown -> tick")
+-- zzgh2.nb (1422 slots): share exact 1e-9 / 1e-6, median |diff|, corr, mean (ours - PM) -- best 14
+  top 3 (lines 39-41):
+    0.050 0.053  med 3.33e-04  corr 0.99906  bias +0.00132  local: total imbalance, last slot dropped
+    0.050 0.053  med 3.33e-04  corr 0.99906  bias +0.00132  local: total imbalance, trades before end -10 s
+    0.050 0.053  med 3.33e-04  corr 0.99906  bias +0.00132  local: total imbalance, trades before the last snapshot (its slot start)
+  feed side rows:
+    SH  0.032 0.032  med 6.45e-04  n 188  feed side
+    SZ  0.080 0.089  med 2.13e-04  n 112  feed side
+    all 0.050 0.053  med 3.33e-04  n 300  feed side
+    (same values for the later order and tick variants)
