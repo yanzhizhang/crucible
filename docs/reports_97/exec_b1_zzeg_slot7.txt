@@ -1,0 +1,17 @@
+batch 1, ZZEG slot 7 raw rows (/work/b_eg7.txt on 97, 15 lines). Transcribed from screen.
+
+// ---- slot 7 @ 0xdc150 .. 0xdc1fa
+dc150: push rbx | dc151: movapd xmm0,xmm1
+dc155: movsd xmm1,QWORD PTR [rip+0x9a9ab] ;[86400 | 4680673776000565248] | dc15d: mov rbx,rdi | dc160: call 1bcc0 <fmod@plt>
+dc165: movsd xmm3,QWORD PTR [rip+0x9e81b] ;[12600 | 4668152537583452160] | dc16d: movapd xmm2,xmm0 | dc171: subsd xmm2,QWORD PTR [rip+0x9e807] ;[5400 | 4662659377491083264]
+dc179: comisd xmm3,xmm0 | dc17d: ja dc1a1 <CreatePolicy@@Base+0x22661> | dc17f: comisd xmm0,QWORD PTR [rip+0x9e809] ;[18000 | 4670677016280825856]
+dc187: mov rax,QWORD PTR [rip+0x9e7f2] ;[5400 | 4662659377491083264] | dc18e: movq xmm1,rax | dc193: ja dc19d <CreatePolicy@@Base+0x2265d>
+dc195: movapd xmm1,xmm0 | dc199: subsd xmm1,xmm3 | dc19d: subsd xmm2,xmm1
+dc1a1: pxor xmm0,xmm0 | dc1a5: comisd xmm0,xmm2 | dc1a9: jb dc1b6 <CreatePolicy@@Base+0x22676>
+dc1ab: mov rax,QWORD PTR [rbx+0x40] | dc1af: mov QWORD PTR [rax],0x0 | dc1b6: movsd xmm2,QWORD PTR [rbx+0x158]
+dc1be: ucomisd xmm2,xmm0 | dc1c2: jp dc1d0 <CreatePolicy@@Base+0x22690> | dc1c4: jne dc1d0 <CreatePolicy@@Base+0x22690>
+dc1c6: pop rbx | dc1c7: ret | dc1c8: nop DWORD PTR [rax+rax*1+0x0]
+dc1d0: movsd xmm1,QWORD PTR [rbx+0x160] | dc1d8: divsd xmm1,xmm2 | dc1dc: ucomisd xmm1,xmm0
+dc1e0: jp dc1e4 <CreatePolicy@@Base+0x226a4> | dc1e2: je dc1c6 <CreatePolicy@@Base+0x22686> | dc1e4: movsd xmm0,QWORD PTR [rbx+0x138]
+dc1ec: mov rax,QWORD PTR [rbx+0x40] | dc1f0: divsd xmm0,xmm1 | dc1f4: movsd QWORD PTR [rax],xmm0
+dc1f8: pop rbx | dc1f9: ret
