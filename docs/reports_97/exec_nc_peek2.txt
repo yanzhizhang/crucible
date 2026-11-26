@@ -1,0 +1,16 @@
+netCDF peek 2 (fixed snippet) on 97, read-only. /work/b_nc.py replaced by crucible's fixed body; output /work/b_nc_out2.txt (14 lines). Transcribed from screen.
+
+== /work/crucible_data/hstats_view/HS300/ZZDS/20261119/samplerS.nc
+V ['ms', 'msr', 'mb', 'vr', 'o', 'h', 'l', 'c']
+D ['20261119'] I ['15:00:00']
+S first 3 ['1', '100', '1280'] n 300
+   1 [0.0050232, 0.00043007, 246207.67262887, 0.19933483, 11.655, 11.805, 11.565, 11.72]
+   100 [0.00498557, 0.00110453, 2229851.28159716, 1.16897942, 4.5, 4.58, 4.45, 4.55]
+  nan share per V [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+== /work/crucible_data/hstats_view/HS300/ZZSQ/20261119/samplerS.nc
+V ['ab', 'a', 'b']
+D ['20261119'] I ['15:00:00']
+S first 3 ['1', '100', '1280'] n 300
+   1 [249.98751988, 180.72143926, 301.38903658]
+   100 [601.46230207, 783.63571417, 299.27319179]
+  nan share per V [0.0, 0.0, 0.0]
