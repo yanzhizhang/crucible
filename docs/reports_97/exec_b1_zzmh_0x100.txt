@@ -1,0 +1,3 @@
+batch 1: ZZMH +0x100 (N3cte8TermZZMHE.s). Read-only greps on 97, transcribed from screen.
+grep -n -B4 '+0x100\],' N3cte8TermZZMHE.s | cut -c1-160 > /work/b_mh100.txt ; wc -l -> 0 /work/b_mh100.txt (no stores)
+grep -n -c '+0x100\]' N3cte8TermZZMHE.s -> 1
