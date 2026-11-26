@@ -1,0 +1,28 @@
+batch 1: ZZZL slot 6 @ 0x134090..0x1341e1 (/work/b_zl6.txt, 26 lines), raw rows, transcribed from screen (combined with the wide zoom for right-edge parts).
+
+// ---- slot 6 @ 0x134090 .. 0x1341e1 | 134090: mov rax,QWORD PTR [rdi+0x218] | 134097: cmp QWORD PTR [rsi+0x10],rax
+13409b: jne 134150 <CreatePolicy@@Base+0x7a610> | 1340a1: push rbp | 1340a2: mov rbp,rsi
+1340a5: push rbx | 1340a6: mov rbx,rdi | 1340a9: sub rsp,0x18
+1340ad: cmp BYTE PTR [rdi+0x280],0x0 | 1340b4: movsd xmm3,QWORD PTR [rsi+0x18] | 1340b9: je 134158 <CreatePolicy@@Base+0x7a618>
+1340bf: movapd xmm0,xmm3 | 1340c3: call 1336f0 <CreatePolicy@@Base+0x79bb0> | 1340c8: test al,al
+1340ca: je 134144 <CreatePolicy@@Base+0x7a604> | 1340cc: movsd xmm1,QWORD PTR [rip+0x42a34] ;[86400 | 4680673776000565248] | 1340d4: movapd xmm0,xmm3
+1340d8: call 1bcc0 <fmod@plt> | 1340dd: movsd xmm1,QWORD PTR [rip+0x468a3] ;[12600 | 4668152537583452160] | 1340e5: movsd xmm3,QWORD PTR [rip+0x46893] ;[5400 | 4662659377491083264]
+1340ed: movapd xmm2,xmm0 | 1340f1: comisd xmm1,xmm0 | 1340f5: subsd xmm2,xmm3
+1340f9: ja 134111 <CreatePolicy@@Base+0x7a5d1> | 1340fb: comisd xmm0,QWORD PTR [rip+0x4688d] ;[18000 | 4670677016280825856] | 134103: ja 1341d8 <CreatePolicy@@Base+0x7a698>
+134109: subsd xmm0,xmm1 | 13410d: subsd xmm2,xmm0 | 134111: pxor xmm3,xmm3
+134115: comisd xmm3,xmm2 | 134119: jb 134128 <CreatePolicy@@Base+0x7a5e8> | 13411b: cmp BYTE PTR [rbx+0x225],0x0
+134122: je 134144 <CreatePolicy@@Base+0x7a604> | 134124: nop DWORD PTR [rax+0x0] | 134128: movsd xmm1,QWORD PTR [rbp+0x60]
+13412d: comisd xmm1,xmm3 | 134131: jbe 134144 <CreatePolicy@@Base+0x7a604> | 134133: cmp BYTE PTR [rbx+0x224],0x0
+13413a: jne 1341a0 <CreatePolicy@@Base+0x7a660> | 13413c: movsd QWORD PTR [rbx+0x210],xmm1 | 134144: add rsp,0x18
+134148: pop rbx | 134149: pop rbp | 13414a: ret
+13414b: nop DWORD PTR [rax+rax*1+0x0] | 134150: ret | 134151: nop DWORD PTR [rax+0x0]
+134158: movsd xmm1,QWORD PTR [rip+0x429a8] ;[86400 | 4680673776000565248] | 134160: movapd xmm0,xmm3 | 134164: call 1bcc0 <fmod@plt>
+134169: movsd xmm1,QWORD PTR [rip+0x46817] ;[12600 | 4668152537583452160] | 134171: pxor xmm3,xmm3 | 134175: movsd xmm4,QWORD PTR [rip+0x46803] ;[5400 | 4662659377491083264]
+13417d: movapd xmm2,xmm0 | 134181: comisd xmm1,xmm0 | 134185: subsd xmm2,xmm4
+134189: ja 134128 <CreatePolicy@@Base+0x7a5e8> | 13418b: comisd xmm0,QWORD PTR [rip+0x467fd] ;[18000 | 4670677016280825856] | 134193: ja 1341c8 <CreatePolicy@@Base+0x7a688>
+134195: subsd xmm0,xmm1 | 134199: subsd xmm2,xmm0 | 13419d: jmp 134128 <CreatePolicy@@Base+0x7a5e8>
+13419f: nop | 1341a0: lea rdi,[rbx+0x170] | 1341a7: movapd xmm0,xmm2
+1341ab: movsd QWORD PTR [rsp+0x8],xmm1 | 1341b1: call 133d50 <CreatePolicy@@Base+0x7a210> | 1341b6: movsd xmm1,QWORD PTR [rsp+0x8]
+1341bc: jmp 13413c <CreatePolicy@@Base+0x7a5fc> | 1341c1: nop DWORD PTR [rax+0x0] | 1341c8: subsd xmm2,xmm4
+1341cc: jmp 134128 <CreatePolicy@@Base+0x7a5e8> | 1341d1: nop DWORD PTR [rax+0x0] | 1341d8: subsd xmm2,xmm3
+1341dc: jmp 134111 <CreatePolicy@@Base+0x7a5d1>
