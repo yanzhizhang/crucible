@@ -1,0 +1,27 @@
+netCDF peek (read-only, 97), crucible's snippet saved as /work/b_nc.py, output /work/b_nc_out.txt (26 lines). Day 20261119 exists for both. Transcribed from screen.
+
+== /work/crucible_data/hstats_view/HS300/ZZDS/20261119/samplerS.nc
+-rw-r--r-- 1 root root 45689 Nov 19 20:53 /work/crucible_data/hstats_view/HS300/ZZDS/20261119/samplerS.nc
+dims {'S': <h5netcdf.Dimension 'S': size 300>, 'D': <h5netcdf.Dimension 'D': size 1>, 'I': <h5netcdf.Dimension 'I': size 1>, 'V': <h5netcdf.Dimension 'V': size 8>}
+ var x ('S','D','I','V') (300, 1, 1, 8) float64 {'_FillValue': 'nan'}
+ var S ('S',) (300,) object {}
+ var D ('D',) (1,) object {}
+ var I ('I',) (1,) object {}
+ var V ('V',) (8,) object {}
+Traceback (most recent call last):
+  File "/work/b_nc.py", line 8, in <module>
+    if v.ndim and v.size < 50: print('  ', k, '=', v[...].tolist())
+                  ^^^^^^
+AttributeError: 'Variable' object has no attribute 'size'
+== /work/crucible_data/hstats_view/HS300/ZZSQ/20261119/samplerS.nc
+-rw-r--r-- 1 root root 36100 Nov 19 20:52 /work/crucible_data/hstats_view/HS300/ZZSQ/20261119/samplerS.nc
+dims {'S': size 300, 'D': size 1, 'I': size 1, 'V': size 3}
+ var x ('S','D','I','V') (300, 1, 1, 3) float64 {'_FillValue': 'nan'}
+ var S ('S',) (300,) object {}
+ var D ('D',) (1,) object {}
+ var I ('I',) (1,) object {}
+ var V ('V',) (3,) object {}
+Traceback (most recent call last):
+  File "/work/b_nc.py", line 8, in <module>
+    if v.ndim and v.size < 50: print('  ', k, '=', v[...].tolist())
+AttributeError: 'Variable' object has no attribute 'size'
