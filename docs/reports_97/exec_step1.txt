@@ -1,0 +1,280 @@
+# 97 exec_x step 1 (crucible exec_symbols.sh md5 7f351b88), 2026-11-26 ~19:50; transcribed off screen, condensed where marked, <u3> = a user name, auth/credentials masked
+-- cfg.json (599 leaves; script printed first 400; joined one line per array element on 97 = /work/exec_x_s1/cfg_join.txt)
+prod_root = "/tmp/data/prodfiles/"
+date = "20261126"
+univ = "HS300"
+signal_cfg = "signal.json"
+stockid_path = "CEDxr4d/index/YYYYMMDD.nc"
+streams[0]: type="snapshot" depthLevel=10 src="/mnt/ssd_00_01/home_repository/<u3>/workspace/YYYYMMDD/SH_HS300_snap.mp"
+streams[1]: type="trade" src=".../<u3>/workspace/YYYYMMDD/SH_HS300_trade.mp" EX="SH"
+streams[2]: type="order" src=".../SH_HS300_order.mp" EX="SH"
+streams[3]: type="snapshot" depthLevel=10 src=".../SZ_HS300_snap.mp"
+streams[4]: type="trade" src=".../SZ_HS300_trade.mp" EX="SZ"
+streams[5]: type="order" src=".../SZ_HS300_order.mp" EX="SZ"
+streams[6]: type="index" src=".../SZ_HS300_index.mp" EX="SZ"
+streams[7]: type="index" src=".../SZ_ZZ500_index.mp" EX="SZ"
+streams[8]: type="index" src=".../SH_ZZ1000_index.mp" EX="SH"
+useOb = true
+sampler.publish_alpha = true
+sampler.out = "./alpha.parquet"
+sampler.eHms = [4] ["09:40:00", "10:00:00", "14:30:00", "15:00:00"]
+sampler.regressors[0].model_tag = "lgb"
+sampler.regressors[0].featFile = "/tmp/data/prodfiles/models/lgb_fn_v1_209_cte.csv"
+sampler.regressors[0].colName = "name"
+sampler.regressors[0].models[0].file = "/tmp/data/prodfiles/models/tk5m/YYYYMM/lgb/livev1_fit1/model_sSESSION.txt"  w = 0.3333333333
+sampler.regressors[0].models[1].file = ".../livev1_fit2/model_sSESSION.txt"  w = 0.3333333333
+sampler.regressors[0].models[2].file = ".../livev1_fit3/model_sSESSION.txt"  w = 0.3333333333
+dumpCpFile = ""
+loadCpFile = "/tmp/data/prodfiles/h/HS300/sod/p1_intrading_dcp/YYYYMMDD.jz"
+snap_event.on = [2] ["snapte", "tradete"]
+init_load[0]: type="os" dayNum=1 interval=300 path="/tmp/data/prodfiles/hstats/sod/HS300/ZZAC/YYYYMMDD/samplerR.parquet"
+init_load[1]: type="ts" dayNum=1 path="/tmp/data/prodfiles/hstats/sod/HS300/ZZCR/YYYYMMDD/samplerR.parquet"
+term[0]: name="zzaa" type="ZZAA"
+term[1]: name="zzab" type="ZZAB" hl=30 blen=10
+term[2]: name="zzab2" type="ZZAB" hl=300 blen=10 loadCp=true
+term[3]: name="zzag" type="ZZAG" lvlId=-1
+term[4]: name="zzag2" type="ZZAG" lvlId=0
+term[5]: name="zzal" type="ZZAL" hl=300 ptdata2="/tmp/data/prodfiles/hstats/sod/HS300/ZZAL/YYYYMMDD/samplerS.nc" dump=false ptdata="/tmp/data/prodfiles/hstats/sod/HS300/ZZDS/YYYYMMDD/samplerS.nc"
+term[6]: name="zzav" type="ZZAV" fxs=5 hl=20
+term[7]: name="zzav2" type="ZZAV" fxs=15 hl=20
+term[8]: name="zzba" type="ZZBA" hl=300 loadCp=true
+term[9]: name="zzbd" type="ZZBD" hl=100 hlL=200 loadCp=true
+term[10]: name="zzbo" type="ZZBO" hl=300 lvlId=10 blen=20
+term[11]: name="zzbs" type="ZZBS" blen=30 qbt=10
+term[12]: name="zzbs2" type="ZZBS" blen=3 qbt=20
+term[13]: name="zzbt" type="ZZBT" hl=60 cutoff=0.2
+term[14]: name="zzbt2" type="ZZBT" hl=300 cutoff=0.2
+term[15]: name="zzcb" type="ZZCB" hl=30 loadCp=true
+term[16]: name="zzdw" type="ZZDW" hl=30 blen=60 ptdata="/tmp/data/prodfiles/hstats/sod/HS300/ZZHL/YYYYMMDD/samplerS.nc"
+term[17]: name="zzeb" type="ZZEB" hl=100 loadCp=true
+term[18]: name="zzef" type="ZZEF" hl=15 lvlIdxList=[1] [0]
+term[19]: name="zzef2" type="ZZEF" hl=15 lvlIdxList=[5] [0, 1, 2, 3, 4]
+term[20]: name="zzeg" type="ZZEG" hl=300 prevDays=3 loadCp=true
+term[21]: name="zzeg2" type="ZZEG" blen=30 prevDays=3
+term[22]: name="zzel" type="ZZEL" ptdata="/tmp/data/prodfiles/CEDxr4d/sod/barra/YYYYMMDD_stats.nc" fn="/tmp/data/prodfiles/hstats/sod/HS300/ZZDS/YYYYMMDD/samplerS.nc"
+term[23]: name="zzeu" type="ZZEU" bts=50 lvlIdxList=[1] [0]
+term[24]: name="zzeu2" type="ZZEU" bts=50 lvlIdxList=[2] [0, 1]
+term[25]: name="zzfb" type="ZZFB" blen=20 forH=true loadCp=true
+term[26]: name="zzfb2" type="ZZFB" blen=30
+term[27]: name="zzfe" type="ZZFE" bts=15
+term[28]: name="zzfe2" type="ZZFE" bts=45
+term[29]: name="zzfq" type="ZZFQ" hl=180 blen=60 ptdata="/tmp/data/prodfiles/hstats/sod/HS300/ZZGW/YYYYMMDD/samplerS.nc"
+term[30]: name="zzgh" type="ZZGH" blen=15 loadCp=true
+term[31]: name="zzgh2" type="ZZGH" blen=10 loadCp=true
+term[32]: name="zzhi" type="ZZHI" lvlId=1 ptdata="/tmp/data/prodfiles/hstats/sod/HS300/ZZVC/YYYYMMDD/samplerS.nc"
+term[33]: name="zzhi2" type="ZZHI" lvlId=20 ptdata="/tmp/data/prodfiles/hstats/sod/HS300/ZZVC/YYYYMMDD/samplerS.nc"
+term[34]: name="zzhj" type="ZZHJ" hl=300 loadCp=true
+term[35]: name="zzhk" type="ZZHK" hl=0 lvlId=100
+term[36]: name="zzho" type="ZZHO" hl=30
+term[37]: name="zzho2" type="ZZHO" hl=60
+term[38]: name="zzht" type="ZZHT" bts=3
+term[39]: name="zzhx" type="ZZHX" hl=30 hlf=60 hlr=180 factor=4 blen=30 loadCp=false
+term[40]: name="zzie" type="ZZIE" lvlId=0 ptdata="/tmp/data/prodfiles/hstats/sod/HS300/ZZQI/YYYYMMDD/samplerS.nc"
+term[41]: name="zzie2" type="ZZIE" lvlId=0 ptb=true ptdata=".../ZZQI/YYYYMMDD/samplerS.nc"
+term[42]: name="zzie3" type="ZZIE" lvlId=1 ptdata=".../ZZQI/YYYYMMDD/samplerS.nc"
+term[43]: name="zzie4" type="ZZIE" lvlId=50 ptb=true ptdata=".../ZZQI/YYYYMMDD/samplerS.nc"
+term[44]: name="zzie5" type="ZZIE" lvlId=100 ptb=true ptdata=".../ZZQI/YYYYMMDD/samplerS.nc"
+term[45]: name="zzja" type="ZZJA" prevDays=9
+term[46]: name="zzjb" type="ZZJB" blen=15 loadCp=true
+term[47]: name="zzjb2" type="ZZJB" blen=10 loadCp=true
+term[48]: name="zzjx" type="ZZJX" hl=0 blen=30 qbt=10
+term[49]: name="zzjx2" type="ZZJX" hl=0 blen=60 qbt=10
+term[50]: name="zzjx3" type="ZZJX" hl=0 blen=30 qbt=20
+term[51]: name="zzko" type="ZZKO" fxs=5 hl=20
+term[52]: name="zzkp" type="ZZKP" hl=60
+term[53]: name="zzlf" type="ZZLF" lvlId=7 lt=600 low=90 high=0 ptdata="/tmp/data/prodfiles/hstats/sod/HS300/ZZDS/YYYYMMDD/sampler.nc"
+term[54]: name="zzlk" type="ZZLK" hl=60 lvlId=-1 ptdata="/tmp/data/prodfiles/hstats/sod/HS300/ZZUG/YYYYMMDD/samplerSS.nc"
+term[55]: name="zzlk2" type="ZZLK" hl=60 lvlId=20 ptdata=".../ZZUG/YYYYMMDD/samplerSS.nc"
+term[56]: name="zzlk3" type="ZZLK" hl=60 lvlId=100 ptdata=".../ZZUG/YYYYMMDD/samplerSS.nc"
+term[57]: name="zzmh" type="ZZMH" hl=10 m=3 s=2 loadCp=true
+term[58]: name="zzmo" type="ZZMO" lvlId=15 lt=30
+term[59]: name="zzoe" type="ZZOE" lsq=90 lvlId=10 hl=5
+term[60]: name="zzop" type="ZZOP" hl=60 ptdata="/tmp/data/prodfiles/hstats/sod/HS300/ZZSQ/YYYYMMDD/samplerS.nc"
+term[61]: name="zzop2" type="ZZOP" hl=1800 ptdata=".../ZZSQ/YYYYMMDD/samplerS.nc"
+term[62]: name="zzor" type="ZZOR" lvlId=-1
+term[63]: name="zzor2" type="ZZOR" lvlId=20
+term[64]: name="zzow" type="ZZOW" hl=30 dir="s"
+term[65]: name="zzow2" type="ZZOW" hl=300 dir="ns"
+term[66]: name="zzpe" type="ZZPE" fn="/tmp/data/prodfiles/CEDxr4d/sod/barra/YYYYMMDD_exp.nc"
+term[67]: name="zzpk" type="ZZPK" hl=300 loadCp=true
+term[68]: name="zzpp" type="ZZPP" lvlId=0 ptdata=".../ZZQI/YYYYMMDD/samplerS.nc"
+term[69]: name="zzpp2" type="ZZPP" lvlId=1 ptdata=".../ZZQI/YYYYMMDD/samplerS.nc"
+term[70]: name="zzpz" type="ZZPZ"
+term[71]: name="zzqf.q" type="ZZQF" sthspan=60 sOrder=1 jumpval=0.002 ptdata="/tmp/data/prodfiles/hstats/sod/HS300/ZZDS/YYYYMMDD/samplerS.nc"
+term[72]: name="zzqf2.q" type="ZZQF" sthspan=600 sOrder=1 jumpval=0.0028 forOut=[2] ["PRC", "UP"] ptdata=".../ZZDS/YYYYMMDD/samplerS.nc"
+term[73]: name="zzqf3.q" type="ZZQF" sthspan=120 sOrder=0 jumpval=0.0028 ptdata=".../ZZDS/..."
+term[74]: name="zzqf4.q" type="ZZQF" sthspan=60 sOrder=0 jumpval=0.002 ptdata=".../ZZDS/..."
+term[75]: name="zzqf5.q" type="ZZQF" sthspan=1200 sOrder=1 jumpval=0.0028 ptdata=".../ZZDS/..."
+term[76]: name="zzqf6.q" type="ZZQF" sthspan=30 sOrder=1 jumpval=0.0014 ptdata=".../ZZDS/..."
+term[77]: name="zzqf7.q" type="ZZQF" sthspan=120 sOrder=1 jumpval=0.0028 ptdata=".../ZZDS/..."
+term[78]: name="zzqf8.q" type="ZZQF" sthspan=240 sOrder=1 jumpval=0.004 ptdata=".../ZZDS/..."
+term[79]: name="zzqf9"   <- report cut here: script prints first 400 of 599 cfg leaves; term[79] onward not in report.txt
+-- signal.json (6 leaves)
+type = "tcp"
+address = <m>
+port = <m>
+with_crc = true
+need_connect = true
+lgbm_config = "num_threads=1"
+
+== boot_bte.sh, policyserver.xml, config/BTE_MD.xml (masked); mysql.xml element / attribute names only
+-- boot_bte.sh
+   #!/bin/bash
+   SCRIPT_DIR=<m> "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"      [script's mask hit 'DIR=' as 'ip|addr..'-like key; original is SCRIPT_DIR="$(cd ...]
+   export LD_LIBRARY_PATH="${SCRIPT_DIR}"/lib:$LD_LIBRARY_PATH
+   cd "${SCRIPT_DIR}"/exec
+   ./policyserver_bin
+-- policyserver.xml
+   <?xml version="1.0" encoding="utf-8"?>
+   <policyserver auth=<m> continue_on_error="true">      [Mac: auth value NOT masked by the script; it is on 97 in report.txt -- masked here]
+       <users></users>
+       <stock></stock>
+       <policies>
+           <policy name="cte" so="libCtePolicyBTE.so" status="1">
+               <autostart>true</autostart>
+               <param name="config_path" value="./cfg.json"/>
+               <stock><md ref="BTE"/></stock>
+           </policy>
+       </policies>
+   </policyserver>
+-- config/BTE_MD.xml
+   <root>
+       <type>bte</type> <mode>0</mode> <snap_buf_size>32</snap_buf_size> <ot_buf_size>32</ot_buf_size>
+       <arranged_by>local</arranged_by> <speed>0</speed>
+       <futuresinfo>./config/futuresinfo.csv</futuresinfo>
+       <conf>
+           <file>/mnt/huge/datayes_shares;/mnt/huge/datayes_shares_order_transaction</file>
+           <force>true</force>
+       </conf>
+   </root>
+-- mysql.xml names
+   (empty line: the passw/secret/token line scrub probably dropped it)
+-- tradinghour.xml head
+   <TradingHour debug="True"><TradingHourTypes>
+     <TradingHourType id="SD"> AuctionStart 09:15:00 AuctionEnd 09:25:59 TradingStart 09:30:00 Break1 11:30:00 Resume1 13:00:00 TradingEnd 15:00:00
+     <TradingHourType id="FD0900"> AuctionStart 08:55:00 AuctionEnd 08:59:59 TradingStart 09:00:00 ...
+
+== csv and plain-text files
+-- config/BTE_MD.xml (13 lines)   [same content as above]
+   (the CSV file was not printed: the find's first branch -name '*.csv' -o -name '*.txt' has no -print, so only the ASCII-text branch printed)
+
+== libregression.so: every defined dynamic symbol (std::__detail regex / _Sp_counted / _Lock_policy noise filtered on 97)
+   T creg::ScopedTimer::reset()
+   T creg::ScopedTimer::ScopedTimer()  [x2]
+   T creg::MeasureDuration::GetElapsedTime()
+   T creg::createRegressor(std::string, std::string, std::string, std::string, bool, std::vector<std::string>, std::vector<std::string>, std::vector<double>, std::vector<std::string> const&, std::string&, int, int, std::string)
+   T creg::PerfInfo::GetResult[abi:cxx11](bool)
+   T creg::Regressor::Regressor(std::string, std::string, std::string, std::vector<std::string> const&, std::string&, int)  [x2, C1/C2]
+   T creg::operator<<(std::ostream&, creg::TimerResult const&)
+   T creg::ScopedTimer::elapsed() const
+   D typeinfo for creg::Regressor
+   R typeinfo name for creg::Regressor
+   R typeinfo name for std::_Sp_make_shared_tag
+   D std::regex_traits<char>::lookup_classname / lookup_collatename statics
+   R std::_Sp_make_shared_tag::_S_ti()::__tag
+   B __bss_start / D _edata / B _end
+   (plus std::__detail::_Scanner/_AnyMatcher/_CharMatcher/_BracketMatcher regex symbols)
+
+== libCtePolicyBTE.so: stripped?, all dynamic symbols, class names from typeinfo  (section 320 lines on 97: /work/exec_x_s1/pol.txt)
+    BuildID[sha1]=77d9973586f90ada7540ee6b357e6e465098f606
+    stripped
+   static symtab entries: 0
+   sections: .plt .text .fini .rodata .eh_frame_hdr .eh_frame .gcc_except_table .tbss .init_array .fini_array .data.rel.ro .dynamic .got .got.plt .data .bss .comment (+ header rows)
+   T CreatePolicy
+   D typeinfo for bool (char) / bool (*)(char) noexcept; R typeinfo name for same
+   R typeinfo name for parquet::WriterProperties::Builder
+   B __bss_start / D _edata / B _end
+   T call_zopen64, call_zseek64, call_ztell64, fill_fopen64_filefunc, fill_fopen_filefunc, fill_zlib_filefunc64_32_def_from_filefunc32,
+     unzClose ... unzSetOffset64 (bundled minizip, ~35 symbols)
+   R unz_copyright
+ imports:
+   U creg::createRegressor(std::string, std::string, std::string, ...)
+   U netCDF::NcDim::getSize() const
+   U netCDF::NcFile::NcFile(std::string const&, netCDF::NcFile::FileMode)
+   U netCDF::NcFile::~NcFile()
+   U netCDF::NcGroup::getVar(std::string const&, netCDF::NcGroup::Location) const
+   U netCDF::NcType::operator==(netCDF::NcType const&) const
+   U netCDF::NcVar::getDims() const
+   U netCDF::NcVar::getType() const
+   U netCDF::NcVar::getVar(char**) const
+   U netCDF::NcVar::getVar(double*) const
+   U netCDF::ncString
+   U parquet::arrow::FileWriter::Open(arrow::Schema const&, arrow::MemoryPool*, std::shared_ptr<arrow::io::OutputStream>, std::shared_ptr<parquet::WriterProperties>, std::shared_ptr<parquet::ArrowWrite...
+   U parquet::arrow::OpenFile(std::shared_ptr<arrow::io::RandomAccessFile>, arrow::MemoryPool*, std::unique_ptr<parquet::arrow::FileReader> *)
+   U typeinfo for netCDF::exceptions::NcException
+   (no LGBM_* / mysql_* imports matched)
+   typeinfo class names: 329 (report head -250); filtered here to names >=4 chars starting with a letter, full classes.txt:
+   BinSolver IMObs IStat MdSolver N8fH OnlineDataEnginePolicy arrow::NumericBuilder<arrow::DoubleType>
+   cte::DenoiSGraph cte::Ema cte::IEvent cte::ITerm cte::IWgt cte::SGraph
+   cte::TermCFH
+   cte::TermZZAA ZZAB ZZAC ZZAG ZZAL ZZAV ZZBA ZZBD ZZBO ZZBS ZZBT ZZCB ZZDS ZZDW ZZEB ZZEF ZZEG ZZEL ZZEU ZZFB ZZFE ZZFQ ZZGH ZZGW ZZHI
+     ZZHJ ZZHK ZZHL ZZHO ZZHT ZZHX ZZIE ZZJA ZZJB ZZJX ZZKO ZZLF ZZLK ZZMH ZZMO ZZMS ZZOE ZZOP ZZOR ZZOW ZZPE ZZPK ZZPP ZZPZ ZZQF ZZQI ZZQJ
+     ZZQO ZZRB ZZRG ZZRI ZZRO ZZSA ZZSF ZZSO ZZSQ ZZTS ZZTX ZZUC ZZUG ZZUI ZZUP ZZVC ZZVM ZZVX ZZWA ZZWF ZZWJ ZZXC ZZXO ZZXT ZZXU ZZYG
+     ZZYJ ZZZL ZZZS   (all prefixed cte::Term)
+   cte::WgtAdjust cte::full_pass_Event cte::g_bookTick_Event cte::snapte_Event cte::tradete_Event
+   hAlpha misc::IConfig misc::JsonConfig
+   misc::arch::FBB<misc::arch::IExt> misc::arch::FBB<misc::arch::SExt> misc::arch::IM misc::arch::OAM misc::arch::OBF misc::arch::OCM misc::arch::OTM
+   misc::hob::AOS misc::hob::BOS misc::hob::IOb misc::hob::lvlPlain misc::ob::AbsOrderBook misc::ob::Orderbook
+   nlohmann::json_abi_v3_11_3::detail::{exception, invalid_iterator, other_error, output_adapter_protocol<char>, output_string_adapter<..>, parse_error, ...}
+   parquet::WriterProperties::Builder
+   sterms::TermZZVB
+
+== libCtePolicyBTE.so strings that look like factor / model / config names (section on 97: /work/exec_x_s1/str.txt)
+   path /CEDxr4d/daily/p
+   path /CEDxr4d/daily/p1/YYYYMMDD_SOD.nc
+   path /CEDxr4d/daily/p2/YYYYMMDD_SOD.nc
+   path /CEDxr4d/daily/p3/YYYYMMDD_SOD.nc
+   path /CEDxr4d/index/YYYYMMDD.nc
+   path /CEDxr4d/index/daily_eod/p1/YYYYMMDD.nc
+   path /CEDxr4d/index/daily_eod/p2/YYYYMMDD.nc
+   path /CEDxr4d/index/daily_eod/p3/YYYYMMDD.nc
+   path /CEDxr4d/sod/barra/YYYYMMDD_stats.nc
+   path /YYYYMMDD_EOD.nc
+   path /h/HS300/sod/p1_intrading_dcp/YYYYMMDD.jz
+   path /index/1min_src/p1/YYYYMMDD.nc
+   path /index/1min_src/p2/YYYYMMDD.nc
+   path /index/1min_src/p3/YYYYMMDD.nc
+   path /mnt/ssd_00_01/Workspace/<u3>/sht-factors/src/base/hAlpha.cpp:446
+   path /mnt/ssd_00_01/Workspace/<u3>/sht-factors/src/base/hAlpha.cpp:48
+   path /mnt/ssd_00_01/Workspace/<u3>/sht-factors/src/base/hAlpha.cpp:496
+   path /mnt/ssd_00_01/Workspace/<u3>/sht-factors/src/base/sampler.cpp:247
+   path /mnt/ssd_00_01/Workspace/<u3>/sht-factors/src/data/OnlineDataEnginePolicy.cpp:36
+   path /mnt/ssd_00_01/Workspace/<u3>/sht-factors/src/data/QXDataManager.cpp:152 / :162 / :193 / :224 / :254
+   path (the RPATH string, as in step 0)
+   path /tmp/QuillBackendLock
+   path failed to read .json file!
+   path failed to read .jz file!
+   path invalid comment; expecting '/' or '*' after '/'
+   path invalid comment; missing closing '*/'
+   (plus ~20 binary-junk short matches like "/D$@", "/F8s", "4/fH")
+   fmt Debug: hAlpha::dispatchLoop bind {}
+   fmt Debug: hAlpha::workerLoop {} bind {}
+   (section head) strings: 20036 (full list: /work/exec_x_s1/strings_policy.txt)
+   path  unzip 1.01 Copyright 1998-2004 Gilles Vollant - http://www.winimage.com/zLibDll
+   id lines: 207 (/work/exec_x_s1/ids.txt), compacted:
+   typeinfo-mangled: N3cte13tradete_EventE N3cte16g_bookTick_EventE N3cte8TermZZ??E for every Term class listed above, N4misc2ob12AbsOrderBookE N4misc2ob9OrderbookE N6sterms8TermZZVBE
+   Order2AddSH Order2AddSZ Order2CancelSH RESVOL Transaction2Trade ZZ1000 ZZ500
+   ZZAA ZZAB ZZAC ZZAG ZZAL ZZAV ZZBA ZZBD ZZBO ZZBS ZZBT ZZCB ZZDS ZZDW ZZEB ZZEF ZZEG ZZEL ZZEU ZZFB ZZFE ZZFQ ZZGH ZZGW ZZHI ZZHJ
+   ZZHK ZZHL ZZHO ZZHT ZZHX ZZIE ZZJA ZZJB ZZJX ZZKO ZZKP ZZLF ZZLK ZZMH ZZMO ZZMS ZZOE ZZOP ZZOR ZZOW ZZPE ZZPK ZZPP ZZPZ
+   ZZQF ZZQI ZZQJ ZZQO ZZRB ZZRG ZZRI ZZRO ZZSA ZZSF ZZSO ZZSQ ZZTS ZZTX ZZUC ZZUG ZZUI ZZUP ZZVB ZZVC ZZVM ZZVX ZZWA ZZWF
+   ZZWJ ZZXC ZZXO ZZXT ZZXU ZZYG ZZYJ ZZZL ZZZS
+   _Unwind_Resume _ZN5qtapi7IPolicy16OnSetStockTraderEPKcPNS_12IStockTraderE _ZN5qtapi7IPolicy17OnSetFutureTraderEPKcPNS_13IFutureTraderE
+   _ZTIN10__cxxabiv115__forced_unwindE quill SinkManager/LoggerManager/MetricManager/BackendManager instances _ZZNSt19_Sp_make_shared_tag5_S_tiEvE5__tag __cxa_rethrow
+   alpha.1 carriage-return cygwin dollarVolumeTota factor
+   featFile g_bookTick_Event hAlpha lastTradePrice libregression.so model_tag models publish_alpha
+   regressors ret_adj sOrder trade tradete zz1000 zz500
+
+== static libs: members and defined functions (libcommon.a, libfatwriter.a)  (section 189 lines on 97: /work/exec_x_s1/stat.txt)
+-- libcommon.a members: BlowFish.cpp.o Logging.cpp.o tinystr.cpp.o tinyxml.cpp.o tinyxmlerror.cpp.o tinyxmlparser.cpp.o
+   defined functions: 200
+-- libfatwriter.a members: buffer.cpp.o engine.cpp.o fatwriter.cpp.o glog.cpp.o queue.cpp.o writer.cpp.o
+   defined functions: 32
+   BlowFish.cpp.o: CBlowFish::CBlowFish, CBlowFish::Decrypt, CBlowFish::Encrypt, Decrypt3, Encrypt3, base64_encode[abi:cxx11]
+   Logging.cpp.o: common::Logging::CreateFile, common::Logging::Log
+   engine.cpp.o: EngineImpl::EngineImpl, Start, Stop, ensure_opened_file_limit, flush, ~EngineImpl
+   fatwriter.cpp.o: fatwriter::CreateEngine
+   glog.cpp.o: GetCurrentThreadID, Log, glog::Debug, Error, Info, SetLevel, SetLogger, Warn
+   queue.cpp.o: memex::Queue::IsEmpty, Length, PushBack, Queue, grow, ~Queue
+   tinystr.cpp.o / tinyxml.cpp.o: TiXmlString / TiXmlAttribute / TiXmlAttributeSet / TiXmlBase / TiXmlComment / TiXmlDeclaration /
+     TiXmlDocument / TiXmlElement / TiXmlHandle / TiXmlNode / TiXmlPrinter / TiXmlText / TiXmlUnknown methods (TinyXML, ~150)
+   writer.cpp.o: StatefulWriter::CloseFile, GetPath[abi:cxx11], GetTimestamp, IsFileClosed, IsFileOpen, OpenFile, Printf, SetTimestamp, Vprintf, WriteFile, ~StatefulWriter
