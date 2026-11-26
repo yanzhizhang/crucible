@@ -1,0 +1,30 @@
+batch 1: ZZEL slot 7 (/work/b_el7.txt, 4 lines) and slot 8 (/work/b_el8.txt, 25 lines), raw rows, transcribed from screen.
+
+// ---- slot 7 @ 0xda930 .. 0xda955 | da930: movsd xmm0,QWORD PTR [rdi+0xf8] | da938: mov rax,QWORD PTR [rdi+0x40]
+da93c: add DWORD PTR [rdi+0x12c],0x1 | da943: movsd QWORD PTR [rax],xmm0 | da947: movsd xmm0,QWORD PTR [rdi+0x100]
+da94f: movsd QWORD PTR [rax+0x8],xmm0 | da954: ret
+
+// ---- slot 8 @ 0xdde20 .. 0xddf3f | dde20: push r12 | dde22: movq r12,xmm1
+dde27: push rbp | dde28: mov rbp,rsi | dde2b: push rbx
+dde2c: mov rbx,rdi | dde2f: sub rsp,0x10 | dde33: movsd xmm1,QWORD PTR [rip+0x98ccd] ;[86400 | 4680673776000565248]
+dde3b: movsd QWORD PTR [rsp+0x8],xmm0 | dde41: call 1bcc0 <fmod@plt> | dde46: movsd xmm4,QWORD PTR [rip+0x9cb3a] ;[12600 | 4668152537583452160]
+dde4e: movsd xmm2,QWORD PTR [rsp+0x8] | dde54: movapd xmm3,xmm0 | dde58: subsd xmm3,QWORD PTR [rip+0x9cb20] ;[5400 | 4662659377491083264]
+dde60: comisd xmm4,xmm0 | dde64: ja dde88 <CreatePolicy@@Base+0x24348> | dde66: comisd xmm0,QWORD PTR [rip+0x9cb22] ;[18000 | 4670677016280825856]
+dde6e: mov rax,QWORD PTR [rip+0x9cb0b] ;[5400 | 4662659377491083264] | dde75: movq xmm1,rax | dde7a: ja dde84 <CreatePolicy@@Base+0x24344>
+dde7c: movapd xmm1,xmm0 | dde80: subsd xmm1,xmm4 | dde84: subsd xmm3,xmm1
+dde88: pxor xmm0,xmm0 | dde8c: comisd xmm0,xmm3 | dde90: jae ddef8 <CreatePolicy@@Base+0x243b8>
+dde92: mov rdx,QWORD PTR [rbx] | dde95: mov eax,DWORD PTR [rbx+0x130] | dde9b: lea rcx,[rip+0xffffffffffffca8e] # da930 <CreatePolicy@@Base+0x20df0>
+ddea2: mov rdx,QWORD PTR [rdx+0x38] | ddea6: add eax,0x1 | ddea9: mov DWORD PTR [rbx+0x130],eax
+ddeaf: cmp rdx,rcx | ddeb2: jne ddf20 <CreatePolicy@@Base+0x243e0> | ddeb4: mov ecx,DWORD PTR [rbx+0x12c]
+ddeba: movsd xmm0,QWORD PTR [rbx+0xf8] | ddec2: lea edx,[rcx+0x1] | ddec5: mov rcx,QWORD PTR [rbx+0x40]
+ddec9: mov DWORD PTR [rbx+0x12c],edx | ddecf: movsd QWORD PTR [rcx],xmm0 | dded3: movsd xmm0,QWORD PTR [rbx+0x100]
+ddedb: movsd QWORD PTR [rcx+0x8],xmm0 | ddee0: cmp edx,eax | ddee2: jne 34d3c <std::once_flag::_Prepare_execution::_Prepare_execution<std::call_once<quill...
+ddee8: add rsp,0x10 | ddeec: pop rbx | ddeed: pop rbp
+ddeee: pop r12 | ddef0: ret | ddef1: nop DWORD PTR [rax+0x0]
+ddef8: mov rdi,QWORD PTR [rbx+0x40] | ddefc: mov rdx,QWORD PTR [rbx+0x48] | ddf00: sub rdx,rdi
+ddf03: mov rax,rdx | ddf06: shr rax,0x3 | ddf0a: je ddee8 <CreatePolicy@@Base+0x243a8>
+ddf0c: add rsp,0x10 | ddf10: xor esi,esi | ddf12: pop rbx
+ddf13: pop rbp | ddf14: pop r12 | ddf16: jmp 1b430 <memset@plt>
+ddf1b: nop DWORD PTR [rax+rax*1+0x0] | ddf20: movq xmm1,r12 | ddf25: movapd xmm0,xmm2
+ddf29: mov rsi,rbp | ddf2c: mov rdi,rbx | ddf2f: call rdx
+ddf31: mov edx,DWORD PTR [rbx+0x12c] | ddf37: mov eax,DWORD PTR [rbx+0x130] | ddf3d: jmp ddee0 <CreatePolicy@@Base+0x243a0>
