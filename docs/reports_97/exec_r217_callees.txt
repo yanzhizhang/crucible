@@ -1,0 +1,92 @@
+# 97, 2026-11-26 ~22:00. r217 gh_nb_toggle.py (md5 927bca40, 89 lines; 14 s, 57 lines), zzjb code counts, raw rows of callees 1329d0 / 132aa0, ZZGH slot 3 from e3bd2, ZZJB slot 5. Transcribed off screen.
+== zzjb code counts in PM's .jz (20261120):
+{'zzjb': {0.0: 69560, 4.0: 214840}, 'zzjb2': {0.0: 104221, 4.0: 322379}}      (digits of 69560 read from a small font)
+== r217 (cut -c1-200; first 25 stocks in detail, then summary)
+   000100 drop trade 144072/296816: local tc 5781.706 exch 11:06:21.680 side +1 px 4.9 vol 443 (middle)
+   000100 drop trade 144201/296816: local tc 5787.494 exch 11:06:27.470 side +1 px 4.9 vol 443 (middle)
+   000100 drop trade 162314/296816: local tc 6603.706 exch 11:20:03.670 side +1 px 4.94 vol 440 (middle)
+   000725 drop trade 199287/281547: local tc 11181.582 exch 14:06:21.560 side -1 px 4.42 vol 1965 (middle)
+   000725 add  trade 279006/281547: local tc 14205.004 exch 14:56:44.980 side +1 px 4.4 vol 2700 (last slot / after)
+   000725 add  trade 279040/281547: local tc 14206.972 exch 14:56:46.950 side +1 px 4.4 vol 2700 (last slot / after)
+   002230 drop trade 55298/66473: local tc 13278.578 exch 14:41:18.540 side +1 px 34.48 vol 1200 (middle)
+   002230 drop trade 55460/66473: local tc 13300.386 exch 14:41:40.360 side +1 px 34.48 vol 1200 (middle)
+   002230 drop trade 55594/66473: local tc 13318.990 exch 14:41:58.970 side +1 px 34.48 vol 1200 (middle)
+   002353 drop trade 306/86671: local tc 1.989 exch 09:30:00.060 side +1 px 67.62 vol 100 (first 60 s)
+   002353 drop trade 1252/86671: local tc 28.721 exch 09:30:12.530 side +1 px 67.62 vol 100 (first 60 s)
+   002353 drop trade 1451/86671: local tc 31.932 exch 09:30:15.980 side +1 px 67.63 vol 100 (first 60 s)
+   002709 drop trade 15764/75120: local tc 1483.928 exch 09:54:43.900 side -1 px 24.25 vol 200 (middle)
+   002709 drop trade 15771/75120: local tc 1483.928 exch 09:54:43.900 side -1 px 24.25 vol 200 (middle)
+   002709 drop trade 15778/75120: local tc 1483.928 exch 09:54:43.900 side -1 px 24.25 vol 200 (middle)
+   002916 flip trade 78995/111235: local tc 6964.019 exch 11:26:04.000 side +1 px 211.98 vol 52 (middle)
+   002916 flip trade 78997/111235: local tc 6964.025 exch 11:26:04.000 side +1 px 211.98 vol 52 (middle)
+   002916 flip trade 78999/111235: local tc 6964.084 exch 11:26:04.060 side +1 px 211.98 vol 52 (middle)
+   003816 drop trade 106570/150262: local tc 11814.235 exch 14:16:54.210 side -1 px 4.74 vol 144 (middle)
+   003816 drop trade 108941/150262: local tc 11991.184 exch 14:19:51.160 side -1 px 4.74 vol 144 (middle)
+   300442 flip trade 4407/72301: local tc 148.046 exch 09:32:27.970 side -1 px 50.4 vol 100 (middle)
+   300442 flip trade 4449/72301: local tc 152.187 exch 09:32:32.150 side -1 px 50.4 vol 100 (middle)
+   300442 flip trade 4450/72301: local tc 152.187 exch 09:32:32.150 side -1 px 50.4 vol 100 (middle)
+   301308 drop trade 15209/56008: local tc 1450.660 exch 09:54:10.620 side -1 px 194.13 vol 400 (middle)
+   600118 flip trade 44267/70112: local tc 8326.557 exch 13:18:46.530 side +1 px 46.26 vol 600 (middle)
+   600118 flip trade 45864/70112: local tc 8714.869 exch 13:25:14.670 side +1 px 46.26 vol 600 (middle)
+   600118 flip trade 45875/70112: local tc 8719.617 exch 13:25:19.470 side +1 px 46.26 vol 600 (middle)
+   600415 flip trade 13346/32323: local tc 5074.485 exch 10:54:34.260 side -1 px 12.06 vol 3600 (middle)
+   600415 flip trade 20294/32323: local tc 8904.569 exch 13:28:24.500 side -1 px 12.06 vol 3600 (middle)
+   600415 flip trade 23204/32323: local tc 11067.837 exch 14:04:27.580 side -1 px 12.06 vol 3600 (middle)
+   600489 drop trade 84854/112182: local tc 10236.266 exch 13:50:36.040 side -1 px 16.94 vol 100 (middle)
+   600489 drop trade 84929/112182: local tc 10241.767 exch 13:50:41.750 side -1 px 16.94 vol 100 (middle)
+   600489 drop trade 84931/112182: local tc 10242.015 exch 13:50:41.840 side -1 px 16.94 vol 100 (middle)
+   601009 drop trade 1538/73389: local tc 46.104 exch 09:30:42.600 side -1 px 13.11 vol 2000 (first 60 s)
+   601009 drop trade 20906/73389: local tc 3272.863 exch 10:24:32.690 side -1 px 13.11 vol 2000 (middle)
+   601009 drop trade 20925/73389: local tc 3279.364 exch 10:24:39.120 side -1 px 13.11 vol 2000 (middle)
+   601225 drop trade 496/88493: local tc 23.217 exch 09:30:16.540 side +1 px 27.66 vol 800 (first 60 s)
+   601225 drop trade 555/88493: local tc 23.222 exch 09:30:16.550 side +1 px 27.66 vol 800 (first 60 s)
+   601225 drop trade 3166/88493: local tc 201.232 exch 09:33:21.120 side +1 px 27.66 vol 800 (middle)
+   601328 flip trade 131514/164003: local tc 13457.544 exch 14:44:17.290 side -1 px 8.82 vol 1300 (middle)
+   601328 flip trade 131581/164003: local tc 13461.044 exch 14:44:20.820 side -1 px 8.82 vol 1300 (middle)
+   601658 flip trade 42935/107740: local tc 5701.354 exch 11:05:01.170 side -1 px 5.7 vol 6800 (middle)
+   601658 flip trade 74854/107740: local tc 11746.033 exch 14:15:45.840 side -1 px 5.7 vol 6800 (middle)
+   601689 flip trade 18545/93098: local tc 959.974 exch 09:45:59.720 side -1 px 48.72 vol 600 (middle)
+   601689 flip trade 18683/93098: local tc 976.225 exch 09:46:15.980 side -1 px 48.72 vol 600 (middle)
+   601689 flip trade 19289/93098: local tc 1035.481 exch 09:47:15.430 side -1 px 48.72 vol 600 (middle)
+   601857 drop trade 193363/198751: local tc 14134.901 exch 14:55:34.860 side -1 px 13.25 vol 700 (middle)
+   688521 drop trade 32761/96073: local tc 2455.671 exch 10:10:55.600 side +1 px 77.66 vol 193 (middle)
+   688521 drop trade 54047/96073: local tc 6603.479 exch 11:20:03.320 side +1 px 78.89 vol 190 (middle)
+   688521 drop trade 60810/96073: local tc 7820.187 exch 13:10:20.020 side +1 px 77.26 vol 194 (middle)
+== 20261120 zzgh.nb: exact already 47, fixed by one trade 19, not fixed by one trade 234
+   by action: {'drop': 29, 'add': 2, 'flip': 19}
+   23  drop middle
+   19  flip middle
+    6  drop first 60 s
+    2  add  last slot / after
+[done]
+== callee 1329d0 (Ema slot 0), raw rows 1329d0 .. 132a99 (47 lines incl. headers)
+1329d0 ucomisd xmm1,xmm1 ; 1329d4 jp 132a98 ; 1329da push rbx ; 1329db movapd xmm2,xmm0 ; 1329df mov rbx,rdi ; 1329e2 sub rsp,0x10
+1329e6 movsd xmm3,[rdi+0x20] ; 1329eb cmpnlesd xmm0,xmm3 ; 1329f0 movapd xmm4,xmm3 ; 1329f4 blendvpd xmm4,xmm2,xmm0
+1329f9 movsd xmm0,[rip+0x48597] ;[20] ; 132a01 movapd xmm2,xmm4 ; 132a05 movsd [rdi+0x20],xmm4 ; 132a0a subsd xmm2,xmm3 ; 132a0e divsd xmm2,[rdi+0x8]
+132a13 comisd xmm0,xmm2 ; 132a17 jae 132a68 ; 132a19 pxor xmm2,xmm2 ; 132a1d movsd xmm0,[rbx+0x18] ; 132a22 pxor xmm3,xmm3 ; 132a26 mulsd xmm0,xmm2 ; 132a2a mulsd xmm2,[rbx+0x10]
+132a2f addsd xmm2,[rip+0x48009] ;[1] ; 132a37 addsd xmm1,xmm0 ; 132a3b movapd xmm0,xmm1 ; 132a3f andpd xmm0,[rip+0x41fb9] ;[nan mask] ; 132a47 cmpltsd xmm0,[rip+0x46668] ;[1e-10]
+132a50 blendvpd xmm1,xmm3,xmm0 ; 132a55 unpcklpd xmm2,xmm1 ; 132a59 movups [rbx+0x10],xmm2 ; 132a5d add rsp,0x10 ; 132a61 pop rbx ; 132a62 ret ; 132a63 nop
+132a68 xorpd xmm2,[rip+0x47fc0] ;[-0] ; 132a70 movsd [rsp+0x8],xmm1 ; 132a76 mulsd xmm2,[rip+0x48522] ;[0.6931472] ; 132a7e movapd xmm0,xmm2 ; 132a82 call 1b1b0 <exp@plt>
+132a87 movsd xmm1,[rsp+0x8] ; 132a8d movapd xmm2,xmm0 ; 132a91 jmp 132a1d ; 132a93 nop ; 132a98 ret
+== callee 132aa0 (TermCFH callee = the trading clock), raw rows 132aa0 .. 132af6
+132aa0 sub rsp,8 ; 132aa4 movsd xmm1,[rip+0x4405c] ;[86400] ; 132aac call 1bcc0 <fmod@plt> ; 132ab1 movsd xmm3,[rip+0x47ecf] ;[12600] ; 132ab9 movapd xmm2,xmm0
+132abd subsd xmm2,[rip+0x47ebb] ;[5400] ; 132ac5 comisd xmm3,xmm0 ; 132ac9 ja 132aed ; 132acb comisd xmm0,[rip+0x47ebd] ;[18000] ; 132ad3 mov rax,[rip+0x47ea6] ;[5400] ; 132ada movq xmm1,rax
+132adf ja 132ae9 ; 132ae1 movapd xmm1,xmm0 ; 132ae5 subsd xmm1,xmm3 ; 132ae9 subsd xmm2,xmm1 ; 132aed movapd xmm0,xmm2 ; 132af1 add rsp,8 ; 132af5 ret
+== ZZGH slot 3 from e3bd2 to the first mulsd / addsd (raw)
+e3bd2 cmp al,0xff ; e3bd4 je e3d30 ; e3bda cmp al,0x1 ; e3bdc je e3c18 ; e3bde add rsp,0x18 ; e3be2 pop rbx ; e3be3 pop rbp ; e3be4 ret ; e3be5 nop
+e3be8 comisd xmm0,[rip+0x96db8] ;[46799.99999] ; e3bf0 jb e3bde ; e3bf2 movsd xmm2,[rip+0x96db6] ;[54150] ; e3bfa comisd xmm2,xmm0 ; e3bfe jb e3bde ; e3c00 jmp e3bbb ; e3c02 nop
+e3c08 cmp BYTE PTR [rbp+0x1c0],0x0 ; e3c0f jne e3bce ; e3c11 jmp e3bde ; e3c13 nop
+e3c18 movsd xmm5,[rbx+0x38] ; e3c1d movsd xmm7,[rbx+0x40] ; e3c22 lea rdi,[rbp+0x100] ; e3c29 movsd [rsp],xmm5 ; e3c2e movsd [rsp+0x8],xmm7 ; e3c34 call 133790
+e3c39 mov rdx,rax ; e3c3c shr rdx,0x20 ; e3c40 test dl,dl ; e3c42 je e3bde ; e3c44 mov rdi,[rbp+0x128] ; e3c4b movsd xmm0,[rsp] ; e3c50 movsxd rdx,eax ; e3c53 mov r9d,eax
+e3c56 mulsd xmm0,[rsp+0x8] ; e3c5c movsxd rcx,DWORD PTR [rbp+0x120] ; e3c63 lea rdx,[rdi+rdx*8] ; e3c67 movsd xmm1,[rdx] ; e3c6b addsd xmm1,xmm0
+(side = 1 path; e3c18 is the target of `cmp al,0x1 ; je e3c18`.)
+== ZZJB slot 5, rows around [rbx+0x100] (raw)
+f57cf sub rcx,rdx ; f57d2 cvtsi2sd xmm0,rcx ; f57d7 addsd xmm0,xmm2 ; f57db comisd xmm0,[..] ;[34199.99999] ; f57e3 jb f5848 ; f57e5 movsd xmm2,[..] ;[41550] ; f57ed comisd xmm2,xmm0 ; f57f1 jb f5848
+f57f3 movapd xmm0,xmm1 ; f57f7 call 132aa0 ; f57fc pxor xmm2,xmm2 ; f5800 comisd xmm2,xmm0 ; f5804 jae f5868
+f5806 ucomisd xmm2,[rbx+0x100] ; f580e movsd xmm1,[rbp+0x60] ; f5813 movsd xmm3,[rbp+0x58] ; f5818 movsd [rbx+0xf8],xmm1 ; f5820 jp f582c ; f5822 jne f582c ; f5824 movsd [rbx+0x100],xmm3
+f582c cmp BYTE PTR [rbx+0x189],0x0 ; f5833 jne f5878 ; f5835 add rsp,0x18 ; f5839 pop rbx ; f583a pop rbp ; f583b pop r12 ; f583d pop r13 ; f583f pop r14 ; f5841 pop r15 ; f5843 ret
+f5848 comisd xmm0,[..] ;[46799.99999] ; f5850 jb f5835 ; f5852 movsd xmm2,[..] ;[54150] ; f585a comisd xmm2,xmm0 ; f585e jb f5835 ; f5860 jmp f57f3 ; f5868 cmp BYTE PTR [rbx+0x188],0x0 ; f586f jne f5806 ; f5871 jmp f5835
+f5878 lea rdi,[rbx+0x108] ; f587f call 133d50 ; f5884 mov r11d,[rbx+0x128] ; f588b movsxd rcx,DWORD PTR [rbx+0x168] ; f5892 cmp r11d,ecx ; f5895 jle f5835 ; f5897 lea edx,[rcx+1] ; f589a cmp r11d,edx ; f589d jl f5835
+f589f lea rax,[rbx+0x168] ; f58a6 mov r13,[rbx+0x130] ; f58ad mov rdi,[rbx+0x170] ; f58b4 movsxd rdx,edx ; f58b7 mov [rsp+0x8],rax ; f58bc movsd xmm3,[rip+0x8712c] ;[1] ; f58c4 lea r15,[rbx+0x160] ; f58cb pxor xmm2,xmm2
+f58cf movsd xmm4,[..] ;[-0.03] ; f58d7 movsd xmm5,[..] ;[-0.01] ; f58df movsd xmm6,[..] ;[0.01] ; f58e7 movsd xmm7,[..] ;[0.03] ; f58ef nop ; f58f0 movsd xmm1,[r13+rdx*8] ; f58f7 mov r8d,edx ; f58fa mov ebp,edx ; f58fc divsd xmm1,[rbx+0x100]
+Stores to [x+0x100] in ZZJB's .s: one, f5824 `movsd QWORD PTR [rbx+0x100],xmm3` (above); 23 of the .s files contain such a store (not paged).
