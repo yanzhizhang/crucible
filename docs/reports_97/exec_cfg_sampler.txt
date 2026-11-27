@@ -36,3 +36,7 @@ rC: per-column LightGBM contributions on the s1 rows (contrib.py: x from rA11's 
   171 zzbt.b - -0.000160 | 69 zzpp.b A +0.000144 | 79 zzag2.f - -0.000135 | 65 zzal.a - +0.000131 | 57 zzri2.a A +0.000113 | 99 zzag2.a - -0.000105 | 126 zzhi2.f A +0.000097
   71 zzpp2.e A +0.000093 | 91 zzgh.b - -0.000087 | 76 zzri.f A -0.000085 | 26 zzaa.a A -0.000080 | 22 zzsf.c A +0.000078 | 29 zzzl2.f - +0.000076 | 9 zzxu.b A -0.000072 | 66 zzgh2.b A -0.000063 | 156 zzpz.a - +0.000056
  -> two thirds of s1's +0.0023 offset come from unassigned columns; next decode targets for s1: zzmh, zzag2.{c,e,f,a}, zzxo, zzvm, zzbt.b, zzal.a, zzgh.b, zzzl2.f.
+rD: zzmh = sqrt(mean(zzmh.r) / 3) (crucible's docs/specs/ZZMH.md, C = cfg m = 3) added to data/engine_pm/marks_20261119.parquet as zzmh.out (q1/50/99 0.00095 / 0.01176 / 0.08489; train range 0..0.113); rA11 + "zzmh": "zzmh.out"; --sub-by-time; --rebuild:
+ IC 0.3504 (t 44.36), 107 of 209 assigned
+ s1 n 3595 corr 0.2195 |d| med 0.001791 <=1e-3 0.2381 | s2 6248 0.2649 0.000792 0.6985 | s3 51659 0.3407 0.000224 0.9801 | s4 8325 0.3943 0.000445 0.8372 | all 69827 0.2138 0.000285 0.8996
+ vs rA11 (zzel+zzop): s1 |d| 0.002281 -> 0.001791 (within 1e-3 0.156 -> 0.238), s3 corr 0.3362 -> 0.3407, all corr ~0.16 -> 0.214.
