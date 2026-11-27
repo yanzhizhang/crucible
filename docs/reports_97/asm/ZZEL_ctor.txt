@@ -23,3 +23,9 @@ dzchk (crucible's snippet, read-only, 1119, BARRA_PREV unset): note ['ZZSQ 20261
  barra.SRisk 5223 of 5223: 21.34 / 34.61 / 51.82 | barra.PBeta 5223: 0.5649 / 1.1865 / 2.0420
  ZZDS/20261118/samplerS.nc ('S','D','I','V') (300, 1, 1, 8): finite per I [2400]; 20261118_stats.nc (5223, 1, 1, 10): finite per I [50056]
  -> labels clean, values finite, single I: neither NaN slice nor dirty labels; the NaN arises in ic_score's join.
+Correction (crucible, 11-27 late): the NaN fields in rA11's lines are the evidence table's cdf_gap / raw_gap / shape_gap (NaN when the feature has no training-CDF points), not the values; rA7..rA11 were valid tests.
+Model-file check (thchk.py: tk5m/202611/lgb/livev1_fit1/model_s1.txt split thresholds, names from lgb_fn_v1_209_cte.csv; constants ZZSQ / ZZDS 20261118, 20261119_stats.nc):
+ zzel.a ZZDS.msr col 0 train [0:0.0051990468] | splits 2095 q10/50/90 0.000238 / 0.000491 / 0.001608 | ours 0.000167 / 0.000295 / 0.00097 | below median split 0.72
+ zzel.b barra.SRisk col 5 train [8.5885:110.1049] | splits 2312 q10/50/90 26.24 / 48.68 / 66.89 | ours 21.34 / 34.61 / 51.82 | below median split 0.849
+ zzop.h not in model | zzop.i ZZSQ.a col 4 train [0:10246.7] | splits 2502 87.43 / 209.75 / 555.71 | ours 117.06 / 250.34 / 773.72 | below 0.387
+ zzop.j ZZSQ.b col 3 train [0:10486.7] | splits 2328 109.14 / 271.78 / 1093.22 | ours 96.33 / 246.56 / 839.68 | below 0.53
