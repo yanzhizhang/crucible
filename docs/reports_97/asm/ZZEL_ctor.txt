@@ -1,0 +1,7 @@
+ZZEL constructor 0xdfee0..0xe08c0, filtered (full fdump on 97 data/reports/asm/ZZEL_ctor.txt):
+ dff27 lea rax,[rbp+0x110] | dff35 movups [rbp+0xf8],xmm0 | dff43 movups [rbp+0x110],xmm0 | dff9f lea rdx ;<"...ng univ name"| | e0020 lea r15 ;<"...ays.{}.{}.{}"| | e006b lea rcx ;"a" | e00f3 lea rcx ;"b"
+ e01e7 lea r14 ;<"...unknown!.msr"|   (key "msr", ends at the target) | e030b mov r13,[rbp+0x110] | e031b mov [rbp+0x110],rax | e03c4 mov r13,[rbp+0x110] | e03f5 movsd [rbp+0xf8],xmm0   -> zzel.a (+0xf8) = "msr"
+ e0414 movsd xmm0,[rbp+0xf8] | e0426 lea r14 ;<"...gh.low.SRisk"|  (key "SRisk") | e061e movsd [rbp+0x100],xmm0 | e063c movsd xmm0,[rbp+0x100]   -> zzel.b (+0x100) = "SRisk"
+ e0800 mov [rbp+0xf8],0x0 | e0810 mov [rbp+0x100],0x0 (cleanup / missing path)
+ -> outputs a / b; zzel.a = msr (ZZDS samplerS has V ms, msr, mb, vr, o, h, l, c), zzel.b = SRisk (barra stats V: SRet, Yield, TRisk, SRisk, HBeta, PBeta, Close, Capt, Ret, EstU). r230 had them swapped (zzel.a = barra.*, zzel.b = ZZDS.*). Which day / I slice: not read.
+rA7 (rA3_a + zzel.a = ced.dz.ZZDS.msr, zzel.b = ced.dz.barra.SRisk; raw and cal:): both IC start 0.5702 (104 of 209 assigned), corr 0.49064, |d| med 0.0026233, <=1e-3 0.0593 (rA3_a 0.5898). raw == cal exactly, and the current ic_score.py has 1 "ced.dz" reference -> the ced.dz pool keys are probably not built in this ic_score (crucible's 80badb64 replaced the BUILD_REV 4 patch) -> NOT a valid test of the decode.
