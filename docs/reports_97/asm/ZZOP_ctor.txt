@@ -15,3 +15,12 @@ Filtered view (member stores 0x100-0x1cf, calls, movabs, constants), transcribed
 1022d7 mov rbx,[r15+0x1b0] | 1022de call 161de0 | 1022e9 call 1367b0 | 102311 call 1b180 | 102326 lea rdi,[r15+0x168] | 102337 call 1329d0 (B) | 102342 movsd [r15+0x1c8],xmm1
 10237d / 1023a2 / 1023d9 / 1023f8 / 102415 call 1b180 | 102488 call 1b5c0
 Reading: +0x100 = half-life (cfg, default 300); +0x1b0 = a loaded vector (file data); [+0x1b8] / [+0x1c0] / [+0x1c8] = the value left in xmm1 after Ema C / A / B is updated from it (1367b0 = lookup by key strings at 1021b0 / 10223a), i.e. out7..out9 are per-stock priors from a file, through the Ema. 1367b0 / 161de0 / 15b400 / 16f4b0 / 63c80 not yet identified; the non-string rodata pointers (1.4e-306 etc.) are 8+ byte keys or tables.
+Keys and seed (rbytes.py at the rip targets; the key string is [rdx - len, rdx)):
+ 1021b0 rdx 0x17B94A, rsi = rdx-2 -> "ab" (rodata ...\0qa\0qb\0nab\0na\0cd...) -> Ema C (+0x108) -> [+0x1b8] = out7 (h)
+ 10223a rdx 0x17AB26, rsi = rdx-1 -> "a" (...qbt\0.a\0.b...)                    -> Ema A (+0x138) -> [+0x1c0] = out8 (i) = zzop.i
+ 1022c7 rsi = r12-1, r12 0x17EAA9 -> "b" (...FF\0rb\0r+b\0...)                    -> Ema B (+0x168) -> [+0x1c8] = out9 (j)
+ each: 10221c / 1022a6 / 10232d pxor xmm0,xmm0 (t = 0), xmm1 = [rsp+0x8] = the looked-up value (1367b0 on the vector [+0x1b0]); comisd xmm1,xmm1 / jp skips NaN.
+ 1018e7 rodata 0x18008F neighbourhood: "...wrong univ name\0 000852.SZ\0/CEDxr4d/index/YYYYMMDD.nc\0basic_stri.." (univ / index-file strings in the same ctor).
+ CEDxr4d/index/20261119.nc on 97: dims S 3962, D 1, I 1 (09:00:00), V 9 (SSE 50, CSI 300, CSI A500, CSI Smallcap 500, CSI 1000, CSI 2000, CNI 300, CNI 1000, CNI 2000) -> index weights / membership, not the ab/a/b source.
+ hstats_view/HS300 families: ZZAC ZZAL ZZCR ZZDS ZZGW ZZHL ZZMS ZZQI ZZQO ZZSQ ZZTS ZZUG ZZUG2 ZZVC ZZWA ZZXC (no ZZOP); ZZSQ/<D>/samplerS.nc holds V = ab, a, b -> ZZOP's priors are ZZSQ's samplerS.
+ Open: which I (time-of-day slot) and which day (D vs D-1) 1367b0 picks; r230 used I = 0 of the previous day's file and scored 0.5109 (worse than base).
