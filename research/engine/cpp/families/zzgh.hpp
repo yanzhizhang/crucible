@@ -4,6 +4,8 @@
 // zzgh2.nb / zzgh.nb|slots: the imbalance over slots 0 .. n-2 (the last slot dropped, r225b's best).
 #pragma once
 
+#include <cstdlib>
+
 #include "base.hpp"
 
 namespace eng {
@@ -50,6 +52,11 @@ struct zzgh : zzgh_t<948> {
         put(o, "zzgh.nb|ord", imb(t.nb_ord[0], t.nb_ord[1]));
         put(o, "zzgh.nb|ordvol", imb(t.nb_ordvol[0], t.nb_ordvol[1]));
         codes(o, "zzgh");
+        if (std::getenv("ZZGH_PROBE"))
+            for (int k = 0; k < 948; ++k) {
+                put(o, "zzghb.c." + std::to_string(k), buy[k]);
+                put(o, "zzghs.c." + std::to_string(k), sell[k]);
+            }
     }
 };
 

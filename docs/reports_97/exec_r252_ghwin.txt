@@ -1,0 +1,2 @@
+r252 on 97 (1119 hybrid, ZZGH_PROBE per-slot buy / sell dump): zzgh code exact share by window (300 stocks, 948 slots):
+ own 0.9682 | k-1..k 0.5193 | k..k+1 0.5189 | k-1..k+1 0.4319 | shift+1 0.2850 | shift-1 0.2826 | cum 0.2263 | ema15 0.5038 | ema30 0.3892 -> own slot is the rule; residual is the trade set / side.
