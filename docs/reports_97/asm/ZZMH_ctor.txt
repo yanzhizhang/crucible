@@ -1,0 +1,8 @@
+ZZMH ctor 0xf8ca0..0xf956b (488 insns; find_ctor r227b), filtered (full fdump on 97 data/reports/asm/ZZMH_ctor.txt):
+ f8ce8 movups [rbp+0xf8],xmm0 | f8cf2 lea rdx ;<"...vlId.blen.hl"| | f8d17 movq xmm0,[1] | f8d1f mov [rbp+0x110],rax | f8d2d mov [rbp+0x108],0x0 | f8d5b call 161de0 | f8d60 movsd xmm0,[300] | f8d9b lea rdx ;<"X........"|
+ f8db5 call 161de0 | f8dba movsd xmm0,[1152] | f8dd3 movsd [rbp+0x100],xmm0     -> +0x100 = cfg double, default 1152 (C of the output)
+ f8df5 lea rdx ;<"...%I.%k.%l.%s"| | f8e0f call 161de0 | f8e14 movsd xmm0,[100] | f8e2d movsd [rbp+0x108],xmm0   -> +0x108 = cfg double, default 100
+ f8e54 lea rsi ;<...> | f8e78 call 161de0 | f8e7d lea rdx ;<"...ng univ name"| | f8e93 call 161de0 | f8ef7 lea rcx ;[0]<"niv name: {}"| | f8f28 movups [rbp+0x118],xmm3 | f8f3e call 161de0 | f9017 lea rdx ;<"en.hl.dumpCp"| | f9035 call 161de0
+ f9065 cvtsi2sd xmm0,eax | f908b lea rdx ;<"umpCp.loadCp"| | f90a9 call 161de0 | f90d9 cvtsi2sd xmm0,eax | f90fb lea r13 ;<"ays.{}.{}.{}"| | f9114 call 161de0 | f9119 lea rcx ;"r.wgt" | f9185 call 161de0 | f918a lea rcx ;"r.sum" | f91f6 call 161de0 | f91fb lea rcx ;"r.t" | f9267 call 161de0 | f926c lea rcx ;"hm"
+ f934c lea rdi,[rax+0x110] | f93ec movsd [rbp+0x120],xmm0 | f9443 movsd xmm0,[1] | f9453 andpd [nan] | f945b comisd [1e-08] | f9463 movsd [rbp+0xf8],xmm1 | f946d mulsd xmm1,xmm2 | f9471 movsd [rbp+0xf8],xmm1
+ cfg term[57]: zzmh ZZMH hl=10 m=3 s=2 -> likely +0x100 = m (3; default 1152) and +0x108 = s (2; default 100); the key strings for f8d9b / f8df5 not legible in the filtered view (not confirmed).
