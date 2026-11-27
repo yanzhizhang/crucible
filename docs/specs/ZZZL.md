@@ -1,7 +1,7 @@
 # ZZZL (cte::TermZZZL): engine spec decoded from the runtime
 
 Sources: docs/reports_97/exec_b1_zzzl_slot5/6/7.txt, asm/ZZZL_ctor.txt, asm/HUB_loader.txt, and the 97 relay's row reads (2026-11-27).
-Status: formula complete. One check is open: the index-side scale (see the end).
+Status: complete (2026-11-27).
 
 ## Config
 | term | prevDays | blen | forH | other |
@@ -15,7 +15,7 @@ Index R = the universe's index: HS300 -> 399300.SZ (CSI 300 Index); lvlIdxList u
 Day k = 1..3 is lag k: day 0 of the vectors = D-1, from a counter that starts at 1.
 - Stock daily refs: X[k-1] = open(D-k), U[k-1] = close(D-k), from the stsfile daily dict (sdivDailyDict). Index: Y = open, V = close (sdivDailyIndexDict). NaN-initialised.
 - Minute refs (1min_src-shaped nc, x[S, D, I, V], I = minute, I = 0 = 09:15): stock S_j = midPriceLastValid, index I_j = lastTradePrice, for lags j = 1..3.
-- Adjustment (stock only), cumulative: scale(k) = ret_adj_SOD(D) * prod_{j=1..k} m230(p_j). The hub map +0x110 = ret_adj from CEDxr4d/daily/<D>_SOD.nc. m230(p_j) is a per-stock value from CEDxr4d/daily/p<j>/<D>_EOD.nc, whose column is not pinned: the EOD file has no ret_adj (its variables are open high low close preclose adj_factor maxp minp vol tot vwap ret_o_pc ret_c_o). The scale multiplies X, U and S of that lag once (the in-place loop at 1393c3 is the checkpoint path, and zzzl is not loadCp).
+- Adjustment (stock only), cumulative, applied once before each lag's fill to open, close and the minute midPriceLastValid: scale(L) = ret_adj(D) * prod_{j=1..L} ret_adj(p_j), all from the SOD files (hub +0x110 = CEDxr4d/daily/<D>_SOD.nc; +0x148 / +0x180 / +0x1b8 = daily/p1 / p2 / p3/<D>_SOD.nc; variable ret_adj, by stock name). Lag L uses p_1..p_L inclusive: reproduce that as is, even though a textbook chain would stop at p_{L-1}. The loop stops early when lag - 1 >= this+0x220 (the days available). The EOD map (+0x230) is read after the scale but does not enter it; its purpose is unread and not needed for these outputs. The in-place loop at 1393c3 is the checkpoint path (zzzl is not loadCp).
 - Index refs (Y, V, I_j) are RAW: the index pass has no scale.
 - beta = PBeta from CEDxr4d/sod/barra/<D>_stats.nc, by stock name (hub map +0x1f8).
 
@@ -40,4 +40,4 @@ f(Pr, Rr) = log(P / Pr) - beta * log(R / Rr); 0 if any of P, R, Pr, Rr is 0, or 
 close(D-1) is never read. Model columns: zzzl2.c, zzzl2.g, zzzl.f.
 
 ## Open
-- m230's EOD column (adj_factor? a ratio computed at load?): the provenance of [rax+rcx] at 13969c.
+- None for the outputs. The hub's EOD map (+0x230) is read but unused by ZZZL's outputs.
