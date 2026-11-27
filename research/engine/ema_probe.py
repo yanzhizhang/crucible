@@ -142,6 +142,14 @@ def main() -> None:
                      "mid unchanged (0/1)": np.concatenate([[0.0], (np.diff(mid) == 0).astype(float)])}
         inputs = {k: [(c, snapc) for c in vclocks] for k in ("zzhj.p", "zzui.r", "zzcb.r", "zzeb.r", "zztx.r")}
         inputs["zzvm.c.re"] = [("trade", {"trade price": tp, "running VWAP from 09:30": vwap})]
+        tv, tsd = gs["vol"].to_numpy().astype(float), gs["side"].to_numpy().astype(float)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            tradec = {"trade price": tp, "trade volume": tv, "trade amount": tv * tp, "side": tsd, "signed volume": tsd * tv,
+                      "signed amount": tsd * tv * tp, "log volume": np.log(tv), "1 / trade price": 1.0 / tp, "running VWAP from 09:30": vwap,
+                      "log return vs previous trade": np.concatenate([[np.nan], np.diff(np.log(tp))]),
+                      "price change vs previous trade": np.concatenate([[np.nan], np.diff(tp)]),
+                      "trade price / VWAP - 1": tp / vwap - 1, "time since previous trade": np.diff(ts, prepend=np.nan)}
+        inputs["zztx.r"] = [("trade", tradec), ("trade from 09:30", {k: v[ss0 >= 34200] for k, v in tradec.items()})]
         kv = pm.get(sid, {})
         for k in keys:
             w_pm, t_pm, s_pm = kv.get(f"{k}.wgt"), kv.get(f"{k}.t"), kv.get(f"{k}.sum")

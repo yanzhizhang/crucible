@@ -57,6 +57,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import dcp_build as B  # catalog, state loader
 import dcp_ema as E  # tick loading
+import decoded as DZ  # features decoded from the runtime's value slots
 import feature_intraday as FI  # the 5-minute rebuild
 import feature_match as FM  # candidate expressions, fingerprint ranking
 from same_gap import day_frame  # samplerS cells of one family and day (cached parquet)
@@ -499,7 +500,7 @@ def index_relative(gen: dict[str, np.ndarray], ix: dict, sid: int, T: np.ndarray
     return out
 
 
-BUILD_REV = 3  # bump when main()'s per-day build loop changes: every cached build is then rebuilt
+BUILD_REV = 4  # bump when main()'s per-day build loop changes: every cached build is then rebuilt
 
 
 def build_dir(args, d: str, state: Path, target: Path | None) -> Path | None:
@@ -957,6 +958,8 @@ def main() -> None:
     ap.add_argument("--carriers", type=int, default=6, help="--implied: this many top residual groups (every scale of each) tried in each open column")
     ap.add_argument("--freeze-strong", action=argparse.BooleanOptionalAction, default=True,
                     help="skip features whose current formula was graded strong in <out>/ic_evidence.parquet")
+    ap.add_argument("--barra", type=Path, default=Path("/work/crucible_data/prodfiles_224/CEDxr4d/sod/barra"),
+                    help="sod barra <D>_stats.nc for decoded.daily_consts (zzel.a)")
     ap.add_argument("--profiles", default="ZZWA,ZZAL,ZZQO,ZZXC,ZZTS", help="samplerS families whose cells join the pool ('' = none)")
     ap.add_argument("--hstats", type=Path, default=Path("/data/prod/hstats/HS300"))
     ap.add_argument("--pm-cache", type=Path, default=Path("data/pm_export_all"))
@@ -1064,6 +1067,8 @@ def main() -> None:
             danch = {r["sid"]: r for r in dc.select("sid", *lca_c).fill_null(np.nan).iter_rows(named=True)} if lca_c else {}
             pmd = pm_daily(args.pm_stsfile, d, sids, args.pm_sts_day, STS_MAP.get(d)) if args.pm_stsfile.exists() else None
             seed = seed_state(args, d)
+            dz_c, dz_note = DZ.daily_consts(d, args.hstats, args.barra)
+            print(f"{d}: decoded start-up constants for {len(dz_c)} stocks from {dz_note}")
             pmsm = {}
             if pmd is not None:  # PM's daily inputs join the CED table as ced.pm.* / ced.pmw.* / ced.pmx.*
                 dc = pmd if dc is None else dc.join(pmd.with_columns(pl.col("sid").cast(dc.schema["sid"])), on="sid", how="left")
@@ -1075,10 +1080,10 @@ def main() -> None:
             ef = args.engine_dir / f"marks_{d}.parquet"
             if ef.exists():  # the engine's state at the marks (every solved rule) over the Python rebuild's
                 em = pl.read_parquet(ef).filter(pl.col("mark").is_in(MARKS.tolist())).sort("sid", "mark")
-                keep = [c for c in em.columns if c not in ("sid", "mark") and "|" not in c]
+                keep = [c for c in em.columns if c not in ("sid", "mark") and ("|" not in c or c.startswith("zzeg.c.rEma|c0."))]
                 for g in em.partition_by("sid"):
-                    if g.height == MARKS.size:
-                        eng[int(g["sid"][0])] = {c: g[c].to_numpy() for c in keep}
+                    if g.height == MARKS.size:  # zzeg's average is the |c0 variant in the engine: kept under PM's name
+                        eng[int(g["sid"][0])] = {c.replace("|c0", ""): g[c].to_numpy() for c in keep}
             fbk: dict[int, dict[str, np.ndarray]] = {}
             fbf = args.full_book / f"date={d}.parquet" if args.full_book is not None else None
             if fbf is not None and fbf.exists():  # whole-book factors from our replay (full_book.py), on this mark grid only
@@ -1148,6 +1153,9 @@ def main() -> None:
                         add(sid, "ced.r.dep_mb", dep / mb)
                 if sid in seed and gf is not None and gf.height > 2:  # yesterday's carried state (zzeg channel, closes) against today's price
                     gen.update(seed_feats(seed[sid], E.arrays(gf, "fast")))
+                gen.update(DZ.state_feats(eng.get(sid, {})))
+                for k, v in dz_c.get(sid, {}).items():
+                    add(sid, f"ced.dz.{k}", v)
                 for k, v in gen.items():
                     add(sid, f"gen.{k}", v.astype(float))
                 for k, v in prof.get(sid, {}).items():
