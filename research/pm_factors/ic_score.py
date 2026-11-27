@@ -898,8 +898,9 @@ def main() -> None:
     ap.add_argument("--fits", default="livev1_fit1")
     ap.add_argument("--seed-dir", type=Path, help="dir of PM .jz files: yesterday's carried state as gen.sd_* candidates (zzeg channel ...)")
     ap.add_argument("--seed-map", default="", help="--seed-dir: D=YYYYMMDD,... the file day D started from (default: the latest before D)")
-    ap.add_argument("--sub-by-time", default="", help='sub-model per time of day, "s1:600,s2:1800,s3:12600,s4:14220" = segment ends '
-                    "on the trading clock (s); the last runs to the close; overrides --subs")
+    ap.add_argument("--sub-by-time", default="s1:600,s2:1800,s3:12600,s4:14400",
+                    help='sub-model per time of day = segment ends on the trading clock (s); the last runs to the close; overrides --subs. '
+                    "Default = the runtime's cfg.json sampler.eHms 09:40 / 10:00 / 14:30 / 15:00; '' = average --subs instead")
     ap.add_argument("--subs", default="s1", help="sub-models to average (s1,s2,s3,s4 for all; each costs a predict per candidate)")
     ap.add_argument("--assign", type=Path, help="json feature -> expression to start from (default: KNOWN)")
     ap.add_argument("--shortlist", type=int, default=10)
