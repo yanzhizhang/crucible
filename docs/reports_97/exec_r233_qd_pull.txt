@@ -1,0 +1,4 @@
+r233 on 97: read-only pull of QD's newest alpha.parquet days from 224 (user yes in the Mac session: "pull latest alphaparquet from the 224 qd's output"). Script /work/r231/r233.sh (md5 157b8e963d59a157e7ecd7593bca7bc0, 18 lines, ssh BatchMode, rsync --include=alpha.parquet only, host masked), log data/reports/r233_qd_pull.txt. Transcribed from screen.
+remote /tmp/o/sig/<D>/alpha.parquet (last 6 listed): 20261117 22299551 B Nov 17 16:56; 20261118 22271799 Nov 18 15:10; 20261119 22107388 Nov 19 15:10; 20261120 22361895 Nov 20 15:10; 20261123 22614847 Nov 23 15:10; 20261126 22354802 Nov 26 16:33. (No 20261124, 20261125, 20261127 on 224.)
+local /work/crucible_data/qd_alpha before: 20261119 20261120 20261123 20261124 20261125 20261126 20261127 joined
+pulled the remote's last 3 days: 20261120 (22361895 B), 20261123 (22614847 B), 20261126 (22354802 B); rsync printed no ">f" lines (nothing new transferred). local after: same list. R233_DONE.
