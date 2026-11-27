@@ -22,3 +22,10 @@ Exact strings (strs.py: 40 bytes before | 8 after each rodata target; a key stri
  17e820 ivDailyIndexDict is wrong.lastTradePrice|........ -> "lastTradePrice"      17ea60 IConfigESA_E_...........N3cte8TermZZYJE.|
  => keys: cfg blen / hl / name / prevDays / lvlIdxList / forH / dumpCp / loadCp; data fields close, open (daily, sdivDailyDict / sdivDailyIndexDict) and midPriceLastValid, lastTradePrice (minute, sdivMin...), template "prevDays.{}.{}.{}".
  Source: the runtime's dataPath /tmp/s/stsfile (config2_HS300.json) = PM's stsfile (on 97 as /work/crucible_data/pm_stsfile).
+cfg (exec_step1b): term[121] zzzl ZZZL prevDays=3 blen=20 forH=true; term[122] zzzl2 ZZZL prevDays=3 blen=30 (hl, lvlIdxList, name not set -> defaults).
+Lookup order in the per-day loop (filtered, 139860..13ab00):
+ block 1 (1398e9..139a92): key "open" (rsi = rdx-4) then "close" (rsi = rdx-5), each composed via 8cb60 with a dict name; lookup call 8cab0; then X[i] (+0xf8) and U[i] (+0x110) are both initialised to NaN (139a86 / 139a92 movsd [vec+rsi], nan) before the fill (fill not yet read: 139b1b..139bd8 is integer-to-digits date formatting).
+ block 2 (139bd8..13a0a8): "-%d %H:%M:%S" time key, "midPriceLastValid" -> stock minute table +0x1b0 (13a008 / 13a021 add rdx,[rax+0x1b0]; per-day stride via imul at 139f47).
+ block 3 (13a17b..13a49e): "open" then "close" again (index dict), then 13a424 [r13+0x1e0] (Y) and 13a435 [r13+0x1c8] (V).
+ block 4 (13a5ff..13a9f0): "lastTradePrice" -> index minute table +0x1f8 (13a94b / 13a9b7 add rdi/rdx,[rax+0x1f8]).
+ Not pinned yet: which of open / close is X vs U (and Y vs V), and day order. The lookup order (open first) and the store order (X / Y first) agree, which suggests X = Y-side = open, U / V = close, but that is not read from the register flow.
