@@ -29,3 +29,8 @@ Model-file check (thchk.py: tk5m/202611/lgb/livev1_fit1/model_s1.txt split thres
  zzel.b barra.SRisk col 5 train [8.5885:110.1049] | splits 2312 q10/50/90 26.24 / 48.68 / 66.89 | ours 21.34 / 34.61 / 51.82 | below median split 0.849
  zzop.h not in model | zzop.i ZZSQ.a col 4 train [0:10246.7] | splits 2502 87.43 / 209.75 / 555.71 | ours 117.06 / 250.34 / 773.72 | below 0.387
  zzop.j ZZSQ.b col 3 train [0:10486.7] | splits 2328 109.14 / 271.78 / 1093.22 | ours 96.33 / 246.56 / 839.68 | below 0.53
+Row check (rowchk.py, read-only): S labels are stock codes: ZZSQ/ZZDS 20261118 samplerS S n 300 first ['1','100','1280','1391','157','166','1965','1979'] last ['977','988','999']; 20261118_stats.nc S n 5223 first ['1','2','6','7','8','9','10','11'] last ['688837','688981','689009'].
+ per stock (constants for 1119: ZZSQ / ZZDS 20261118, 20261119_stats.nc):
+ 600000 ZZSQ.a 314.82 b 189.14 msr 0.000508 ms 0.005062 SRisk 14.00 Close 10.72 | 1 a 421.92 b 156.13 msr 0.000433 SRisk 11.07 Close 12.2 | 600519 a 424.89 b 299.53 msr 0.000174 ms 0.235588 SRisk 15.97 Close 1442.66
+ 601398 a 538.24 b 387.16 msr 0.00058 SRisk 13.04 Close 9.06 | 725 a 711.70 b 1056.90 msr 0.001107 SRisk 34.08 Close 4.32 | 300750 a 221.33 b 193.21 msr 0.000115 ms 0.027894 SRisk 33.32 Close 241.01
+ -> rows are right (Close matches each stock; msr small for 600519, large for 000725): no row permutation.
