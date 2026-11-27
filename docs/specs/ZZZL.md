@@ -15,7 +15,8 @@ Index R = the universe's index: HS300 -> 399300.SZ (CSI 300 Index); lvlIdxList u
 Day k = 1..3 is lag k: day 0 of the vectors = D-1, from a counter that starts at 1.
 - Stock daily refs: X[k-1] = open(D-k), U[k-1] = close(D-k), from the stsfile daily dict (sdivDailyDict). Index: Y = open, V = close (sdivDailyIndexDict). NaN-initialised.
 - Minute refs (1min_src-shaped nc, x[S, D, I, V], I = minute, I = 0 = 09:15): stock S_j = midPriceLastValid, index I_j = lastTradePrice, for lags j = 1..3.
-- Adjustment (stock), cumulative: scale(k) = ret_adj_SOD(D) * prod_{j=1..k} ret_adj_EOD(p_j). The hub map +0x110 = ret_adj from CEDxr4d/daily/<D>_SOD.nc; map +0x230[j] is read from CEDxr4d/daily/p<j>/<D>_EOD.nc, with variable ret_adj assumed (the string is reused, not verified). The scale multiplies X, U and S of that lag once (the in-place loop at 1393c3 is the checkpoint path, and zzzl is not loadCp).
+- Adjustment (stock only), cumulative: scale(k) = ret_adj_SOD(D) * prod_{j=1..k} m230(p_j). The hub map +0x110 = ret_adj from CEDxr4d/daily/<D>_SOD.nc. m230(p_j) is a per-stock value from CEDxr4d/daily/p<j>/<D>_EOD.nc, whose column is not pinned: the EOD file has no ret_adj (its variables are open high low close preclose adj_factor maxp minp vol tot vwap ret_o_pc ret_c_o). The scale multiplies X, U and S of that lag once (the in-place loop at 1393c3 is the checkpoint path, and zzzl is not loadCp).
+- Index refs (Y, V, I_j) are RAW: the index pass has no scale.
 - beta = PBeta from CEDxr4d/sod/barra/<D>_stats.nc, by stock name (hub map +0x1f8).
 
 ## Updates
@@ -39,5 +40,4 @@ f(Pr, Rr) = log(P / Pr) - beta * log(R / Rr); 0 if any of P, R, Pr, Rr is 0, or 
 close(D-1) is never read. Model columns: zzzl2.c, zzzl2.g, zzzl.f.
 
 ## Open
-- Index-side scale: whether the index pass resets the running scale and uses 399300.SZ's row (a proper index adjustment, normally 1) or carries the stock's scale (a quirk to reproduce).
-- Check on 97 that p<j>/<D>_EOD.nc has V = ret_adj.
+- m230's EOD column (adj_factor? a ratio computed at load?): the provenance of [rax+rcx] at 13969c.
