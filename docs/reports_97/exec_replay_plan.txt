@@ -13,3 +13,11 @@ Plan: /work/pmrun/<D>/ copy of exec, cfg.json with paths remapped to /work, run 
  - lib/libqtapibteimpl.so present; policyserver_bin: "Offline simulation finished, stopping ...". System log: "[ERR] Global trading day cannot be initialized! []" (non-fatal, continue_on_error; empty trading-day string, probably from the blocked mysql calendar).
  - Missing inputs found by strace ENOENT loops and fetched read-only from 224 with rsync -L (user yes "copy 1127 inputs"): hstats/sod 15 families 20261127; CEDxr4d daily/20261127_SOD.nc; daily/p1..p10/20261127_{SOD,EOD}.nc (224 has p<k> as symlinks to ../<D-k>_*.nc); 1min_src/p1..p10/20261127.nc; CEDxr4d/index/daily_eod/p1..p3/20261127.nc; index/1min_src/p1..p3/20261127.nc. Stand-in: barra 20261127_stats/_exp not on 224 -> the run links 20261126_stats/_exp under the 1127 names (one-day-stale barra; affects barra-based terms).
  - Full replay started ~01:55 (unshare -n, lo up via /usr/sbin/ip, ncat on 19845, TZ=Asia/Shanghai): ~2000 % CPU (20 worker threads), lockstep ~7.5x real time (09:48:06 market time after 2 min 26 s); "send to chrono failed!" on each signal send (dummy listener), alpha goes to out/alpha.parquet at the end.
+
+== 2026-11-28 result: PM runtime replay of 20261127 vs PM live fa ==
+replay rows 1,399,829; live fa rows 1,320,669 (pm_signals state); joined 1,320,271 on (sid, src_epoch 10us)
+corr 0.985559 | |d| median 1.2e-6, q90 1.06e-5 | |d|<=5e-6 (fa printed to 5 dp => exact) 0.7964 | |d|<=1e-4 0.9837
+known gaps in the replay: barra 1126 stand-in for 1127, mysql kbars blocked (no network in unshare -n)
+live itself: SIG prediction vs fa corr 0.985814, |d| max 1.5e-2 (the same order: SIG and fa are not one value either)
+=> the replay is PM's model on PM's features: use out/alpha.parquet as ground truth for engine/feature bit-exactness.
+pm_signals fix: order-match diagnostic crashed on days with no book->epoch (empty percentile) -- guarded.

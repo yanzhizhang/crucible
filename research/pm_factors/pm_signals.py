@@ -121,7 +121,7 @@ def read_factor(files: list[str]) -> tuple[pl.DataFrame, pl.DataFrame]:
         top = sp.group_by("sid_idx", "sid").len().sort("len", descending=True).unique("sid_idx", keep="first")
         lag = ((sp["book_epoch"] - sp["src_epoch"]) / 1e6).drop_nulls().to_numpy()
         print(f"  order match check: {top['len'].sum() / sp.height:.4f} of rows on their sidIdx's main sid; "
-              f"book->epoch - srcEpoch (ms) p1/p50/p99 " + "/".join(f"{np.percentile(lag, q):.1f}" for q in (1, 50, 99)))
+              f"book->epoch - srcEpoch (ms) p1/p50/p99 " + ("/".join(f"{np.percentile(lag, q):.1f}" for q in (1, 50, 99)) if lag.size else "- (no book->epoch)"))
     return pl.DataFrame(snaps), pl.DataFrame(decisions, infer_schema_length=None)
 
 
