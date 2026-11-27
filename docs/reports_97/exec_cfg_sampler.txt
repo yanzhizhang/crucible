@@ -30,3 +30,9 @@ s1 by minute (rB_zzelop pred.parquet): marks <= 0: 0 (min mark 38 s; 12 distinct
  min 8 (<=480) n 299 bias +0.002018 |d| 0.002038 ours +0.002053 pm +0.000034 corr 0.389
  min 10 (<=600) n 599 bias +0.002447 |d| 0.002373 ours +0.002351 pm -0.000096 corr 0.150
  -> flat constant offset of about +0.0023 in ours across 09:30-09:40 (PM mean ~0): model-side for s1 (base score / demeaning / file), not the start-of-day state.
+rC: per-column LightGBM contributions on the s1 rows (contrib.py: x from rA11's assignment + --dump-x, NaN for unassigned, model_s1 of fits 1-3 averaged; lightgbm 4.7.0 on 97):
+ rows 3600, assigned 105 | mean pred +0.002282, base -0.000122 | sum of mean contrib: assigned +0.000814, unassigned +0.00159
+ top |mean contrib| (A = assigned, - = unassigned): 8 zzmh - +0.000724 | 97 zzro2.a A +0.000412 | 89 zzag2.c - +0.000347 | 101 zzag2.e - +0.000309 | 42 zzxo - +0.000224 | 15 zzvm - +0.000195
+  171 zzbt.b - -0.000160 | 69 zzpp.b A +0.000144 | 79 zzag2.f - -0.000135 | 65 zzal.a - +0.000131 | 57 zzri2.a A +0.000113 | 99 zzag2.a - -0.000105 | 126 zzhi2.f A +0.000097
+  71 zzpp2.e A +0.000093 | 91 zzgh.b - -0.000087 | 76 zzri.f A -0.000085 | 26 zzaa.a A -0.000080 | 22 zzsf.c A +0.000078 | 29 zzzl2.f - +0.000076 | 9 zzxu.b A -0.000072 | 66 zzgh2.b A -0.000063 | 156 zzpz.a - +0.000056
+ -> two thirds of s1's +0.0023 offset come from unassigned columns; next decode targets for s1: zzmh, zzag2.{c,e,f,a}, zzxo, zzvm, zzbt.b, zzal.a, zzgh.b, zzzl2.f.
