@@ -97,6 +97,10 @@ def load_events(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop
     # their order, which otherwise changes from run to run
     sq_t = "seq_id::DOUBLE" if "seq_id" in columns(con, "raw_transaction") else "NULL::DOUBLE"
     sq_o = "seq_id::DOUBLE" if "seq_id" in columns(con, "raw_order") else "NULL::DOUBLE"
+    # a trade with no side flag (the SH auctions) takes the later order's side, as the runtime does with SH's order numbers
+    later = ("CASE WHEN buy_seq_id > sell_seq_id THEN 1.0 ELSE -1.0 END" if {"buy_seq_id", "sell_seq_id"} <= columns(con, "raw_transaction")
+             else "0.0")
+    side_t = f"CASE dir WHEN 1063 THEN 1.0 WHEN 1550 THEN -1.0 ELSE {later} END"
     df = con.sql(f"""
         SELECT sid, mkt, kind, t, s, lsod, price, f0, f1, f2, f3, f4, f5, f6 FROM (
           SELECT symbol_id AS sid, market_id AS mkt, 0::SMALLINT AS kind, {B.tc(L)}::DOUBLE AS t, {S}::DOUBLE AS s, {L}::DOUBLE AS lsod,
@@ -105,7 +109,7 @@ def load_events(con: duckdb.DuckDBPyConnection, date: int, sids: list[int], stop
           FROM raw_quotation q JOIN want w ON w.sid = q.symbol_id WHERE q.date = {date} AND {L} <= {stop}
           UNION ALL
           SELECT symbol_id, market_id, 1::SMALLINT, {B.tc(L)}::DOUBLE, {S}::DOUBLE, {L}::DOUBLE, spider_ts, price::DOUBLE,
-                 volume::DOUBLE, CASE dir WHEN 1063 THEN 1.0 WHEN 1550 THEN -1.0 ELSE 0.0 END, 0.0, 0.0, 0.0, 0.0, 0.0, {sq_t}
+                 volume::DOUBLE, {side_t}, 0.0, 0.0, 0.0, 0.0, 0.0, {sq_t}
           FROM raw_transaction r JOIN want w ON w.sid = r.symbol_id WHERE r.date = {date} AND r.trade_type = 1 AND {L} <= {stop}
           UNION ALL
           SELECT symbol_id, market_id, 2::SMALLINT, {B.tc(L)}::DOUBLE, {S}::DOUBLE, {L}::DOUBLE, spider_ts, price::DOUBLE,

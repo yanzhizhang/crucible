@@ -229,3 +229,6 @@ data/
 research/_out/
 *.duckdb
 *.duckdb.wal
+
+# PM-derived runtime constants (the engine's decoded family): kept on 97 only, never in git
+*runtime_consts*

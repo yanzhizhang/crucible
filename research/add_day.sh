@@ -11,6 +11,7 @@
 #   FROM=4 bash research/add_day.sh 20261117 2>&1 | tee data/reports/add_20261117_s4.txt   # steps 4-5 only
 set -u
 D=${1:?trading day YYYYMMDD}
+export CRUCIBLE_RUNTIME_CONSTS=${CRUCIBLE_RUNTIME_CONSTS:-/work/crucible_data/private/runtime_consts.tsv}  # the engine's decoded family; kept off git
 cd /work/crucible
 R=data/reports
 DATA=/work/crucible_data

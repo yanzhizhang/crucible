@@ -88,7 +88,9 @@ def load_events(date: int, sids: list[int], stop: float, snap_src: str = "dataye
     con = duckdb.connect()
     con.register("want", pl.DataFrame({"sid": sids}))
     ls_sh, ls_so, ls_st = recv(sh, local_src), recv(so, local_src), recv(st, local_src)
-    side_sh = "CASE flag WHEN 'B' THEN 1.0 WHEN 'S' THEN -1.0 ELSE 0.0 END"
+    side_sh = "CASE flag WHEN 'B' THEN 1.0 WHEN 'S' THEN -1.0 ELSE 0.0 END"  # orders keep their own flag
+    # a trade with flag N (the auctions) takes the later order's side, as the runtime does with SH's order numbers
+    side_sh_t = "CASE flag WHEN 'B' THEN 1.0 WHEN 'S' THEN -1.0 ELSE (CASE WHEN buyOrderNo > sellOrderNo THEN 1.0 ELSE -1.0 END) END"
     side_sz = "CASE side WHEN '1' THEN 1.0 WHEN '2' THEN -1.0 ELSE 0.0 END"
     # an SZSE trade's aggressor is the leg with the larger ApplSeqNum (decode_tdf_day's rule)
     side_tr = "CASE WHEN bidApplSeqNum > offerApplSeqNum THEN 1.0 ELSE -1.0 END"
@@ -110,7 +112,7 @@ def load_events(date: int, sids: list[int], stop: float, snap_src: str = "dataye
 
     sql = " UNION ALL ".join([
         quote(qs, SSE), quote(qz, SZSE),
-        part(sh, SSE, 1, ls_sh, "tickTimeNs", f("price", 1e3), [f("qty", 1e3), side_sh], "bizIndex::DOUBLE", "type = 'T'"),
+        part(sh, SSE, 1, ls_sh, "tickTimeNs", f("price", 1e3), [f("qty", 1e3), side_sh_t], "bizIndex::DOUBLE", "type = 'T'"),
         part(sh, SSE, 2, ls_sh, "tickTimeNs", f("price", 1e3), [f("qty", 1e3), side_sh], "bizIndex::DOUBLE", "type IN ('A', 'D')"),
         part(st, SZSE, 1, ls_st, "transactTimeNs", f("lastPx", 1e4), [f("lastQty", 1e2), side_tr], "applSeqNum::DOUBLE", "execType = 'F'"),
         part(so, SZSE, 2, ls_so, "transactTimeNs", f("price", 1e4), [f("orderQty", 1e2), side_sz], "applSeqNum::DOUBLE", "TRUE"),
