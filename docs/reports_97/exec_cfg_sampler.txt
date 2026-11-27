@@ -1,0 +1,12 @@
+/work/exec_x/exec/cfg.json (the factor runtime's config; read on 97, credentials masked; none present in these keys):
+ prod_root /tmp/data/prodfiles/ | date 20261126 | univ HS300 | signal_cfg signal.json | stockid_path CEDxr4d/index/YYYYMMDD.nc
+ streams: 9 entries ({type snapshot, depthLevel 10, src .../workspace/YYYYMMDD/SH_HS300_snap.mp}, {type trade ...} ...) | useOb True
+ sampler.publish_alpha True | sampler.out ./alpha.parquet | sampler.eHms ['09:40:00', '10:00:00', '14:30:00', '15:00:00']
+ sampler.regressors [{model_tag lgb, featFile /tmp/data/prodfiles/models/lgb_fn_v1_209_cte.csv, colName name,
+   models [{file .../models/tk5m/YYYYMM/lgb/livev1_fit1/model_sSESSION.txt, w 0.3333333333}, {... fit2 ..., w 0.3333333333}, {... fit3 ..., w 0.3333333333}]}]
+   -> SESSION = s1..s4 chosen by eHms (s1 until 09:40, s2 until 10:00, s3 until 14:30, s4 until 15:00); fits averaged 1/3 each.
+ dumpCpFile (empty) | loadCpFile /tmp/data/prodfiles/h/HS300/sod/p1_intrading_dcp/YYYYMMDD.jz | snap_event.on ['snapte', 'tradete'] | publish_event.on []
+ init_load: {type os, dayNum 1, interval 300, path .../hstats/sod/HS300/ZZAC/YYYYMMDD/samplerR.parquet}, {type ts, dayNum 1, path .../hstats/sod/HS300/ZZCR/YYYYMMDD/samplerR.parquet} (more cut)
+ term: 124 entries (exec_step1 / step1b).
+ libregression.so: creg::createRegressor(string, string, ...), creg::Regressor (generic LightGBM wrapper; names in by string).
+ Model column names (lgb_fn_v1_209_cte.csv, header "name") = <cfg term name>.<output name registered in the term's ctor>; zzop: col 3 zzop.j [0:10486.7], col 4 zzop.i [0:10246.7], col 34 zzop2.b [0:8667.7], col 103 zzop.a [0:8566.1].
