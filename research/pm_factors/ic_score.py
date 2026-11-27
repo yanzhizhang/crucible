@@ -519,7 +519,7 @@ def build_dir(args, d: str, state: Path, target: Path | None) -> Path | None:
 
     import tick_flow
 
-    mods = [B, E, FI, same_gap, ic_kernel, lit_factors] + ([ced_match] if args.ced else []) + ([tick_flow] if args.order_flow else [])
+    mods = [B, E, FI, DZ, same_gap, ic_kernel, lit_factors] + ([ced_match] if args.ced else []) + ([tick_flow] if args.order_flow else [])
     code = [inspect.getsource(m) for m in mods] + [inspect.getsource(fn) for fn in (generic, index_relative, index_series, pm_daily, profile_marks, seed_state, seed_feats)]
     parts = [BUILD_REV, HORIZON, MARKS.tolist(), args.profiles, str(args.hstats), str(args.pm_cache), str(args.pm_stsfile), args.pm_sts_day, STS_MAP.get(d), str(args.seed_dir), args.seed_map, args.ced,
              str(args.ced_xr), args.target_stale, stamp(args.engine_dir / f"marks_{d}.parquet"), args.order_flow]
