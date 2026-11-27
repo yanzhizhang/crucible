@@ -1,0 +1,8 @@
+r238/r239 on 97 (1119, 300 stocks), zzjb / zzjb2 rule. Exact share over all slot codes (varcmp, 1e-9):
+ r238: zzhj (474 keys, first-after local rule) 1.0000. zzjb last-before + 0.0304 (old) 0.9963; first-after slot END 0.9960; first-after slot START 0.9982. zzjb2: 0.9968 / 0.9965 / 0.9982.
+ r239 ratio dump (price / prev close, first-after slot start, local clock):
+   zzjbr: PM code0 n 23379 max ratio 0.96999399879976 (sid 1280, k 489) | PM code4 n 261021 min ratio 0.9700033704078194 (300450, 762)
+     threshold 0.97: mismatches 0 (0.9696: 518; 0.9695: 802; 0.969: 1469)
+   zzjbq (last-before slot end): overlap 14248 code4 below max code0; best thr 0.97 still 879 mismatches
+   zzjb2r: code0 n 35052 max 0.96999399879976 | code4 n 391548 min 0.9700033704078194; 0.97 -> 0 mismatches (0.9696: 760)
+ Adopted: code 0 iff first snapshot at/after slot start (local trading clock) / prev close < 0.97, else 4 (status pinned).
