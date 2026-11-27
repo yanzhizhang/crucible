@@ -26,3 +26,9 @@ strs.py over 146e10..149000 (40 bytes before | 8 after each rodata target):
  -> +0x230 = per-lag k values from daily/p<k>/<D>_EOD.nc; no new variable string in these rows (ret_adj's string object from 148330 likely reused). +0x1f0 not written in this range.
 ZZZL day loop scale (13963b..13a9c0): 139696 movsd xmm6,[rsp+0x50] | 13969c mulsd xmm6,[rax+rcx*1] (map@0x230 entry for lag [rsp+0x58]) | 1396bf movsd [rsp+0x50],xmm6 | 139ab7 mov rax,[rcx+0x268] | 139f7c movsd xmm7,[rsp+0x20] | 139f87 blendvpd | 139f98 mulsd xmm0,[rsp+0x50]
  -> scale = +0x250 (stock ret_adj, today) * prod over passes of map@0x230[lag]: CUMULATIVE, updated at the top of each pass (before that pass's fill at 13aa16 / 13aa3a).
+Checks on 97 (CEDxr4d/daily, prodfiles_224):
+ p1/20261126_EOD.nc V = open, high, low, close, preclose, adj_factor, maxp_allowed, minp_allowed, vol, tot, vwap, ret_o_pc, ret_c_o (n 5581): NO ret_adj.
+ p1/20261126_SOD.nc V = is_traded, maxp_allowed, minp_allowed, freeshare, circshare, totshare, ret_adj (n 5581): ret_adj min 0.9592775041050904, max 1.0, 18 stocks != 1.
+ p1/20261127_SOD.nc: not on 97.
+ strs over 146e10..149000 for adj / close / preclose / vwap / ret_: only "ret_adj" and "PBeta" (1800c9..1800e8). No "adj_factor" string -> the EOD read either uses "ret_adj" (absent in EOD -> missing) or selects a column without a name (9f760 / 163160 not read).
+Index pass (13a0a8..13a460): no mulsd and no [rsp+0x50] write; 13a42b / 13a443 store the getter's value directly -> index open / close (Y / V) are RAW, unscaled.
