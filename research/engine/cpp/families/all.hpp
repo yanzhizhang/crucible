@@ -28,7 +28,7 @@
 
 namespace eng {
 
-using family_set = std::tuple<zzpk, zzab, zzup, zzxu, zzvx, zzbd, zzeb, zzba, zzqj, zzeg, zzmh, zzvm, zzxo, zzui, zzhj, zzfb, zzjb, zzgh, cdc, zzcb, zztx, decoded>;
+using family_set = std::tuple<zzpk, zzab, zzup, zzxu, zzvx, zzbd, zzeb, zzba, zzqj, zzeg, zzmh, zzvm, zzxo, zzui, zzhj, zzfb, zzjb, zzjb2, zzgh, cdc, zzcb, zztx, decoded>;
 
 // The built-in rule table: every family's averages, registry order (must equal Python's families.EMAS; selftest checks).
 inline std::vector<rule> builtin_rules() {

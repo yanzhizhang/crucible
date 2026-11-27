@@ -1,0 +1,5 @@
+r235 on 97: zzjb2 added to the C++ engine (zzjb's rule on the runtime cfg's blen 10 grid = 1422 slots; cfg.json term[47] zzjb2 type ZZJB blen=10, term[46] zzjb blen=15). Files on 97: research/engine/cpp/families/zzjb.hpp bc99c3a6d20309920251061d1811f47e, all.hpp 1345d01cc7dcdaf9695f0fada7f33372 (originals /work/r231/zzjb.hpp.orig, all.hpp.r231). Script /work/r231/r235.sh 3d0ca02c.
+engine rc 0; building .../cpp/build/engine ...; engine: 300 stocks, 59526615 events, 24 rules, 32 threads, 0.33s; marks 240 x 300 -> data/engine/marks_20261119.parquet; stop 54149.899 -> engine_20261119.json.gz (26s total)
+audit: keys pm 7498 ours 4353 common 4182 (was 2931 / 2760)
+zzjb2 1422 1422 1422 e9 1393 e6 0 e3 0 off 29 | zzjb2.c.1:0.98 zzjb2.c.1152:0.98 zzjb2.c.1155:0.98
+(all other family rows unchanged from r234)
