@@ -8,3 +8,8 @@ executor cfg: 1123 none on 224 | 1124 / 1125 / 1126 config2_HS300.json + sc.p3.j
 Not yet checked: model folder (prodfiles/models vs prod_models/tk5m/202611), the cfg.json / featFile QD's run uses.
 Copy (user yes in the Mac session: "Yes, copy all"), read-only at 224, json5 excluded, /work/r231/cp.sh: executor_cfg 1124-1126; prodfiles h/HS300/sod/p1_intrading_dcp 1123-1127 .jz (-L); 1127 CEDxr4d/index, barra stats, 1min_src.
 Re-inventory after the copy (only non-"same" rows printed): pf 20261127 CEDxr4d/sod/barra/20261127_stats.nc missing-97; pf 20261127 1min_src/p1/20261127.nc missing-97 (rsync printed no error; reason not checked). Everything else same. CP_DONE.
+Inventory part 2 (read-only, /work/r231/inv2.sh -> data/reports/inv2.txt):
+ (c) 224 prodfiles/models/tk5m: 202610, 202611, 202612; all 12 tk5m/202611/lgb/livev1_fit{1,2,3}/model_s{1..4}.txt (mtime 2026-10-22) same as 97 prod_models.
+ (e) hstats/HS300 samplerS: ZZSQ and ZZDS 1123/1124/1125/1126 same; 1121 / 1122 (weekend) and 1127 not on 224.
+ (f) 224 /tmp/s/stsfile: ex/ index/ sid2symbol/ (Nov 27 08:46), stats/ (Oct 26 14:59); ex/ holds ex-<D>.xr files of 239244 B (listing head reached ex-20261029.xr). 97 /work/crucible_data/pm_stsfile: the same four dirs, ex/index/sid2symbol also dated Nov 27 08:46 (per-file md5 compare not done).
+ (d) no readable cfg.json / *feat*.csv under /tmp (maxdepth 4) on 224 for our account; /work/exec_x/exec/cfg.json md5 92354924.
