@@ -9,6 +9,7 @@ side from the later order number (the aggressor): SH fields 3 / 4 are (sell, buy
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import duckdb
@@ -68,8 +69,11 @@ def load_events_mp(cache: Path, sids: list[int], stop: float, consts: dict[int, 
         b["price"] = t["price"].to_numpy()[keep]
         b["f"][:] = 0.0
         b["f"][:, 0] = t["vol"].to_numpy()[keep]
-        # the later order is the aggressor; fields 3 / 4 read as (sell, buy) on both markets (r225b; flipping SZ: r244 zzgh 0 exact)
-        b["f"][:, 1] = np.where(t["sno"].to_numpy()[keep] > t["bno"].to_numpy()[keep], 1.0, -1.0)
+        # the later order is the aggressor; fields 3 / 4 read as (sell, buy) on both markets (r225b; flipping SZ: r244 zzgh 0 exact).
+        # PM_MP_FLIP=SH flips SH only (probe)
+        f3, f4 = t["bno"].to_numpy()[keep], t["sno"].to_numpy()[keep]
+        flip = mkt in os.environ.get("PM_MP_FLIP", "").split(",")
+        b["f"][:, 1] = np.where((f3 > f4) if flip else (f4 > f3), 1.0, -1.0)
         parts.append((b, recv[keep], t["seq"].to_numpy()[keep].astype(np.float64)))
     ev = np.concatenate([p[0] for p in parts])
     ls = np.concatenate([p[1] for p in parts])

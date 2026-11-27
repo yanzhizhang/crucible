@@ -1,0 +1,3 @@
+r251 on 97 (1119): all-.mp trades with the SH side fields flipped only (PM_MP_FLIP=SH; SZ as (sell, buy)), crucible's lead.
+ zzbd 0 e9 / 5 off (pEmaT 0.28); zzgh 0 e9, 949 off (nb 0.05, slots 0.40), varcmp mean 0.4910; zztx.r 0.24-0.28; zzui unchanged (10 e9); zzvm.c.re 0.52.
+ Side-rule summary on .mp trades (zzgh varcmp / e9 keys): both (sell, buy) 241 e9 (r243) | SZ flipped 0 (r244) | SH flipped 0.49 (r251). DataYes trades (hybrid r245): 247 e9, mean 0.968 -> hybrid kept.
