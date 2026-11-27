@@ -17,3 +17,9 @@ rA11 (rA3_a + zzel.a ced.dz.ZZDS.msr, zzel.b ced.dz.barra.SRisk, zzop.h/i/j ced.
  scale report: zzel.a ced.dz.ZZDS.msr | ced | NaN ... ic NaN NaN; zzop.j ced.dz.ZZSQ.b | ced | NaN ... ic NaN NaN; zzel.b ced.dz.barra.SRisk | ced | NaN ... weak NaN NaN; zzop.i ced.dz.ZZSQ.a | ced | NaN ... weak NaN NaN
   (other rows: zzop.a |gen.ld11800|*1e4 | 0.147 | a 2.173 b -17.52 | 0.028 | ... ; zzop2.b | gen.trading_seconds_since_0930 | 0.089 | a 0.1532 b -6.825 | ...)
  -> every ced.dz.* column is NaN in the scored matrix although "decoded start-up constants for 5223 stocks" loads: the constants never join the per-mark rows. rA7..rA10 measured the model's missing path, not the decode.
+dzchk (crucible's snippet, read-only, 1119, BARRA_PREV unset): note ['ZZSQ 20261118', 'ZZDS 20261118', '20261119_stats.nc'];
+ keys clean: 'ZZDS.c' 'ZZDS.h' 'ZZDS.l' 'ZZDS.mb' 'ZZDS.ms' 'ZZDS.msr' 'ZZDS.o' 'ZZDS.vr' 'ZZSQ.a' 'ZZSQ.ab' 'ZZSQ.b' 'barra.PBeta' 'barra.SRet' 'barra.SRisk'
+ ZZDS.msr finite 300 of 5223 q10/50/90 0.00016741 / 0.00029527 / 0.00096953 | ZZSQ.a 300: 117.06 / 250.34 / 773.72 | ZZSQ.ab 300: 152.37 / 282.65 / 719.83 | ZZSQ.b 300: 96.33 / 246.56 / 839.68
+ barra.SRisk 5223 of 5223: 21.34 / 34.61 / 51.82 | barra.PBeta 5223: 0.5649 / 1.1865 / 2.0420
+ ZZDS/20261118/samplerS.nc ('S','D','I','V') (300, 1, 1, 8): finite per I [2400]; 20261118_stats.nc (5223, 1, 1, 10): finite per I [50056]
+ -> labels clean, values finite, single I: neither NaN slice nor dirty labels; the NaN arises in ic_score's join.
