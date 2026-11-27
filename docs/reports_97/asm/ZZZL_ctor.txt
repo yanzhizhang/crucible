@@ -55,3 +55,6 @@ Hub members and the day counter:
  -> day pass k (offset [rsp+0x78] = 8k) uses lag [rsp+0x58] = k + 1: day 0 = lag 1 (D-1, inferred from the counter), and the index factor is per lag.
  Branches into 1392xx..1394xx: 13920f je 139222, 13926a jle 13930a, 1392b8 je 1392cb, 1392d6 je 1392e9, 139304 jl 139270, 1393bd je 1394bc, 13942c je 1394a6, 139483 jne 139470, 139490 je 1394a6, 1394b1 jne 1393f0, 13958a jmp 1394a6, 13ab62 / 13aba8 / 13acee jle-je 1394d8, 13abe5 / 13ad36 jmp 1394d8.
  Order: the in-place loop is at lower addresses than the day-loop fill (13963b..13aa55); whether it runs before the fill (on empty / NaN vectors, then harmless) is not yet proven.
+R4 minute dim (139d40..139ee8): 139d64 xor r12d,r12d (minute index from 0); 139d67 mov r14d,0xc70f6907 (std::hash seed for a string key); 139d90 mov edx,0x49 ('I'); mov esi,0x1; ... call 1b690 -> a 1-char key "I" -> the nd-array's dimension I (x[S, D, I, V]) is the minute axis, read from I = 0.
+ 1min_src/pN/<D>.nc (r229): 257 minutes from 09:15 -> I = 0 is 09:15, so slot 7's m = floor(t / 60) + 15 is 09:30 at t = 0: consistent.
+crucible's settlement (not read here): the 1393c3 in-place loop is a no-op on a normal start (vectors empty, zzzl / zzzl2 have no loadCp), so prices are scaled once.
