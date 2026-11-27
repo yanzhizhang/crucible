@@ -21,3 +21,7 @@ known gaps in the replay: barra 1126 stand-in for 1127, mysql kbars blocked (no 
 live itself: SIG prediction vs fa corr 0.985814, |d| max 1.5e-2 (the same order: SIG and fa are not one value either)
 => the replay is PM's model on PM's features: use out/alpha.parquet as ground truth for engine/feature bit-exactness.
 pm_signals fix: order-match diagnostic crashed on days with no book->epoch (empty percentile) -- guarded.
+kbars: only libqtapi.so defines qtapi::IKBarSeries (ReadHistory, Get*Price, GetAccuAdjFactor, ...); no lib in exec/lib and not
+policyserver_bin imports any IKBarSeries symbol (nm -D --undefined-only), and run.log has no kbar/mysql line.
+=> mysql.xml (host 127.0.0.1, db kbars) is framework config the HS300 policy never calls; it is NOT a live input and not a
+replay gap. The residual 1.6% (>1e-4) is the barra 1126 stand-in plus whatever else differs, not kbars.
