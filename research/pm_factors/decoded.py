@@ -39,14 +39,14 @@ def state_feats(e: dict[str, np.ndarray]) -> dict[str, np.ndarray]:
     return out
 
 
-def _nc_table(path: Path) -> dict[int, dict[str, float]]:
-    """sid -> V label -> value of x[S, 0, 0, V] (the samplerS / stats layout)."""
+def _nc_table(path: Path, i_slot: int = 0) -> dict[int, dict[str, float]]:
+    """sid -> V label -> value of x[S, 0, i_slot, V] (the samplerS / stats layout)."""
     import h5netcdf
     out: dict[int, dict[str, float]] = {}
     with h5netcdf.File(path, "r") as f:
         lab = lambda k: [x.decode() if isinstance(x, bytes) else str(x) for x in np.asarray(f.variables[k][...]).ravel().tolist()]  # noqa: E731
         S, V = lab("S"), lab("V")
-        x = np.asarray(f.variables["x"][...])[:, 0, 0, :]
+        x = np.asarray(f.variables["x"][...])[:, 0, min(i_slot, f.variables["x"].shape[2] - 1), :]
     for i, s in enumerate(S):
         code = s.split(".")[0]  # "600000" or a wind code "600000.SH"
         if code.isdigit():
@@ -54,16 +54,17 @@ def _nc_table(path: Path) -> dict[int, dict[str, float]]:
     return out
 
 
-def daily_consts(d: str, hstats: Path, barra: Path) -> tuple[dict[int, dict[str, float]], list[str]]:
-    """sid -> {'<FAM>.<V>': value} for the day's start-up constants, and a note of which files were read."""
+def daily_consts(d: str, hstats: Path, barra: Path, on_day: bool = False, i_slot: int = 0) -> tuple[dict[int, dict[str, float]], list[str]]:
+    """sid -> {'<FAM>.<V>': value} for the day's start-up constants, and a note of which files were read.
+    ``on_day``: the samplerS folder named D (sod naming: it holds D-1's data) instead of the latest before D; ``i_slot``: the I index."""
     out: dict[int, dict[str, float]] = {}
     note = []
     for fam in ("ZZSQ", "ZZDS"):
-        days = sorted(p.name for p in (hstats / fam).glob("2*") if p.name < d and (p / "samplerS.nc").exists())
+        days = sorted(p.name for p in (hstats / fam).glob("2*") if (p.name <= d if on_day else p.name < d) and (p / "samplerS.nc").exists())
         if days:
-            for sid, kv in _nc_table(hstats / fam / days[-1] / "samplerS.nc").items():
+            for sid, kv in _nc_table(hstats / fam / days[-1] / "samplerS.nc", i_slot).items():
                 out.setdefault(sid, {}).update({f"{fam}.{k}": v for k, v in kv.items()})
-            note.append(f"{fam} {days[-1]}")
+            note.append(f"{fam} {days[-1]} I={i_slot}")
     bf = barra / f"{d}_stats.nc"
     if bf.exists():
         for sid, kv in _nc_table(bf).items():
