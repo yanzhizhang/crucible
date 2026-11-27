@@ -1,0 +1,8 @@
+Inventory 224 vs 97 (read-only, json5 never opened), 20261127 evening, /work/crucible/data/reports/inv_224.txt + inv_diff.txt on 97.
+executor cfg: 1123 none on 224 | 1124 / 1125 / 1126 config2_HS300.json + sc.p3.json missing on 97 | 1127 both same.
+224 /tmp/data/prodfiles: 1min_src CEDxr4d h hstats index models models.zip mp test
+ h/HS300/sod/p1_intrading_dcp/<D>.jz: 1123..1127 missing at 97's prodfiles_224 path (97 holds 2.23 .jz copies under seed_probe/HS300, not compared)
+ CEDxr4d/index/<D>.nc, CEDxr4d/sod/barra/<D>_stats.nc, 1min_src/p1/<D>.nc: 1123..1126 same; 1127 missing on 97
+/tmp/s/stsfile on 224: directory (6 entries, Oct 30) - not listed further
+/tmp/o/sig/2026112*/alpha.parquet on 224: 1120 (22361895, 11-20 15:10), 1123 (22614847, 11-23 15:10), 1126 (22354802, 11-26 16:33); no 1124 / 1125 / 1127.
+Not yet checked: model folder (prodfiles/models vs prod_models/tk5m/202611), the cfg.json / featFile QD's run uses.
