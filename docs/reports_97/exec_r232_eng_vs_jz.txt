@@ -1,0 +1,33 @@
+r232 on 97: engine day-end JSON (r231 run) vs PM's 20261119.jz, new file research/engine/eng_vs_jz.py (md5 3224e65a8fd2a74118ed792641789c56, 52 lines, not in git; md5 gate OK). Output also in data/reports/r232_eng_vs_jz.txt on 97. Transcribed from screen.
+-rw-r--r-- 4121400 Nov 27 08:22 data/engine/engine_20261119.json.gz ; -rw-r--r-- 15412635 Nov 27 08:22 data/engine/marks_20261119.parquet
+engine 300 stocks, PM 300 stocks, 31 keys
+(key n | within 1e-9 / 1e-6 / 1e-3 | PM/ours median (q10 .. q90))
+zzba.p.sum  300 | 0.000 0.030 0.997 | 0.999987 (0.99982 .. 1)
+zzba.p.t    300 | 0.000 0.993 0.997 | 1 (1 .. 1)
+zzba.p.wgt  300 | 0.000 0.030 0.997 | 0.999984 (0.9998 .. 1)
+zzba.r.sum  300 | 0.000 0.030 0.997 | 0.999985 (0.9998 .. 1)
+zzba.r.t    300 | 0.000 0.993 0.997 | 1 (1 .. 1)
+zzba.r.wgt  300 | 0.000 0.030 0.997 | 0.999984 (0.9998 .. 1)
+zzeb.r.sum  300 | 0.000 0.017 0.997 | 0.99999 (0.99998 .. 1)
+zzeb.r.t    300 | 0.000 0.993 0.997 | 1 (1 .. 1)
+zzeb.r.wgt  300 | 0.000 0.077 0.997 | 0.999997 (0.99997 .. 1)
+zzeg.c.high 300 | 1.000 1.000 1.000 | 1 (1 .. 1)
+zzeg.c.low  300 | 0.997 0.997 0.997 | 1 (1 .. 1)
+zzeg.c.rEma.sum / .t / .wgt: ours 0 / PM 300 values: nothing to compare
+zzeg.c.rEma|c0.sum / .t / .wgt: ours 300 / PM 0 values: nothing to compare
+zzeg.c.span 300 | 0.997 0.997 0.997 | 1 (1 .. 1)
+zzhj.p.sum  300 | 0.000 0.147 1.000 | 0.999998 (0.99999 .. 1)
+zzhj.p.t    300 | 0.003 0.963 1.000 | 1 (1 .. 1)
+zzhj.p.wgt  300 | 0.000 0.147 1.000 | 0.999998 (0.99999 .. 1)
+zzmh.r.sum  300 | 0.007 0.007 0.070 | 1.14307 (1.0015 .. 1.1458)
+zzmh.r.t    300 | 0.000 0.993 0.997 | 1 (1 .. 1)
+zzmh.r.wgt  300 | 0.000 0.000 0.043 | 1.1431 (1.0019 .. 1.1437)
+zztx.r.sum  300 | 0.000 0.003 0.640 | 1.00018 (1 .. 1.0022)
+zztx.r.t    300 | 0.000 0.307 1.000 | 0.999996 (0.99996 .. 1)
+zztx.r.wgt  300 | 0.000 0.007 0.630 | 1.00019 (1 .. 1.0022)
+zzui.k      300 | 0.000 0.000 0.837 | 1.00006 (0.99922 .. 1.001)
+zzui.r.sum  300 | 0.000 0.000 0.823 | 0.999901 (0.999 .. 1.0009)
+zzui.r.t    300 | 0.020 0.980 1.000 | 1 (1 .. 1)
+zzui.r.wgt  300 | 0.000 0.010 0.977 | 0.999956 (0.99969 .. 1)
+[done]
+marks_20261119.parquet check: width 78; the printed list of columns starting with zzhj|zztx|zzeb|zzui.k|zzui.r.s|zzeg|zzba|zzmh: 'zzeb.p.sum','zzeb.p.wgt','zzba.p.sum','zzba.p.wgt','zzba.r.sum','zzba.r.wgt','zzeg.c.rEma|c0.sum','zzeg.c.rEma|c0.wgt','zzmh.r.sum','zzmh.r.wgt','zzmh.hm','zzeg.c.high','zzeg.c.low','zzeg.c.span' (14 names; no zzhj, zztx, zzeb.r, zzui.k or zzui.r.* columns in it).
