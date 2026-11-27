@@ -65,7 +65,8 @@ def daily_consts(d: str, hstats: Path, barra: Path, on_day: bool = False, i_slot
             for sid, kv in _nc_table(hstats / fam / days[-1] / "samplerS.nc", i_slot).items():
                 out.setdefault(sid, {}).update({f"{fam}.{k}": v for k, v in kv.items()})
             note.append(f"{fam} {days[-1]} I={i_slot}")
-    bf = barra / f"{d}_stats.nc"
+    prev = sorted(p for p in barra.glob("2*_stats.nc") if p.name[:8] < d)  # on day T barra has only T-1's file (the user, 2026-11-27)
+    bf = prev[-1] if prev else barra / f"{d}_stats.nc"
     if bf.exists():
         for sid, kv in _nc_table(bf).items():
             out.setdefault(sid, {}).update({f"barra.{k}": v for k, v in kv.items()})
