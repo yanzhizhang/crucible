@@ -122,6 +122,7 @@ def main() -> None:
     ap.add_argument("--chan-hist", default="auto", help="where the previous days' highs / lows come from (zzeg.c): auto = the catalog's source first, "
                     "or a comma list of raw dirs under /work/crucible_data; 'none' = no channel")
     ap.add_argument("--marks", help="'five' (09:35 ... 14:55), 'rand:N[:seed]' or trading-clock seconds a,b,...: also the state at each mark")
+    ap.add_argument("--pm-mp", type=Path, help="PM's own feed: the decoded .mp cache dir (mp_load.py) instead of the catalog's ticks")
     ap.add_argument("--lake", type=Path, help="read tickaudit's lake (e.g. /work/tickaudit_lake) instead of --catalog: merged ticks + one source's snapshots")
     ap.add_argument("--snap-source", default="datayes", help="--lake: the tick/ source the snapshots come from (not merged yet)")
     ap.add_argument("--local-source", default="datayes", help="--lake: whose receive stamp orders the events (local_<src>), or 'first'")
@@ -150,6 +151,16 @@ def main() -> None:
     if a.lake:
         print(f"{a.date}: lake {a.lake}, snapshots from {a.snap_source}; {L.missed(int(a.date), a.local_source, a.lake)}", flush=True)
         ev = L.load_events(int(a.date), sids, stop, a.snap_source, a.local_source, a.lake)
+    elif a.pm_mp:
+        from export_mp import constants, load_events_mp  # noqa: PLC0415
+        import os  # noqa: PLC0415
+        from export_mp import hybrid  # noqa: PLC0415
+        if os.environ.get("PM_MP_MODE", "all") == "snap":
+            ev = hybrid(load_events_mp(a.pm_mp, sids, stop, constants(con, int(a.date), sids), trades=False), load_events(con, int(a.date), sids, stop))
+        else:
+            ev = load_events_mp(a.pm_mp, sids, stop, constants(con, int(a.date), sids))
+        con.close()
+        print(f"{a.date}: PM feed {a.pm_mp}", flush=True)
     else:
         ev = load_events(con, int(a.date), sids, stop)
         con.close()

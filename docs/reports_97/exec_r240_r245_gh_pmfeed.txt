@@ -1,0 +1,13 @@
+r240-r245 on 97 (20261119, 300 stocks).
+r240: zzjb / zzjb2 final rule in production: varcmp 1.0000 on all 948 / 1422 slots. zzgh slot codes per slot: SZ 106176 slots mismatch 2473 (0.0233), SH 178224 mismatch 6583 (0.0369).
+  ours->PM codes most common: (0,1) 1821, (4,3) 1627, (4,2) 1133, (0,2) 1077, (4,1) 663, (0,3) 492, (2,1) 422, (4,0) 412, (2,3) 326, (0,4) 324, (2,0) 266, (2,4) 242
+  our slot empty (code 2) -> PM: (2,1) 336, (2,3) 276, (2,0) 262, (2,4) 234; distance of our imbalance to nearest edge: >=0.05 7643, <0.05 184, <1e-9 108, <1e-3 13
+  position: mid 7830, k<20 67, first 44, k>=928 7
+r241: zzgh slot rule variants (mean exact over 948 slots): local trade clock 0.9682 (current) | exchange clock 0.9486 | snapshot-gated next snap 0.7318 | previous snap 0.7892
+r242: weighting: amount 0.9682 | volume 0.9675 | count 0.5488 | amount where exchange slot agrees 0.9573
+r243: new research/engine/export_mp.py + run_cpp --pm-mp (C++ engine on PM's own .mp cache /work/crucible_data/pm_mp_cache/20261119; open / pre_close from the catalog). 23030328 events (no orders / cancels in the cache), 22 s.
+  audit vs PM jz: zzfb 711/711 e9 exact (DataYes: 0 e9, 711 e6); zzhj 474 e9; zzjb 948; zzjb2 1422; but zzgh 241 e9 (worst 0.68), zztx.r 0.28-0.30, zzvm.c.re 0.52, zzbd 0.28-0.33 (all worse than DataYes)
+r244: SZ side flipped (fields 3/4 as bid/offer): zzgh 0 e9, nb 0.07; zztx.r.sum 0.06 -> reverted.
+r245: hybrid PM_MP_MODE=snap: PM-feed snapshots + DataYes trades/orders/cancels, ordered by sid, lsod, kind. 59523705 events, 42 s.
+  zzfb 711 e9, zzhj 474 e9, zzjb 948, zzjb2 1422 exact; zzgh 247 e9 / 702 off (worst nb 0.12, c.1 0.83); zztx.r 0.63-0.64; zzvm.c.re 0.80; zzbd 0.63-0.69 (= DataYes levels)
+  keys pm 7498 ours 7655 common 4640.
