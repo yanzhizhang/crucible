@@ -48,8 +48,9 @@ def _nc_table(path: Path) -> dict[int, dict[str, float]]:
         S, V = lab("S"), lab("V")
         x = np.asarray(f.variables["x"][...])[:, 0, 0, :]
     for i, s in enumerate(S):
-        if s.isdigit():
-            out[int(s)] = {v: float(x[i, j]) for j, v in enumerate(V)}
+        code = s.split(".")[0]  # "600000" or a wind code "600000.SH"
+        if code.isdigit():
+            out[int(code)] = {v: float(x[i, j]) for j, v in enumerate(V)}
     return out
 
 
