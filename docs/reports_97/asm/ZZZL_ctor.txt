@@ -10,3 +10,15 @@ Filtered (member stores +0xf8/0x110/0x1b0/0x1c8/0x1e0/0x1f8/0x218/0x278, strings
 13a3a1 lea rdx ;[1.85e-130]<vent: .%H.%I| | 13a424 mov rcx,[r13+0x1e0] | 13a435 mov rcx,[r13+0x1c8] | 13a49e lea rdi ;"_Map_base::at" | 13a4f2 mov rax,[rax+0x218] | 13a537 movabs (div 10000) | 13a594 movabs rsi,0x28f5c28f5c28f5c3 | 13a5ff lea rcx ;"0001020304...99" | 13a618 lea rdx ;[5.3e+199]<-%d %H:%M:%S| | 13a68e lea rdx ;[0]<stTradePrice| | 13a6a9 lea rdx ;[1.40593e-312]<BS.ZZBA.ZZAV| | 13a728 mov rax,[rip] ;[nan]
 13a7fa lea rdi ;"_Map_base::at" | 13a94b add rdi,[rax+0x1f8] | 13a9b7 add rdx,[rax+0x1f8] | 13a9f0 lea rdx ;[nan]<e8TermZZYJE.| | 13aa2e mov rax,[rax+0xf8] | 13aa4e mov rax,[rax+0x110] | 13ae34 lea rdi ;"_Map_base::at" | 13ae40 lea rdi ;"_Map_base::at"
 Reading: cfg keys blen / name / prevDays / forH; outputs a..i; dumpCp / loadCp; "prevDays.{}.{}.{}"-style keys; the reference vectors are filled from fields named like "close" (sum.h.t.close?), "open", "lastTradePrice", "priceLastValid", with date/time formatting (%Y%m%d, %H:%M:%S) -> per-day / per-minute lookups of a stock's and the index's (+0x218) prices; beta [+0x278] from a map (+0x1f8). The "BS.ZZBA.ZZAV" context is a neighbouring string, not necessarily a key. Exact string starts need rbytes at these targets (next).
+Exact strings (strs.py: 40 bytes before | 8 after each rodata target; a key string ENDS at the target, rsi = rdx - len), data/reports/asm/ZZZL_ctor_strs.txt on 97:
+ 17a390 .{}{}.as.q70.as.q80.bs.q70.bs.q80.lvlId.|blen.hl.     17b40b ....lvlIdxList.|prevDays     17bda0 ...@|forH.neg     17b417 ...lvlIdxList.prevDays.{}.|{}.{}.rE
+ 18008b ...wrong univ |name.000      17ab25 S.drSumT.ptdata2.\$\{DATE\}.ptdata.qbt..|a..b....     17eaa8 ...?FF.rb.r+|b.\u%04x
+ 17cf2e alid len.tpv.sthspan.sOrder.jumpval..e..|c..d..f.   (output names c/d/e/f/... share these tails)
+ 180562 ates!.stod.src_epoch.regressors.model_ta|g.lgb.fe    174a8b d:%02lld:%02lld.Failed to open .rec_epoc|h.as.q5.    17615f eator not registered: .invalid price.sto|i.Column
+ 17a398 .q70.as.q80.bs.q70.bs.q80.lvlId.blen.hl.|dumpCp.l    17a39f ...blen.hl.dumpCp.|loadCp.r    17b41c ...lvlIdxList.prevDays.{}.{}.{}|.rEma.wg
+ 179513 ted!.finish to save cp.%Y-%m-%d %H:%M:%S|.Open fi    17ca44 ...@......@ open|.lsq.STR  -> "open"
+ 181267 U.ZZEG.ZZEB.ZZDS.CFH.ZZCB.ZZBS.ZZBA.ZZAV|.ZZAB...    17e7b7 !.c.wgt.c.sum.c.t.h.wgt.h.sum.h.t.close|.sdivDai -> "close"
+ 176567 Hms.useSrc.not implemented event: .%H.%I|.%k.%l.%    17e7e0 sdivDailyDict is wrong.midPriceLastValid|.sdivMin -> "midPriceLastValid"
+ 17e820 ivDailyIndexDict is wrong.lastTradePrice|........ -> "lastTradePrice"      17ea60 IConfigESA_E_...........N3cte8TermZZYJE.|
+ => keys: cfg blen / hl / name / prevDays / lvlIdxList / forH / dumpCp / loadCp; data fields close, open (daily, sdivDailyDict / sdivDailyIndexDict) and midPriceLastValid, lastTradePrice (minute, sdivMin...), template "prevDays.{}.{}.{}".
+ Source: the runtime's dataPath /tmp/s/stsfile (config2_HS300.json) = PM's stsfile (on 97 as /work/crucible_data/pm_stsfile).
