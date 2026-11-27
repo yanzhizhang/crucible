@@ -185,6 +185,11 @@ def main() -> None:
         (work / "marks.bin").unlink()
         print(f"{a.date}: state at {marks.size} marks x {mk['sid'].n_unique()} stocks -> {a.out / f'marks_{a.date}.parquet'}")
     a.out.mkdir(parents=True, exist_ok=True)
+    if getattr(a, "pm_mp", None):
+        from export_mp import index_grids, inject_index  # noqa: PLC0415
+        raw = Path(str(a.pm_mp).replace("pm_mp_cache", "pm_mp"))
+        g = index_grids(raw)
+        print(f"{a.date}: index grids {sorted(g)} from {raw} -> {inject_index(work / 'state.json', g)} stocks", flush=True)
     dst = a.out / f"engine_{a.date}.json.gz"
     with (work / "state.json").open("rb") as f, gzip.open(dst, "wb") as g:
         shutil.copyfileobj(f, g)

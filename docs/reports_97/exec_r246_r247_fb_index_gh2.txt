@@ -1,0 +1,6 @@
+r246 on 97: zzfb.c3 / c5 are market-wide (same value for every stock): c3 = CSI 300 (index 000300), c5 = CSI 500 (000905) cumulative amount from PM's index stream (/work/crucible_data/pm_mp/20261119/*_index.mp: id, recv, exch, prev close, last, cum volume, cum amount; 4541 SZ / 8718 SH records). Close totals: HS300 395441171300, ZZ500 224286400900, ZZ1000 232120521600.
+ Rule variants vs PM zzfb.c3 / c5 on stock 1 (711 slots): SZ_*_index, recv (local trading clock), last value strictly before the slot end -> 1.0000 for both (<= end 0.9986; exch clock 0.70 / 0.38; SH_* copies 0.2194; first-after variants 0).
+r247: zzfb.c3 / c5 injected into every stock's day-end state by run_cpp (--pm-mp, export_mp.index_grids); zzgh2 added (zzgh_t<1422>, nb over slots 0..n-2).
+ audit (hybrid PM snapshots + DataYes trades): keys pm 7498 ours 7657 common 7485.
+ zzfb 2133 / 2133 e9 exact; zzhj 474 e9 (477 common: zzhj.p sum/t/wgt e3); zzjb 948; zzjb2 1422; zzgh 247 e9 702 off; zzgh2 1423 common, 193 e9, 1230 off (worst nb 0.25, c.1 0.74), varcmp mean 0.9326.
+ PM-only keys now: zzbd drSumS/drSumT (2), zzcb r.sum/r.t/r.wgt (3), zzeg c.rEma.sum/.t/.wgt (3, ours named rEma|c0), zzhj r.wgt (1), zzui er (1), zzxu (rest cut).

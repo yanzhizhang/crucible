@@ -82,3 +82,40 @@ def hybrid(snaps: np.ndarray, other: np.ndarray) -> np.ndarray:
     """PM-feed snapshots + the catalog's trades / orders / cancels (kinds 1-3), ordered by sid, local second of day, kind."""
     ev = np.concatenate([snaps, other[other["kind"] != 0]])
     return ev[np.lexsort((ev["kind"], ev["lsod"], ev["sid"]))]
+
+
+INDEX_KEYS = {"zzfb.c3": "SZ_HS300_index", "zzfb.c5": "SZ_ZZ500_index"}  # r246: c3 = CSI 300, c5 = CSI 500 (SZ copy of the stream)
+
+
+def index_grids(raw_day: Path, n: int = 711, session: float = 14220.0) -> dict[str, np.ndarray]:
+    """zzfb.c3 / c5: the index's cumulative amount, last value received strictly before each slot's end (local trading
+    clock), 0 before the first record. r246 (1119): 1.0000 exact on all 711 slots for both."""
+    import mp_read  # noqa: PLC0415  (research/pm_factors)
+
+    step, out = session / n, {}
+    for key, name in INDEX_KEYS.items():
+        p = raw_day / f"{name}.mp"
+        if not p.exists():
+            continue
+        a = mp_read.frame(p)
+        t = _tc(a[:, 1]); o = np.argsort(t, kind="stable"); t, amt = t[o], a[o, 6]
+        idx = np.searchsorted(t, (np.arange(n) + 1) * step, side="left") - 1
+        out[key] = np.where(idx >= 0, amt[np.clip(idx, 0, None)], 0.0)
+    return out
+
+
+def inject_index(state_json: Path, grids: dict[str, np.ndarray]) -> int:
+    """Write the market-wide grids into every stock of the engine's day-end state.json (same values for all stocks)."""
+    import json  # noqa: PLC0415
+
+    d = json.loads(state_json.read_text())
+    st = d["stocks"] if isinstance(d, dict) and isinstance(d.get("stocks"), dict) else d
+    n = 0
+    for v in st.values():
+        if isinstance(v, dict):
+            for key, g in grids.items():
+                for k, x in enumerate(g):
+                    v[f"{key}.{k}"] = float(x)
+            n += 1
+    state_json.write_text(json.dumps(d))
+    return n
