@@ -141,7 +141,7 @@ std::vector<std::string> mark_keys(const std::vector<rule>& rules) {
     for (const char* x : {"zzpk.high", "zzvx.high", "zzxu.high", "zzpk.low", "zzvx.low", "zzxu.low", "zzpk.open", "zzxu.last", "zzxo.last",
                           "cdc.lp", "zzqj.v", "zzvm.c.v", "zzqj.tpv", "zzvm.c.tpv", "zzgh.nb", "zzgh.nb|vol", "zzgh.nb|cnt", "zzgh.nb|snappx",
                           "zzgh.nb|ord", "zzgh.nb|ordvol", "zzmh.hm", "zzgh.nsnap", "zzgh.ntrade", "zzgh.norder", "zzgh.ncancel",
-                          "zzeg.c.high", "zzeg.c.low", "zzeg.c.span"})
+                          "zzeg.c.high", "zzeg.c.low", "zzeg.c.span", "zzjb.b", "zzjb.a", "zzjb2.b", "zzjb.at"})
         k.emplace_back(x);
     return k;
 }
@@ -149,13 +149,19 @@ std::vector<std::string> mark_keys(const std::vector<rule>& rules) {
 double ratio(const double* v) { return v[0] + v[1] ? (v[0] - v[1]) / (v[0] + v[1]) : qnan; }
 
 // One --marks row in mark_keys order; cnt = events per kind with t >= 0.
-void mark_values(const stock& st, const double* cnt, double* o) {
+void mark_values(const stock& st, const double* cnt, double* o, double tm) {
     for (const auto& e : st.emas) *o++ = e.w != 0 ? e.s / e.w : qnan;
     const double buy_sell[2] = {st.buy, st.sell};
     for (double x : {st.high, st.high, st.high, st.low, st.low, st.low, st.open, st.last, st.last, st.last, st.vol, st.vol, st.amt, st.amt,
                      ratio(buy_sell), ratio(st.nb_vol), ratio(st.nb_cnt), ratio(st.nb_snappx), ratio(st.nb_ord), ratio(st.nb_ordvol), st.hm,
                      cnt[0], cnt[1], cnt[2], cnt[3], chan_high(st), chan_low(st), chan_span(st)})
         *o++ = x;
+    const auto& jb = std::get<zzjb>(st.fams);
+    const auto& jb2 = std::get<zzjb2>(st.fams);
+    *o++ = jb.out_b(tm, st);
+    *o++ = jb.out_a(st);
+    *o++ = jb2.out_b(tm, st);
+    *o++ = (st.last > 0 && st.pc > 0) ? st.last / st.pc - 1.0 : qnan;  // the return on the last trade price (slot 5 writes [+0xf8])
 }
 
 }  // namespace
@@ -247,14 +253,14 @@ int main(int argc, char** argv) {
             }
             for (std::uint64_t i = ranges[r].first; i < ranges[r].second; ++i) {
                 const event& e = ev[i];
-                for (; j < nm && marks[j] < e.t; ++j) mark_values(st, cnt, mrow + j * nk);  // every event at or before the mark is in
+                for (; j < nm && marks[j] < e.t; ++j) mark_values(st, cnt, mrow + j * nk, marks[j]);  // every event at or before the mark is in
                 if (e.t >= 0 && e.kind >= 0 && e.kind < 4) cnt[e.kind] += 1;
                 if (e.kind == 0) on_snap(st, cr, e.t, e.s, e.lsod, e.price, e.f[0], e.f[1], e.f[2], e.f[3], e.f[4], e.f[5], e.f[6]);
                 else if (e.kind == 1) on_trade(st, cr, e.t, e.s, e.price, e.f[0], e.f[1]);
                 else if (e.kind == 3) on_cancel(st, cr, e.t, e.s);
                 else on_order(st, cr, e.t, e.s, e.price, e.f[0], e.f[1]);
             }
-            for (; j < nm; ++j) mark_values(st, cnt, mrow + j * nk);
+            for (; j < nm; ++j) mark_values(st, cnt, mrow + j * nk, marks[j]);
             out[r] = dump(st, rules);
         }
     };

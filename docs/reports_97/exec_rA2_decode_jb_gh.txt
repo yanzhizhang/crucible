@@ -1,0 +1,9 @@
+Term outputs (slot 7) decoded, 1127 evening. rodata values via /work/r231/rodata.py (libCtePolicyBTE.so): 17c9f0 1.0, 17c9a0 -0.03, 17c9a8 -0.01, 1771c0 0.01, 17c9b0 0.03, 17bd70 25.0, 17ca20 5.0, 17a980 5400, 17a990 18000.
+ZZJB slot 7 @ f5a60: t = TermCFH trading clock (<= 0 -> outputs 0); r = [+0xf8] / [+0x100] - 1 (price / prev close); eax = 0 if r > -0.03 (then 1 / 2 / 3 for > -0.01 / > 0.01 / > 0.03, unreachable after the first test), b = 4 - eax, so b = 4 if r > -0.03 else 0 (b stays 0 when r <= -0.03);
+ idx = floor(t / [+0x148]) (int), 0 <= idx < [+0x14c]; out[0] = 25 idx + 5 b + arr[+0x170][idx], out[1] = r.
+ Model columns: lgb_fn_v1_209_cte.csv line 33 zzjb.b (col 31), 88 zzjb2.b (col 86), 68 zzgh2.b (col 66), 93 zzgh.b (col 91). pm_lgb_meta 202611 fit1 s1 ranges: col 31 [-0.20017, 0.20115] (1108 splits), col 86 [-0.20017, 0.20115] (356) -> zzjb.b / zzjb2.b = the return r; col 91 [0, 999] (905), col 66 [0, 1499] (995).
+ r27_both.json had: zzjb.b '-gen.lee30_14400', zzgh2.b 'rank:gen.rete150', zzhj 'gen.ofi_level1_norm_60s', zzfb.b 'rank:gen.lpma1800', zzfb2.a 'rank:gen.rpe75'.
+ZZGH slot 7 @ e5200 (raw via /work/r231/slotdump.py -> data/reports/rS_zzgh7.txt): t = TermCFH clock (<= 0 -> 0); P = int [+0x180]; k = floor(t / P) - (fmod(t, P) < P / 2); k <= 0 -> 0;
+ meanA = mean of the vector [+0x100] (via 133ca0), meanB = mean of [+0x140]; x = (meanB - meanA) / (meanA + meanB) - [+0xf8]; bucket b = 4 / 3 / 2 / 1 / 0 for x > 0.6 / > 0.2 / > -0.2 / > -0.6 / else;
+ out[0] = x, out[1] = 25 k + 5 b + arr[+0x1a8][k]. Ranges 0..999 / 0..1499 imply k <= 39 / 59 -> P = 360 s (zzgh) / 240 s (zzgh2) if over the 14220 s session (inference).
+rA2 (zzjb2.b assigned the packed out[0] by mistake): IC start 0.5652 (rA1 0.5758), 103 of 209 columns, corr 0.4728, |d| med 0.0026528, q90 0.0041359, <=1e-3 0.0457.
