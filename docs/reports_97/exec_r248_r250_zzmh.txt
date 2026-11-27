@@ -4,3 +4,7 @@ r248-r250 on 97 (20261119): zzmh.r.
  r248 market-batch ticks / r249 index-stream ticks as the update clock: 0 exact (rejected).
  cfg.json term[57]: zzmh type ZZMH hl=10 m=3 s=2 -> the engine had half-life 1.
  r250 half-life 10 (families/zzmh.py + cpp zzmh.hpp): zzmh.hm 1.000; r.sum within 1e-9 0.003, 1e-6 0.287, 1e-3 0.993, PM/ours 0.999999 (0.99996 .. 1); r.t 0.017 / 0.993 / 0.997; r.wgt 0.000 / 0.290 / 0.997.
+clock probes after r250 (1119):
+ PM .jz t - our t (engine_pm, ms) q0/10/50/90/100: SH zzmh.r.t / zzba.p.t / zzeb.r.t -6 / -5 / -5 / -0.7 / +2.9996e4 (exact 0.027); SZ -19 / -11 / -9 / -8 / -6 (exact 0); zzhj.p.t SH -12 / -2.3 / 0 / 1 / 2 (exact 0.303), SZ -20 .. -5; zzui.r.t SH -11 / 0 / 1 / 2 / 2 (0.303), SZ -21 .. -8; zztx.r.t SH -646 .. +9.7, SZ -846 .. -22.
+ candidates for PM's stamp of the stock's last snapshot (within 1e-6 s): own mp recv SH 0.027 / SZ 0; first arrival of the same exchange batch SH 0.011 / SZ 0; previous message in the stream 0 / 0; previous snapshot 0 / 0. Examples: SH 600221 PM 14530.945 own 14530.947; SZ 630 PM 14508.162 own 14508.171, 2027 PM .313 own .321.
+ chrono srcEpoch (224 live, pm_signals state) - nearest mp recv (ms) q1/10/50/90/99: SH -999 / -872 / -521 / -102 / +47; SZ -511 / -413 / -265 / -178 / -171; never within 1 us -> not the .jz clock.
