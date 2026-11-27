@@ -1,0 +1,18 @@
+rT on 97: crucible's term_sig.py (md5 b610b616) + exec_locate.py (d511f4b6) installed; cfg /work/exec_x/exec/cfg.json (18917 B). term_sig: "96 classes, 12 shared shapes" -> /work/exec_x_asm/term_sig.txt (362 lines); exec_locate -> /work/exec_x_asm/exec_locate.txt (199 lines).
+# code-shape groups (slot, skeleton, insns): classes [consts]
+ s0 sk=7e07be15 n=1 x4: N3cte12snapte_EventE | N3cte13tradete_EventE | N3cte15full_pass_EventE | N3cte9WgtAdjustE
+ s1 sk=70b5566b n=2 x4: the same four
+ s7 sk=98ec46a1 n=90 x4: ZZOE[20,-5,5,0.693147] | ZZRB[20,-5,5,0.693147] | ZZSO[20,-5,5,0.693147] | ZZWF[20,-5,5,0.693147]
+ s8 sk=a23cc791 n=57 x3: ZZAL | ZZWA | ZZXC
+ s8 sk=efa6b1c3 n=14 x3: ZZGW | ZZMS | ZZVC
+ s7 sk=54a69378 n=15 x2: ZZCB | ZZTX
+ s7 sk=8f0b3def n=81 x2: ZZAV[20,0.693147] | ZZKO[20,0.693147]
+ s8 sk=f2b4c98b n=29 x2: ZZQI | ZZUG
+ s12 sk=4166d542 n=278 x2: ZZBA[20,nan,1e-10,0.693147] | ZZPK[20,nan,1e-10,0.693147]
+ s12 sk=47cabb1d n=226 x2: ZZQJ | ZZVM
+ s12 sk=7cc82c2b n=296 x2: ZZEB[20,nan,1e-10,0.693147] | ZZUP[20,nan,1e-10,0.693147]
+ s12 sk=9cc1f9c2 n=210 x2: ZZCB | ZZTX
+ # classes with at least one unique-shape slot (93): 6hAlpha CFH N3cte11DenoiSGraphE N3cte12snapte_EventE ... (cut)
+rA6 (zzhj.out1/out2 = sum x*log(mid / yesterday's zzhj.c[idx]) / mean(zzhj.p), idx 30 s slot / quarter hour; yesterday from 20261118.jz):
+ marks: out1 mean -0.2835 std 1.9355 min -21.46; out2 mean -1.711 std 11.756 min -141.87 (unbounded; model col range -0.97..1.59)
+ out1 IC 0.5853 corr 0.49562 | out2 IC 0.5865 corr 0.4964 (proxy 0.5898) -> not the formula; stop guessing (user: decode from the asm).

@@ -84,6 +84,8 @@ struct decoded : family {
     pm_ema hj, tx, eb1, eb2, ui;
     slot_first hj_slot, ui_slot;
     double hj_prev = 0, hj_last = std::nan(""), amt_now = std::nan(""), kama = std::nan("");
+    double hj_cy[16] = {};      // yesterday's zzhj.c.0..15 (CRUCIBLE_HJ_PREV), read before today's overwrite
+    double hj_acc1 = 0, hj_acc2 = 0;  // [+0x100]: sum of x * log(mid / c_yesterday[idx]); 1 = idx on the 30 s slot, 2 = quarter-hour index
     std::deque<double> ui_win;
     double buy_q = 0, buy_a = 0, sell_q = 0, sell_a = 0;
     decoded() {
@@ -114,6 +116,12 @@ struct decoded : family {
         amt_now = amount;
         if (hj_slot.take(t)) {  // zzhj.p: amount since the previous update, at the first snapshot of each slot
             hj_last = amount - hj_prev;
+            if (!std::isnan(px) && px > 0 && hj_last > 0) {
+                long i1 = static_cast<long>(std::floor(t / hj_slot.step));
+                long i2 = static_cast<long>(std::floor((t + 30.0) / 900.0));
+                if (i1 >= 0 && i1 < 16 && hj_cy[i1] > 1e-10) hj_acc1 += hj_last * std::log(px / hj_cy[i1]);
+                if (i2 >= 0 && i2 < 16 && hj_cy[i2] > 1e-10) hj_acc2 += hj_last * std::log(px / hj_cy[i2]);
+            }
             hj.update(t, hj_last);
             hj_prev = amount;
         }
@@ -153,6 +161,8 @@ struct decoded : family {
     }
     // ZZHJ term output (slot 7 @ e5150): [+0x100] / (s / w) of the zzhj.p average = its last input over its mean (0 before 09:30).
     double hj_out_last() const { return (hj.has_t && hj.w != 0 && hj.s != 0) ? hj_last / (hj.s / hj.w) : std::nan(""); }
+    double hj_out1() const { return (hj.has_t && hj.w != 0 && hj.s != 0) ? hj_acc1 / (hj.s / hj.w) : std::nan(""); }
+    double hj_out2() const { return (hj.has_t && hj.w != 0 && hj.s != 0) ? hj_acc2 / (hj.s / hj.w) : std::nan(""); }
     double hj_out_now() const { return (hj.has_t && hj.w != 0 && hj.s != 0) ? (amt_now - hj_prev) / (hj.s / hj.w) : std::nan(""); }
     void dump(std::string& o, const tape&) {
         if (!on) return;

@@ -2,6 +2,8 @@
 //   engine <events.bin> <rules.tsv | -> <out.json> [--prev prev.bin] [--chan chan.bin] [--band band.bin] [--threads N] [--marks t1,t2,... --marks-out marks.bin]
 // rules.tsv "-" = the built-in table of the family classes (families/*.hpp); engine --print-rules prints it.
 // --marks also writes the state as of each trading-clock mark (every event with t <= mark applied) for the model scan.
+#include <cstdlib>
+#include <array>
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -134,6 +136,24 @@ std::string dump(stock& st, const std::vector<rule>& rules) {
     return o;
 }
 
+// CRUCIBLE_HJ_PREV: "sid v0 .. v15" per line = yesterday's zzhj.c.0..15 (the ZZHJ output's per-slot reference).
+const std::map<int, std::array<double, 16>>& hj_prev_map() {
+    static const std::map<int, std::array<double, 16>> m = [] {
+        std::map<int, std::array<double, 16>> out;
+        const char* p = std::getenv("CRUCIBLE_HJ_PREV");
+        if (!p) return out;
+        std::ifstream f(p);
+        int sid;
+        while (f >> sid) {
+            std::array<double, 16> a{};
+            for (double& x : a) f >> x;
+            out[sid] = a;
+        }
+        return out;
+    }();
+    return m;
+}
+
 // Keys of one --marks row: each rule's value (sum / wgt), then the running scalars, then event counts from 09:30.
 std::vector<std::string> mark_keys(const std::vector<rule>& rules) {
     std::vector<std::string> k;
@@ -141,7 +161,7 @@ std::vector<std::string> mark_keys(const std::vector<rule>& rules) {
     for (const char* x : {"zzpk.high", "zzvx.high", "zzxu.high", "zzpk.low", "zzvx.low", "zzxu.low", "zzpk.open", "zzxu.last", "zzxo.last",
                           "cdc.lp", "zzqj.v", "zzvm.c.v", "zzqj.tpv", "zzvm.c.tpv", "zzgh.nb", "zzgh.nb|vol", "zzgh.nb|cnt", "zzgh.nb|snappx",
                           "zzgh.nb|ord", "zzgh.nb|ordvol", "zzmh.hm", "zzgh.nsnap", "zzgh.ntrade", "zzgh.norder", "zzgh.ncancel",
-                          "zzeg.c.high", "zzeg.c.low", "zzeg.c.span", "zzjb.b", "zzjb.a", "zzjb2.b", "zzjb.at", "zzhj.o1", "zzhj.o2"})
+                          "zzeg.c.high", "zzeg.c.low", "zzeg.c.span", "zzjb.b", "zzjb.a", "zzjb2.b", "zzjb.at", "zzhj.o1", "zzhj.o2", "zzhj.out1", "zzhj.out2"})
         k.emplace_back(x);
     return k;
 }
@@ -165,6 +185,8 @@ void mark_values(const stock& st, const double* cnt, double* o, double tm) {
     const auto& dz = std::get<decoded>(st.fams);
     *o++ = dz.hj_out_last();
     *o++ = dz.hj_out_now();
+    *o++ = dz.hj_out1();
+    *o++ = dz.hj_out2();
 }
 
 }  // namespace
@@ -244,6 +266,8 @@ int main(int argc, char** argv) {
                 st.band_seed[1] = b->second.lower;
                 st.band_seed[2] = b->second.dir;
             }
+            if (auto h = hj_prev_map().find(ev[ranges[r].first].sid); h != hj_prev_map().end())
+                for (int k = 0; k < 16; ++k) std::get<decoded>(st.fams).hj_cy[k] = h->second[k];
             auto it = prev.find(ev[ranges[r].first].sid);
             if (it != prev.end())
                 for (const auto& p : it->second) st.seed(p.rule, rules[p.rule].seed, p.sum, p.wgt);
