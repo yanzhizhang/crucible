@@ -1,0 +1,6 @@
+r248-r250 on 97 (20261119): zzmh.r.
+ peek (engine_pm): our zzmh.r.wgt = 1.0 for every stock; PM / ours wgt q0/10/50/90/100 1.00067 / 1.00192 / 1.1431 / 1.14374 / 1.14394 (SZ ~1.0019, SH ~8/7). PM t 6-9 ms before our last snapshot arrival (600000: PM 14525.061000108719, ours 14525.0669999; sid 1: 14502.161999940872 vs 14502.171).
+ PM-feed snapshots near the close: SZ sid 1 every 9 s to 53991, then 54001.544 and 54102.171; SH 600000 every 30 s after 15:00 (54005 .. 54155).
+ r248 market-batch ticks / r249 index-stream ticks as the update clock: 0 exact (rejected).
+ cfg.json term[57]: zzmh type ZZMH hl=10 m=3 s=2 -> the engine had half-life 1.
+ r250 half-life 10 (families/zzmh.py + cpp zzmh.hpp): zzmh.hm 1.000; r.sum within 1e-9 0.003, 1e-6 0.287, 1e-3 0.993, PM/ours 0.999999 (0.99996 .. 1); r.t 0.017 / 0.993 / 0.997; r.wgt 0.000 / 0.290 / 0.997.
