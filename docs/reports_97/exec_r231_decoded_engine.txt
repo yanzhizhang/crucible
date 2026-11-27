@@ -1,0 +1,25 @@
+r231 on 97: crucible 1412ece engine change (decoded family) applied, then FROM=3 bash research/add_day.sh 20261119 | tee data/reports/add_20261119_dz.txt (58 lines). Transcribed from screen.
+Installed on 97 (not in git; md5 gate passed, installed md5 = list): research/engine/cpp/families/decoded.hpp 7cb95175c62824d13ccafa28631b04f8, all.hpp e8b41847b5bf292894d06c80651c77f9, research/engine/export.py 89f24c62bda92d000d8c03fc41505791, lake.py 5f6ceba2a0de09f9b3215598c53b9c64 (did not exist on 97 before: backup cp said "cannot stat"), research/add_day.sh 0f1ea9606412c0e97140feaaaf68f8b4. Originals of the other four in /work/r231/*.orig. 17-line constants file at /work/crucible_data/private/runtime_consts.tsv (contents not recorded here).
+A stale-clipboard re-paste of the install bundle happened once and was cancelled with ctrl+c at its start (no second install).
+
+[08:21:27] 1 2.23: hstats 20261119, stsfile, PM state files
+[08:21:27]   SKIP23 set: no 2.23 access; using what is on 97
+  PM state: D-1 = 20261118 , 20261119.jz present
+[08:21:27] 2 target
+  target rows 1364989 stocks 300
+[08:21:27] 3 full_book + engine state for 20261119
+  catalog_dysl2 quotes on 20261119: 21856308
+  full_book_dysl2/date=20261119.parquet 15757346 B (08:21); data/engine/marks_20261119.parquet 15412635 B (08:22)
+[08:22:24] 4 R17 / R24 / R24 gated on 20261119
+[08:25:25]   r17 (102 columns): 20261119 0.5547
+[08:27:08]   r27both (103 columns): 20261119 0.5684
+[08:28:58]   r24 (116 columns): 20261119 0.5485
+[08:30:01]   r24g (98 columns): 20261119 0.5540
+20261119: model generation 55f31009 (202611): training-CDF points for 138 features
+[08:30:01] 5 day-end state against PM's 20261119.jz   (table, share within tolerance)
+ zzqj.v 1.0000; zzui.r.* (mean) 1.0000; zzvm.c.tpv 1.0000; zzvm.c.v 1.0000; zzvx.high 1.0000; zzvx.low 1.0000; zzxo.last 1.0000; zzxo.r.* (mean) 1.0000; zzxu.high 1.0000; zzxu.last 1.0000; zzxu.low 1.0000
+== median relative error (clock rows: median PM - ours, s)   shape (18, 2)
+ clock.fast ~ *.t (mean) -0.0049; zzgh.nb 0.0077; zzmh.hm, zzpk.high, zzpk.low, zzpk.open, zzqj.tpv, zzqj.v, zzui.r.* (mean), zzvm.c.tpv, zzvm.c.v, zzvx.high, zzvx.low, zzxo.last, zzxo.r.* (mean), zzxu.high, zzxu.last, zzxu.low all 0.0000
+scores: data/reports/stage4/dcp_build_scores.csv, built values: data/reports/stage4/dcp_build.parquet
+[08:30:04] done 20261119
+grep of the log for zzhj|zztx|zzeb|zzui|decoded|warning|error|Traceback|rebuil|g++|cmake: only 3 hits, all "zzui.r.* (mean)" at lines 19, 31(header "== median relative error"), 46; no build/compile line, no zzhj/zztx/zzeb row.
