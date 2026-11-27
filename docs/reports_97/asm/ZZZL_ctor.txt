@@ -47,3 +47,11 @@ Day loop / scale (writers of [rsp+0x78] / [rsp+0x50]):
  139627 mov [rsp+0x78],0x0 -> day offset starts at 0; 13a9be add [rsp+0x78],0x8 -> +8 bytes (one double) per day; 13a9b1 add [rsp+0x58],0x1 -> a day counter alongside (date step); 13a9b7 add rdx,[rax+0x1f8].
  13969c mulsd xmm6,[rax+rcx]; 1396a9 rax=[rsp+0x58]; 1396ae rdi=[rcx+0x238]; div rdi; 1396b8 rax=[rcx+0x230]; 1396bf movsd [rsp+0x50],xmm6 -> index pass scale = a hub map value (buckets at +0x230 / count +0x238), times something.
  => the stock minute table (+0x1b0, R4 "* [rsp+0x50]") and X / U are scaled by the same factor +0x250 (not raw). Day 0 = first loop pass; its date not read yet.
+Hub members and the day counter:
+ 13930a call 71c70; r14=[rsp]; 139313 lea rdi,[rax+0x110]; rsi=rbp (name); call c73f0; [r14+0x250] = value   (adjustment factor)
+ 13933e lea rdi,[rax+0x148]; call c73f0; [r14+0x258] = value | 139363 lea rdi,[rax+0x180]; call c73f0; [r14+0x260] = value | 139381 rsi=rbp; lea rdi,[rax+0x1b8]; call c73f0; [r14+0x268] = value
+ -> +0x250 / +0x258 / +0x260 / +0x268 = four per-stock values from hub maps @0x110 / 0x148 / 0x180 / 0x1b8 keyed by the name; then the in-place X / U * +0x250 loop (1393c3..13943f; 1393bd je 1394bc skips it when the vector is empty).
+ [rsp+0x58]: 13963b mov [rsp+0x58],0x1 (init 1); 13a9b1 add [rsp+0x58],0x1 per day; read at 139670 (date build), 1396a9 (index factor key: div by the map's bucket count [rcx+0x238]), 1396d1, 139aa6, 13a043, 13a450.
+ -> day pass k (offset [rsp+0x78] = 8k) uses lag [rsp+0x58] = k + 1: day 0 = lag 1 (D-1, inferred from the counter), and the index factor is per lag.
+ Branches into 1392xx..1394xx: 13920f je 139222, 13926a jle 13930a, 1392b8 je 1392cb, 1392d6 je 1392e9, 139304 jl 139270, 1393bd je 1394bc, 13942c je 1394a6, 139483 jne 139470, 139490 je 1394a6, 1394b1 jne 1393f0, 13958a jmp 1394a6, 13ab62 / 13aba8 / 13acee jle-je 1394d8, 13abe5 / 13ad36 jmp 1394d8.
+ Order: the in-place loop is at lower addresses than the day-loop fill (13963b..13aa55); whether it runs before the fill (on empty / NaN vectors, then harmless) is not yet proven.
