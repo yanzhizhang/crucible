@@ -1,0 +1,5 @@
+rA1 on 97 (20261119, rand:240 marks, PM models tk5m, fits livev1_fit1,2,3, r27_both.json assignment, --dump-pred --dump-x). ic_score.py with crucible's --engine-all edits: md5 80badb64d4afd95379aade6fffdf47f5, 127519 B (orig kept at /work/r231/ic_score.py.orig).
+ A (--engine-dir data/engine_pm --engine-all, hybrid PM-feed engine): rc 0, 20:34:42-20:37:37; IC: start 0.5758 -> end 0.5758 (t 60.88, 240 marks); 102 of 209 columns assigned
+   pred.parquet cols [date, sid, mark, ours, pm] 72000 rows; n 69827 corr 0.48278 |d| median 0.0026649 q90 0.0041372; within 1e-6 0.0; within 1e-3 0.0465
+ B (no engine): identical to A in every printed number (IC 0.5758, corr 0.48278, |d| med 0.0026649).
+ -> the engine columns change nothing under r27_both.json (no model column uses the new stems; crucible: model features are term OUTPUTS, e.g. zzjb2.b, zzgh.b, zzhj, zzfb.b, not the slot state); 107 of 209 model columns are unassigned.
