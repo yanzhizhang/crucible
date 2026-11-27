@@ -13,3 +13,7 @@ rA9 (DZ_ON_DAY=1 on 97: decoded.daily_consts takes samplerS folder D; decoded.py
  -> neither day nor I nor a transform explains zzel msr / SRisk scoring below the r27 proxies (0.5898 / 0.50205).
 User (2026-11-27): barra should come from T-1, since on day T barra only produces T-1 data.
 rA10 (BARRA_PREV=1 env in decoded.py on 97, 05ac86c0: latest *_stats.nc before D): "constants for 5223 stocks from ['ZZSQ 20261118', 'ZZDS 20261118', '20261118_stats.nc']"; IC 0.5704 (104 of 209), corr 0.49079, |d| med 0.0026224, <=1e-3 0.0593 (D's stats: 0.5702 / 0.49064). Barra day: a very small effect; zzel still below the r27 proxies (0.5898).
+rA11 (rA3_a + zzel.a ced.dz.ZZDS.msr, zzel.b ced.dz.barra.SRisk, zzop.h/i/j ced.dz.ZZSQ.ab/a/b; BARRA_PREV; --scale-report 'zzel|zzop'): IC 0.5083 (106 of 209 assigned).
+ scale report: zzel.a ced.dz.ZZDS.msr | ced | NaN ... ic NaN NaN; zzop.j ced.dz.ZZSQ.b | ced | NaN ... ic NaN NaN; zzel.b ced.dz.barra.SRisk | ced | NaN ... weak NaN NaN; zzop.i ced.dz.ZZSQ.a | ced | NaN ... weak NaN NaN
+  (other rows: zzop.a |gen.ld11800|*1e4 | 0.147 | a 2.173 b -17.52 | 0.028 | ... ; zzop2.b | gen.trading_seconds_since_0930 | 0.089 | a 0.1532 b -6.825 | ...)
+ -> every ced.dz.* column is NaN in the scored matrix although "decoded start-up constants for 5223 stocks" loads: the constants never join the per-mark rows. rA7..rA10 measured the model's missing path, not the decode.
