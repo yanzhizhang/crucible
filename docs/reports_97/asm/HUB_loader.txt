@@ -1,0 +1,13 @@
+Hub (shared data object) in libCtePolicyBTE.so, 20261127 late.
+71c70 = static-local getter: guard byte [rip+0x146513]; first call builds the global object (around 0x1b7e10: empty containers, one float/double constant) and returns its address; no file loading there.
+hubref.py (every call to 71c70 + hub offsets touched in the next 12 insns, by enclosing FDE) -> /work/crucible/data/reports/asm/hubref.txt: 107 calls.
+ +0xf8 1388e0 | +0x100 1388e0 | +0x110: 1000e0 109c60 115ec0 11a700 11aec0 11bfd0 120d30 124400 12bba0 130660 1369e0 1388e0 146e10 c9340 cdb60 cf550 d7b80 dcbc0 df4e0 e22d0 e8720 f3190 f8ca0
+ +0x140 146e10 ef040 | +0x148 1388e0 146e10 dcbc0 | +0x160 1388e0 | +0x170 109c60 120d30 1388e0 d7b80 | +0x178 109c60 11a700 120d30 d7b80 f8ca0 | +0x180 1000e0 11a700 1388e0 146e10 dcbc0 f8ca0
+ +0x188 1000e0 dcbc0 | +0x190 df4e0 | +0x198 11aec0 df4e0 | +0x1a0 11aec0 c9340 cdb60 | +0x1a8 c9340 cdb60 dcbc0 | +0x1b0 130660 dcbc0 | +0x1b8 130660 1388e0 146e10 dcbc0 e8720 | +0x1c0 dcbc0 e8720 | +0x1c8 dcbc0
+ +0x1d0 12bba0 | +0x1d8 12bba0 | +0x1e0 115ec0 | +0x1e8 115ec0 1369e0 | ... | +0x218 11bfd0 cf550 e22d0 | +0x220 11bfd0 cf550 | +0x230 146e10 | +0x250 1388e0 | +0x258 1388e0 | +0x260 124400 1388e0 | +0x268 124400 1388e0 146e10 | +0x270 / 0x278 1388e0 | +0x290 / 0x298 f3190 | +0x2a0 146e10 | +0x2b0 b6fc0 | +0x2d8 146e10
+ -> 146e10 touches +0x110 / 0x140 / 0x148 / 0x180 / 0x1b8 / 0x230 / 0x268 / 0x2a0 / 0x2d8: the loader.
+strs.py over 146e10..149000 (40 bytes before | 8 after each rodata target):
+ config_path.map::at.prod_root.YYYYMMDD.|univ.HS3 ; ...univ.HS300.399300.SZ.hs300.ZZ500.|CSI 300 ; .SZ.CSI Smallcap 500 Index.zz1000.000852|.SH.CSI ; wrong univ name.000852.SZ.|/CEDxr4d
+ /h/HS300 ... /sod/p1_intrading_dcp/YYYYMMDD.jz ; /CEDxr4d/index/YYYYMMDD.nc ; basic_string::erase ; ret_adj ; PBeta ; /CEDxr4d/daily/YYYYMMDD_SOD.nc ; /CEDxr4d/daily/p1/YYYYMMDD_SOD.nc ; .../p2/... ; .../p3/... ; finish to save cp.%Y-%m-%d %H:%M:%S ; ent.publishEvent.hAlpha.end_time_ = {}
+ -> inputs: prod_root / YYYYMMDD templates; univ HS300 -> index 399300.SZ (CSI 300); variables ret_adj (daily SOD, p1 / p2 / p3 = previous days) and PBeta.
+ Map-to-variable assignment (which of +0x110 / 0x148 / 0x180 / 0x1b8 / 0x230 / 0x1f8 holds ret_adj / PBeta / ...) not yet read.
