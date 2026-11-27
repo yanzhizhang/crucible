@@ -1,0 +1,9 @@
+r236/r237 on 97: zzhj.c sampling rule. PM's .jz zzhj.c has 474 slots; only 0..15 carry values (quarter-hour mids), 16..473 are 0 (jz peek of sids 1, 600000, 300750). Variants dumped by the engine and compared with /work/r231/varcmp.py over 300 stocks, exact share at 1e-9 per sample k = 0..15:
+ last-before, trading clock (old)      mean 0.6256 (k15 0.31)
+ strict-before, exchange clock         mean 0.4202
+ last-before, exchange clock           mean 0.5729 (k2-6 0.06-0.08)
+ FIRST at/after, exchange clock        mean 0.9998 (k15 0.997)
+ last-before h-3 s / h+3 s, exchange   0.4056 / 0.5096
+ FIRST at/after, local clock           mean 1.0000 (every k 1.00)  <- adopted (status pinned)
+ SH / SZ split of exchange variants: SH first-after 0.9997.
+Engine 26 s per run. zzhj.c.16..473 = 0 written, so zzhj over 474 keys now 0.9874 with the old 16 (before the fix).
