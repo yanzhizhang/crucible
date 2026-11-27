@@ -21,3 +21,12 @@ rB: per-session scoreboard (sess.py on pred.parquet; --sub-by-time s1:600,s2:180
  +zzel     0.2327 / 0.002591 / 0.0748      0.2340 / 0.000746 / 0.7287   0.3275 / 0.000222 / 0.9814   0.3925 / 0.000454 / 0.8500   (all 0.1620, 0.000284, 0.8965)
  +zzel+op  0.2002 / 0.002281 / 0.1555      0.2768 / 0.000794 / 0.6932   0.3362 / 0.000224 / 0.9796   0.3939 / 0.000460 / 0.8327
  -> decoded zzel and zzop raise corr in s2 / s3 (s3 = 74 % of rows); zzop lowers s1 |d| (0.00259 -> 0.00228, within 1e-3 0.075 -> 0.156). The s1-only 0.5083 was an artifact.
+s1 by minute (rB_zzelop pred.parquet): marks <= 0: 0 (min mark 38 s; 12 distinct s1 marks)
+ min 1 (t<=60) n 300 bias +0.002304 |d| med 0.002206 ours mean +0.002272 pm mean -0.000032 corr 0.175
+ min 2 (<=120) n 599 bias +0.002453 |d| 0.002443 ours +0.002325 pm -0.000128 corr 0.001
+ min 4 (<=240) n 898 bias +0.002426 |d| 0.002313 ours +0.002343 pm -0.000083 corr 0.299
+ min 6 (<=360) n 300 bias +0.002459 |d| 0.002363 ours +0.002313 pm -0.000146 corr 0.201
+ min 7 (<=420) n 600 bias +0.002268 |d| 0.002226 ours +0.002192 pm -0.000076 corr 0.272
+ min 8 (<=480) n 299 bias +0.002018 |d| 0.002038 ours +0.002053 pm +0.000034 corr 0.389
+ min 10 (<=600) n 599 bias +0.002447 |d| 0.002373 ours +0.002351 pm -0.000096 corr 0.150
+ -> flat constant offset of about +0.0023 in ours across 09:30-09:40 (PM mean ~0): model-side for s1 (base score / demeaning / file), not the start-of-day state.
