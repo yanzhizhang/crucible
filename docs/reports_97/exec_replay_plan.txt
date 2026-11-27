@@ -1,0 +1,10 @@
+Replay of PM's factor runtime on 97 (user yes in the Mac session: "Yes, sandboxed replay"), 2026-11-28.
+Package /work/exec_x/exec: boot_bte.sh (LD_LIBRARY_PATH=./lib; ./policyserver_bin), cfg.json, config/ (BTE_MD.xml, futuresinfo.csv), lib/, libCtePolicyBTE.so, mysql.xml, policyserver.xml, policyserver_bin (not executable bit), signal.json, tradinghour.xml.
+ policyserver.xml: <md type="bte" name="BTE" configfile="./config/BTE_MD.xml"/>; <policy name="cte" so="libCtePolicyBTE.so" status="1"> autostart, param config_path ./cfg.json, md ref BTE; placeholder auth / users (no real credentials).
+ BTE_MD.xml: type bte, mode 0, snap_buf_size 32, ot_buf_size 32, arranged_by local, speed 0, futuresinfo ./config/futuresinfo.csv, conf file /mnt/huge/datayes_shares;/mnt/huge/datayes_shares_order_transaction, force true.
+ signal.json: type tcp, address 127.0.0.1, port 19845, with_crc true, need_connect true, lgbm_config "num_threads=1".
+ mysql.xml: host / user / password / port masked; database_future kbars, database_stock kbars -> outward network: to be blocked (no-network namespace).
+ ldd: libqtapi.so (./lib), libstdc++.so.6 (./lib), libgcc_s.
+Input check for 20261119 (cfgpaths.py; prod_root /tmp/data/prodfiles -> 97 copies): ok: models tk5m/202611 fit1-3 model_s1 (SESSION), lgb_fn_v1_209_cte.csv, hstats samplerS ZZXC ZZWA ZZVC ZZTS ZZSQ ZZQO ZZQI ZZMS ZZHL ZZGW ZZDS (+ sampler.nc), ZZUG samplerSS, samplerR ZZCR ZZAL ZZAC, CEDxr4d index / barra stats / barra exp / daily SOD.
+ streams (9 .mp: SH/SZ HS300 snap / trade / order / index, SH_ZZ1000_index, SZ_ZZ500_index ...) -> /work/crucible_data/pm_mp/20261119. MISSING at prodfiles path: h/HS300/sod/p1_intrading_dcp/20261119.jz (held in seed_probe/HS300).
+Plan: /work/pmrun/<D>/ copy of exec, cfg.json with paths remapped to /work, run under `unshare -n` (loopback only) with a dummy TCP listener on 19845 inside the namespace; asked chrono (session chrono [f00157]) which input drives the terms (BTE datayes files vs cfg streams), BTE's file layout, whether mysql / the signal peer are required, and any feature-dump option.
