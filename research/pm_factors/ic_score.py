@@ -523,6 +523,8 @@ def build_dir(args, d: str, state: Path, target: Path | None) -> Path | None:
     code = [inspect.getsource(m) for m in mods] + [inspect.getsource(fn) for fn in (generic, index_relative, index_series, pm_daily, profile_marks, seed_state, seed_feats)]
     parts = [BUILD_REV, HORIZON, MARKS.tolist(), args.profiles, str(args.hstats), str(args.pm_cache), str(args.pm_stsfile), args.pm_sts_day, STS_MAP.get(d), str(args.seed_dir), args.seed_map, args.ced,
              str(args.ced_xr), args.target_stale, stamp(args.engine_dir / f"marks_{d}.parquet"), args.order_flow]
+    if args.engine_all:  # every engine column in the pool: its own builds
+        parts.append("engine_all")
     if os.environ.get("CRUCIBLE_SIMB_EXACT") == "0":  # the old tie-breaking of the snapshot-signed flows: its own builds
         parts.append("simb_legacy")
     if os.environ.get("CRUCIBLE_LPE_SNAP") == "1":
@@ -944,6 +946,7 @@ def main() -> None:
     ap.add_argument("--full-book", type=Path, default=None,
                     help="full_book.py output dir (date=D.parquet on the same --marks): whole-book factors as gen.<name>")
     ap.add_argument("--engine-dir", type=Path, default=Path("data/engine"), help="marks_<D>.parquet from run_cpp.py --marks <the same grid>")
+    ap.add_argument("--engine-all", action="store_true", help="every engine column joins the pool and overrides the rebuild (not only the stems the rebuild keeps)")
     ap.add_argument("--marks", default="five", help="five | rand:N[:seed] | a,b,...: the times scored (run_cpp.py --marks must match)")
     ap.add_argument("--target", type=Path, help="pm_signals.py output: score against PM's own live prediction (the latest signal of each "
                                                 "stock at the mark) instead of the forward return; days without a file are skipped")
@@ -1106,7 +1109,7 @@ def main() -> None:
                 gf, gs = fast.get(sid), slow.get(sid)
                 built = FI.rebuild(gf, gs, MARKS)
                 fs = {k.split(".")[0] for k in built}  # only stems the rebuild keeps: zzvm etc. stay on the shared pool (daily ratios)
-                built.update({k: v for k, v in eng.get(sid, {}).items() if k.split(".")[0] in fs})
+                built.update({k: v for k, v in eng.get(sid, {}).items() if args.engine_all or k.split(".")[0] in fs})  # --engine-all: new stems too
                 for k, v in built.items():
                     add(sid, k, v)
                 if sid in dbase and "zzqj.v" in built:  # intraday over daily: amount / volume since 09:30 over 20-day averages, volume over float
