@@ -4,3 +4,9 @@ rA4 (engine marks zzhj.o1 = last zzhj.p input / mean, zzhj.o2 = (current snapsho
  marks: o1 mean 0.96025 std 0.94281 min 0 q25 0.42504; o2 mean 0.42299 std 0.86610 min 0 q25 0.04501 (72000 rows)
  o1: IC 0.5857, corr 0.49619, |d| med 0.0025882, <=1e-3 0.0425 | o2: IC 0.5863, corr 0.49612, |d| med 0.0025782, <=1e-3 0.0445 (rA3_a with the r27 proxy 'gen.ofi_level1_norm_60s': 0.5898 / 0.50205)
 rA5 ('zzhj.o1 - 1' / 'zzhj.o2 - 1' as assignment expressions): 101 of 209 assigned (the expression was not accepted, zzhj dropped): IC 0.5856, corr 0.49525 -> without zzhj at all.
+ZZHJ slot 5 @ e71e0 raw (data/reports/rS_zzhj5.txt; rodata: 34199.99999, 41550, 46799.99999, 54150, 1e-10, 0.5):
+ time gate as ZZJB; t = TermCFH; idx = floor(t / [+0x148]); runs only when idx > [+0x108] (first snapshot of a new slot).
+ mid from the book: bid [rdx], ask [rax+0x20 ..]: both > 1e-10 and not crossed -> (bid + ask) * 0.5, else one side (branches e7450 / e7488 / e7498).
+ x = [rbp+0x60] (snapshot cum amount) - [+0xf8]; call 1329d0 on the Ema at +0x110 (zzhj.p); [+0xf8] = cum amount; call 133d50 (ZZBO slot sampler) on +0x148; [+0x108] = idx.
+ then c = [+0x170][idx] (the sampled reference, zzhj.c); if c > mid ... : r13 / c -> log(...) (call 1b240) ; mulsd ; addsd [+0x100] ; store [+0x100]  -> [+0x100] accumulates a log(price / reference)-weighted term per slot.
+ => zzhj = [+0x100] / mean(zzhj.p); exact form of the accumulated term (what r13 holds, the multiplier) still to pin (rows e7422-e7480).
