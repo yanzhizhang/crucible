@@ -6,3 +6,5 @@ executor cfg: 1123 none on 224 | 1124 / 1125 / 1126 config2_HS300.json + sc.p3.j
 /tmp/s/stsfile on 224: directory (6 entries, Oct 30) - not listed further
 /tmp/o/sig/2026112*/alpha.parquet on 224: 1120 (22361895, 11-20 15:10), 1123 (22614847, 11-23 15:10), 1126 (22354802, 11-26 16:33); no 1124 / 1125 / 1127.
 Not yet checked: model folder (prodfiles/models vs prod_models/tk5m/202611), the cfg.json / featFile QD's run uses.
+Copy (user yes in the Mac session: "Yes, copy all"), read-only at 224, json5 excluded, /work/r231/cp.sh: executor_cfg 1124-1126; prodfiles h/HS300/sod/p1_intrading_dcp 1123-1127 .jz (-L); 1127 CEDxr4d/index, barra stats, 1min_src.
+Re-inventory after the copy (only non-"same" rows printed): pf 20261127 CEDxr4d/sod/barra/20261127_stats.nc missing-97; pf 20261127 1min_src/p1/20261127.nc missing-97 (rsync printed no error; reason not checked). Everything else same. CP_DONE.
