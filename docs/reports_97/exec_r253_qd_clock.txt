@@ -4,3 +4,6 @@ QD alpha.parquet 20261119: columns sid, date, src_epoch, rec_epoch, alpha; 13649
  src_epoch SH -999 / -909 / -540 / -104 / -47, SZ -515 / -417 / -266 / -179 / -171 (exchange-side time).
  PM's .jz t is 2-9 ms BEFORE the .mp recv, so neither QD stamp is the runtime's snapshot clock (crucible: likely QTApi MarketDataField.Timestamp of the 2.23 host; not stored anywhere we have).
  Consequence: the ema families (zzba, zzeb, zzup, zzvx, zzqj, zzpk, zzab2, zzmh.r, zzhj.p, zzui.r) stay at 1e-6 / 1e-3 at day end.
+User (2026-11-27): src_epoch = the exchange timestamp; rec_epoch = when the colo machine recorded the market data.
+ So: the .mp recv = colo receive time truncated to the ms; PM's .jz t sits 2-9 ms BEFORE the colo receive time (SH median -5, SZ -9, jitter several ms),
+ which no process downstream of the colo capture can see -> PM's stamp is from a different host clock (2.23's own receive, clock offset / different feed path), not derivable from rec_epoch.
