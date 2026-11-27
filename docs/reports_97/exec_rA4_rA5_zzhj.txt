@@ -1,0 +1,6 @@
+ZZHJ slot 7 @ e5150 (raw, data/reports/rS_zzhj7.txt): t = TermCFH clock (<= 0 -> out 0); xmm2 = [+0x120]; if 0 -> return (no write); xmm1 = [+0x128] / [+0x120]; if 0 -> return; out[0] = [+0x100] / xmm1.
+ The Ema callee 1329d0 keeps w at +0x10 and s at +0x18 of its object, so with the zzhj.p Ema at +0x110: w = +0x120, s = +0x128 -> out = [+0x100] / (s / w) = [+0x100] / mean. Model col 'zzhj' range -0.97 .. 1.59 (crucible) -> looks like (x / mean) - 1, no subtraction seen in slot 7.
+rA4 (engine marks zzhj.o1 = last zzhj.p input / mean, zzhj.o2 = (current snapshot amount - previous slot amount) / mean; on top of rA3_a):
+ marks: o1 mean 0.96025 std 0.94281 min 0 q25 0.42504; o2 mean 0.42299 std 0.86610 min 0 q25 0.04501 (72000 rows)
+ o1: IC 0.5857, corr 0.49619, |d| med 0.0025882, <=1e-3 0.0425 | o2: IC 0.5863, corr 0.49612, |d| med 0.0025782, <=1e-3 0.0445 (rA3_a with the r27 proxy 'gen.ofi_level1_norm_60s': 0.5898 / 0.50205)
+rA5 ('zzhj.o1 - 1' / 'zzhj.o2 - 1' as assignment expressions): 101 of 209 assigned (the expression was not accepted, zzhj dropped): IC 0.5856, corr 0.49525 -> without zzhj at all.

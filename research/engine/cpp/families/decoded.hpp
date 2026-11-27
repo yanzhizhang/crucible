@@ -83,7 +83,7 @@ struct decoded : family {
     bool on = !runtime_consts().empty();
     pm_ema hj, tx, eb1, eb2, ui;
     slot_first hj_slot, ui_slot;
-    double hj_prev = 0, kama = std::nan("");
+    double hj_prev = 0, hj_last = std::nan(""), amt_now = std::nan(""), kama = std::nan("");
     std::deque<double> ui_win;
     double buy_q = 0, buy_a = 0, sell_q = 0, sell_a = 0;
     decoded() {
@@ -111,8 +111,10 @@ struct decoded : family {
     void on_snap(const tape& tp, double t, double, double lsod, double amount) {
         if (!on || !in_window(lsod) || !(t > 0)) return;
         double px = px_of(tp);
+        amt_now = amount;
         if (hj_slot.take(t)) {  // zzhj.p: amount since the previous update, at the first snapshot of each slot
-            hj.update(t, amount - hj_prev);
+            hj_last = amount - hj_prev;
+            hj.update(t, hj_last);
             hj_prev = amount;
         }
         if (!std::isnan(px)) {  // zzeb.r: -p log2 p, p = the price over the 100 s price average's sum just updated
@@ -149,6 +151,9 @@ struct decoded : family {
         }
         if (buy_q > 0 && sell_q > 0) tx.update(t, sell_a / sell_q - buy_a / buy_q);
     }
+    // ZZHJ term output (slot 7 @ e5150): [+0x100] / (s / w) of the zzhj.p average = its last input over its mean (0 before 09:30).
+    double hj_out_last() const { return (hj.has_t && hj.w != 0 && hj.s != 0) ? hj_last / (hj.s / hj.w) : std::nan(""); }
+    double hj_out_now() const { return (hj.has_t && hj.w != 0 && hj.s != 0) ? (amt_now - hj_prev) / (hj.s / hj.w) : std::nan(""); }
     void dump(std::string& o, const tape&) {
         if (!on) return;
         hj.dump(o, "zzhj.p");

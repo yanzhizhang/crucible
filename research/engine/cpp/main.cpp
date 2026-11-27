@@ -141,7 +141,7 @@ std::vector<std::string> mark_keys(const std::vector<rule>& rules) {
     for (const char* x : {"zzpk.high", "zzvx.high", "zzxu.high", "zzpk.low", "zzvx.low", "zzxu.low", "zzpk.open", "zzxu.last", "zzxo.last",
                           "cdc.lp", "zzqj.v", "zzvm.c.v", "zzqj.tpv", "zzvm.c.tpv", "zzgh.nb", "zzgh.nb|vol", "zzgh.nb|cnt", "zzgh.nb|snappx",
                           "zzgh.nb|ord", "zzgh.nb|ordvol", "zzmh.hm", "zzgh.nsnap", "zzgh.ntrade", "zzgh.norder", "zzgh.ncancel",
-                          "zzeg.c.high", "zzeg.c.low", "zzeg.c.span", "zzjb.b", "zzjb.a", "zzjb2.b", "zzjb.at"})
+                          "zzeg.c.high", "zzeg.c.low", "zzeg.c.span", "zzjb.b", "zzjb.a", "zzjb2.b", "zzjb.at", "zzhj.o1", "zzhj.o2"})
         k.emplace_back(x);
     return k;
 }
@@ -162,6 +162,9 @@ void mark_values(const stock& st, const double* cnt, double* o, double tm) {
     *o++ = jb.out_a(st);
     *o++ = jb2.out_b(tm, st);
     *o++ = (st.last > 0 && st.pc > 0) ? st.last / st.pc - 1.0 : qnan;  // the return on the last trade price (slot 5 writes [+0xf8])
+    const auto& dz = std::get<decoded>(st.fams);
+    *o++ = dz.hj_out_last();
+    *o++ = dz.hj_out_now();
 }
 
 }  // namespace
