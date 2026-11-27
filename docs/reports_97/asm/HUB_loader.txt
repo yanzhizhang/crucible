@@ -32,3 +32,8 @@ Checks on 97 (CEDxr4d/daily, prodfiles_224):
  p1/20261127_SOD.nc: not on 97.
  strs over 146e10..149000 for adj / close / preclose / vwap / ret_: only "ret_adj" and "PBeta" (1800c9..1800e8). No "adj_factor" string -> the EOD read either uses "ret_adj" (absent in EOD -> missing) or selects a column without a name (9f760 / 163160 not read).
 Index pass (13a0a8..13a460): no mulsd and no [rsp+0x50] write; 13a42b / 13a443 store the getter's value directly -> index open / close (Y / V) are RAW, unscaled.
+Stock chain, exact (ZZZL ctor 139640..1396c8 and the [rsp+0xa0] writer):
+ 1395e9 movsd [rsp+0x50],xmm7 (= this->+0x250, ret_adj SOD D) | 1395ef movupd xmm7,[r14+0x258] (+0x258, +0x260) | 1395f8 movsd [rsp+0x170],xmm0 (= +0x268) | 139601 / 139606 movaps [rsp+0x20] / [rsp+0x160],xmm7 | 13960e call 160ed0 (vector from an initializer list) | 13961f mov [rsp+0xa0],rax
+ -> vec = { ret_adj SOD p1, p2, p3 } (this->+0x258 / +0x260 / +0x268, hub maps @0x148 / 0x180 / 0x1b8 by name).
+ 139670 eax = [rsp+0x58] (lag); rcx = this; sub eax,1; cmp [rcx+0x220],eax; jle 13aac5 (stop when this->+0x220 <= lag - 1) | 139687 rax = [rsp+0xa0]; 13968f rcx = [rsp+0x78] (8 * pass) | 139696 xmm6 = [rsp+0x50]; 13969c mulsd xmm6,[rax+rcx] (vec[pass]) | 1396a1.. a separate map@0x230 lookup keyed by lag | 1396bf movsd [rsp+0x50],xmm6
+ => stock scale at pass k (lag k+1) = ret_adj_SOD(D) * prod_{j=1..k+1} ret_adj_SOD(p_j), updated before that pass's fill. The EOD map @0x230 is not in the stock chain (its use is the 1396a1.. lookup, purpose unread).
