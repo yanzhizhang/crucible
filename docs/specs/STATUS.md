@@ -4,11 +4,12 @@ Ground truth: 97 /work/pmrun/20261127/out_r1/alpha.parquet. This is PM's own run
 Model: 4 sub-models by session (s1 to 09:40, s2 to 10:00, s3 to 14:30, s4 to 15:00), each the mean of 3 fits (livev1_fit1-3, w 1/3); 209 input columns named `<cfg term>.<output>`.
 Scoreboard (1119, vs QD's 224 alpha, rB_zzelop): per-session corr s1 .200 / s2 .277 / s3 .336 / s4 .394. s1 has a +0.0023 level bias, about 2/3 of it from unassigned columns (rC pred_contrib).
 
-State check 1126 -- ON HOLD, the --prev seed may be off by one day (re-checking md5s; numbers below may be inflated for carried terms) (engine 89c588d on tickaudit's lake, DataYes source, vs PM's live end-of-day state for 1126 = the 1127 loadCp; 300 stocks, share of stocks within 1e-6 / 1e-3 averaged over keys):
-- matches: zzjb, zzjb2, zzfb, zzxo (1.000 / 1.000), zzhj (0.996 / 1.000).
-- feed-level (all keys within 1e-3, median ratio ~1): zzab2, zzeb, zzmh, zzpk, zzup, zzvx, zzxu; zzui (0.785 / 0.979).
-- real gaps: zztx (0.001 / 0.503), zzvm (0.401 / 0.729), zzbd (0.172 / 0.767), zzba (0.333 / 0.792), zzqj (0.401 / 0.989), zzgh (0.974 flat), zzgh2 (0.945 flat), zzeg (0.994 flat). SH / SZ split pending.
-- not comparable: zzcb (re-reading).
+State check, corrected (engine 89c588d; seed = PM's end of D-1, reference = PM's live end of D; seed_probe/<D>.jz is named by END day, prodfiles sod/<D>.jz = start of D = end of D-1). 1126 on tickaudit's lake (DataYes), 1119 on PM's .mp feed recording (close to, not identical with, PM's production feed). Share of 300 stocks within 1e-6 / 1e-3:
+- matches: zzxo (1.000 both days), zzhj (.998), zzjb / zzjb2 (1.000 lake; .88-.94 on the .mp cache = feed), zzfb (1.000 on PM's feed; .333 on the lake, which lacks its index input).
+- feed-level (all keys within 1e-3 on the PM-feed day): zzab2, zzeb, zzpk, zzup, zzvx, zzmh, zzqj, zzba (SH .67 on the lake, 1.000 on PM's feed).
+- real gaps (same pattern on both days and feeds): zztx (SH .37-.39 / SZ .74-.75), zzvm (SH .62-.72 / SZ .91-.97), zzbd (.61-.77; drSumS / drSumT not produced), zzui (~.91), zzeg (high / low / span exact, rEma wrong), zzxu (.75), zzgh / zzgh2 (.96 / .93). Trade-clock wgt PM / ours ~1.005 SH, 1.0007 SZ: PM ticks on slightly more events.
+- not comparable: zzcb (not produced); ZZOP, ZZZL, ZZEL not in the engine.
+- replay 2's dump.jz (/work/pmrun/20261127/out) = the LOADED state (end of 1126), not end of 1127: no PM end-of-1127 reference on 97.
 
 Legend: **exact** = matches PM to feed precision; **spec** = decoded from the asm, spec in this folder; **partial** = state or skeleton decoded, members open; **open** = not decoded yet.
 
