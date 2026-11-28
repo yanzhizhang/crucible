@@ -4,7 +4,7 @@ Ground truth: 97 /work/pmrun/20261127/out_r1/alpha.parquet. This is PM's own run
 Model: 4 sub-models by session (s1 to 09:40, s2 to 10:00, s3 to 14:30, s4 to 15:00), each the mean of 3 fits (livev1_fit1-3, w 1/3); 209 input columns named `<cfg term>.<output>`.
 Scoreboard (1119, vs QD's 224 alpha, rB_zzelop): per-session corr s1 .200 / s2 .277 / s3 .336 / s4 .394. s1 has a +0.0023 level bias, about 2/3 of it from unassigned columns (rC pred_contrib).
 
-State check 1126 (engine 89c588d on tickaudit's lake, DataYes source, vs PM's live end-of-day state for 1126 = the 1127 loadCp; 300 stocks, share of stocks within 1e-6 / 1e-3 averaged over keys):
+State check 1126 -- ON HOLD, the --prev seed may be off by one day (re-checking md5s; numbers below may be inflated for carried terms) (engine 89c588d on tickaudit's lake, DataYes source, vs PM's live end-of-day state for 1126 = the 1127 loadCp; 300 stocks, share of stocks within 1e-6 / 1e-3 averaged over keys):
 - matches: zzjb, zzjb2, zzfb, zzxo (1.000 / 1.000), zzhj (0.996 / 1.000).
 - feed-level (all keys within 1e-3, median ratio ~1): zzab2, zzeb, zzmh, zzpk, zzup, zzvx, zzxu; zzui (0.785 / 0.979).
 - real gaps: zztx (0.001 / 0.503), zzvm (0.401 / 0.729), zzbd (0.172 / 0.767), zzba (0.333 / 0.792), zzqj (0.401 / 0.989), zzgh (0.974 flat), zzgh2 (0.945 flat), zzeg (0.994 flat). SH / SZ split pending.
